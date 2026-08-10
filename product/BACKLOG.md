@@ -7,15 +7,16 @@ Index of all product items. Canonical detail lives in `product/items/`.
 | Rank | ID | Item | Priority | Status | Effort | Target due | Milestone | File |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | RB-001 | Auto-pull funds: checking → Venmo | P0 | Backlog | L | TBD | v1 | [items/auto-pull-funds-venmo.md](./items/auto-pull-funds-venmo.md) |
-| 2 | RB-002 | Email integration | P1 | Backlog | M | TBD | later | [items/email-integration.md](./items/email-integration.md) |
-| 3 | RB-003 | Daily email: open checklist at close of day | P1 | Backlog | S | TBD | later | [items/daily-open-checklist-email.md](./items/daily-open-checklist-email.md) |
-| 4 | RB-004 | SMS integration | P2 | Backlog | M | TBD | later | [items/sms-integration.md](./items/sms-integration.md) |
+| 2 | RB-005 | Recovery content: podcast recommendations | P0 | Backlog | S | TBD | v1 | [items/recovery-content-podcasts.md](./items/recovery-content-podcasts.md) |
+| 3 | RB-002 | Email integration | P1 | Backlog | M | TBD | later | [items/email-integration.md](./items/email-integration.md) |
+| 4 | RB-003 | Daily email: open checklist at close of day | P1 | Backlog | S | TBD | later | [items/daily-open-checklist-email.md](./items/daily-open-checklist-email.md) |
+| 5 | RB-004 | SMS integration | P2 | Backlog | M | TBD | later | [items/sms-integration.md](./items/sms-integration.md) |
 
 ## Status counts
 
 | Status | Count |
 | --- | --- |
-| Backlog | 4 |
+| Backlog | 5 |
 | Ready | 0 |
 | In Progress | 0 |
 | Blocked | 0 |

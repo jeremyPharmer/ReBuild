@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-004 |
-| Rank | 4 |
+| Rank | 5 |
 | Priority | P2 |
 | Status | Backlog |
 | Effort | M |
@@ -40,5 +40,5 @@ The product can send SMS to a verified phone number for high-signal notification
 
 ## Notes
 
-- Added 2026-08-10 as future backlog (rank 4), behind email work.
+- Added 2026-08-10 as future backlog; renumbered to rank **5** after recovery podcasts (RB-005) and email path.
 - Independent of Venmo (RB-001); can ship after email path if capacity allows.

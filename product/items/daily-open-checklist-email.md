@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-003 |
-| Rank | 3 |
+| Rank | 4 |
 | Priority | P1 |
 | Status | Backlog |
 | Effort | S |
@@ -42,3 +42,4 @@ After the day is closed (or at a configured end-of-day moment), the user receive
 
 - Added 2026-08-10. Product call: keep close-the-day exactly as designed; this is an additive notification of leftover open items.
 - Related surface: daily journal / checklist leftovers.
+- Rank **4** after Venmo, recovery podcasts, and email integration.

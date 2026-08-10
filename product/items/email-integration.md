@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-002 |
-| Rank | 2 |
+| Rank | 3 |
 | Priority | P1 |
 | Status | Backlog |
 | Effort | M |
@@ -40,5 +40,6 @@ The product can send transactional and product emails to the user (authenticated
 
 ## Notes
 
-- Added 2026-08-10 as future backlog (rank 2), behind Venmo auto-pull (RB-001).
+- Added 2026-08-10 as future backlog; renumbered to rank **3** when RB-005 (recovery podcasts) took rank 2.
 - Platform enabler for daily end-of-day checklist email (RB-003).
+- Still behind Venmo (RB-001) and recovery content podcasts (RB-005).
