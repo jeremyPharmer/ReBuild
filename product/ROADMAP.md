@@ -12,7 +12,7 @@ Last updated: 2026-08-10
 | Rank | ID | Item | Priority | Status | Effort | Target due |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | RB-001 | Auto-pull funds: checking → Venmo | P0 | Backlog | L | TBD |
-| 2 | RB-005 | Recovery content: podcast recommendations | P0 | Backlog | S | TBD |
+| 2 | RB-005 | Recovery content: weekly podcast & book offers | P0 | Backlog | M | TBD |
 
 ## Now / Next / Later
 
@@ -24,8 +24,8 @@ _Nothing in progress._ Top items: RB-001 (Venmo), then RB-005 (recovery podcast 
 
 1. **RB-001 — Auto-pull funds: checking → Venmo (v1)**  
    Auto-pull from linked checking into Venmo for incentive flows.
-2. **RB-005 — Recovery content: podcast recommendations**  
-   Curated podcast offers (Rich Roll + complementary recovery shows) inside the recovery content box. Consider / backlog only — do not build yet.
+2. **RB-005 — Recovery content: weekly podcast & book offers**  
+   Each week, show **two selectable** offers (podcasts and/or books) in the recovery content box. Strong pool includes the three Rich Roll episodes plus other top recovery voices/books — not always Rich Roll. Consider / backlog only — do not build yet.
 
 ### Later
 
@@ -39,7 +39,7 @@ _Nothing in progress._ Top items: RB-001 (Venmo), then RB-005 (recovery podcast 
 | Window | Planned | Notes |
 | --- | --- | --- |
 | Unscheduled | RB-001 discovery + build | Effort **L**; due TBD |
-| Unscheduled (after / beside payments planning) | RB-005 curation + light offers UI | Effort **S**; backlog/consider — not building yet |
+| Unscheduled (after / beside payments planning) | RB-005 weekly 2-offer rotation (podcasts + books) | Effort **M**; backlog/consider — not building yet |
 | After RB-001 v1 | RB-002 → RB-003 | Email platform first, then daily digest |
 | After email path (or parallel if capacity) | RB-004 SMS | P2 |
 | After RB-001 v1 | Soccer / alternate bank destination | Explicitly deferred |
