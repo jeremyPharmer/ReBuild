@@ -21,9 +21,9 @@ Venmo reconcile / link = later (UI totals first).
 
 - One journey: cannabis + alcohol abstinence
 - Combined historical daily spend
-- Home: **ReBuilding for N days** = clean days **this run**
-- Abstinence advances day counter; reclaim/Venmo is separate
-- Return to use → run resets; history kept; re-climb / re-achieve
+- Home: **ReBuilding for N days** = calendar days on the current abstinence run (**Day 1 = start date** / `currentRunStartedOn`, including the start day before any evening)
+- Reclaim / Move to Rebuild still only from **aligned evenings** (separate from the day counter)
+- Return to use → run resets next calendar day; history kept; re-climb / re-achieve
 - No auth V1; honor system
 - Weekly support 100% gift: **$20** out-of-pocket; **not** in Save-delay rule
 

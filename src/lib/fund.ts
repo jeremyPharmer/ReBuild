@@ -18,6 +18,7 @@ export function normalizeState(state: RebuildState): RebuildState {
   const fund = state.fund ?? emptyFund();
   return {
     ...state,
+    skips: state.skips ?? [],
     fund: {
       future: fund.future ?? 0,
       rebuild: fund.rebuild ?? 0,

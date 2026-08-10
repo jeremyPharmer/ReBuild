@@ -65,6 +65,16 @@ export type SupportCompletion = {
   completedAt: string;
 };
 
+/** Support type, or morning/evening check-in */
+export type SkipItemKey = SupportType | "morning" | "evening";
+
+/** Dismiss a Today's Rebuild item for a calendar day */
+export type DailySkip = {
+  date: string;
+  itemKey: SkipItemKey;
+  skippedAt: string;
+};
+
 export type ReclaimDay = {
   date: string;
   estimatedAmount: number;
@@ -194,6 +204,8 @@ export type RebuildState = {
   cravings: CravingEvent[];
   weeklyBonuses: WeeklyBonus[];
   journals: JournalEntry[];
+  /** Today's Rebuild items dismissed for a given date */
+  skips: DailySkip[];
   /** Venmo-matching segmented balances */
   fund: FundLedger;
   /** Consecutive Save choices since last Treat (max 2, then forced Treat) */

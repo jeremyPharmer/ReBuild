@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   buildDashboard,
   cleanDaysThisRun,
+  formatSinceDate,
   nextMilestones,
   projectedReclaimAt,
   suggestedRewardPool,
   waitingReclaimTotal,
   weekBounds,
   weekFullyComplete,
+  weeklySupportProgress,
 } from "./journey";
 import { applyEveningSideEffects, confirmTransfer } from "./mutations";
 import { DEFAULT_SUPPORTS, type RebuildState } from "./types";
@@ -39,28 +41,21 @@ describe("weekBounds", () => {
   });
 });
 
+describe("formatSinceDate", () => {
+  it("formats without zero-padding", () => {
+    expect(formatSinceDate("2026-08-10")).toBe("8-10-2026");
+    expect(formatSinceDate("2026-12-01")).toBe("12-1-2026");
+  });
+});
+
 describe("clean days and return reset", () => {
-  it("counts only aligned days in current run", () => {
-    let state = baseState();
-    state.evenings = [
-      {
-        date: "2026-08-01",
-        mood: 7,
-        craving: 3,
-        alignment: "aligned",
-        oneLine: "ok",
-        completedAt: "",
-      },
-      {
-        date: "2026-08-02",
-        mood: 6,
-        craving: 4,
-        alignment: "aligned",
-        oneLine: "ok",
-        completedAt: "",
-      },
-    ];
-    expect(cleanDaysThisRun(state)).toBe(2);
+  it("counts calendar days from run start (Day 1 = start date)", () => {
+    const state = baseState();
+    // Start date itself is Day 1 — no evening required
+    expect(cleanDaysThisRun(state, "2026-08-01")).toBe(1);
+    expect(cleanDaysThisRun(state, "2026-08-02")).toBe(2);
+    expect(cleanDaysThisRun(state, "2026-08-10")).toBe(10);
+    expect(cleanDaysThisRun(state, "2026-07-31")).toBe(0);
   });
 
   it("resets run after return_to_use and keeps milestone history", () => {
@@ -76,7 +71,7 @@ describe("clean days and return reset", () => {
         completedAt: new Date().toISOString(),
       });
     }
-    expect(cleanDaysThisRun(state)).toBe(3);
+    expect(cleanDaysThisRun(state, "2026-08-03")).toBe(3);
     expect(state.milestones.some((m) => m.dayNumber === 3)).toBe(true);
     expect(state.reclaimDays).toHaveLength(3);
 
@@ -91,8 +86,12 @@ describe("clean days and return reset", () => {
     });
 
     expect(state.returns).toHaveLength(1);
+    expect(state.returns[0].previousCleanDays).toBe(3);
     expect(state.profile?.currentRunStartedOn).toBe("2026-08-05");
-    expect(cleanDaysThisRun(state)).toBe(0);
+    // On the return day, new run hasn't started yet → 0 clean days
+    expect(cleanDaysThisRun(state, "2026-08-04")).toBe(0);
+    // New run Day 1 is the next calendar day
+    expect(cleanDaysThisRun(state, "2026-08-05")).toBe(1);
     // history kept
     expect(state.milestones.some((m) => m.dayNumber === 3)).toBe(true);
     // return day does not create reclaim
@@ -117,6 +116,7 @@ describe("clean days and return reset", () => {
       oneLine: "storm",
       completedAt: "",
     });
+    expect(state.returns[0].previousCleanDays).toBe(1);
     // new run starts 2026-08-03
     state = applyEveningSideEffects(state, {
       date: "2026-08-03",
@@ -183,24 +183,19 @@ describe("milestones and projections", () => {
       oneLine: "a",
       completedAt: "",
     });
-    // 1 clean day, $40 waiting, 0 transferred → at day 3: waiting 40 + 2*40 = 120
-    expect(projectedReclaimAt(state, 3)).toBe(120);
+    // As of Aug 1: 1 clean day, $40 waiting → at day 3: waiting 40 + 2*40 = 120
+    expect(projectedReclaimAt(state, 3, "2026-08-01")).toBe(120);
   });
 });
 
 describe("dashboard label", () => {
-  it("uses ReBuilding for N days", () => {
-    let state = baseState();
-    state = applyEveningSideEffects(state, {
-      date: "2026-08-01",
-      mood: 7,
-      craving: 2,
-      alignment: "aligned",
-      oneLine: "a",
-      completedAt: "",
-    });
+  it("uses ReBuilding for N days from calendar asOf", () => {
+    const state = baseState();
+    // No evening yet — still Day 1 on the start date
     const dash = buildDashboard(state, "2026-08-01");
+    expect(dash?.cleanDays).toBe(1);
     expect(dash?.label).toBe("ReBuilding for 1 day");
+    expect(dash?.sinceLabel).toBe("ReBuilding since 8-1-2026");
   });
 });
 
@@ -243,5 +238,20 @@ describe("weekly supports", () => {
     });
     expect(state.weeklyBonuses).toHaveLength(1);
     expect(state.weeklyBonuses[0].amount).toBe(20);
+  });
+
+  it("does not count skipped supports toward weekly targets", () => {
+    let state = baseState();
+    state.skips = [
+      {
+        date: "2026-08-10",
+        itemKey: "meditation",
+        skippedAt: "",
+      },
+    ];
+    // Skipped items are not marked completed — progress stays 0
+    const week = weeklySupportProgress(state, "2026-08-10");
+    const meditation = week.find((w) => w.type === "meditation");
+    expect(meditation?.done).toBe(0);
   });
 });

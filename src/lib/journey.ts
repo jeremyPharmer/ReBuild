@@ -1,4 +1,6 @@
-import { MILESTONE_DEFS, type AlignmentStatus, type EveningCheckIn, type MilestoneDef, type RebuildState, type SupportCompletion, type SupportConfig, type SupportType } from "./types";
+import { MILESTONE_DEFS, type AlignmentStatus, type EveningCheckIn, type MilestoneDef, type RebuildState, type SkipItemKey, type SupportCompletion, type SupportConfig, type SupportType } from "./types";
+
+export type { SkipItemKey };
 
 /** Local calendar date YYYY-MM-DD in a timezone */
 export function todayInTz(timezone = "America/Los_Angeles"): string {
@@ -35,6 +37,18 @@ export function formatDisplayDate(date: string): string {
   });
 }
 
+/** M-D-YYYY without forced zero-padding (e.g. 8-10-2026) */
+export function formatSinceDate(date: string): string {
+  const d = parseDate(date);
+  return `${d.getMonth() + 1}-${d.getDate()}-${d.getFullYear()}`;
+}
+
+/** Whole calendar days from `from` to `to` (can be negative). */
+export function calendarDaysBetween(from: string, to: string): number {
+  const ms = parseDate(to).getTime() - parseDate(from).getTime();
+  return Math.round(ms / 86_400_000);
+}
+
 /** Sunday → Saturday week containing `date` */
 export function weekBounds(date: string): { start: string; end: string } {
   const d = parseDate(date);
@@ -56,13 +70,20 @@ export function datesInRange(start: string, end: string): string[] {
   return out;
 }
 
-/** Clean days this run = aligned evenings on/after currentRunStartedOn */
-export function cleanDaysThisRun(state: RebuildState): number {
+/**
+ * Clean days this run = calendar abstinence days on the current run.
+ * Day 1 is the start date itself (before any evening check-in).
+ * Pass `asOfDate` (YYYY-MM-DD) to evaluate a specific day; defaults to today in profile TZ.
+ */
+export function cleanDaysThisRun(
+  state: RebuildState,
+  asOfDate?: string,
+): number {
   if (!state.profile) return 0;
   const start = state.profile.currentRunStartedOn;
-  return state.evenings.filter(
-    (e) => e.date >= start && e.alignment === "aligned",
-  ).length;
+  const asOf = asOfDate ?? todayInTz(state.profile.timezone);
+  if (asOf < start) return 0;
+  return calendarDaysBetween(start, asOf) + 1;
 }
 
 export function totalLifetimeCleanDays(state: RebuildState): number {
@@ -109,9 +130,10 @@ export function milestoneAt(dayNumber: number): MilestoneDef | undefined {
 export function projectedReclaimAt(
   state: RebuildState,
   targetCleanDay: number,
+  asOfDate?: string,
 ): number {
   if (!state.profile) return 0;
-  const current = cleanDaysThisRun(state);
+  const current = cleanDaysThisRun(state, asOfDate);
   const daily = state.profile.historicalDailySpend;
   const already = moneyReclaimed(state);
   const waiting = waitingReclaimTotal(state);
@@ -175,6 +197,16 @@ export function supportsForDate(state: RebuildState, date: string) {
   return state.supports.filter((s) => s.date === date && s.completed);
 }
 
+export function isSkippedToday(
+  state: RebuildState,
+  date: string,
+  itemKey: SkipItemKey,
+): boolean {
+  return (state.skips ?? []).some(
+    (s) => s.date === date && s.itemKey === itemKey,
+  );
+}
+
 export function isSupportDoneToday(
   state: RebuildState,
   date: string,
@@ -203,6 +235,7 @@ export function emptyState(): RebuildState {
     cravings: [],
     weeklyBonuses: [],
     journals: [],
+    skips: [],
     fund: { future: 0, rebuild: 0, treat: 0 },
     consecutiveSaves: 0,
     milestoneDecisions: [],
@@ -227,6 +260,7 @@ export function moneyReinvested(state: RebuildState): number {
 export type DashboardSnapshot = {
   cleanDays: number;
   label: string;
+  sinceLabel: string;
   reclaimed: number;
   waiting: number;
   waitingDays: number;
@@ -237,6 +271,7 @@ export type DashboardSnapshot = {
   todayMorning?: ReturnType<typeof getMorning>;
   todayEvening?: ReturnType<typeof getEvening>;
   todaySupports: SupportCompletion[];
+  todaySkips: string[];
 };
 
 export function buildDashboard(
@@ -244,12 +279,13 @@ export function buildDashboard(
   today: string,
 ): DashboardSnapshot | null {
   if (!state.profile) return null;
-  const cleanDays = cleanDaysThisRun(state);
+  const cleanDays = cleanDaysThisRun(state, today);
   const { accounted, eligible } = daysAccounted(state);
   const waiting = waitingReclaimDays(state);
   return {
     cleanDays,
     label: `ReBuilding for ${cleanDays} day${cleanDays === 1 ? "" : "s"}`,
+    sinceLabel: `ReBuilding since ${formatSinceDate(state.profile.currentRunStartedOn)}`,
     reclaimed: moneyReclaimed(state),
     waiting: waitingReclaimTotal(state),
     waitingDays: waiting.length,
@@ -260,6 +296,9 @@ export function buildDashboard(
     todayMorning: getMorning(state, today),
     todayEvening: getEvening(state, today),
     todaySupports: supportsForDate(state, today),
+    todaySkips: (state.skips ?? [])
+      .filter((s) => s.date === today)
+      .map((s) => s.itemKey),
   };
 }
 
