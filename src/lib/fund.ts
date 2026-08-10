@@ -118,6 +118,16 @@ export function saveCompound(
     throw Object.assign(new Error("Save amount must be > 0"), { status: 400 });
   }
 
+  const available = round2(state.fund.future + state.fund.rebuild);
+  if (amount > available) {
+    throw Object.assign(
+      new Error(
+        `Only $${available.toFixed(2)} available to Save (Future + Rebuild)`,
+      ),
+      { status: 400 },
+    );
+  }
+
   const { fund, moved } = moveIntoTreat(state.fund, amount);
   if (moved <= 0) {
     throw Object.assign(
@@ -141,6 +151,60 @@ export function saveCompound(
         createdAt: new Date().toISOString(),
       },
     ],
+  };
+}
+
+/**
+ * Spend a wishlist item from the Treat pool (outside or alongside a milestone).
+ * Debits Treat so Venmo-matching Total stays honest.
+ */
+export function executeWishlist(
+  state: RebuildState,
+  rewardId: string,
+  actualCost?: number,
+  notes?: string,
+): RebuildState {
+  const reward = state.rewards.find((r) => r.id === rewardId);
+  if (!reward || reward.executed) {
+    throw Object.assign(new Error("Wishlist item not available"), {
+      status: 400,
+    });
+  }
+
+  const cost =
+    actualCost !== undefined && Number.isFinite(actualCost)
+      ? actualCost
+      : reward.estimatedCost;
+  if (!Number.isFinite(cost) || cost <= 0) {
+    throw Object.assign(new Error("Item cost must be > 0"), { status: 400 });
+  }
+  if (cost > state.fund.treat) {
+    throw Object.assign(
+      new Error(
+        "Treat pool is below this item’s cost — Save more or pick a cheaper item",
+      ),
+      { status: 400 },
+    );
+  }
+
+  return {
+    ...state,
+    fund: {
+      ...state.fund,
+      treat: round2(state.fund.treat - cost),
+    },
+    consecutiveSaves: 0,
+    rewards: state.rewards.map((r) =>
+      r.id === rewardId
+        ? {
+            ...r,
+            executed: true,
+            executedAt: new Date().toISOString(),
+            actualCost: cost,
+            notes: notes || r.notes,
+          }
+        : r,
+    ),
   };
 }
 

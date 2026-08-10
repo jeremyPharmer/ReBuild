@@ -115,10 +115,16 @@ export default function HomePage() {
           <h2>
             Day {pendingRewards[0].dayNumber} · {pendingRewards[0].title}
           </h2>
-          <p className="muted">Treat Yourself or Save & compound.</p>
+          <p className="muted">
+            {total > 0
+              ? "Treat Yourself or Save & compound."
+              : "Move money to Rebuild first, then Treat or Save."}
+          </p>
           <div style={{ marginTop: 12 }}>
-            <Link href="/evening">
-              <PrimaryButton>Open reward moment</PrimaryButton>
+            <Link href={total > 0 ? "/evening" : "/money"}>
+              <PrimaryButton>
+                {total > 0 ? "Open reward moment" : "Move money to Rebuild"}
+              </PrimaryButton>
             </Link>
           </div>
         </section>
@@ -167,10 +173,10 @@ export default function HomePage() {
           )}
 
           {enabledSupports.map((s) => {
-            if (skips.has(s.type)) return null;
             const done = dashboard.todaySupports.some(
               (t) => t.supportType === s.type,
             );
+            if (skips.has(s.type) && !done) return null;
             const week = dashboard.week.find((w) => w.type === s.type);
             if (done) {
               return (
