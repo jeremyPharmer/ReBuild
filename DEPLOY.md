@@ -32,12 +32,9 @@ fly deploy -c fly.dev.toml -a rebuild-dev
 fly deploy -c fly.prod.toml -a rebuild-prod
 ```
 
-URLs will be:
+URLs:
 
-- https://rebuild-dev.fly.dev
-- https://rebuild-prod.fly.dev
+- **Dev:** https://rebuild-dev.fly.dev — test / sample data  
+- **Prod:** https://rebuild-prod.fly.dev — founder true-source data  
 
-Make apps private (Fly.io private / org-only) via Fly dashboard or
-`fly apps` access controls for your org.
-
-Set `FLY_API_TOKEN` in CI to deploy without interactive login.
+Separate volumes so data never crosses.

@@ -32,6 +32,15 @@ npm test
 npm run build
 ```
 
+## Live URLs (Fly.io)
+
+| Env | URL | Data |
+|---|---|---|
+| **Dev** | https://rebuild-dev.fly.dev | Test / sample |
+| **Prod** | https://rebuild-prod.fly.dev | Founder true-source |
+
+See `DEPLOY.md` and `PRODUCT_DECISIONS.md`.
+
 ## First-run path
 
 1. `/onboarding` — goal, combined daily spend, default supports
