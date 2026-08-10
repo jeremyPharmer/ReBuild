@@ -18,7 +18,7 @@ Last updated: 2026-08-10
 
 ### Now
 
-_Nothing in progress._ Top items: RB-001 (Venmo), then RB-005 (recovery podcast offers).
+_Nothing in progress._ Top items: RB-001 (Venmo), then RB-005 (weekly recovery content offers).
 
 ### Next
 
@@ -47,7 +47,7 @@ _Nothing in progress._ Top items: RB-001 (Venmo), then RB-005 (recovery podcast 
 ## Ranking principles
 
 1. User-value and recovery/incentive integrity first
-2. Ship a thin v1 over boiling the ocean (Venmo before multi-destination; curated podcasts before a media platform)
+2. Ship a thin v1 over boiling the ocean (Venmo before multi-destination; weekly two offers before a media platform)
 3. Compliance and trust risks can raise rank, not bury the item
 4. No silent reordering — document why rank changed in the item Notes
 
