@@ -1,20 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
+import { FundSegmentBar } from "@/components/MilestoneReward";
 import { Money, PrimaryButton, ProgressBar, SecondaryButton } from "@/components/ui";
+import { fundTotal, pendingCashableMoments } from "@/lib/fund";
 import {
   assignedRewardForMilestone,
   projectedReclaimAt,
   suggestedRewardPool,
   waitingReclaimDays,
 } from "@/lib/journey";
+import type { SupportType } from "@/lib/types";
 
 export default function HomePage() {
-  const { state, dashboard, today } = useApp();
+  const { state, dashboard, today, post } = useApp();
   const router = useRouter();
+  const [busyType, setBusyType] = useState<SupportType | null>(null);
+  const [contentPrompt, setContentPrompt] = useState(false);
+  const [contentNote, setContentNote] = useState("");
 
   useEffect(() => {
     if (!state.profile?.onboarded) router.replace("/onboarding");
@@ -32,16 +38,50 @@ export default function HomePage() {
     : undefined;
   const projected = next ? projectedReclaimAt(state, next.dayNumber) : 0;
   const pool = next
-    ? suggestedRewardPool(
-        next.dayNumber,
-        state.profile.historicalDailySpend,
-      )
+    ? suggestedRewardPool(next.dayNumber, state.profile.historicalDailySpend)
     : 0;
   const waiting = waitingReclaimDays(state);
   const pendingBonus = state.weeklyBonuses.find((b) => !b.confirmed);
-  const latestMilestone = [...state.milestones]
-    .filter((m) => m.runId === state.profile!.currentRunId)
-    .sort((a, b) => b.dayNumber - a.dayNumber)[0];
+  const pendingRewards = pendingCashableMoments(state);
+  const total = fundTotal(state.fund);
+  const supportsLeft = state.profile.supports.filter(
+    (s) =>
+      s.enabled &&
+      !dashboard.todaySupports.some((t) => t.supportType === s.type),
+  ).length;
+
+  async function toggleSupport(type: SupportType, done: boolean) {
+    if (type === "recovery_content" && !done) {
+      setContentPrompt(true);
+      return;
+    }
+    setBusyType(type);
+    try {
+      await post("/api/support", {
+        date: today,
+        supportType: type,
+        completed: !done,
+      });
+    } finally {
+      setBusyType(null);
+    }
+  }
+
+  async function confirmContent() {
+    setBusyType("recovery_content");
+    try {
+      await post("/api/support", {
+        date: today,
+        supportType: "recovery_content",
+        completed: true,
+        actionNote: contentNote || undefined,
+      });
+      setContentPrompt(false);
+      setContentNote("");
+    } finally {
+      setBusyType(null);
+    }
+  }
 
   return (
     <main className="fade-in stack">
@@ -53,23 +93,39 @@ export default function HomePage() {
         </p>
       </header>
 
+      {pendingRewards.length > 0 && (
+        <section className="panel">
+          <p className="eyebrow">Decision waiting</p>
+          <h2>
+            Day {pendingRewards[0].dayNumber} · {pendingRewards[0].title}
+          </h2>
+          <p className="muted">Treat Yourself or Save & compound.</p>
+          <div style={{ marginTop: 12 }}>
+            <Link href="/evening">
+              <PrimaryButton>Open reward moment</PrimaryButton>
+            </Link>
+          </div>
+        </section>
+      )}
+
       <section className="panel">
         <div className="row">
           <div>
-            <p className="eyebrow">Money</p>
+            <p className="eyebrow">Venmo-matching total</p>
             <p className="money money-xl">
-              <Money value={dashboard.reclaimed} />
+              <Money value={total} />
             </p>
-            <p className="tiny">reclaimed · set aside</p>
+            <p className="tiny">Future + Rebuild + Treat</p>
           </div>
           <div style={{ textAlign: "right" }}>
-            <p className="tiny">Waiting</p>
+            <p className="tiny">Waiting to reclaim</p>
             <p className="money" style={{ fontSize: "1.4rem" }}>
               <Money value={dashboard.waiting} />
             </p>
             <p className="tiny">{dashboard.waitingDays} days</p>
           </div>
         </div>
+        <FundSegmentBar fund={state.fund} />
         {waiting.length > 0 && (
           <div style={{ marginTop: 14 }}>
             <Link href="/money">
@@ -81,77 +137,17 @@ export default function HomePage() {
         )}
       </section>
 
-      {next && (
-        <section className="panel">
-          <p className="eyebrow">Next up</p>
-          <h2>
-            Day {next.dayNumber} · {next.title}
-          </h2>
-          <p className="muted" style={{ marginTop: 6 }}>
-            {next.dayNumber - dashboard.cleanDays} day
-            {next.dayNumber - dashboard.cleanDays === 1 ? "" : "s"} away
-          </p>
-          <div className="row" style={{ marginTop: 12 }}>
-            <div>
-              <p className="tiny">Projected reward pool</p>
-              <p className="money" style={{ fontSize: "1.35rem" }}>
-                <Money value={projected || pool} />
-              </p>
-            </div>
-            {assigned && (
-              <div style={{ textAlign: "right" }}>
-                <p className="tiny">My reward</p>
-                <p style={{ fontWeight: 600 }}>{assigned.name}</p>
-                <p className="tiny">
-                  <Money value={dashboard.reclaimed} /> /{" "}
-                  <Money value={assigned.estimatedCost} />
-                </p>
-              </div>
-            )}
-          </div>
-          <div style={{ marginTop: 12, display: "grid", gap: 6 }}>
-            {then && (
-              <p className="tiny">
-                Then · Day {then.dayNumber} — {then.title}
-              </p>
-            )}
-            {horizon && (
-              <p className="tiny">
-                On the horizon · Day {horizon.dayNumber} — {horizon.title}
-              </p>
-            )}
-          </div>
-          <div style={{ marginTop: 14 }}>
-            <Link href="/money">
-              <SecondaryButton>Explore rewards</SecondaryButton>
-            </Link>
-          </div>
-        </section>
-      )}
-
       <section className="panel">
-        <p className="eyebrow">This week</p>
-        {dashboard.week.map((w) => (
-          <div className="support-row" key={w.type}>
-            <div className="row">
-              <span>{w.label}</span>
-              <span className="tiny">
-                {w.done} / {w.target}
-              </span>
-            </div>
-            <ProgressBar done={w.done} target={w.target} />
-          </div>
-        ))}
-        {pendingBonus && (
-          <p className="chip good" style={{ marginTop: 12 }}>
-            Weekly gift ready · ${pendingBonus.amount} out-of-pocket treat
-          </p>
-        )}
-      </section>
-
-      <section className="panel">
-        <p className="eyebrow">Today</p>
-        <div className="list-check">
+        <div className="row">
+          <p className="eyebrow">Today&apos;s Rebuild</p>
+          <span className="chip">
+            {supportsLeft === 0 ? "Supports logged" : `${supportsLeft} left`}
+          </span>
+        </div>
+        <p className="tiny" style={{ marginBottom: 10 }}>
+          Weekly targets: content 2 · meditation 5 · medication 7 · gym 4
+        </p>
+        <div className="daily-actions">
           {!dashboard.todayMorning ? (
             <Link href="/morning" className="check-item">
               <span className="check-box" />
@@ -178,20 +174,25 @@ export default function HomePage() {
               const done = dashboard.todaySupports.some(
                 (t) => t.supportType === s.type,
               );
+              const week = dashboard.week.find((w) => w.type === s.type);
               return (
-                <Link
+                <button
                   key={s.type}
-                  href="/plan"
+                  type="button"
                   className={done ? "check-item done" : "check-item"}
+                  disabled={busyType === s.type}
+                  onClick={() => toggleSupport(s.type, done)}
+                  style={{ width: "100%", textAlign: "left" }}
                 >
                   <span className="check-box">{done ? "✓" : ""}</span>
-                  <div>
+                  <div style={{ flex: 1 }}>
                     <strong>{s.label}</strong>
                     <p className="tiny">
-                      {done ? "Done today" : "Tap to log on Plan"}
+                      Today: {done ? "done" : "tap to log"} · Week{" "}
+                      {week?.done ?? 0}/{week?.target ?? s.weeklyTarget}
                     </p>
                   </div>
-                </Link>
+                </button>
               );
             })}
 
@@ -213,16 +214,94 @@ export default function HomePage() {
             </div>
           )}
         </div>
+
+        {contentPrompt && (
+          <div style={{ marginTop: 14 }}>
+            <p className="eyebrow">Recovery content</p>
+            <label className="field">
+              <span className="field-label">
+                What will you do differently because of this?
+              </span>
+              <input
+                value={contentNote}
+                onChange={(e) => setContentNote(e.target.value)}
+                placeholder="One short action"
+              />
+            </label>
+            <PrimaryButton
+              onClick={confirmContent}
+              disabled={busyType === "recovery_content"}
+            >
+              Log content
+            </PrimaryButton>
+            <div style={{ marginTop: 8 }}>
+              <SecondaryButton onClick={() => setContentPrompt(false)}>
+                Cancel
+              </SecondaryButton>
+            </div>
+          </div>
+        )}
       </section>
 
-      {latestMilestone && (
+      {next && (
         <section className="panel">
-          <p className="eyebrow">Latest milestone this run</p>
+          <p className="eyebrow">Next up</p>
           <h2>
-            Day {latestMilestone.dayNumber} · {latestMilestone.title}
+            Day {next.dayNumber} · {next.title}
           </h2>
+          <p className="muted" style={{ marginTop: 6 }}>
+            {next.dayNumber - dashboard.cleanDays} day
+            {next.dayNumber - dashboard.cleanDays === 1 ? "" : "s"} away ·{" "}
+            {next.type}
+          </p>
+          <div className="row" style={{ marginTop: 12 }}>
+            <div>
+              <p className="tiny">Projected / suggested pool</p>
+              <p className="money" style={{ fontSize: "1.35rem" }}>
+                <Money value={projected || pool} />
+              </p>
+            </div>
+            {assigned && (
+              <div style={{ textAlign: "right" }}>
+                <p className="tiny">My reward</p>
+                <p style={{ fontWeight: 600 }}>{assigned.name}</p>
+              </div>
+            )}
+          </div>
+          <div style={{ marginTop: 12, display: "grid", gap: 6 }}>
+            {then && (
+              <p className="tiny">
+                Then · Day {then.dayNumber} — {then.title}
+              </p>
+            )}
+            {horizon && (
+              <p className="tiny">
+                On the horizon · Day {horizon.dayNumber} — {horizon.title}
+              </p>
+            )}
+          </div>
         </section>
       )}
+
+      <section className="panel">
+        <p className="eyebrow">This week</p>
+        {dashboard.week.map((w) => (
+          <div className="support-row" key={w.type}>
+            <div className="row">
+              <span>{w.label}</span>
+              <span className="tiny">
+                {w.done} / {w.target}
+              </span>
+            </div>
+            <ProgressBar done={w.done} target={w.target} />
+          </div>
+        ))}
+        {pendingBonus && (
+          <p className="chip good" style={{ marginTop: 12 }}>
+            Weekly gift ready · ${pendingBonus.amount} out-of-pocket treat
+          </p>
+        )}
+      </section>
 
       <div className="grid-2">
         <Link href="/craving">

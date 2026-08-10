@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import type { DashboardSnapshot } from "@/lib/journey";
+import { normalizeState } from "@/lib/fund";
 import type { RebuildState } from "@/lib/types";
 
 type AppData = {
@@ -31,7 +32,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     const res = await fetch("/api/state");
     const data = await res.json();
-    setState(data.state);
+    setState(normalizeState(data.state));
     setToday(data.today);
     setDashboard(data.dashboard);
     setLoading(false);
@@ -51,7 +52,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Request failed");
       if (data.state) {
-        setState(data.state);
+        setState(normalizeState(data.state));
         await refresh();
       }
       return data;

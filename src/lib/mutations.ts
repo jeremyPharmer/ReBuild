@@ -6,6 +6,7 @@ import {
   weekBounds,
   weekFullyComplete,
 } from "./journey";
+import { applySplitToFund, splitTransfer } from "./fund";
 import type {
   EveningCheckIn,
   MilestoneAchievement,
@@ -14,7 +15,7 @@ import type {
 } from "./types";
 import { MILESTONE_DEFS } from "./types";
 
-const WEEKLY_BONUS_AMOUNT = 25;
+const WEEKLY_BONUS_AMOUNT = 20;
 
 /**
  * After an evening check-in is saved, apply journey side effects:
@@ -37,7 +38,7 @@ export function applyEveningSideEffects(
 
   if (evening.alignment === "aligned") {
     next = ensureReclaimDay(next, evening.date);
-    next = awardCrossedMilestones(next, evening.date);
+    next = awardCrossedMilestones(next);
   }
 
   if (evening.alignment === "return_to_use") {
@@ -70,7 +71,6 @@ function handleReturnToUse(
 ): RebuildState {
   if (!state.profile) return state;
   const previousClean = cleanDaysThisRun(state);
-  // previous clean does not include today (return day)
   const cleanBefore = state.evenings.filter(
     (e) =>
       e.date >= state.profile!.currentRunStartedOn &&
@@ -88,7 +88,6 @@ function handleReturnToUse(
     createdAt: new Date().toISOString(),
   };
 
-  // New run starts the day AFTER the return
   const [y, m, d] = evening.date.split("-").map(Number);
   const nextDay = new Date(y, m - 1, d + 1);
   const yyyy = nextDay.getFullYear();
@@ -107,10 +106,7 @@ function handleReturnToUse(
   };
 }
 
-function awardCrossedMilestones(
-  state: RebuildState,
-  date: string,
-): RebuildState {
+function awardCrossedMilestones(state: RebuildState): RebuildState {
   if (!state.profile) return state;
   const clean = cleanDaysThisRun(state);
   const runId = state.profile.currentRunId;
@@ -171,6 +167,7 @@ export function confirmTransfer(
   const today = state.profile
     ? todayInTz(state.profile.timezone)
     : todayInTz();
+  const split = splitTransfer(actualAmount);
   const transfers = [
     ...state.transfers,
     {
@@ -181,6 +178,7 @@ export function confirmTransfer(
       userConfirmed: true,
       note,
       createdAt: new Date().toISOString(),
+      split,
     },
   ];
 
@@ -199,7 +197,12 @@ export function confirmTransfer(
     };
   });
 
-  return { ...state, transfers, reclaimDays };
+  return {
+    ...state,
+    transfers,
+    reclaimDays,
+    fund: applySplitToFund(state.fund, split),
+  };
 }
 
 export function confirmWeeklyBonus(

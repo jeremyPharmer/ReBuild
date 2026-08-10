@@ -203,6 +203,9 @@ export function emptyState(): RebuildState {
     cravings: [],
     weeklyBonuses: [],
     journals: [],
+    fund: { future: 0, rebuild: 0, treat: 0 },
+    consecutiveSaves: 0,
+    milestoneDecisions: [],
   };
 }
 

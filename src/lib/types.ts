@@ -82,6 +82,27 @@ export type FinancialTransfer = {
   userConfirmed: boolean;
   note?: string;
   createdAt: string;
+  /** Split applied at confirm time */
+  split?: { future: number; rebuild: number; treat: number };
+};
+
+/** Venmo-matching balances still set aside */
+export type FundLedger = {
+  future: number;
+  rebuild: number;
+  treat: number;
+};
+
+export type MilestoneDecision = {
+  id: string;
+  milestoneAchievementId: string;
+  dayNumber: number;
+  choice: "save" | "treat";
+  /** Save: $ moved into Treat. Treat: $ spent from Treat. */
+  amount: number;
+  rewardId?: string;
+  note?: string;
+  createdAt: string;
 };
 
 export type Reward = {
@@ -173,6 +194,11 @@ export type RebuildState = {
   cravings: CravingEvent[];
   weeklyBonuses: WeeklyBonus[];
   journals: JournalEntry[];
+  /** Venmo-matching segmented balances */
+  fund: FundLedger;
+  /** Consecutive Save choices since last Treat (max 2, then forced Treat) */
+  consecutiveSaves: number;
+  milestoneDecisions: MilestoneDecision[];
 };
 
 export const DEFAULT_SUPPORTS: SupportConfig[] = [
@@ -211,19 +237,39 @@ export const MILESTONE_DEFS: MilestoneDef[] = [
   { dayNumber: 10, type: "checkpoint", title: "Finding Your Rhythm" },
   { dayNumber: 14, type: "reward", title: "Two Weeks" },
   { dayNumber: 21, type: "checkpoint", title: "Three Weeks" },
-  { dayNumber: 30, type: "destination", title: "One Month", reflectionPrompt: "What is different about your life compared with Day 1?" },
-  { dayNumber: 45, type: "checkpoint", title: "Checkpoint" },
-  { dayNumber: 60, type: "reward", title: "Major Reward" },
-  { dayNumber: 75, type: "checkpoint", title: "Checkpoint" },
-  { dayNumber: 90, type: "destination", title: "Three-Month Destination", reflectionPrompt: "What are you building that you couldn't see at the beginning?" },
-  { dayNumber: 105, type: "checkpoint", title: "Checkpoint" },
-  { dayNumber: 120, type: "reward", title: "Major Reward" },
-  { dayNumber: 150, type: "checkpoint", title: "Checkpoint" },
-  { dayNumber: 180, type: "destination", title: "Six-Month Destination", reflectionPrompt: "What are you no longer willing to give up?" },
-  { dayNumber: 210, type: "checkpoint", title: "Checkpoint" },
-  { dayNumber: 240, type: "checkpoint", title: "Checkpoint" },
+  {
+    dayNumber: 30,
+    type: "destination",
+    title: "One Month",
+    reflectionPrompt: "What is different about your life compared with Day 1?",
+  },
+  { dayNumber: 45, type: "reward", title: "Six Weeks" },
+  { dayNumber: 60, type: "reward", title: "Two Months" },
+  { dayNumber: 75, type: "reward", title: "Checkpoint Reward" },
+  {
+    dayNumber: 90,
+    type: "destination",
+    title: "Three-Month Destination",
+    reflectionPrompt: "What are you building that you couldn't see at the beginning?",
+  },
+  { dayNumber: 105, type: "reward", title: "Next Horizon" },
+  { dayNumber: 120, type: "reward", title: "Four Months" },
+  { dayNumber: 150, type: "reward", title: "Five Months" },
+  {
+    dayNumber: 180,
+    type: "destination",
+    title: "Six-Month Destination",
+    reflectionPrompt: "What are you no longer willing to give up?",
+  },
+  { dayNumber: 210, type: "reward", title: "Seven Months" },
+  { dayNumber: 240, type: "reward", title: "Eight Months" },
   { dayNumber: 270, type: "destination", title: "Major Destination" },
-  { dayNumber: 300, type: "checkpoint", title: "Checkpoint" },
-  { dayNumber: 330, type: "checkpoint", title: "Checkpoint" },
-  { dayNumber: 365, type: "destination", title: "The Rebuild Year", reflectionPrompt: "What did you rebuild?" },
+  { dayNumber: 300, type: "reward", title: "Ten Months" },
+  { dayNumber: 330, type: "reward", title: "Eleven Months" },
+  {
+    dayNumber: 365,
+    type: "destination",
+    title: "The Rebuild Year",
+    reflectionPrompt: "What did you rebuild?",
+  },
 ];

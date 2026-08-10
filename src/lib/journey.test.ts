@@ -242,6 +242,6 @@ describe("weekly supports", () => {
       completedAt: "",
     });
     expect(state.weeklyBonuses).toHaveLength(1);
-    expect(state.weeklyBonuses[0].amount).toBe(25);
+    expect(state.weeklyBonuses[0].amount).toBe(20);
   });
 });

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getEvening, newId, todayInTz } from "@/lib/journey";
+import { pendingCashableMoments } from "@/lib/fund";
 import { applyEveningSideEffects } from "@/lib/mutations";
 import { updateState } from "@/lib/store";
 import type { AlignmentStatus, EveningCheckIn, JournalEntry } from "@/lib/types";
@@ -62,7 +63,10 @@ export async function POST(req: Request) {
       }
       return next;
     });
-    return NextResponse.json({ state });
+    return NextResponse.json({
+      state,
+      pendingRewards: pendingCashableMoments(state),
+    });
   } catch (e) {
     const err = e as Error & { status?: number };
     return NextResponse.json(

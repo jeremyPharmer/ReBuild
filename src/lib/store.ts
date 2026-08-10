@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { emptyState } from "./journey";
+import { normalizeState } from "./fund";
 import type { RebuildState } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
@@ -13,7 +14,7 @@ async function ensureDir() {
 export async function readState(): Promise<RebuildState> {
   try {
     const raw = await fs.readFile(DB_PATH, "utf8");
-    return JSON.parse(raw) as RebuildState;
+    return normalizeState(JSON.parse(raw) as RebuildState);
   } catch {
     return emptyState();
   }
@@ -21,7 +22,11 @@ export async function readState(): Promise<RebuildState> {
 
 export async function writeState(state: RebuildState): Promise<void> {
   await ensureDir();
-  await fs.writeFile(DB_PATH, JSON.stringify(state, null, 2), "utf8");
+  await fs.writeFile(
+    DB_PATH,
+    JSON.stringify(normalizeState(state), null, 2),
+    "utf8",
+  );
 }
 
 export async function updateState(
@@ -30,5 +35,5 @@ export async function updateState(
   const current = await readState();
   const next = await fn(current);
   await writeState(next);
-  return next;
+  return normalizeState(next);
 }

@@ -451,7 +451,43 @@ h2 {
   margin-bottom: 18px;
 }
 
-.tiny {
-  font-size: 0.82rem;
+.segment-bar {
+  display: flex;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  margin-top: 14px;
+}
+
+.segment-bar > div {
+  height: 100%;
+  min-width: 0;
+  transition: width 0.35s ease;
+}
+
+.segment-legend {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.segment-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
   color: var(--muted);
+}
+
+.segment-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.daily-actions {
+  display: grid;
+  gap: 8px;
 }

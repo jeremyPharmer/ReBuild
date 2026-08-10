@@ -2,15 +2,16 @@
 
 import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import { FundSegmentBar } from "@/components/MilestoneReward";
 import {
   Money,
   PrimaryButton,
   SecondaryButton,
 } from "@/components/ui";
+import { fundTotal } from "@/lib/fund";
 import {
   daysAccounted,
   formatDisplayDate,
-  moneyReclaimed,
   moneyReinvested,
   nextMilestones,
   projectedReclaimAt,
@@ -22,6 +23,7 @@ import type { RewardCategory } from "@/lib/types";
 export default function MoneyPage() {
   const { state, post, dashboard } = useApp();
   const waiting = waitingReclaimDays(state);
+  const total = fundTotal(state.fund);
   const [selected, setSelected] = useState<string[]>(() =>
     waiting.map((d) => d.date),
   );
@@ -123,23 +125,26 @@ export default function MoneyPage() {
       </header>
 
       <section className="panel">
-        <div className="grid-2">
+        <p className="eyebrow">Venmo-matching total</p>
+        <p className="money money-xl">
+          <Money value={total} />
+        </p>
+        <p className="tiny">Must match your Venmo Rebuild balance</p>
+        <FundSegmentBar fund={state.fund} />
+        <div className="grid-2" style={{ marginTop: 16 }}>
           <div>
-            <p className="tiny">Reclaimed / set aside</p>
-            <p className="money" style={{ fontSize: "1.8rem" }}>
-              <Money value={moneyReclaimed(state)} />
-            </p>
-          </div>
-          <div>
-            <p className="tiny">Reinvested</p>
-            <p className="money" style={{ fontSize: "1.8rem" }}>
+            <p className="tiny">Reinvested (left Venmo)</p>
+            <p className="money" style={{ fontSize: "1.4rem" }}>
               <Money value={moneyReinvested(state)} />
             </p>
           </div>
+          <div>
+            <p className="tiny">Days accounted</p>
+            <p className="money" style={{ fontSize: "1.4rem" }}>
+              {accounted} / {eligible}
+            </p>
+          </div>
         </div>
-        <p className="tiny" style={{ marginTop: 12 }}>
-          Days accounted {accounted} / {eligible}
-        </p>
       </section>
 
       {waiting.length > 0 && (

@@ -3,11 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import { MilestoneRewardMoment } from "@/components/MilestoneReward";
 import { PrimaryButton, ScaleInput, SecondaryButton } from "@/components/ui";
-import type { AlignmentStatus } from "@/lib/types";
+import { pendingCashableMoments } from "@/lib/fund";
+import type { AlignmentStatus, MilestoneAchievement } from "@/lib/types";
 
 export default function EveningPage() {
-  const { post, state, today } = useApp();
+  const { post, state, today, refresh } = useApp();
   const router = useRouter();
   const [mood, setMood] = useState(6);
   const [craving, setCraving] = useState(3);
@@ -16,7 +18,10 @@ export default function EveningPage() {
   const [oneLine, setOneLine] = useState("");
   const [expanded, setExpanded] = useState("");
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<"aligned" | "return_to_use" | "other" | null>(null);
+  const [result, setResult] = useState<
+    "aligned" | "return_to_use" | "other" | null
+  >(null);
+  const [pending, setPending] = useState<MilestoneAchievement[]>([]);
   const [error, setError] = useState("");
 
   const todaySupports = useMemo(
@@ -33,12 +38,16 @@ export default function EveningPage() {
     [state, today],
   );
 
+  const openPending = pendingCashableMoments(state).filter((m) =>
+    pending.some((p) => p.id === m.id),
+  );
+
   async function submit() {
     if (!alignment || !oneLine.trim()) return;
     setBusy(true);
     setError("");
     try {
-      await post("/api/evening", {
+      const data = (await post("/api/evening", {
         date: today,
         mood,
         craving,
@@ -46,8 +55,10 @@ export default function EveningPage() {
         returnNotes: alignment === "return_to_use" ? returnNotes : undefined,
         oneLine,
         expandedJournal: expanded || undefined,
-      });
+      })) as { pendingRewards?: MilestoneAchievement[] };
+      setPending(data.pendingRewards ?? []);
       setResult(alignment);
+      await refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed");
     } finally {
@@ -56,6 +67,23 @@ export default function EveningPage() {
   }
 
   if (state.evenings.some((e) => e.date === today) && !result) {
+    const lingering = pendingCashableMoments(state);
+    if (lingering.length > 0) {
+      return (
+        <main className="stack fade-in">
+          <p className="eyebrow">Reward moment</p>
+          <h1>Finish your decision</h1>
+          {lingering.map((m) => (
+            <MilestoneRewardMoment
+              key={m.id}
+              moment={m}
+              onDone={() => refresh()}
+            />
+          ))}
+          <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
+        </main>
+      );
+    }
     return (
       <main className="stack">
         <p className="eyebrow">Close the day</p>
@@ -82,6 +110,9 @@ export default function EveningPage() {
   }
 
   if (result) {
+    const stillOpen = openPending.length
+      ? openPending
+      : pendingCashableMoments(state);
     return (
       <main className="stack success-pop">
         <p className="eyebrow">Remember</p>
@@ -96,7 +127,21 @@ export default function EveningPage() {
               {s.label} {s.done ? "✓" : "—"}
             </p>
           ))}
+          {todaySupports.some((s) => !s.done) && (
+            <p className="tiny" style={{ marginTop: 8 }}>
+              Weekly targets still open — log from Home or Plan anytime.
+            </p>
+          )}
         </div>
+
+        {stillOpen.map((m) => (
+          <MilestoneRewardMoment
+            key={m.id}
+            moment={m}
+            onDone={() => refresh()}
+          />
+        ))}
+
         <PrimaryButton onClick={() => router.push("/money")}>
           Move money to Rebuild
         </PrimaryButton>

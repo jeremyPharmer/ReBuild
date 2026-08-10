@@ -61,7 +61,7 @@ export default function JourneyPage() {
 
       <section className="panel">
         <p className="eyebrow">Trail markers</p>
-        {MILESTONE_DEFS.filter((m) => m.dayNumber <= 90).map((m) => {
+        {MILESTONE_DEFS.filter((m) => m.dayNumber <= 180).map((m) => {
           const done = achievedThisRun.has(m.dayNumber);
           const isNext = next[0]?.dayNumber === m.dayNumber;
           return (

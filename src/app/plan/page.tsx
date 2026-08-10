@@ -92,7 +92,7 @@ export default function PlanPage() {
         })}
         {week.every((w) => w.done >= w.target) && (
           <p className="chip good" style={{ marginTop: 12 }}>
-            Strong week — all supports hit. $25 treat gift unlocks.
+            Strong week — all supports hit. $20 treat gift unlocks.
           </p>
         )}
       </section>
