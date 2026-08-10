@@ -26,13 +26,18 @@ _Nothing in progress._ Top backlog item is RB-001 (Venmo auto-pull).
 
 ### Later
 
-- Alternate destination: checking → **soccer bank account** (or other dedicated account) — follow-on to Venmo v1, not in v1 scope.
+1. **RB-002 — Email integration** — shared email channel (enables digests)
+2. **RB-003 — Daily email: open checklist at close of day** — email leftover open checklist / journal items; **close-the-day UX stays as-is**
+3. **RB-004 — SMS integration** — transactional SMS channel for high-signal nudges
+4. Alternate payment destination: checking → **soccer bank account** (follow-on to Venmo v1)
 
 ## Timeline (draft)
 
 | Window | Planned | Notes |
 | --- | --- | --- |
 | Unscheduled | RB-001 discovery + build | Effort **L**; due date stays TBD until payment-rail constraints are known |
+| After RB-001 v1 | RB-002 → RB-003 | Email platform first, then daily open-checklist digest |
+| After email path (or parallel if capacity) | RB-004 SMS | P2; not required for daily email |
 | After RB-001 v1 | Soccer / alternate bank destination | Explicitly deferred |
 
 ## Ranking principles
