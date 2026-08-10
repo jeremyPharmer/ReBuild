@@ -64,14 +64,15 @@ export default function JourneyPage() {
         <div className="trail-list">
           {MILESTONE_DEFS.filter((m) => m.dayNumber <= 180).map((m) => {
             const done = achievedThisRun.has(m.dayNumber);
-            const isNext = next[0]?.dayNumber === m.dayNumber;
+            // Light the day you are on — not the next milestone ahead.
+            const isHere = clean > 0 && m.dayNumber === clean;
             return (
               <div
                 key={m.dayNumber}
                 className={
                   done
                     ? "trail-marker done"
-                    : isNext
+                    : isHere
                       ? "trail-marker current"
                       : "trail-marker"
                 }

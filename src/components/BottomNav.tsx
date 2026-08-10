@@ -8,18 +8,23 @@ const LINKS = [
   { href: "/journey", label: "Journey" },
   { href: "/money", label: "Rewards" },
   { href: "/journal", label: "Journal" },
-  { href: "/plan", label: "Plan" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export function BottomNav() {
   const path = usePathname();
-  if (path.startsWith("/onboarding") || path.startsWith("/morning") || path.startsWith("/evening") || path.startsWith("/craving")) {
+  if (
+    path.startsWith("/onboarding") ||
+    path.startsWith("/morning") ||
+    path.startsWith("/evening") ||
+    path.startsWith("/craving")
+  ) {
     return null;
   }
   return (
     <nav className="bottom-nav" aria-label="Primary">
       {LINKS.map((l) => {
-        const active = path === l.href;
+        const active = path === l.href || (l.href !== "/" && path.startsWith(l.href));
         return (
           <Link
             key={l.href}

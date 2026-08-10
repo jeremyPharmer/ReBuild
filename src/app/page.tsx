@@ -22,8 +22,8 @@ export default function HomePage() {
   const router = useRouter();
   const [busyType, setBusyType] = useState<SupportType | null>(null);
   const [skipBusy, setSkipBusy] = useState<SkipKey | null>(null);
-  const [contentPrompt, setContentPrompt] = useState(false);
-  const [contentNote, setContentNote] = useState("");
+  const [undoOpen, setUndoOpen] = useState(false);
+  const [undoBusy, setUndoBusy] = useState<string | null>(null);
 
   useEffect(() => {
     if (!state.profile?.onboarded) router.replace("/onboarding");
@@ -59,17 +59,21 @@ export default function HomePage() {
   const openCount =
     (showMorning ? 1 : 0) + openSupports.length + (showEvening ? 1 : 0);
 
-  async function toggleSupport(type: SupportType, done: boolean) {
-    if (type === "recovery_content" && !done) {
-      setContentPrompt(true);
-      return;
-    }
+  const completedSupports = dashboard.todaySupports;
+  const skippedToday = (state.skips ?? []).filter((s) => s.date === today);
+  const hasUndoItems =
+    completedSupports.length > 0 ||
+    skippedToday.length > 0 ||
+    Boolean(dashboard.todayMorning) ||
+    Boolean(dashboard.todayEvening);
+
+  async function completeSupport(type: SupportType) {
     setBusyType(type);
     try {
       await post("/api/support", {
         date: today,
         supportType: type,
-        completed: !done,
+        completed: true,
       });
     } finally {
       setBusyType(null);
@@ -85,20 +89,38 @@ export default function HomePage() {
     }
   }
 
-  async function confirmContent() {
-    setBusyType("recovery_content");
+  async function undoSupport(type: SupportType) {
+    setUndoBusy(type);
     try {
       await post("/api/support", {
         date: today,
-        supportType: "recovery_content",
-        completed: true,
-        actionNote: contentNote || undefined,
+        supportType: type,
+        completed: false,
       });
-      setContentPrompt(false);
-      setContentNote("");
     } finally {
-      setBusyType(null);
+      setUndoBusy(null);
     }
+  }
+
+  async function undoSkip(itemKey: SkipKey) {
+    setUndoBusy(`skip:${itemKey}`);
+    try {
+      await post("/api/skip", { date: today, itemKey, clear: true });
+    } finally {
+      setUndoBusy(null);
+    }
+  }
+
+  function supportLabel(type: string) {
+    return (
+      state.profile?.supports.find((s) => s.type === type)?.label ?? type
+    );
+  }
+
+  function itemLabel(key: string) {
+    if (key === "morning") return "Start the day";
+    if (key === "evening") return "Close the day";
+    return supportLabel(key);
   }
 
   return (
@@ -126,15 +148,71 @@ export default function HomePage() {
 
       <section className="panel">
         <div className="row">
-          <p className="eyebrow">Today&apos;s Rebuild</p>
-          <span className="chip">
-            {openCount === 0 ? "Clear for today" : `${openCount} left`}
-          </span>
+          <p className="eyebrow" style={{ marginBottom: 0 }}>
+            Today&apos;s Rebuild
+          </p>
+          <div className="row" style={{ gap: 8, justifyContent: "flex-end" }}>
+            <span className="chip">
+              {openCount === 0 ? "Clear for today" : `${openCount} left`}
+            </span>
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label="Undo today's items"
+              aria-expanded={undoOpen}
+              onClick={() => setUndoOpen((v) => !v)}
+            >
+              ⚙
+            </button>
+          </div>
         </div>
-        <p className="tiny" style={{ marginBottom: 10 }}>
-          Weekly targets: content 2 · meditation 5 · medication 7 · gym 4
-        </p>
-        <div className="daily-actions">
+
+        {undoOpen && (
+          <div className="undo-panel">
+            <p className="tiny" style={{ marginBottom: 8 }}>
+              Bring something back to today&apos;s list
+            </p>
+            {!hasUndoItems && (
+              <p className="muted" style={{ margin: 0 }}>
+                Nothing to undo yet.
+              </p>
+            )}
+            {completedSupports.map((s) => (
+              <div key={`done-${s.supportType}`} className="undo-row">
+                <span>{supportLabel(s.supportType)} · done</span>
+                <button
+                  type="button"
+                  className="dismiss-btn"
+                  disabled={undoBusy === s.supportType}
+                  onClick={() => undoSupport(s.supportType)}
+                >
+                  Undo
+                </button>
+              </div>
+            ))}
+            {skippedToday.map((s) => (
+              <div key={`skip-${s.itemKey}`} className="undo-row">
+                <span>{itemLabel(s.itemKey)} · not today</span>
+                <button
+                  type="button"
+                  className="dismiss-btn"
+                  disabled={undoBusy === `skip:${s.itemKey}`}
+                  onClick={() => undoSkip(s.itemKey)}
+                >
+                  Undo
+                </button>
+              </div>
+            ))}
+            {dashboard.todayMorning && (
+              <p className="tiny">Morning check-in is logged for today.</p>
+            )}
+            {dashboard.todayEvening && (
+              <p className="tiny">Evening check-in is logged for today.</p>
+            )}
+          </div>
+        )}
+
+        <div className="daily-actions" style={{ marginTop: 10 }}>
           {showMorning && (
             <div className="check-item check-item-row">
               <Link href="/morning" className="check-item-main">
@@ -154,73 +232,35 @@ export default function HomePage() {
               </button>
             </div>
           )}
-          {dashboard.todayMorning && (
-            <div className="check-item done">
-              <span className="check-box">✓</span>
-              <div>
-                <strong>Morning complete</strong>
-                <p className="tiny">
-                  Intention: {dashboard.todayMorning.intention || "—"}
-                </p>
-              </div>
-            </div>
-          )}
 
-          {enabledSupports.map((s) => {
-            if (skips.has(s.type)) return null;
-            const done = dashboard.todaySupports.some(
-              (t) => t.supportType === s.type,
-            );
-            const week = dashboard.week.find((w) => w.type === s.type);
-            if (done) {
-              return (
-                <button
-                  key={s.type}
-                  type="button"
-                  className="check-item done"
-                  disabled={busyType === s.type}
-                  onClick={() => toggleSupport(s.type, done)}
-                  style={{ width: "100%", textAlign: "left" }}
-                >
-                  <span className="check-box">✓</span>
-                  <div style={{ flex: 1 }}>
-                    <strong>{s.label}</strong>
-                    <p className="tiny">
-                      Today: done · Week {week?.done ?? 0}/
-                      {week?.target ?? s.weeklyTarget}
-                    </p>
-                  </div>
-                </button>
-              );
-            }
-            return (
-              <div key={s.type} className="check-item check-item-row">
-                <button
-                  type="button"
-                  className="check-item-main"
-                  disabled={busyType === s.type}
-                  onClick={() => toggleSupport(s.type, done)}
-                >
-                  <span className="check-box" />
-                  <div style={{ flex: 1, textAlign: "left" }}>
-                    <strong>{s.label}</strong>
-                    <p className="tiny">
-                      Today: tap to log · Week {week?.done ?? 0}/
-                      {week?.target ?? s.weeklyTarget}
-                    </p>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  className="dismiss-btn"
-                  disabled={skipBusy === s.type}
-                  onClick={() => dismissItem(s.type)}
-                >
-                  Not today
-                </button>
-              </div>
-            );
-          })}
+          {openSupports.map((s) => (
+            <div key={s.type} className="check-item check-item-row">
+              <button
+                type="button"
+                className="check-item-main"
+                disabled={busyType === s.type}
+                onClick={() => completeSupport(s.type)}
+              >
+                <span className="check-box" />
+                <div style={{ flex: 1, textAlign: "left" }}>
+                  <strong>{s.label}</strong>
+                  <p className="tiny">
+                    Tap to complete · Week{" "}
+                    {dashboard.week.find((w) => w.type === s.type)?.done ?? 0}/
+                    {s.weeklyTarget}
+                  </p>
+                </div>
+              </button>
+              <button
+                type="button"
+                className="dismiss-btn"
+                disabled={skipBusy === s.type}
+                onClick={() => dismissItem(s.type)}
+              >
+                Not today
+              </button>
+            </div>
+          ))}
 
           {showEvening && (
             <div className="check-item check-item-row">
@@ -241,50 +281,60 @@ export default function HomePage() {
               </button>
             </div>
           )}
-          {dashboard.todayEvening && (
-            <div className="check-item done">
-              <span className="check-box">✓</span>
-              <div>
-                <strong>Evening complete</strong>
-                <p className="tiny">{dashboard.todayEvening.oneLine}</p>
-              </div>
-            </div>
+
+          {openCount === 0 && (
+            <p className="muted" style={{ marginTop: 4 }}>
+              Today&apos;s list is clear. Nice work.
+            </p>
           )}
-
-          {openCount === 0 &&
-            !dashboard.todayMorning &&
-            !dashboard.todayEvening &&
-            dashboard.todaySupports.length === 0 && (
-              <p className="muted" style={{ marginTop: 4 }}>
-                Nothing left on today&apos;s list. Nice work clearing the board.
-              </p>
-            )}
         </div>
+      </section>
 
-        {contentPrompt && (
-          <div style={{ marginTop: 14 }}>
-            <p className="eyebrow">Recovery content</p>
-            <label className="field">
-              <span className="field-label">
-                What will you do differently because of this?
+      <section className="panel">
+        <p className="eyebrow">This week</p>
+        {dashboard.week.map((w) => (
+          <div className="support-row" key={w.type}>
+            <div className="row">
+              <span>{w.label}</span>
+              <span className="tiny">
+                {w.done} / {w.target}
               </span>
-              <input
-                value={contentNote}
-                onChange={(e) => setContentNote(e.target.value)}
-                placeholder="One short action"
-              />
-            </label>
-            <PrimaryButton
-              onClick={confirmContent}
-              disabled={busyType === "recovery_content"}
-            >
-              Log content
-            </PrimaryButton>
-            <div style={{ marginTop: 8 }}>
-              <SecondaryButton onClick={() => setContentPrompt(false)}>
-                Cancel
-              </SecondaryButton>
             </div>
+            <ProgressBar done={w.done} target={w.target} />
+          </div>
+        ))}
+        {pendingBonus && (
+          <p className="chip good" style={{ marginTop: 12 }}>
+            Weekly gift ready · ${pendingBonus.amount} out-of-pocket treat
+          </p>
+        )}
+      </section>
+
+      <section className="panel">
+        <div className="row">
+          <div>
+            <p className="eyebrow">Total</p>
+            <p className="money money-xl">
+              <Money value={total} />
+            </p>
+            <p className="tiny">Future + Rebuild + Treat</p>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <p className="tiny">Waiting to reclaim</p>
+            <p className="money" style={{ fontSize: "1.4rem" }}>
+              <Money value={dashboard.waiting} />
+            </p>
+            <p className="tiny">{dashboard.waitingDays} days</p>
+          </div>
+        </div>
+        <FundSegmentBar fund={state.fund} />
+        {waiting.length > 0 && (
+          <div style={{ marginTop: 14 }}>
+            <Link href="/money">
+              <PrimaryButton>
+                Move ${dashboard.waiting} to Rebuild
+              </PrimaryButton>
+            </Link>
           </div>
         )}
       </section>
@@ -329,63 +379,9 @@ export default function HomePage() {
         </section>
       )}
 
-      <section className="panel">
-        <p className="eyebrow">This week</p>
-        {dashboard.week.map((w) => (
-          <div className="support-row" key={w.type}>
-            <div className="row">
-              <span>{w.label}</span>
-              <span className="tiny">
-                {w.done} / {w.target}
-              </span>
-            </div>
-            <ProgressBar done={w.done} target={w.target} />
-          </div>
-        ))}
-        {pendingBonus && (
-          <p className="chip good" style={{ marginTop: 12 }}>
-            Weekly gift ready · ${pendingBonus.amount} out-of-pocket treat
-          </p>
-        )}
-      </section>
-
-      <section className="panel">
-        <div className="row">
-          <div>
-            <p className="eyebrow">Venmo-matching total</p>
-            <p className="money money-xl">
-              <Money value={total} />
-            </p>
-            <p className="tiny">Future + Rebuild + Treat</p>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <p className="tiny">Waiting to reclaim</p>
-            <p className="money" style={{ fontSize: "1.4rem" }}>
-              <Money value={dashboard.waiting} />
-            </p>
-            <p className="tiny">{dashboard.waitingDays} days</p>
-          </div>
-        </div>
-        <FundSegmentBar fund={state.fund} />
-        {waiting.length > 0 && (
-          <div style={{ marginTop: 14 }}>
-            <Link href="/money">
-              <PrimaryButton>
-                Move ${dashboard.waiting} to Rebuild
-              </PrimaryButton>
-            </Link>
-          </div>
-        )}
-      </section>
-
-      <div className="grid-2">
-        <Link href="/craving">
-          <SecondaryButton>I&apos;m having a craving</SecondaryButton>
-        </Link>
-        <Link href="/settings">
-          <SecondaryButton>Settings</SecondaryButton>
-        </Link>
-      </div>
+      <Link href="/craving">
+        <SecondaryButton>I&apos;m having a craving</SecondaryButton>
+      </Link>
     </main>
   );
 }

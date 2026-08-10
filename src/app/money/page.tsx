@@ -125,7 +125,7 @@ export default function MoneyPage() {
       </header>
 
       <section className="panel">
-        <p className="eyebrow">Venmo-matching total</p>
+        <p className="eyebrow">Total</p>
         <p className="money money-xl">
           <Money value={total} />
         </p>

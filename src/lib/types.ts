@@ -1,10 +1,7 @@
 export type AlignmentStatus = "aligned" | "return_to_use" | "other";
 
-export type SupportType =
-  | "recovery_content"
-  | "meditation"
-  | "medication"
-  | "gym";
+/** Built-in or custom support id (e.g. "gym", "custom_walk") */
+export type SupportType = string;
 
 export type SupportConfig = {
   type: SupportType;

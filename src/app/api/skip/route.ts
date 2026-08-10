@@ -3,14 +3,7 @@ import { todayInTz } from "@/lib/journey";
 import { updateState } from "@/lib/store";
 import type { SkipItemKey } from "@/lib/types";
 
-const ALLOWED = new Set<SkipItemKey>([
-  "morning",
-  "evening",
-  "recovery_content",
-  "meditation",
-  "medication",
-  "gym",
-]);
+const FIXED = new Set(["morning", "evening"]);
 
 export async function POST(req: Request) {
   try {
@@ -23,7 +16,18 @@ export async function POST(req: Request) {
       }
       const date = String(body.date ?? todayInTz(prev.profile.timezone));
       const itemKey = String(body.itemKey ?? "") as SkipItemKey;
-      if (!ALLOWED.has(itemKey)) {
+      const knownSupports = new Set(prev.profile.supports.map((s) => s.type));
+      const allowed =
+        FIXED.has(itemKey) ||
+        knownSupports.has(itemKey) ||
+        [
+          "recovery_content",
+          "meditation",
+          "medication",
+          "gym",
+        ].includes(itemKey);
+
+      if (!itemKey || !allowed) {
         const err = new Error("Invalid itemKey");
         (err as Error & { status: number }).status = 400;
         throw err;

@@ -48,8 +48,9 @@ See `DEPLOY.md` and `PRODUCT_DECISIONS.md`.
 2. `/morning` — Start the day
 3. `/plan` — log supports (content asks “what will you do differently?”)
 4. `/evening` — Close the day + one-line journal (+ Move to Rebuild)
-5. `/money` — reclaim ledger, wishlist, What I Rebuilt
+5. `/money` — reclaim ledger, wishlist, What I Rebuilt (Rewards tab)
 6. `/journey` — adventure map + milestone history
-7. `/craving` — delay + intervention
+7. `/settings` — spend, supports, this week’s plan
+8. `/craving` — delay + intervention
 
-Primary nav: Home · Journey · Rewards · Journal · Plan
+Primary nav: Home · Journey · Rewards · Journal · Settings
