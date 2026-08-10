@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { executeWishlist } from "@/lib/fund";
 import { newId } from "@/lib/journey";
 import { updateState } from "@/lib/store";
 import type { Reward, RewardCategory } from "@/lib/types";
@@ -12,20 +13,14 @@ export async function POST(req: Request) {
       const id = String(body.id);
       const actualCost =
         body.actualCost !== undefined ? Number(body.actualCost) : undefined;
-      const state = await updateState((prev) => ({
-        ...prev,
-        rewards: prev.rewards.map((r) =>
-          r.id === id
-            ? {
-                ...r,
-                executed: true,
-                executedAt: new Date().toISOString(),
-                actualCost: actualCost ?? r.estimatedCost,
-                notes: body.notes ? String(body.notes) : r.notes,
-              }
-            : r,
+      const state = await updateState((prev) =>
+        executeWishlist(
+          prev,
+          id,
+          actualCost,
+          body.notes ? String(body.notes) : undefined,
         ),
-      }));
+      );
       return NextResponse.json({ state });
     }
 

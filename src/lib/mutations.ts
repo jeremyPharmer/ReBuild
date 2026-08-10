@@ -137,7 +137,7 @@ function awardCrossedMilestones(
   return { ...state, milestones: [...state.milestones, ...newly] };
 }
 
-function maybeCreateWeeklyBonus(
+export function maybeCreateWeeklyBonus(
   state: RebuildState,
   date: string,
 ): RebuildState {

@@ -59,6 +59,9 @@ export default function EveningPage() {
         <main className="stack fade-in">
           <p className="eyebrow">Reward moment</p>
           <h1>Finish your decision</h1>
+          <PrimaryButton onClick={() => router.push("/money")}>
+            Move money to Rebuild
+          </PrimaryButton>
           {lingering.map((m) => (
             <MilestoneRewardMoment
               key={m.id}
@@ -107,6 +110,10 @@ export default function EveningPage() {
           <p style={{ margin: 0, fontSize: "1.15rem" }}>&ldquo;{oneLine}&rdquo;</p>
         </div>
 
+        <PrimaryButton onClick={() => router.push("/money")}>
+          Move money to Rebuild
+        </PrimaryButton>
+
         {stillOpen.map((m) => (
           <MilestoneRewardMoment
             key={m.id}
@@ -115,9 +122,6 @@ export default function EveningPage() {
           />
         ))}
 
-        <PrimaryButton onClick={() => router.push("/money")}>
-          Move money to Rebuild
-        </PrimaryButton>
         <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
       </main>
     );
