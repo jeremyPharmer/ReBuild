@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { FundSegmentBar } from "@/components/MilestoneReward";
-import { Money, PrimaryButton, ProgressBar, SecondaryButton } from "@/components/ui";
+import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import { fundTotal, pendingCashableMoments } from "@/lib/fund";
 import {
   assignedRewardForMilestone,
@@ -45,7 +45,6 @@ export default function HomePage() {
     ? suggestedRewardPool(next.dayNumber, state.profile.historicalDailySpend)
     : 0;
   const waiting = waitingReclaimDays(state);
-  const pendingBonus = state.weeklyBonuses.find((b) => !b.confirmed);
   const pendingRewards = pendingCashableMoments(state);
   const total = fundTotal(state.fund);
   const enabledSupports = state.profile.supports.filter((s) => s.enabled);
@@ -162,7 +161,7 @@ export default function HomePage() {
               aria-expanded={undoOpen}
               onClick={() => setUndoOpen((v) => !v)}
             >
-              ⚙
+              ⋯
             </button>
           </div>
         </div>
@@ -217,10 +216,7 @@ export default function HomePage() {
             <div className="check-item check-item-row">
               <Link href="/morning" className="check-item-main">
                 <span className="check-box" />
-                <div>
-                  <strong>Start the day</strong>
-                  <p className="tiny">Morning check-in · 2–4 min</p>
-                </div>
+                <span className="check-label">Start the day</span>
               </Link>
               <button
                 type="button"
@@ -233,43 +229,39 @@ export default function HomePage() {
             </div>
           )}
 
-          {openSupports.map((s) => (
-            <div key={s.type} className="check-item check-item-row">
-              <button
-                type="button"
-                className="check-item-main"
-                disabled={busyType === s.type}
-                onClick={() => completeSupport(s.type)}
-              >
-                <span className="check-box" />
-                <div style={{ flex: 1, textAlign: "left" }}>
-                  <strong>{s.label}</strong>
-                  <p className="tiny">
-                    Tap to complete · Week{" "}
-                    {dashboard.week.find((w) => w.type === s.type)?.done ?? 0}/
-                    {s.weeklyTarget}
-                  </p>
-                </div>
-              </button>
-              <button
-                type="button"
-                className="dismiss-btn"
-                disabled={skipBusy === s.type}
-                onClick={() => dismissItem(s.type)}
-              >
-                Not today
-              </button>
-            </div>
-          ))}
+          {openSupports.map((s) => {
+            const weekDone =
+              dashboard.week.find((w) => w.type === s.type)?.done ?? 0;
+            return (
+              <div key={s.type} className="check-item check-item-row">
+                <button
+                  type="button"
+                  className="check-item-main"
+                  disabled={busyType === s.type}
+                  onClick={() => completeSupport(s.type)}
+                >
+                  <span className="check-box" />
+                  <span className="check-label">
+                    {s.label}, week {weekDone} of {s.weeklyTarget}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className="dismiss-btn"
+                  disabled={skipBusy === s.type}
+                  onClick={() => dismissItem(s.type)}
+                >
+                  Not today
+                </button>
+              </div>
+            );
+          })}
 
           {showEvening && (
             <div className="check-item check-item-row">
               <Link href="/evening" className="check-item-main">
                 <span className="check-box" />
-                <div>
-                  <strong>Close the day</strong>
-                  <p className="tiny">Evening · ~30–60 sec + one line</p>
-                </div>
+                <span className="check-label">Close the day</span>
               </Link>
               <button
                 type="button"
@@ -288,26 +280,6 @@ export default function HomePage() {
             </p>
           )}
         </div>
-      </section>
-
-      <section className="panel">
-        <p className="eyebrow">This week</p>
-        {dashboard.week.map((w) => (
-          <div className="support-row" key={w.type}>
-            <div className="row">
-              <span>{w.label}</span>
-              <span className="tiny">
-                {w.done} / {w.target}
-              </span>
-            </div>
-            <ProgressBar done={w.done} target={w.target} />
-          </div>
-        ))}
-        {pendingBonus && (
-          <p className="chip good" style={{ marginTop: 12 }}>
-            Weekly gift ready · ${pendingBonus.amount} out-of-pocket treat
-          </p>
-        )}
       </section>
 
       <section className="panel">
