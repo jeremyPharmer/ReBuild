@@ -11,7 +11,7 @@ import { MILESTONE_DEFS } from "@/lib/types";
 
 export default function JourneyPage() {
   const { state, dashboard } = useApp();
-  const clean = cleanDaysThisRun(state);
+  const clean = dashboard?.cleanDays ?? cleanDaysThisRun(state);
   const next = nextMilestones(clean, 3);
   const runId = state.profile?.currentRunId;
   const achievedThisRun = new Set(
@@ -61,30 +61,34 @@ export default function JourneyPage() {
 
       <section className="panel">
         <p className="eyebrow">Trail markers</p>
-        {MILESTONE_DEFS.filter((m) => m.dayNumber <= 180).map((m) => {
-          const done = achievedThisRun.has(m.dayNumber);
-          const isNext = next[0]?.dayNumber === m.dayNumber;
-          return (
-            <div
-              key={m.dayNumber}
-              className={
-                done
-                  ? "map-node done"
-                  : isNext
-                    ? "map-node current"
-                    : "map-node"
-              }
-              style={{ paddingLeft: 28 }}
-            >
-              <div className="row">
-                <span>
-                  Day {m.dayNumber} · {m.title}
-                </span>
-                <span className="tiny">{m.type}</span>
+        <div className="trail-list">
+          {MILESTONE_DEFS.filter((m) => m.dayNumber <= 180).map((m) => {
+            const done = achievedThisRun.has(m.dayNumber);
+            const isNext = next[0]?.dayNumber === m.dayNumber;
+            return (
+              <div
+                key={m.dayNumber}
+                className={
+                  done
+                    ? "trail-marker done"
+                    : isNext
+                      ? "trail-marker current"
+                      : "trail-marker"
+                }
+              >
+                <span className="trail-dot" aria-hidden />
+                <div className="trail-marker-body">
+                  <div className="row">
+                    <span>
+                      Day {m.dayNumber} · {m.title}
+                    </span>
+                    <span className="tiny">{m.type}</span>
+                  </div>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
         <p className="tiny" style={{ marginTop: 8 }}>
           Full year trail continues through Day 365.
         </p>

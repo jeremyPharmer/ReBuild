@@ -120,7 +120,7 @@ export default function MoneyPage() {
       <header className="page-header">
         <div>
           <p className="eyebrow">Rebuild fund</p>
-          <h1>Money</h1>
+          <h1>Rewards</h1>
         </div>
       </header>
 

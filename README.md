@@ -9,8 +9,9 @@ operating system for abstinence (cannabis + alcohol as one journey).
 
 - **Daily companion wins** when systems conflict; money makes it tangible
 - Abstinence-only reclaim (no partial days)
-- Home label: **ReBuilding for N days** = clean days on the **current run**
-- Return to use resets the run counter to 0; milestone **history stays**; you
+- Home label: **ReBuilding for N days** = calendar days on the **current run**
+  (Day 1 = start date)
+- Return to use resets the run counter; milestone **history stays**; you
   re-climb and can **re-achieve** milestones; reward pools grow with later days
 - Reclaim is separate from day counting (Venmo confirm in the evening)
 - No auth — open the link and go
@@ -51,4 +52,4 @@ See `DEPLOY.md` and `PRODUCT_DECISIONS.md`.
 6. `/journey` — adventure map + milestone history
 7. `/craving` — delay + intervention
 
-Primary nav: Home · Journey · Money · Journal · Plan
+Primary nav: Home · Journey · Rewards · Journal · Plan
