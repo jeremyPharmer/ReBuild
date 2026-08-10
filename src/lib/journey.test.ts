@@ -3,6 +3,7 @@ import {
   buildDashboard,
   cleanDaysThisRun,
   formatSinceDate,
+  nextIncentive,
   nextMilestones,
   projectedReclaimAt,
   suggestedRewardPool,
@@ -171,6 +172,14 @@ describe("milestones and projections", () => {
   it("lists next milestones after current clean days", () => {
     const next = nextMilestones(7, 3);
     expect(next.map((m) => m.dayNumber)).toEqual([10, 14, 21]);
+  });
+
+  it("skips checkpoints for next incentive", () => {
+    // Day 1 → next milestone is Day 2 checkpoint, but next incentive is Day 3
+    expect(nextMilestones(1, 1)[0]?.dayNumber).toBe(2);
+    expect(nextIncentive(1)?.dayNumber).toBe(3);
+    expect(nextIncentive(1)?.title).toBe("First Win");
+    expect(nextIncentive(3)?.dayNumber).toBe(7);
   });
 
   it("projects reclaim at a future milestone", () => {

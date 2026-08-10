@@ -9,6 +9,8 @@ import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import { fundTotal, pendingCashableMoments } from "@/lib/fund";
 import {
   assignedRewardForMilestone,
+  nextIncentive,
+  nextIncentives,
   projectedReclaimAt,
   suggestedRewardPool,
   waitingReclaimDays,
@@ -17,6 +19,13 @@ import type { SupportType } from "@/lib/types";
 
 type SkipKey = SupportType | "morning" | "evening";
 
+type ExitingSupport = {
+  type: SupportType;
+  label: string;
+  weekDone: number;
+  weeklyTarget: number;
+};
+
 export default function HomePage() {
   const { state, dashboard, today, post } = useApp();
   const router = useRouter();
@@ -24,6 +33,7 @@ export default function HomePage() {
   const [skipBusy, setSkipBusy] = useState<SkipKey | null>(null);
   const [undoOpen, setUndoOpen] = useState(false);
   const [undoBusy, setUndoBusy] = useState<string | null>(null);
+  const [exiting, setExiting] = useState<ExitingSupport[]>([]);
 
   useEffect(() => {
     if (!state.profile?.onboarded) router.replace("/onboarding");
@@ -34,29 +44,39 @@ export default function HomePage() {
   }
 
   const skips = new Set(dashboard.todaySkips ?? []);
-  const next = dashboard.next[0];
-  const then = dashboard.next[1];
-  const horizon = dashboard.next[2];
-  const assigned = next
-    ? assignedRewardForMilestone(state, next.dayNumber)
+  const incentive = nextIncentive(dashboard.cleanDays);
+  const laterIncentives = nextIncentives(dashboard.cleanDays, 3).slice(1);
+  const assigned = incentive
+    ? assignedRewardForMilestone(state, incentive.dayNumber)
     : undefined;
-  const projected = next ? projectedReclaimAt(state, next.dayNumber, today) : 0;
-  const pool = next
-    ? suggestedRewardPool(next.dayNumber, state.profile.historicalDailySpend)
+  const projected = incentive
+    ? projectedReclaimAt(state, incentive.dayNumber, today)
+    : 0;
+  const pool = incentive
+    ? suggestedRewardPool(
+        incentive.dayNumber,
+        state.profile.historicalDailySpend,
+      )
     : 0;
   const waiting = waitingReclaimDays(state);
   const pendingRewards = pendingCashableMoments(state);
   const total = fundTotal(state.fund);
+  const dailySpend = state.profile.historicalDailySpend;
   const enabledSupports = state.profile.supports.filter((s) => s.enabled);
+  const exitingTypes = new Set(exiting.map((e) => e.type));
   const openSupports = enabledSupports.filter(
     (s) =>
       !skips.has(s.type) &&
+      !exitingTypes.has(s.type) &&
       !dashboard.todaySupports.some((t) => t.supportType === s.type),
   );
   const showMorning = !dashboard.todayMorning && !skips.has("morning");
   const showEvening = !dashboard.todayEvening && !skips.has("evening");
   const openCount =
-    (showMorning ? 1 : 0) + openSupports.length + (showEvening ? 1 : 0);
+    (showMorning ? 1 : 0) +
+    openSupports.length +
+    exiting.length +
+    (showEvening ? 1 : 0);
 
   const completedSupports = dashboard.todaySupports;
   const skippedToday = (state.skips ?? []).filter((s) => s.date === today);
@@ -66,15 +86,22 @@ export default function HomePage() {
     Boolean(dashboard.todayMorning) ||
     Boolean(dashboard.todayEvening);
 
-  async function completeSupport(type: SupportType) {
-    setBusyType(type);
+  async function completeSupport(item: ExitingSupport) {
+    setBusyType(item.type);
+    setExiting((prev) =>
+      prev.some((e) => e.type === item.type) ? prev : [...prev, item],
+    );
     try {
-      await post("/api/support", {
-        date: today,
-        supportType: type,
-        completed: true,
-      });
+      await Promise.all([
+        post("/api/support", {
+          date: today,
+          supportType: item.type,
+          completed: true,
+        }),
+        new Promise((r) => setTimeout(r, 700)),
+      ]);
     } finally {
+      setExiting((prev) => prev.filter((e) => e.type !== item.type));
       setBusyType(null);
     }
   }
@@ -121,6 +148,10 @@ export default function HomePage() {
     if (key === "evening") return "Close the day";
     return supportLabel(key);
   }
+
+  const daysToIncentive = incentive
+    ? incentive.dayNumber - dashboard.cleanDays
+    : 0;
 
   return (
     <main className="fade-in stack">
@@ -238,7 +269,14 @@ export default function HomePage() {
                   type="button"
                   className="check-item-main"
                   disabled={busyType === s.type}
-                  onClick={() => completeSupport(s.type)}
+                  onClick={() =>
+                    completeSupport({
+                      type: s.type,
+                      label: s.label,
+                      weekDone,
+                      weeklyTarget: s.weeklyTarget,
+                    })
+                  }
                 >
                   <span className="check-box" />
                   <span className="check-label">
@@ -256,6 +294,24 @@ export default function HomePage() {
               </div>
             );
           })}
+
+          {exiting.map((s) => (
+            <div
+              key={`exit-${s.type}`}
+              className="check-item check-item-row clearing"
+              aria-live="polite"
+            >
+              <div className="check-item-main" aria-hidden>
+                <span className="check-box checked">✓</span>
+                <span className="check-label">
+                  {s.label}, week {s.weekDone + 1} of {s.weeklyTarget}
+                </span>
+              </div>
+              <span className="clear-burst" aria-hidden>
+                +1
+              </span>
+            </div>
+          ))}
 
           {showEvening && (
             <div className="check-item check-item-row">
@@ -289,7 +345,7 @@ export default function HomePage() {
             <p className="money money-xl">
               <Money value={total} />
             </p>
-            <p className="tiny">Future + Rebuild + Treat</p>
+            <p className="tiny">Already in Rebuild (Venmo set aside)</p>
           </div>
           <div style={{ textAlign: "right" }}>
             <p className="tiny">Waiting to reclaim</p>
@@ -300,7 +356,7 @@ export default function HomePage() {
           </div>
         </div>
         <FundSegmentBar fund={state.fund} />
-        {waiting.length > 0 && (
+        {waiting.length > 0 ? (
           <div style={{ marginTop: 14 }}>
             <Link href="/money">
               <PrimaryButton>
@@ -308,23 +364,27 @@ export default function HomePage() {
               </PrimaryButton>
             </Link>
           </div>
+        ) : (
+          <p className="tiny" style={{ marginTop: 12, lineHeight: 1.45 }}>
+            Close an aligned day to earn ~${dailySpend} in waiting. Total
+            grows after you Move to Rebuild — not at the start of the day.
+          </p>
         )}
       </section>
 
-      {next && (
+      {incentive && (
         <section className="panel">
-          <p className="eyebrow">Next up</p>
+          <p className="eyebrow">Next incentive</p>
           <h2>
-            Day {next.dayNumber} · {next.title}
+            Day {incentive.dayNumber} · {incentive.title}
           </h2>
           <p className="muted" style={{ marginTop: 6 }}>
-            {next.dayNumber - dashboard.cleanDays} day
-            {next.dayNumber - dashboard.cleanDays === 1 ? "" : "s"} away ·{" "}
-            {next.type}
+            {daysToIncentive} day{daysToIncentive === 1 ? "" : "s"} away · Treat
+            or Save
           </p>
           <div className="row" style={{ marginTop: 12 }}>
             <div>
-              <p className="tiny">Projected / suggested pool</p>
+              <p className="tiny">Projected pool</p>
               <p className="money" style={{ fontSize: "1.35rem" }}>
                 <Money value={projected || pool} />
               </p>
@@ -336,18 +396,15 @@ export default function HomePage() {
               </div>
             )}
           </div>
-          <div style={{ marginTop: 12, display: "grid", gap: 6 }}>
-            {then && (
-              <p className="tiny">
-                Then · Day {then.dayNumber} — {then.title}
-              </p>
-            )}
-            {horizon && (
-              <p className="tiny">
-                On the horizon · Day {horizon.dayNumber} — {horizon.title}
-              </p>
-            )}
-          </div>
+          {laterIncentives.length > 0 && (
+            <div style={{ marginTop: 12, display: "grid", gap: 6 }}>
+              {laterIncentives.map((m, i) => (
+                <p key={m.dayNumber} className="tiny">
+                  {i === 0 ? "Then" : "Later"} · Day {m.dayNumber} — {m.title}
+                </p>
+              ))}
+            </div>
+          )}
         </section>
       )}
 
