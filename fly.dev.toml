@@ -1,0 +1,28 @@
+# fly.toml app configuration file generated for rebuild-dev
+# See https://fly.io/docs/reference/configuration/
+
+app = 'rebuild-dev'
+primary_region = 'sjc'
+
+[build]
+
+[env]
+  NODE_ENV = 'production'
+  REBUILD_ENV = 'dev'
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+[mounts]
+  source = 'rebuild_dev_data'
+  destination = '/app/.data'
