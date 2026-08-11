@@ -31,6 +31,8 @@ export function normalizeState(state: RebuildState): RebuildState {
     fund: normalizeFund(state.fund),
     consecutiveSaves: state.consecutiveSaves ?? 0,
     milestoneDecisions: state.milestoneDecisions ?? [],
+    listenedPodcasts: state.listenedPodcasts ?? [],
+    reminderLog: state.reminderLog ?? {},
   };
 }
 

@@ -257,6 +257,7 @@ export function emptyState(): RebuildState {
     consecutiveSaves: 0,
     milestoneDecisions: [],
     reminderLog: {},
+    listenedPodcasts: [],
   };
 }
 

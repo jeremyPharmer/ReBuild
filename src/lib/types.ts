@@ -226,6 +226,8 @@ export type RebuildState = {
   milestoneDecisions: MilestoneDecision[];
   /** Last local dates a reminder email was sent (YYYY-MM-DD) */
   reminderLog?: { morning?: string; evening?: string };
+  /** Podcast episode ids marked listened — never offered again */
+  listenedPodcasts?: string[];
 };
 
 export const DEFAULT_SUPPORTS: SupportConfig[] = [

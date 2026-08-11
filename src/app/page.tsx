@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
+import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
 import { FundSegmentBar } from "@/components/MilestoneReward";
 import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import { fundTotal, pendingCashableMoments } from "@/lib/fund";
@@ -380,6 +381,8 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      <RecoveryPodcastCard />
 
       <section className="panel">
         <div className="row">
