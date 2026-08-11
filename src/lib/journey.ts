@@ -122,6 +122,23 @@ export function nextMilestones(
   return MILESTONE_DEFS.filter((m) => m.dayNumber > cleanDays).slice(0, count);
 }
 
+/** Next cashable / treat-or-save milestone (skips checkpoints). */
+export function nextIncentive(cleanDays: number): MilestoneDef | undefined {
+  return MILESTONE_DEFS.find(
+    (m) =>
+      m.dayNumber > cleanDays &&
+      (m.type === "reward" || m.type === "destination"),
+  );
+}
+
+export function nextIncentives(cleanDays: number, count = 2): MilestoneDef[] {
+  return MILESTONE_DEFS.filter(
+    (m) =>
+      m.dayNumber > cleanDays &&
+      (m.type === "reward" || m.type === "destination"),
+  ).slice(0, count);
+}
+
 export function milestoneAt(dayNumber: number): MilestoneDef | undefined {
   return MILESTONE_DEFS.find((m) => m.dayNumber === dayNumber);
 }
@@ -236,7 +253,7 @@ export function emptyState(): RebuildState {
     weeklyBonuses: [],
     journals: [],
     skips: [],
-    fund: { future: 0, rebuild: 0, treat: 0 },
+    fund: { future: 0, treat: 0 },
     consecutiveSaves: 0,
     milestoneDecisions: [],
   };

@@ -40,7 +40,9 @@ npm run build
 | **Dev** | https://rebuild-dev.fly.dev | Test / sample |
 | **Prod** | https://rebuild-prod.fly.dev | Founder true-source |
 
-See `DEPLOY.md` and `PRODUCT_DECISIONS.md`.
+See `DEPLOY.md`, `PRODUCT_DECISIONS.md`, and `product/` (roadmap + locked fund model).
+
+**Fund buckets (locked):** Future 50% (longer-horizon park) + Treat Yourself 50% (short-term). On reward days: Treat Yourself (Treat first, optional Future pull) or Save for the Future.
 
 ## First-run path
 
@@ -48,8 +50,9 @@ See `DEPLOY.md` and `PRODUCT_DECISIONS.md`.
 2. `/morning` — Start the day
 3. `/plan` — log supports (content asks “what will you do differently?”)
 4. `/evening` — Close the day + one-line journal (+ Move to Rebuild)
-5. `/money` — reclaim ledger, wishlist, What I Rebuilt
+5. `/money` — reclaim ledger, wishlist, What I Rebuilt (Rewards tab)
 6. `/journey` — adventure map + milestone history
-7. `/craving` — delay + intervention
+7. `/settings` — spend, supports, this week’s plan
+8. `/craving` — delay + intervention
 
-Primary nav: Home · Journey · Rewards · Journal · Plan
+Primary nav: Home · Journey · Rewards · Journal · Settings

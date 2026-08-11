@@ -1,10 +1,7 @@
 export type AlignmentStatus = "aligned" | "return_to_use" | "other";
 
-export type SupportType =
-  | "recovery_content"
-  | "meditation"
-  | "medication"
-  | "gym";
+/** Built-in or custom support id (e.g. "gym", "custom_walk") */
+export type SupportType = string;
 
 export type SupportConfig = {
   type: SupportType;
@@ -28,6 +25,8 @@ export type RewardCategory =
   | "experiences"
   | "growth"
   | "travel"
+  | "food"
+  | "entertainment"
   | "other";
 
 export type MorningCheckIn = {
@@ -93,14 +92,15 @@ export type FinancialTransfer = {
   note?: string;
   createdAt: string;
   /** Split applied at confirm time */
-  split?: { future: number; rebuild: number; treat: number };
+  split?: { future: number; treat: number; rebuild?: number };
 };
 
 /** Venmo-matching balances still set aside */
 export type FundLedger = {
   future: number;
-  rebuild: number;
   treat: number;
+  /** @deprecated folded into future on normalize — two-bucket model */
+  rebuild?: number;
 };
 
 export type MilestoneDecision = {

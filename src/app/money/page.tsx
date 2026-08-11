@@ -125,11 +125,10 @@ export default function MoneyPage() {
       </header>
 
       <section className="panel">
-        <p className="eyebrow">Venmo-matching total</p>
+        <p className="eyebrow">Total</p>
         <p className="money money-xl">
           <Money value={total} />
         </p>
-        <p className="tiny">Must match your Venmo Rebuild balance</p>
         <FundSegmentBar fund={state.fund} />
         <div className="grid-2" style={{ marginTop: 16 }}>
           <div>
@@ -283,6 +282,8 @@ export default function MoneyPage() {
               <option value="experiences">Experiences</option>
               <option value="growth">Growth</option>
               <option value="travel">Travel</option>
+              <option value="food">Food</option>
+              <option value="entertainment">Entertainment</option>
               <option value="other">Other</option>
             </select>
           </label>

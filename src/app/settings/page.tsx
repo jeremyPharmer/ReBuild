@@ -1,13 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
-import { PrimaryButton, SecondaryButton } from "@/components/ui";
+import { PrimaryButton, ProgressBar, SecondaryButton } from "@/components/ui";
+import {
+  formatDisplayDate,
+  weekBounds,
+  weeklySupportProgress,
+} from "@/lib/journey";
 import { DEFAULT_SUPPORTS, type SupportConfig } from "@/lib/types";
 
+function slugify(label: string) {
+  const base = label
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "")
+    .slice(0, 24);
+  return base || "support";
+}
+
 export default function SettingsPage() {
-  const { state, post, refresh } = useApp();
+  const { state, today, post, refresh } = useApp();
   const router = useRouter();
   const [supports, setSupports] = useState<SupportConfig[]>(
     state.profile?.supports ?? DEFAULT_SUPPORTS,
@@ -15,13 +30,43 @@ export default function SettingsPage() {
   const [spend, setSpend] = useState(
     String(state.profile?.historicalDailySpend ?? 40),
   );
+  const [newLabel, setNewLabel] = useState("");
+  const [newTarget, setNewTarget] = useState("3");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
-  function updateTarget(type: string, weeklyTarget: number) {
+  const week = useMemo(
+    () => weeklySupportProgress(state, today),
+    [state, today],
+  );
+  const { start, end } = weekBounds(today || "2026-01-01");
+
+  function updateSupport(type: string, patch: Partial<SupportConfig>) {
     setSupports((prev) =>
-      prev.map((s) => (s.type === type ? { ...s, weeklyTarget } : s)),
+      prev.map((s) => (s.type === type ? { ...s, ...patch } : s)),
     );
+  }
+
+  function addSupport() {
+    const label = newLabel.trim();
+    if (!label) return;
+    let type = `custom_${slugify(label)}`;
+    const existing = new Set(supports.map((s) => s.type));
+    let n = 2;
+    while (existing.has(type)) {
+      type = `custom_${slugify(label)}_${n++}`;
+    }
+    setSupports((prev) => [
+      ...prev,
+      {
+        type,
+        label,
+        weeklyTarget: Math.max(0, Math.min(14, Number(newTarget) || 0)),
+        enabled: true,
+      },
+    ]);
+    setNewLabel("");
+    setNewTarget("3");
   }
 
   async function save() {
@@ -33,6 +78,22 @@ export default function SettingsPage() {
         historicalDailySpend: Number(spend),
       });
       setMsg("Saved.");
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function toggleToday(type: string, currentlyDone: boolean) {
+    setBusy(true);
+    setMsg("");
+    try {
+      await post("/api/support", {
+        date: today,
+        supportType: type,
+        completed: !currentlyDone,
+      });
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Failed");
     } finally {
@@ -59,7 +120,9 @@ export default function SettingsPage() {
       <header>
         <p className="eyebrow">Configure</p>
         <h1>Settings</h1>
-        <p className="muted">No auth in V1 — open link and go.</p>
+        <p className="muted">
+          Spend, supports, and this week&apos;s plan — edit anytime.
+        </p>
       </header>
 
       <section className="panel">
@@ -76,25 +139,115 @@ export default function SettingsPage() {
 
       <section className="panel">
         <p className="eyebrow">Weekly supports</p>
+        <p className="tiny" style={{ marginBottom: 10 }}>
+          Toggle what shows on Today&apos;s Rebuild. Add your own anytime.
+        </p>
         {supports.map((s) => (
-          <label key={s.type} className="field">
-            <span className="field-label">{s.label} / week</span>
+          <div key={s.type} className="support-edit">
+            <div className="row">
+              <label className="check-inline">
+                <input
+                  type="checkbox"
+                  checked={s.enabled}
+                  onChange={(e) =>
+                    updateSupport(s.type, { enabled: e.target.checked })
+                  }
+                />
+                <input
+                  className="inline-label"
+                  value={s.label}
+                  onChange={(e) =>
+                    updateSupport(s.type, { label: e.target.value })
+                  }
+                />
+              </label>
+              <label className="target-inline">
+                <span className="tiny">/wk</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={14}
+                  value={s.weeklyTarget}
+                  onChange={(e) =>
+                    updateSupport(s.type, {
+                      weeklyTarget: Number(e.target.value),
+                    })
+                  }
+                />
+              </label>
+            </div>
+          </div>
+        ))}
+
+        <div className="add-support">
+          <p className="eyebrow">Add a support</p>
+          <div className="add-support-row">
+            <input
+              value={newLabel}
+              onChange={(e) => setNewLabel(e.target.value)}
+              placeholder="e.g. Walk, Meeting, Therapy"
+            />
             <input
               type="number"
               min={0}
               max={14}
-              value={s.weeklyTarget}
-              onChange={(e) => updateTarget(s.type, Number(e.target.value))}
+              value={newTarget}
+              onChange={(e) => setNewTarget(e.target.value)}
+              aria-label="Weekly target"
+              style={{ width: 64 }}
             />
-          </label>
-        ))}
+            <button type="button" className="btn ghost" onClick={addSupport}>
+              Add
+            </button>
+          </div>
+        </div>
       </section>
 
       {msg && <p className="chip good">{msg}</p>}
       <PrimaryButton onClick={save} disabled={busy}>
-        Save
+        Save settings
       </PrimaryButton>
-      <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
+
+      <section className="panel">
+        <p className="eyebrow">This week&apos;s plan</p>
+        <p className="tiny" style={{ marginBottom: 10 }}>
+          {formatDisplayDate(start)} – {formatDisplayDate(end)} · targets, not
+          judgments
+        </p>
+        {week.map((w) => {
+          const doneToday = state.supports.some(
+            (s) =>
+              s.date === today && s.supportType === w.type && s.completed,
+          );
+          return (
+            <div key={w.type} className="support-row">
+              <div className="row">
+                <div>
+                  <strong>{w.label}</strong>
+                  <p className="tiny">
+                    {w.done} / {w.target} this week
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="btn ghost"
+                  disabled={busy}
+                  onClick={() => toggleToday(w.type, doneToday)}
+                >
+                  {doneToday ? "Undo today" : "Done today"}
+                </button>
+              </div>
+              <ProgressBar done={w.done} target={w.target} />
+            </div>
+          );
+        })}
+        {week.length > 0 && week.every((w) => w.done >= w.target) && (
+          <p className="chip good" style={{ marginTop: 12 }}>
+            Strong week — all supports hit. $20 treat gift unlocks.
+          </p>
+        )}
+      </section>
+
       <SecondaryButton onClick={resetAll}>Reset all data</SecondaryButton>
     </main>
   );

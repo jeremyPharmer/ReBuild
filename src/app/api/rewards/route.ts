@@ -13,12 +13,17 @@ export async function POST(req: Request) {
       const id = String(body.id);
       const actualCost =
         body.actualCost !== undefined ? Number(body.actualCost) : undefined;
+      const futurePull =
+        body.futurePull === undefined || body.futurePull === null
+          ? undefined
+          : Number(body.futurePull);
       const state = await updateState((prev) =>
         executeWishlist(
           prev,
           id,
           actualCost,
           body.notes ? String(body.notes) : undefined,
+          futurePull,
         ),
       );
       return NextResponse.json({ state });
