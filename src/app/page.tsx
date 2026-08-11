@@ -10,8 +10,6 @@ import { fundTotal, pendingCashableMoments } from "@/lib/fund";
 import {
   assignedRewardForMilestone,
   nextIncentive,
-  nextIncentives,
-  projectedReclaimAt,
   suggestedRewardPool,
   waitingReclaimDays,
 } from "@/lib/journey";
@@ -40,6 +38,9 @@ export default function HomePage() {
   const [partialAmount, setPartialAmount] = useState("");
   const [reclaimBusy, setReclaimBusy] = useState(false);
   const [reclaimError, setReclaimError] = useState("");
+  const [rewardPickerOpen, setRewardPickerOpen] = useState(false);
+  const [assignBusy, setAssignBusy] = useState(false);
+  const [assignError, setAssignError] = useState("");
 
   useEffect(() => {
     if (!state.profile?.onboarded) router.replace("/onboarding");
@@ -51,23 +52,21 @@ export default function HomePage() {
 
   const skips = new Set(dashboard.todaySkips ?? []);
   const incentive = nextIncentive(dashboard.cleanDays);
-  const laterIncentives = nextIncentives(dashboard.cleanDays, 3).slice(1);
   const assigned = incentive
     ? assignedRewardForMilestone(state, incentive.dayNumber)
     : undefined;
-  const projected = incentive
-    ? projectedReclaimAt(state, incentive.dayNumber, today)
-    : 0;
   const pool = incentive
     ? suggestedRewardPool(
         incentive.dayNumber,
         state.profile.historicalDailySpend,
       )
     : 0;
+  const eligibleRewards = state.rewards.filter(
+    (r) => !r.executed && r.estimatedCost <= pool,
+  );
   const waiting = waitingReclaimDays(state);
   const pendingRewards = pendingCashableMoments(state);
   const total = fundTotal(state.fund);
-  const dailySpend = state.profile.historicalDailySpend;
   const enabledSupports = state.profile.supports.filter((s) => s.enabled);
   const exitingTypes = new Set(exiting.map((e) => e.type));
   const openSupports = enabledSupports.filter(
@@ -171,6 +170,24 @@ export default function HomePage() {
     setReclaimStep("idle");
     setPartialAmount("");
     setReclaimError("");
+  }
+
+  async function assignReward(rewardId: string) {
+    if (!incentive) return;
+    setAssignBusy(true);
+    setAssignError("");
+    try {
+      await post("/api/rewards", {
+        action: "assign",
+        id: rewardId,
+        milestoneDay: incentive.dayNumber,
+      });
+      setRewardPickerOpen(false);
+    } catch (e) {
+      setAssignError(e instanceof Error ? e.message : "Could not assign");
+    } finally {
+      setAssignBusy(false);
+    }
   }
 
   function supportLabel(type: string) {
@@ -480,13 +497,6 @@ export default function HomePage() {
         {reclaimError && (
           <p style={{ color: "var(--danger)", marginTop: 8 }}>{reclaimError}</p>
         )}
-
-        {waiting.length === 0 && reclaimStep === "idle" && (
-          <p className="tiny" style={{ marginTop: 12, lineHeight: 1.45 }}>
-            Close an aligned day to earn ~${dailySpend} waiting. Then Move to
-            Rebuild to grow Total.
-          </p>
-        )}
       </section>
 
       {incentive && (
@@ -496,33 +506,127 @@ export default function HomePage() {
             Day {incentive.dayNumber} · {incentive.title}
           </h2>
           <p className="muted" style={{ marginTop: 6 }}>
-            {daysToIncentive} day{daysToIncentive === 1 ? "" : "s"} away · Treat
-            or Save
+            {daysToIncentive} day{daysToIncentive === 1 ? "" : "s"} away
           </p>
-          <div className="row" style={{ marginTop: 12 }}>
-            <div>
-              <p className="tiny">Projected pool</p>
-              <p className="money" style={{ fontSize: "1.35rem" }}>
-                <Money value={projected || pool} />
+
+          {assigned ? (
+            <div className="incentive-reward" style={{ marginTop: 14 }}>
+              <p className="tiny">Working toward</p>
+              <p style={{ margin: "4px 0 0", fontWeight: 650, fontSize: "1.1rem" }}>
+                {assigned.name}
               </p>
-            </div>
-            {assigned && (
-              <div style={{ textAlign: "right" }}>
-                <p className="tiny">My reward</p>
-                <p style={{ fontWeight: 600 }}>{assigned.name}</p>
+              <p className="tiny" style={{ marginTop: 4 }}>
+                {assigned.category} · <Money value={assigned.estimatedCost} />
+              </p>
+              <div style={{ marginTop: 12 }}>
+                <SecondaryButton
+                  onClick={() => {
+                    setAssignError("");
+                    setRewardPickerOpen(true);
+                  }}
+                >
+                  Change reward
+                </SecondaryButton>
               </div>
-            )}
-          </div>
-          {laterIncentives.length > 0 && (
-            <div style={{ marginTop: 12, display: "grid", gap: 6 }}>
-              {laterIncentives.map((m, i) => (
-                <p key={m.dayNumber} className="tiny">
-                  {i === 0 ? "Then" : "Later"} · Day {m.dayNumber} — {m.title}
-                </p>
-              ))}
+            </div>
+          ) : (
+            <div style={{ marginTop: 14 }}>
+              <p className="muted" style={{ marginBottom: 12, lineHeight: 1.45 }}>
+                Choose what {incentive.title} is for — something you can reach
+                with this incentive.
+              </p>
+              <PrimaryButton
+                onClick={() => {
+                  setAssignError("");
+                  setRewardPickerOpen(true);
+                }}
+              >
+                Choose reward
+              </PrimaryButton>
             </div>
           )}
         </section>
+      )}
+
+      {rewardPickerOpen && incentive && (
+        <div
+          className="modal-backdrop"
+          role="presentation"
+          onClick={() => !assignBusy && setRewardPickerOpen(false)}
+        >
+          <div
+            className="modal-sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Choose reward"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="eyebrow">Day {incentive.dayNumber}</p>
+            <h2>Choose reward</h2>
+            <p className="tiny" style={{ marginTop: 6, marginBottom: 12 }}>
+              Showing wishlist items up to <Money value={pool} /> for this
+              incentive.
+            </p>
+
+            {eligibleRewards.length === 0 ? (
+              <p className="muted" style={{ lineHeight: 1.45 }}>
+                No matching rewards yet. Add one on the Rewards tab at or under{" "}
+                <Money value={pool} />.
+              </p>
+            ) : (
+              <div className="reward-pick-list">
+                {eligibleRewards.map((r) => {
+                  const selected = assigned?.id === r.id;
+                  return (
+                    <button
+                      key={r.id}
+                      type="button"
+                      className={
+                        selected
+                          ? "check-item check-item-row done"
+                          : "check-item check-item-row"
+                      }
+                      disabled={assignBusy}
+                      onClick={() => assignReward(r.id)}
+                    >
+                      <span className="check-box">
+                        {selected ? "✓" : ""}
+                      </span>
+                      <span className="check-label">
+                        {r.name}
+                        {r.assignedMilestoneDay &&
+                        r.assignedMilestoneDay !== incentive.dayNumber
+                          ? ` · Day ${r.assignedMilestoneDay}`
+                          : ""}
+                      </span>
+                      <span className="tiny">
+                        <Money value={r.estimatedCost} />
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {assignError && (
+              <p style={{ color: "var(--danger)", marginTop: 10 }}>
+                {assignError}
+              </p>
+            )}
+
+            <div className="grid-2" style={{ marginTop: 14 }}>
+              <Link href="/money" onClick={() => setRewardPickerOpen(false)}>
+                <SecondaryButton>Open Rewards</SecondaryButton>
+              </Link>
+              <SecondaryButton
+                onClick={() => setRewardPickerOpen(false)}
+                disabled={assignBusy}
+              >
+                Close
+              </SecondaryButton>
+            </div>
+          </div>
+        </div>
       )}
 
       <Link href="/craving">

@@ -270,13 +270,13 @@ export function FundSegmentBar({
   const segments = [
     {
       key: "future",
-      label: "Future (parked)",
+      name: "Future",
       value: future,
       color: "#5b8a7a",
     },
     {
       key: "treat",
-      label: "Treat Yourself (short-term)",
+      name: "Treat Yourself",
       value: treat,
       color: "#d4a24a",
     },
@@ -291,7 +291,7 @@ export function FundSegmentBar({
               width: `${(s.value / total) * 100}%`,
               background: s.color,
             }}
-            title={`${s.label}: $${s.value}`}
+            title={`${s.name}: $${s.value}`}
           />
         ))}
       </div>
@@ -303,8 +303,7 @@ export function FundSegmentBar({
               style={{ background: s.color }}
             />
             <span>
-              {s.key === "future" ? "Future" : "Treat"} ·{" "}
-              <Money value={s.value} />
+              {s.name} · <Money value={s.value} />
             </span>
           </div>
         ))}

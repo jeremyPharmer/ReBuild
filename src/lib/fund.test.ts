@@ -3,6 +3,7 @@ import {
   eligibleWishlist,
   fundTotal,
   mustTreat,
+  normalizeFund,
   saveForFuture,
   splitTransfer,
   treatYourself,
@@ -46,6 +47,13 @@ describe("fund split", () => {
     state = confirmTransfer(state, ["2026-08-01"], 40);
     expect(fundTotal(state.fund)).toBe(40);
     expect(state.fund).toEqual({ future: 20, treat: 20 });
+  });
+
+  it("folds the legacy Rebuild bucket into Future", () => {
+    expect(normalizeFund({ future: 40, rebuild: 10, treat: 20 })).toEqual({
+      future: 50,
+      treat: 20,
+    });
   });
 
   it("save for the future does not move money into Treat", () => {
@@ -103,6 +111,9 @@ describe("fund split", () => {
       ],
     };
     expect(eligibleWishlist(state).map((r) => r.id)).toEqual(["r1"]);
+    expect(() => treatYourself(state, "ms1", "r1", "nice")).toThrow(
+      /pull more from Future/,
+    );
     state = treatYourself(state, "ms1", "r1", "nice", 25);
     expect(state.fund).toEqual({ future: 15, treat: 0 });
     expect(state.rewards.find((r) => r.id === "r1")?.executed).toBe(true);

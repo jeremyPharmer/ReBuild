@@ -25,6 +25,8 @@ export type RewardCategory =
   | "experiences"
   | "growth"
   | "travel"
+  | "food"
+  | "entertainment"
   | "other";
 
 export type MorningCheckIn = {
