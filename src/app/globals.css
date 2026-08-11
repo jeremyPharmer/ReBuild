@@ -842,6 +842,38 @@ h2 {
 
 .podcast-card h2 {
   margin: 0;
+  font-size: 1.35rem;
+}
+
+.podcast-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.podcast-caret {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--muted);
+  transform: rotate(-90deg);
+  transition: transform 0.18s ease;
+}
+
+.podcast-caret.open {
+  transform: rotate(0deg);
 }
 
 .podcast-card-head {
