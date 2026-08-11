@@ -8,23 +8,28 @@ export function ScaleInput({
   onChange,
   min = 1,
   max = 10,
+  step = 1,
 }: {
   label: string;
   value: number;
   onChange: (n: number) => void;
   min?: number;
   max?: number;
+  step?: number;
 }) {
+  const display =
+    step < 1 && !Number.isInteger(value) ? value.toFixed(1) : String(value);
   return (
     <label className="field">
       <span className="field-label">
         {label}
-        <strong>{value}</strong>
+        <strong>{display}</strong>
       </span>
       <input
         type="range"
         min={min}
         max={max}
+        step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
       />
