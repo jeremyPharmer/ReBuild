@@ -9,12 +9,13 @@ Two private stable apps with **separate persistent volumes**:
 
 ## Promotion policy (locked)
 
-1. **Dev** is for experiments and sample data. Reset allowed.
-2. **Prod** is founder true-source history.  
-   - `/api/reset` is **disabled** when `REBUILD_ENV=prod`.  
-   - Deploys use the existing Fly volume — **code updates never wipe `.data/db.json`**.  
+1. **Dev** is for experiments and sample data. Reset allowed (`POST /api/reset`).
+2. **Prod** is founder true-source history.
+   - `/api/reset` is **disabled** when `REBUILD_ENV=prod`.
+   - Deploys use the existing Fly volume — **code updates never wipe `.data/db.json`**.
    - Only promote to prod when intentionally shipping; do not treat prod like a scratch pad.
-3. Agent / release process promotes to prod. Casual local deploys should target **dev** first.
+3. Verify on **dev** first, then promote to **prod**.
+4. Do **not** destroy `rebuild_prod_data`.
 
 ## Deploy
 
@@ -26,8 +27,6 @@ fly deploy -c fly.dev.toml -a rebuild-dev
 fly deploy -c fly.prod.toml -a rebuild-prod
 ```
 
-Volumes stay attached across deploys. Do **not** destroy `rebuild_prod_data`.
-
 ## One-time setup (already done)
 
 ```bash
@@ -36,3 +35,13 @@ fly apps create rebuild-prod
 fly volumes create rebuild_dev_data --region sjc --size 1 -a rebuild-dev
 fly volumes create rebuild_prod_data --region sjc --size 1 -a rebuild-prod
 ```
+
+## Prod Day-1 restart (emergency only)
+
+If founder explicitly requests a clean prod restart (not a normal deploy):
+
+```bash
+fly ssh console -a rebuild-prod -C "sh -c 'printf \"%s\" \"{...empty state...}\" > /app/.data/db.json'"
+```
+
+Never use this as part of routine promotion.

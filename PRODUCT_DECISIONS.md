@@ -13,8 +13,6 @@ Status: **Ready to implement** — schedule, Treat/Save, fund ledger, daily/week
 | **prod** | Founder true-source data | Fly.io (private) |
 
 Separate data volumes/stores. Dev deploys must not overwrite prod.  
-**Prod history is retained across promotions** (Fly volume `rebuild_prod_data`).  
-`/api/reset` is disabled on prod. Only promote code to prod; never wipe prod data.  
 Venmo reconcile / link = later (UI totals first).
 
 ---
@@ -23,9 +21,9 @@ Venmo reconcile / link = later (UI totals first).
 
 - One journey: cannabis + alcohol abstinence
 - Combined historical daily spend
-- Home: **ReBuilding for N days** = clean days **this run**
-- Abstinence advances day counter; reclaim/Venmo is separate
-- Return to use → run resets; history kept; re-climb / re-achieve
+- Home: **ReBuilding for N days** = calendar days on the current abstinence run (**Day 1 = start date** / `currentRunStartedOn`, including the start day before any evening)
+- Reclaim / Move to Rebuild still only from **aligned evenings** (separate from the day counter)
+- Return to use → run resets next calendar day; history kept; re-climb / re-achieve
 - No auth V1; honor system
 - Weekly support 100% gift: **$20** out-of-pocket; **not** in Save-delay rule
 
@@ -60,25 +58,26 @@ First cashable: **Day 3**. Micro every-14: paused.
 
 ## Fund ledger (matches Venmo total)
 
-**Total (must match Venmo)** = Future + Rebuild + Treat Yourself  
+**Locked model:** two buckets only — see also `product/FUND_MODEL.md`.
+
+**Total (must match Venmo)** = Future + Treat Yourself  
 = sum of user-confirmed Move to Rebuild amounts still set aside.
 
 **What I Rebuilt / reinvested** = spent (left Venmo) → shown separately, **not** in Total.
 
 ### On each confirmed Move $X
 
-| Bucket | Share |
-|---|---|
-| Future | 50% |
-| Rebuild | 25% |
-| Treat Yourself | 25% |
+| Bucket | Share | Horizon |
+|---|---|---|
+| Future | 50% | Longer-horizon park |
+| Treat Yourself | 50% | Short-term spendable |
 
-Not editable in V1. Big Total + segmented bar underneath.
+Not editable in V1. Big Total + segmented bar underneath.  
+Legacy **Rebuild** bucket removed (any leftover folds into Future on normalize).
 
-- **Save & compound** → move $ into **Treat** (from Rebuild, then Future if needed); leftover vs suggested stays out of Treat  
-- **Treat Yourself** spend → debit **Treat**; only if Treat ≥ item cost  
-- **Rebuild** life spends → debit **Rebuild**  
-- **Future** → larger/later goals  
+- **Treat Yourself** spend → debit **Treat** first; optionally **pull from Future** if item costs more than Treat  
+- **Save for the Future** → skip spending this reward moment (does **not** move money into Treat)  
+- Weekly $20 support gift → into **Treat** (OOP; not Save-delay)
 
 Venmo drift / force-reconcile: later.
 
@@ -87,22 +86,20 @@ Venmo drift / force-reconcile: later.
 ## Treat / Save rules
 
 - Screen: **right after evening check-in** on Reward/Destination day  
-- Max **2 Saves in a row**; 3rd **must Treat** (Save hidden)  
+- Choices: **Treat Yourself** or **Save for the Future**  
+- Max **2 Saves for the Future in a row**; 3rd **must Treat** (Save hidden)  
 - Treat resets delay counter  
-- Wishlist: any price OK; **claimable only if Treat ≥ cost**  
-- Partial Treat OK; remainder stays in Treat  
+- Wishlist claimable if **Treat + optional Future pull** covers cost  
 - Auto **What I Rebuilt** (item + optional note)  
 - Forced Treat: must pick or **create** wishlist item in-flow  
 
-### Suggested Save formula (confirmed)
+### Projected next-incentive pool
 
 ```text
-curve = 0.35 + (min(dayNumber, 365) / 365) * 0.45
-suggested = round(historicalDailySpend × dayNumber × curve)
+projected = alreadyReclaimed + waitingReclaim + daysToGo × historicalDailySpend
 ```
 
-User may edit amount before confirm.  
-Save $50 of $84 suggested → $50 into Treat; $34 stays in general (Future/Rebuild), not Treat.
+(Suggested-save curve that moved money into Treat is **retired**.)
 
 ---
 

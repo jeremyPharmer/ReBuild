@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { MilestoneRewardMoment } from "@/components/MilestoneReward";
 import { PrimaryButton, ScaleInput, SecondaryButton } from "@/components/ui";
@@ -23,20 +23,6 @@ export default function EveningPage() {
   >(null);
   const [pending, setPending] = useState<MilestoneAchievement[]>([]);
   const [error, setError] = useState("");
-
-  const todaySupports = useMemo(
-    () =>
-      state.profile?.supports
-        .filter((s) => s.enabled)
-        .map((s) => ({
-          ...s,
-          done: state.supports.some(
-            (c) =>
-              c.date === today && c.supportType === s.type && c.completed,
-          ),
-        })) ?? [],
-    [state, today],
-  );
 
   const openPending = pendingCashableMoments(state).filter((m) =>
     pending.some((p) => p.id === m.id),
@@ -73,6 +59,9 @@ export default function EveningPage() {
         <main className="stack fade-in">
           <p className="eyebrow">Reward moment</p>
           <h1>Finish your decision</h1>
+          <PrimaryButton onClick={() => router.push("/money")}>
+            Move money to Rebuild
+          </PrimaryButton>
           {lingering.map((m) => (
             <MilestoneRewardMoment
               key={m.id}
@@ -120,19 +109,10 @@ export default function EveningPage() {
         <div className="panel">
           <p style={{ margin: 0, fontSize: "1.15rem" }}>&ldquo;{oneLine}&rdquo;</p>
         </div>
-        <div className="panel">
-          <p className="eyebrow">Supports today</p>
-          {todaySupports.map((s) => (
-            <p key={s.type} className="tiny" style={{ margin: "6px 0" }}>
-              {s.label} {s.done ? "✓" : "—"}
-            </p>
-          ))}
-          {todaySupports.some((s) => !s.done) && (
-            <p className="tiny" style={{ marginTop: 8 }}>
-              Weekly targets still open — log from Home or Plan anytime.
-            </p>
-          )}
-        </div>
+
+        <PrimaryButton onClick={() => router.push("/money")}>
+          Move money to Rebuild
+        </PrimaryButton>
 
         {stillOpen.map((m) => (
           <MilestoneRewardMoment
@@ -142,9 +122,6 @@ export default function EveningPage() {
           />
         ))}
 
-        <PrimaryButton onClick={() => router.push("/money")}>
-          Move money to Rebuild
-        </PrimaryButton>
         <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
       </main>
     );
@@ -192,15 +169,6 @@ export default function EveningPage() {
             />
           </label>
         )}
-      </section>
-
-      <section className="panel">
-        <p className="eyebrow">Supports today</p>
-        {todaySupports.map((s) => (
-          <p key={s.type} style={{ margin: "6px 0" }}>
-            {s.label} {s.done ? "✓" : "—"}
-          </p>
-        ))}
       </section>
 
       <section className="panel">

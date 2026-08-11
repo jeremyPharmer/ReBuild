@@ -21,33 +21,49 @@ export async function POST(req: Request) {
   const startDate = String(body.startDate ?? "").trim();
   const timezone = String(body.timezone ?? "America/Los_Angeles");
 
-  const state = await updateState((prev) => {
-    const today =
-      startDate ||
-      new Intl.DateTimeFormat("en-CA", {
-        timeZone: timezone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }).format(new Date());
+  try {
+    const state = await updateState((prev) => {
+      if (prev.profile?.onboarded) {
+        const err = new Error(
+          "Already onboarded — use Settings → Reset only if you intend to wipe data",
+        );
+        (err as Error & { status: number }).status = 409;
+        throw err;
+      }
 
-    const runId = newId("run");
-    return {
-      ...prev,
-      profile: {
-        id: prev.profile?.id ?? newId("user"),
-        createdAt: prev.profile?.createdAt ?? new Date().toISOString(),
-        onboarded: true,
-        displayName,
-        historicalDailySpend,
-        startDate: today,
-        currentRunId: runId,
-        currentRunStartedOn: today,
-        supports,
-        timezone,
-      },
-    };
-  });
+      const today =
+        startDate ||
+        new Intl.DateTimeFormat("en-CA", {
+          timeZone: timezone,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(new Date());
 
-  return NextResponse.json({ state });
+      const runId = newId("run");
+      return {
+        ...prev,
+        profile: {
+          id: prev.profile?.id ?? newId("user"),
+          createdAt: prev.profile?.createdAt ?? new Date().toISOString(),
+          onboarded: true,
+          displayName,
+          historicalDailySpend,
+          startDate: today,
+          currentRunId: runId,
+          currentRunStartedOn: today,
+          supports,
+          timezone,
+        },
+      };
+    });
+
+    return NextResponse.json({ state });
+  } catch (e) {
+    const err = e as Error & { status?: number };
+    return NextResponse.json(
+      { error: err.message },
+      { status: err.status ?? 500 },
+    );
+  }
 }

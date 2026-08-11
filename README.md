@@ -9,8 +9,9 @@ operating system for abstinence (cannabis + alcohol as one journey).
 
 - **Daily companion wins** when systems conflict; money makes it tangible
 - Abstinence-only reclaim (no partial days)
-- Home label: **ReBuilding for N days** = clean days on the **current run**
-- Return to use resets the run counter to 0; milestone **history stays**; you
+- Home label: **ReBuilding for N days** = calendar days on the **current run**
+  (Day 1 = start date)
+- Return to use resets the run counter; milestone **history stays**; you
   re-climb and can **re-achieve** milestones; reward pools grow with later days
 - Reclaim is separate from day counting (Venmo confirm in the evening)
 - No auth — open the link and go
@@ -39,7 +40,9 @@ npm run build
 | **Dev** | https://rebuild-dev.fly.dev | Test / sample |
 | **Prod** | https://rebuild-prod.fly.dev | Founder true-source |
 
-See `DEPLOY.md` and `PRODUCT_DECISIONS.md`.
+See `DEPLOY.md`, `PRODUCT_DECISIONS.md`, and `product/` (roadmap + locked fund model).
+
+**Fund buckets (locked):** Future 50% (longer-horizon park) + Treat Yourself 50% (short-term). On reward days: Treat Yourself (Treat first, optional Future pull) or Save for the Future.
 
 ## First-run path
 
@@ -47,8 +50,9 @@ See `DEPLOY.md` and `PRODUCT_DECISIONS.md`.
 2. `/morning` — Start the day
 3. `/plan` — log supports (content asks “what will you do differently?”)
 4. `/evening` — Close the day + one-line journal (+ Move to Rebuild)
-5. `/money` — reclaim ledger, wishlist, What I Rebuilt
+5. `/money` — reclaim ledger, wishlist, What I Rebuilt (Rewards tab)
 6. `/journey` — adventure map + milestone history
-7. `/craving` — delay + intervention
+7. `/settings` — spend, supports, this week’s plan
+8. `/craving` — delay + intervention
 
-Primary nav: Home · Journey · Money · Journal · Plan
+Primary nav: Home · Journey · Rewards · Journal · Settings

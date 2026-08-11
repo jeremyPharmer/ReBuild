@@ -2,16 +2,13 @@ import { NextResponse } from "next/server";
 import { emptyState } from "@/lib/journey";
 import { writeState } from "@/lib/store";
 
-/**
- * Dev-only reset. Disabled on prod so deploys / accidents never wipe
- * founder history. Prod data lives on the Fly volume `rebuild_prod_data`.
- */
+/** Dev/reset helper — clears all data. Blocked on prod true-source. */
 export async function POST() {
   if (process.env.REBUILD_ENV === "prod") {
     return NextResponse.json(
       {
         error:
-          "Reset is disabled on prod. History is retained across deploys.",
+          "Reset is disabled on prod. Use rebuild-dev for test wipes.",
       },
       { status: 403 },
     );

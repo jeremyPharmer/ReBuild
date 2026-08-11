@@ -1,10 +1,7 @@
 export type AlignmentStatus = "aligned" | "return_to_use" | "other";
 
-export type SupportType =
-  | "recovery_content"
-  | "meditation"
-  | "medication"
-  | "gym";
+/** Built-in or custom support id (e.g. "gym", "custom_walk") */
+export type SupportType = string;
 
 export type SupportConfig = {
   type: SupportType;
@@ -28,6 +25,8 @@ export type RewardCategory =
   | "experiences"
   | "growth"
   | "travel"
+  | "food"
+  | "entertainment"
   | "other";
 
 export type MorningCheckIn = {
@@ -65,6 +64,16 @@ export type SupportCompletion = {
   completedAt: string;
 };
 
+/** Support type, or morning/evening check-in */
+export type SkipItemKey = SupportType | "morning" | "evening";
+
+/** Dismiss a Today's Rebuild item for a calendar day */
+export type DailySkip = {
+  date: string;
+  itemKey: SkipItemKey;
+  skippedAt: string;
+};
+
 export type ReclaimDay = {
   date: string;
   estimatedAmount: number;
@@ -83,14 +92,15 @@ export type FinancialTransfer = {
   note?: string;
   createdAt: string;
   /** Split applied at confirm time */
-  split?: { future: number; rebuild: number; treat: number };
+  split?: { future: number; treat: number; rebuild?: number };
 };
 
 /** Venmo-matching balances still set aside */
 export type FundLedger = {
   future: number;
-  rebuild: number;
   treat: number;
+  /** @deprecated folded into future on normalize — two-bucket model */
+  rebuild?: number;
 };
 
 export type MilestoneDecision = {
@@ -194,6 +204,8 @@ export type RebuildState = {
   cravings: CravingEvent[];
   weeklyBonuses: WeeklyBonus[];
   journals: JournalEntry[];
+  /** Today's Rebuild items dismissed for a given date */
+  skips: DailySkip[];
   /** Venmo-matching segmented balances */
   fund: FundLedger;
   /** Consecutive Save choices since last Treat (max 2, then forced Treat) */

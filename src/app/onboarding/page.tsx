@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { PrimaryButton } from "@/components/ui";
 import { DEFAULT_SUPPORTS } from "@/lib/types";
@@ -17,8 +17,12 @@ export default function OnboardingPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (state.profile?.onboarded && step === 0) router.replace("/");
+  }, [state.profile?.onboarded, step, router]);
+
   if (state.profile?.onboarded && step === 0) {
-    // allow re-entry only via settings reset
+    return null;
   }
 
   async function finish() {

@@ -1,4 +1,5 @@
 import {
+  calendarDaysBetween,
   cleanDaysThisRun,
   milestoneAt,
   newId,
@@ -38,7 +39,7 @@ export function applyEveningSideEffects(
 
   if (evening.alignment === "aligned") {
     next = ensureReclaimDay(next, evening.date);
-    next = awardCrossedMilestones(next);
+    next = awardCrossedMilestones(next, evening.date);
   }
 
   if (evening.alignment === "return_to_use") {
@@ -70,20 +71,17 @@ function handleReturnToUse(
   evening: EveningCheckIn,
 ): RebuildState {
   if (!state.profile) return state;
-  const previousClean = cleanDaysThisRun(state);
-  const cleanBefore = state.evenings.filter(
-    (e) =>
-      e.date >= state.profile!.currentRunStartedOn &&
-      e.date < evening.date &&
-      e.alignment === "aligned",
-  ).length;
+  const start = state.profile.currentRunStartedOn;
+  // Abstinence days completed before the return day (return day does not count).
+  const previousClean =
+    evening.date > start ? calendarDaysBetween(start, evening.date) : 0;
 
   const endedRunId = state.profile.currentRunId;
   const returnEvent: ReturnEvent = {
     id: newId("return"),
     date: evening.date,
     notes: evening.returnNotes,
-    previousCleanDays: cleanBefore || previousClean,
+    previousCleanDays: previousClean,
     runIdEnded: endedRunId,
     createdAt: new Date().toISOString(),
   };
@@ -106,9 +104,12 @@ function handleReturnToUse(
   };
 }
 
-function awardCrossedMilestones(state: RebuildState): RebuildState {
+function awardCrossedMilestones(
+  state: RebuildState,
+  asOfDate: string,
+): RebuildState {
   if (!state.profile) return state;
-  const clean = cleanDaysThisRun(state);
+  const clean = cleanDaysThisRun(state, asOfDate);
   const runId = state.profile.currentRunId;
   const alreadyThisRun = new Set(
     state.milestones
@@ -136,7 +137,7 @@ function awardCrossedMilestones(state: RebuildState): RebuildState {
   return { ...state, milestones: [...state.milestones, ...newly] };
 }
 
-function maybeCreateWeeklyBonus(
+export function maybeCreateWeeklyBonus(
   state: RebuildState,
   date: string,
 ): RebuildState {

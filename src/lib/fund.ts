@@ -7,70 +7,91 @@ import type {
 } from "./types";
 
 export function emptyFund(): FundLedger {
-  return { future: 0, rebuild: 0, treat: 0 };
+  return { future: 0, treat: 0 };
 }
 
 export function fundTotal(fund: FundLedger): number {
-  return round2(fund.future + fund.rebuild + fund.treat);
+  return round2((fund.future ?? 0) + (fund.treat ?? 0) + (fund.rebuild ?? 0));
+}
+
+/** Fold legacy Rebuild bucket into Future; two-bucket model only. */
+export function normalizeFund(fund: FundLedger | undefined): FundLedger {
+  const raw = fund ?? emptyFund();
+  const legacyRebuild = raw.rebuild ?? 0;
+  return {
+    future: round2((raw.future ?? 0) + legacyRebuild),
+    treat: round2(raw.treat ?? 0),
+  };
 }
 
 export function normalizeState(state: RebuildState): RebuildState {
-  const fund = state.fund ?? emptyFund();
   return {
     ...state,
-    fund: {
-      future: fund.future ?? 0,
-      rebuild: fund.rebuild ?? 0,
-      treat: fund.treat ?? 0,
-    },
+    skips: state.skips ?? [],
+    fund: normalizeFund(state.fund),
     consecutiveSaves: state.consecutiveSaves ?? 0,
     milestoneDecisions: state.milestoneDecisions ?? [],
   };
 }
 
+/** Locked split: Future 50% / Treat Yourself 50%. */
 export function splitTransfer(amount: number): FundLedger {
   const future = round2(amount * 0.5);
-  const rebuild = round2(amount * 0.25);
-  const treat = round2(amount - future - rebuild);
-  return { future, rebuild, treat };
+  const treat = round2(amount - future);
+  return { future, treat };
 }
 
 export function applySplitToFund(
   fund: FundLedger,
   split: FundLedger,
 ): FundLedger {
+  const base = normalizeFund(fund);
   return {
-    future: round2(fund.future + split.future),
-    rebuild: round2(fund.rebuild + split.rebuild),
-    treat: round2(fund.treat + split.treat),
+    future: round2(base.future + (split.future ?? 0)),
+    treat: round2(base.treat + (split.treat ?? 0)),
   };
 }
 
 /**
- * Move `amount` into Treat from Rebuild first, then Future.
- * Returns updated fund and the actual amount moved.
+ * Debit Treat first, then Future for any remaining cost.
+ * `futurePull` opts in to and caps how much Future may cover.
  */
-export function moveIntoTreat(
+export function spendFromTreatAndFuture(
   fund: FundLedger,
-  amount: number,
-): { fund: FundLedger; moved: number } {
-  let need = Math.max(0, amount);
-  let rebuild = fund.rebuild;
-  let future = fund.future;
-  let treat = fund.treat;
+  cost: number,
+  futurePull?: number,
+): FundLedger {
+  const base = normalizeFund(fund);
+  if (!Number.isFinite(cost) || cost <= 0) {
+    throw Object.assign(new Error("Item cost must be > 0"), { status: 400 });
+  }
+  if (
+    futurePull !== undefined &&
+    (!Number.isFinite(futurePull) || futurePull < 0)
+  ) {
+    throw Object.assign(new Error("Future pull must be a non-negative amount"), {
+      status: 400,
+    });
+  }
 
-  const fromRebuild = Math.min(rebuild, need);
-  rebuild = round2(rebuild - fromRebuild);
-  need = round2(need - fromRebuild);
+  const fromTreat = Math.min(base.treat, cost);
+  const deficit = round2(cost - fromTreat);
+  const maxPull = futurePull === undefined ? 0 : round2(futurePull);
+  const fromFuture = Math.min(base.future, deficit, maxPull);
 
-  const fromFuture = Math.min(future, need);
-  future = round2(future - fromFuture);
-  need = round2(need - fromFuture);
+  if (round2(fromTreat + fromFuture) < cost) {
+    throw Object.assign(
+      new Error(
+        "Not enough in Treat Yourself + Future pull for this item — pick a cheaper treat or pull more from Future",
+      ),
+      { status: 400 },
+    );
+  }
 
-  const moved = round2(fromRebuild + fromFuture);
-  treat = round2(treat + moved);
-
-  return { fund: { future, rebuild, treat }, moved };
+  return {
+    future: round2(base.future - fromFuture),
+    treat: round2(base.treat - fromTreat),
+  };
 }
 
 export function pendingCashableMoments(
@@ -91,43 +112,42 @@ export function mustTreat(state: RebuildState): boolean {
   return (state.consecutiveSaves ?? 0) >= 2;
 }
 
+/** Affordable if Treat + Future can cover (optional Future pull). */
 export function eligibleWishlist(state: RebuildState): Reward[] {
-  const treat = state.fund?.treat ?? 0;
-  return state.rewards.filter((r) => !r.executed && r.estimatedCost <= treat);
+  const fund = normalizeFund(state.fund);
+  const ceiling = round2(fund.treat + fund.future);
+  return state.rewards.filter((r) => !r.executed && r.estimatedCost <= ceiling);
 }
 
-export function saveCompound(
+/**
+ * Save for the Future — skip spending short-term Treat this reward moment.
+ * Does not move money into Treat (old Save & compound direction retired).
+ */
+export function saveForFuture(
   state: RebuildState,
   milestoneAchievementId: string,
-  amount: number,
 ): RebuildState {
   const moment = state.milestones.find((m) => m.id === milestoneAchievementId);
   if (!moment || !moment.rewardEligible) {
     throw Object.assign(new Error("Milestone not cashable"), { status: 400 });
   }
-  if (state.milestoneDecisions.some((d) => d.milestoneAchievementId === milestoneAchievementId)) {
+  if (
+    state.milestoneDecisions.some(
+      (d) => d.milestoneAchievementId === milestoneAchievementId,
+    )
+  ) {
     throw Object.assign(new Error("Already decided"), { status: 409 });
   }
   if (mustTreat(state)) {
-    throw Object.assign(new Error("Treat Yourself required — Save not allowed"), {
-      status: 400,
-    });
-  }
-  if (!Number.isFinite(amount) || amount <= 0) {
-    throw Object.assign(new Error("Save amount must be > 0"), { status: 400 });
-  }
-
-  const { fund, moved } = moveIntoTreat(state.fund, amount);
-  if (moved <= 0) {
     throw Object.assign(
-      new Error("Nothing available to move into Treat — reclaim money first"),
+      new Error("Treat Yourself required — Save for the Future not allowed"),
       { status: 400 },
     );
   }
 
   return {
     ...state,
-    fund,
+    fund: normalizeFund(state.fund),
     consecutiveSaves: (state.consecutiveSaves ?? 0) + 1,
     milestoneDecisions: [
       ...state.milestoneDecisions,
@@ -136,10 +156,61 @@ export function saveCompound(
         milestoneAchievementId,
         dayNumber: moment.dayNumber,
         choice: "save",
-        amount: moved,
+        amount: 0,
         createdAt: new Date().toISOString(),
       },
     ],
+  };
+}
+
+/** @deprecated use saveForFuture — kept for API alias during ship */
+export function saveCompound(
+  state: RebuildState,
+  milestoneAchievementId: string,
+  _amount?: number,
+): RebuildState {
+  return saveForFuture(state, milestoneAchievementId);
+}
+
+/**
+ * Spend a wishlist item (Treat first, optional Future pull).
+ */
+export function executeWishlist(
+  state: RebuildState,
+  rewardId: string,
+  actualCost?: number,
+  notes?: string,
+  futurePull?: number,
+): RebuildState {
+  const reward = state.rewards.find((r) => r.id === rewardId);
+  if (!reward || reward.executed) {
+    throw Object.assign(new Error("Wishlist item not available"), {
+      status: 400,
+    });
+  }
+
+  const cost =
+    actualCost !== undefined && Number.isFinite(actualCost)
+      ? actualCost
+      : reward.estimatedCost;
+
+  const fund = spendFromTreatAndFuture(state.fund, cost, futurePull);
+
+  return {
+    ...state,
+    fund,
+    consecutiveSaves: 0,
+    rewards: state.rewards.map((r) =>
+      r.id === rewardId
+        ? {
+            ...r,
+            executed: true,
+            executedAt: new Date().toISOString(),
+            actualCost: cost,
+            notes: notes || r.notes,
+          }
+        : r,
+    ),
   };
 }
 
@@ -148,12 +219,17 @@ export function treatYourself(
   milestoneAchievementId: string,
   rewardId: string,
   note?: string,
+  futurePull?: number,
 ): RebuildState {
   const moment = state.milestones.find((m) => m.id === milestoneAchievementId);
   if (!moment || !moment.rewardEligible) {
     throw Object.assign(new Error("Milestone not cashable"), { status: 400 });
   }
-  if (state.milestoneDecisions.some((d) => d.milestoneAchievementId === milestoneAchievementId)) {
+  if (
+    state.milestoneDecisions.some(
+      (d) => d.milestoneAchievementId === milestoneAchievementId,
+    )
+  ) {
     throw Object.assign(new Error("Already decided"), { status: 409 });
   }
 
@@ -163,22 +239,11 @@ export function treatYourself(
   }
 
   const cost = reward.estimatedCost;
-  if (cost > state.fund.treat) {
-    throw Object.assign(
-      new Error("Treat pool is below this item’s cost — Save more or pick a cheaper item"),
-      { status: 400 },
-    );
-  }
-  if (cost <= 0) {
-    throw Object.assign(new Error("Item cost must be > 0"), { status: 400 });
-  }
+  const fund = spendFromTreatAndFuture(state.fund, cost, futurePull);
 
   return {
     ...state,
-    fund: {
-      ...state.fund,
-      treat: round2(state.fund.treat - cost),
-    },
+    fund,
     consecutiveSaves: 0,
     rewards: state.rewards.map((r) =>
       r.id === rewardId
