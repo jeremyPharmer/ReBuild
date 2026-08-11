@@ -36,8 +36,8 @@ Keep changes in your lane when sharing a branch. Prefer small PRs that can ship.
 ## App / ship
 
 1. Verify on **dev** first: https://rebuild-dev.fly.dev (`fly deploy -c fly.dev.toml -a rebuild-dev`)
-2. Deploy **prod** only when ready: `fly deploy -c fly.prod.toml -a rebuild-prod`
-3. `POST /api/reset` is blocked when `REBUILD_ENV=prod`. Prod Day-1 restart: clear `/app/.data/db.json` on `rebuild-prod` (see `DEPLOY.md`).
+2. **Only Reese pushes to prod:** `fly deploy -c fly.prod.toml -a rebuild-prod`. Oscar / UXUI / Bugbot do not promote prod.
+3. `POST /api/reset` is blocked when `REBUILD_ENV=prod`. Prod Day-1 restart: clear `/app/.data/db.json` on `rebuild-prod` (see `DEPLOY.md`) — Reese-owned.
 
 ## Cursor Cloud notes
 
