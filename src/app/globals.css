@@ -336,6 +336,18 @@ h2 {
 
 .check-item.done {
   border-color: rgba(127, 191, 154, 0.45);
+  background: rgba(127, 191, 154, 0.08);
+  cursor: default;
+}
+
+.check-item.done .check-label {
+  text-decoration: line-through;
+  text-decoration-color: rgba(127, 191, 154, 0.85);
+  color: var(--muted);
+}
+
+.check-item.just-done .check-box {
+  animation: check-pop 0.35s ease-out;
 }
 
 .check-box {
