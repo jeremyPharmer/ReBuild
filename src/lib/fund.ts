@@ -54,7 +54,7 @@ export function applySplitToFund(
 
 /**
  * Debit Treat first, then Future for any remaining cost.
- * `futurePull` caps how much Future may cover (default = full deficit).
+ * `futurePull` opts in to and caps how much Future may cover.
  */
 export function spendFromTreatAndFuture(
   fund: FundLedger,
@@ -65,11 +65,18 @@ export function spendFromTreatAndFuture(
   if (!Number.isFinite(cost) || cost <= 0) {
     throw Object.assign(new Error("Item cost must be > 0"), { status: 400 });
   }
+  if (
+    futurePull !== undefined &&
+    (!Number.isFinite(futurePull) || futurePull < 0)
+  ) {
+    throw Object.assign(new Error("Future pull must be a non-negative amount"), {
+      status: 400,
+    });
+  }
 
   const fromTreat = Math.min(base.treat, cost);
   const deficit = round2(cost - fromTreat);
-  const maxPull =
-    futurePull === undefined ? deficit : Math.max(0, round2(futurePull));
+  const maxPull = futurePull === undefined ? 0 : round2(futurePull);
   const fromFuture = Math.min(base.future, deficit, maxPull);
 
   if (round2(fromTreat + fromFuture) < cost) {
