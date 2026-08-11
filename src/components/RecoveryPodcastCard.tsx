@@ -11,7 +11,7 @@ import {
 export function RecoveryPodcastCard() {
   const { state, today, post } = useApp();
   const offers = offeredPodcasts(state.listenedPodcasts);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
