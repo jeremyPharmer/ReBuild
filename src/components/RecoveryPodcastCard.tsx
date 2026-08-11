@@ -11,7 +11,8 @@ import {
 export function RecoveryPodcastCard() {
   const { state, today, post } = useApp();
   const offers = offeredPodcasts(state.listenedPodcasts);
-  const [open, setOpen] = useState(false);
+  // Default open so Recovery Content is visible on Home (still collapsible).
+  const [open, setOpen] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
