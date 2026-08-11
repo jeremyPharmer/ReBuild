@@ -549,7 +549,7 @@ export default function HomePage() {
             <h2>Choose reward</h2>
             <p className="tiny" style={{ marginTop: 6, marginBottom: 12 }}>
               Showing wishlist items up to <Money value={pool} /> for this
-              incentive. Tap the checked item again to clear.
+              incentive.
             </p>
 
             {eligibleRewards.length === 0 ? (

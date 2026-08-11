@@ -45,3 +45,37 @@ fly ssh console -a rebuild-prod -C "sh -c 'printf \"%s\" \"{...empty state...}\"
 ```
 
 Never use this as part of routine promotion.
+
+## Email reminders (morning / evening)
+
+N=1 Start-the-day and Close-the-day emails via [Resend](https://resend.com).
+
+### Secrets (prod + optionally dev)
+
+```bash
+# Resend API key (https://resend.com/api-keys)
+fly secrets set RESEND_API_KEY=re_xxx -a rebuild-prod
+fly secrets set RESEND_API_KEY=re_xxx -a rebuild-dev
+
+# Shared cron bearer (any long random string)
+fly secrets set CRON_SECRET='long-random-string' -a rebuild-prod
+fly secrets set CRON_SECRET='long-random-string' -a rebuild-dev
+```
+
+Optional:
+
+```bash
+fly secrets set EMAIL_FROM='REBUILD <you@yourdomain.com>' -a rebuild-prod
+fly secrets set APP_URL=https://rebuild-prod.fly.dev -a rebuild-prod
+```
+
+Until you verify a domain in Resend, use the default `onboarding@resend.dev` from-address (can only send to your Resend account email).
+
+### GitHub Actions schedule
+
+Repo secret **`REBUILD_CRON_SECRET`** must match Fly `CRON_SECRET`.  
+Workflow: `.github/workflows/reminders.yml` (hourly + manual dispatch).
+
+### In-app
+
+Settings → Email nudges → set email, enable, choose hours (profile timezone) → **Test morning / Test evening**.

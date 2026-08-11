@@ -1,0 +1,40 @@
+name: Daily Rebuild reminders
+
+on:
+  schedule:
+    # Top of every hour — app decides if local morning/evening hour matches
+    - cron: "5 * * * *"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "dev or prod"
+        required: true
+        default: prod
+        type: choice
+        options:
+          - prod
+          - dev
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger reminder cron
+        env:
+          CRON_SECRET: ${{ secrets.REBUILD_CRON_SECRET }}
+          TARGET: ${{ github.event.inputs.target || 'prod' }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "REBUILD_CRON_SECRET is not set in GitHub Actions secrets"
+            exit 1
+          fi
+          if [ "$TARGET" = "dev" ]; then
+            URL="https://rebuild-dev.fly.dev/api/cron/reminders"
+          else
+            URL="https://rebuild-prod.fly.dev/api/cron/reminders"
+          fi
+          curl -fsS -X POST "$URL" \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Content-Type: application/json" \
+            -d '{}'

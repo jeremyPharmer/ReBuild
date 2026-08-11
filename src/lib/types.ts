@@ -178,6 +178,14 @@ export type JournalEntry = {
   createdAt: string;
 };
 
+export type ReminderPrefs = {
+  enabled: boolean;
+  /** Local hour 0–23 in profile.timezone */
+  morningHour: number;
+  /** Local hour 0–23 in profile.timezone */
+  eveningHour: number;
+};
+
 export type RebuildProfile = {
   id: string;
   createdAt: string;
@@ -191,6 +199,9 @@ export type RebuildProfile = {
   currentRunStartedOn: string;
   supports: SupportConfig[];
   timezone: string;
+  /** Where morning/evening reminder emails go */
+  email?: string;
+  reminders?: ReminderPrefs;
 };
 
 export type RebuildState = {
@@ -213,6 +224,8 @@ export type RebuildState = {
   /** Consecutive Save choices since last Treat (max 2, then forced Treat) */
   consecutiveSaves: number;
   milestoneDecisions: MilestoneDecision[];
+  /** Last local dates a reminder email was sent (YYYY-MM-DD) */
+  reminderLog?: { morning?: string; evening?: string };
 };
 
 export const DEFAULT_SUPPORTS: SupportConfig[] = [

@@ -256,6 +256,7 @@ export function emptyState(): RebuildState {
     fund: { future: 0, treat: 0 },
     consecutiveSaves: 0,
     milestoneDecisions: [],
+    reminderLog: {},
   };
 }
 
