@@ -85,10 +85,8 @@ function TrailDayCard({
   const [open, setOpen] = useState(!defaultCollapsed);
   const evening = day.evening;
   const morning = day.morning;
-  const thesis =
-    evening?.oneLine?.trim() ||
-    morning?.intention?.trim() ||
-    "Day marked on the trail";
+  /** Collapsed row shows the close-the-day one-liner only. */
+  const thesis = evening?.oneLine?.trim() || "Day marked on the trail";
 
   return (
     <article className={open ? "trail-day" : "trail-day collapsed"}>
@@ -100,15 +98,17 @@ function TrailDayCard({
       >
         <div className="trail-day-toggle-main">
           <span className="tiny trail-day-toggle-label">
-            Day {day.dayNumber} · {day.date.slice(5).replace("-", "/")}
+            Day {day.dayNumber}
           </span>
           {!open && (
             <span className="trail-day-thesis">&ldquo;{thesis}&rdquo;</span>
           )}
-          {open && <strong className="trail-day-toggle-title">{trailDayLabel(day)}</strong>}
+          {open && (
+            <strong className="trail-day-toggle-title">{trailDayLabel(day)}</strong>
+          )}
         </div>
         <div className="trail-day-toggle-meta">
-          {evening && (
+          {open && evening && (
             <span
               className={
                 evening.alignment === "aligned"
@@ -368,7 +368,8 @@ function TrendsChart({
             )}
           </svg>
           <p className="tiny" style={{ marginTop: 8 }}>
-            Last year of check-ins · tap a metric to show or hide
+            Sleep · mood · energy · stress · craving over the last year. Tap a
+            metric to show or hide.
           </p>
         </>
       )}
@@ -412,12 +413,13 @@ export default function JourneyPage() {
           </p>
         )}
         <div className="trail-log">
-          {trailDays.map((day, index) => (
+          {trailDays.map((day) => (
             <TrailDayCard
               key={day.date}
               day={day}
               supportLabel={supportLabel}
-              defaultCollapsed={index > 0 || Boolean(day.evening && day.date < today)}
+              // Past days stay collapsed to the end-of-day line; today stays open.
+              defaultCollapsed={day.date < today}
             />
           ))}
         </div>
@@ -459,8 +461,8 @@ export default function JourneyPage() {
       </section>
 
       <section className="panel">
-        <p className="eyebrow">Conditions over time</p>
-        <h2 style={{ marginBottom: 10 }}>Trail weather</h2>
+        <p className="eyebrow">Over time</p>
+        <h2 style={{ marginBottom: 10 }}>Conditions</h2>
         <TrendsChart points={trendPoints} />
       </section>
 
