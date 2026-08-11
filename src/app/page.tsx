@@ -25,7 +25,6 @@ export default function HomePage() {
   const [skipBusy, setSkipBusy] = useState<SkipKey | null>(null);
   const [undoOpen, setUndoOpen] = useState(false);
   const [undoBusy, setUndoBusy] = useState<string | null>(null);
-  const [justDone, setJustDone] = useState<SupportType | null>(null);
   const [reclaimStep, setReclaimStep] = useState<"idle" | "choose" | "partial">(
     "idle",
   );
@@ -77,12 +76,16 @@ export default function HomePage() {
   const openCount =
     (showMorningOpen ? 1 : 0) + openSupports.length + (showEveningOpen ? 1 : 0);
 
+  const completedSupports = dashboard.todaySupports;
   const skippedToday = (state.skips ?? []).filter((s) => s.date === today);
-  const hasUndoItems = skippedToday.length > 0;
+  const hasUndoItems =
+    completedSupports.length > 0 ||
+    skippedToday.length > 0 ||
+    morningDone ||
+    eveningDone;
 
   async function completeSupport(type: SupportType) {
     setBusyType(type);
-    setJustDone(type);
     try {
       await post("/api/support", {
         date: today,
@@ -91,9 +94,6 @@ export default function HomePage() {
       });
     } finally {
       setBusyType(null);
-      window.setTimeout(() => {
-        setJustDone((cur) => (cur === type ? null : cur));
-      }, 400);
     }
   }
 
@@ -247,13 +247,26 @@ export default function HomePage() {
         {undoOpen && (
           <div className="undo-panel">
             <p className="tiny" style={{ marginBottom: 8 }}>
-              Bring a &ldquo;Not today&rdquo; item back
+              Bring something back to today&apos;s list
             </p>
             {!hasUndoItems && (
               <p className="muted" style={{ margin: 0 }}>
-                Nothing skipped yet.
+                Nothing to undo yet.
               </p>
             )}
+            {completedSupports.map((s) => (
+              <div key={`done-${s.supportType}`} className="undo-row">
+                <span>{supportLabel(s.supportType)} · done</span>
+                <button
+                  type="button"
+                  className="dismiss-btn"
+                  disabled={undoBusy === s.supportType}
+                  onClick={() => undoSupport(s.supportType)}
+                >
+                  Undo
+                </button>
+              </div>
+            ))}
             {skippedToday.map((s) => (
               <div key={`skip-${s.itemKey}`} className="undo-row">
                 <span>{itemLabel(s.itemKey)} · not today</span>
@@ -267,6 +280,12 @@ export default function HomePage() {
                 </button>
               </div>
             ))}
+            {morningDone && (
+              <p className="tiny">Morning check-in is logged for today.</p>
+            )}
+            {eveningDone && (
+              <p className="tiny">Evening check-in is logged for today.</p>
+            )}
           </div>
         )}
 
@@ -287,43 +306,10 @@ export default function HomePage() {
               </button>
             </div>
           )}
-          {morningDone && !morningSkipped && (
-            <div className="check-item check-item-row done">
-              <div className="check-item-main" aria-label="Start the day done">
-                <span className="check-box checked">✓</span>
-                <span className="check-label">Start the day</span>
-              </div>
-            </div>
-          )}
 
-          {enabledSupports.map((s) => {
-            if (skips.has(s.type)) return null;
+          {openSupports.map((s) => {
             const weekDone =
               dashboard.week.find((w) => w.type === s.type)?.done ?? 0;
-            const isDone = completedSupportTypes.has(s.type);
-            if (isDone) {
-              return (
-                <div
-                  key={s.type}
-                  className={`check-item check-item-row done${
-                    justDone === s.type ? " just-done" : ""
-                  }`}
-                >
-                  <button
-                    type="button"
-                    className="check-item-main"
-                    disabled={undoBusy === s.type}
-                    onClick={() => undoSupport(s.type)}
-                    aria-label={`Undo ${s.label}`}
-                  >
-                    <span className="check-box checked">✓</span>
-                    <span className="check-label">
-                      {s.label}, week {weekDone} of {s.weeklyTarget}
-                    </span>
-                  </button>
-                </div>
-              );
-            }
             return (
               <div key={s.type} className="check-item check-item-row">
                 <button
@@ -363,14 +349,6 @@ export default function HomePage() {
               >
                 Not today
               </button>
-            </div>
-          )}
-          {eveningDone && !eveningSkipped && (
-            <div className="check-item check-item-row done">
-              <div className="check-item-main" aria-label="Close the day done">
-                <span className="check-box checked">✓</span>
-                <span className="check-label">Close the day</span>
-              </div>
             </div>
           )}
 
