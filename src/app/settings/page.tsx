@@ -22,7 +22,7 @@ function slugify(label: string) {
 }
 
 export default function SettingsPage() {
-  const { state, today, post, refresh } = useApp();
+  const { state, today, post, refresh, env } = useApp();
   const router = useRouter();
   const [supports, setSupports] = useState<SupportConfig[]>(
     state.profile?.supports ?? DEFAULT_SUPPORTS,
@@ -102,7 +102,8 @@ export default function SettingsPage() {
   }
 
   async function resetAll() {
-    if (!window.confirm("Reset all Rebuild data for this device/server?")) {
+    if (env === "prod") return;
+    if (!window.confirm("Reset all Rebuild data on DEV?")) {
       return;
     }
     const res = await fetch("/api/reset", { method: "POST" });
@@ -121,7 +122,11 @@ export default function SettingsPage() {
         <p className="eyebrow">Configure</p>
         <h1>Settings</h1>
         <p className="muted">
-          Spend, supports, and this week&apos;s plan — edit anytime.
+          Environment: <strong>{env}</strong>
+          {env === "prod"
+            ? " · history retained across updates"
+            : " · safe to reset for testing"}
+          . Spend, supports, and this week&apos;s plan — edit anytime.
         </p>
       </header>
 
@@ -248,7 +253,9 @@ export default function SettingsPage() {
         )}
       </section>
 
-      <SecondaryButton onClick={resetAll}>Reset all data</SecondaryButton>
+      {env !== "prod" && (
+        <SecondaryButton onClick={resetAll}>Reset all data (dev)</SecondaryButton>
+      )}
     </main>
   );
 }
