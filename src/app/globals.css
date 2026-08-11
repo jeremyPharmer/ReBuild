@@ -318,6 +318,11 @@ h2 {
   background: rgba(127, 191, 154, 0.12);
 }
 
+.chip.warn {
+  color: var(--warn);
+  background: rgba(212, 162, 74, 0.14);
+}
+
 .list-check {
   display: grid;
   gap: 8px;
@@ -765,6 +770,117 @@ h2 {
 .daily-actions {
   display: grid;
   gap: 6px;
+}
+
+.trail-log {
+  display: grid;
+  gap: 12px;
+}
+
+.trail-day {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.trail-day-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.trail-day-head h3 {
+  font-size: 1.15rem;
+}
+
+.trail-block + .trail-block {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.trail-block-label {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.trail-quote {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.trail-conditions {
+  margin-top: 4px;
+}
+
+.trail-provisions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.provision-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: var(--surface-strong);
+}
+
+.trail-craving + .trail-craving {
+  margin-top: 8px;
+}
+
+.private-reveal {
+  margin-top: 8px;
+}
+
+.private-reveal-btn,
+.private-reveal-hide {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.private-reveal-btn:hover,
+.private-reveal-hide:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.private-reveal-body {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 132, 74, 0.28);
+  background: rgba(212, 132, 74, 0.08);
+}
+
+.trail-private-text {
+  margin: 0 0 8px;
+  line-height: 1.45;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.storm-break .private-reveal {
+  margin-top: 6px;
 }
 
 .modal-backdrop {
