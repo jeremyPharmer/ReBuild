@@ -13,6 +13,8 @@ Status: **Ready to implement** — schedule, Treat/Save, fund ledger, daily/week
 | **prod** | Founder true-source data | Fly.io (private) |
 
 Separate data volumes/stores. Dev deploys must not overwrite prod.  
+**Prod history is retained across promotions** (Fly volume `rebuild_prod_data`).  
+`/api/reset` is disabled on prod. Only promote code to prod; never wipe prod data.  
 Venmo reconcile / link = later (UI totals first).
 
 ---

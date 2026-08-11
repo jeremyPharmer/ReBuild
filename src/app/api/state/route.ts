@@ -13,5 +13,6 @@ export async function GET() {
     today,
     dashboard: buildDashboard(state, today),
     pendingRewards: pendingCashableMoments(state),
+    env: process.env.REBUILD_ENV === "prod" ? "prod" : "dev",
   });
 }

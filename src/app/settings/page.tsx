@@ -7,7 +7,7 @@ import { PrimaryButton, SecondaryButton } from "@/components/ui";
 import { DEFAULT_SUPPORTS, type SupportConfig } from "@/lib/types";
 
 export default function SettingsPage() {
-  const { state, post, refresh } = useApp();
+  const { state, post, refresh, env } = useApp();
   const router = useRouter();
   const [supports, setSupports] = useState<SupportConfig[]>(
     state.profile?.supports ?? DEFAULT_SUPPORTS,
@@ -41,7 +41,8 @@ export default function SettingsPage() {
   }
 
   async function resetAll() {
-    if (!window.confirm("Reset all Rebuild data for this device/server?")) {
+    if (env === "prod") return;
+    if (!window.confirm("Reset all Rebuild data on DEV?")) {
       return;
     }
     await fetch("/api/reset", { method: "POST" });
@@ -54,7 +55,12 @@ export default function SettingsPage() {
       <header>
         <p className="eyebrow">Configure</p>
         <h1>Settings</h1>
-        <p className="muted">No auth in V1 — open link and go.</p>
+        <p className="muted">
+          Environment: <strong>{env}</strong>
+          {env === "prod"
+            ? " · history is retained across updates"
+            : " · safe to reset for testing"}
+        </p>
       </header>
 
       <section className="panel">
@@ -90,7 +96,9 @@ export default function SettingsPage() {
         Save
       </PrimaryButton>
       <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
-      <SecondaryButton onClick={resetAll}>Reset all data</SecondaryButton>
+      {env !== "prod" && (
+        <SecondaryButton onClick={resetAll}>Reset all data (dev)</SecondaryButton>
+      )}
     </main>
   );
 }

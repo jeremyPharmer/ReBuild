@@ -16,6 +16,7 @@ type AppData = {
   state: RebuildState;
   today: string;
   dashboard: DashboardSnapshot | null;
+  env: "dev" | "prod";
   loading: boolean;
   refresh: () => Promise<void>;
   post: (url: string, body?: unknown) => Promise<unknown>;
@@ -27,6 +28,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<RebuildState | null>(null);
   const [today, setToday] = useState("");
   const [dashboard, setDashboard] = useState<DashboardSnapshot | null>(null);
+  const [env, setEnv] = useState<"dev" | "prod">("dev");
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
@@ -35,6 +37,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState(normalizeState(data.state));
     setToday(data.today);
     setDashboard(data.dashboard);
+    setEnv(data.env === "prod" ? "prod" : "dev");
     setLoading(false);
   }, []);
 
@@ -71,7 +74,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <Ctx.Provider
-      value={{ state, today, dashboard, loading, refresh, post }}
+      value={{ state, today, dashboard, env, loading, refresh, post }}
     >
       {children}
     </Ctx.Provider>
