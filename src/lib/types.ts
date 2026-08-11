@@ -36,7 +36,8 @@ export type MorningCheckIn = {
   mood: number;
   energy: number;
   stress: number;
-  craving: number;
+  /** @deprecated removed from morning UI; prefer craving events */
+  craving?: number;
   intention: string;
   trigger?: string;
   notes?: string;
