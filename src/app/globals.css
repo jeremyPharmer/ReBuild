@@ -318,6 +318,10 @@ h2 {
   background: rgba(127, 191, 154, 0.12);
 }
 
+.chip.warn {
+  color: var(--warn);
+  background: rgba(212, 162, 74, 0.14);
+}
 .list-check {
   display: grid;
   gap: 8px;
@@ -732,6 +736,13 @@ h2 {
   margin-bottom: 18px;
 }
 
+.segment-bar {
+  display: flex;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  margin-top: 14px;
 .shop-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -840,6 +851,31 @@ h2 {
   gap: 6px;
 }
 
+.trail-log {
+  display: grid;
+  gap: 12px;
+}
+
+.trail-day {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 10px 12px 12px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.trail-day.collapsed {
+  padding: 8px 12px;
+}
+
+.trail-day-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: transparent;
+  border: 0;
+  padding: 4px 0;
 .podcast-card h2 {
   margin: 0;
   font-size: 1.35rem;
@@ -859,6 +895,95 @@ h2 {
   text-align: left;
 }
 
+.trail-day-toggle-main {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+
+.trail-day-toggle-label {
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.trail-day-toggle-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.trail-day-thesis {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  line-height: 1.3;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trail-day-toggle-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.caret {
+  color: var(--muted);
+  font-size: 0.85rem;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.caret.open {
+  transform: rotate(180deg);
+}
+
+.trail-day-body {
+  margin-top: 8px;
+}
+
+.trail-day-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.trail-day-head h3 {
+  font-size: 1.15rem;
+}
+
+.trail-block + .trail-block {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.trail-block-label {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.trail-quote {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.trail-conditions {
+  margin-top: 4px;
+}
+
+.trail-provisions {
 .podcast-caret {
   flex: none;
   display: grid;
@@ -926,6 +1051,106 @@ h2 {
   gap: 6px;
 }
 
+.provision-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: var(--surface-strong);
+}
+
+.trail-craving + .trail-craving {
+  margin-top: 8px;
+}
+
+.private-reveal {
+  margin-top: 8px;
+}
+
+.private-reveal-btn,
+.private-reveal-hide {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.private-reveal-btn:hover,
+.private-reveal-hide:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.private-reveal-body {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 132, 74, 0.28);
+  background: rgba(212, 132, 74, 0.08);
+}
+
+.trail-private-text {
+  margin: 0 0 8px;
+  line-height: 1.45;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.storm-break .private-reveal {
+  margin-top: 6px;
+}
+
+.trends {
+  margin-top: 4px;
+}
+
+.trend-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.trend-toggle {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 5px 9px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.trend-toggle.on {
+  color: var(--text);
+  border-color: var(--trend, var(--accent));
+  box-shadow: inset 0 0 0 1px var(--trend, var(--accent));
+}
+
+.trend-svg {
+  width: 100%;
+  height: auto;
+  margin-top: 12px;
+  display: block;
+}
+
+.trend-grid {
+  stroke: rgba(232, 224, 212, 0.1);
+  stroke-width: 1;
+}
+
+.trend-axis {
+  fill: var(--muted);
+  font-size: 9px;
+  font-family: var(--font-body);
 .podcast-row-actions .btn.ghost {
   width: auto;
   padding: 6px 10px;

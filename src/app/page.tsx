@@ -7,7 +7,11 @@ import { useApp } from "@/components/AppProvider";
 import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
 import { FundSegmentBar } from "@/components/MilestoneReward";
 import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
-import { fundTotal, pendingCashableMoments } from "@/lib/fund";
+import {
+  fundTotal,
+  pendingCashableMoments,
+  splitTransfer,
+} from "@/lib/fund";
 import {
   assignedRewardForMilestone,
   nextIncentive,
@@ -18,6 +22,13 @@ import type { SupportType } from "@/lib/types";
 
 type SkipKey = SupportType | "morning" | "evening";
 
+type ExitingSupport = {
+  type: SupportType;
+  label: string;
+  weekDone: number;
+  weeklyTarget: number;
+};
+
 export default function HomePage() {
   const { state, dashboard, today, post } = useApp();
   const router = useRouter();
@@ -25,6 +36,7 @@ export default function HomePage() {
   const [skipBusy, setSkipBusy] = useState<SkipKey | null>(null);
   const [undoOpen, setUndoOpen] = useState(false);
   const [undoBusy, setUndoBusy] = useState<string | null>(null);
+  const [exiting, setExiting] = useState<ExitingSupport[]>([]);
   const [reclaimStep, setReclaimStep] = useState<"idle" | "choose" | "partial">(
     "idle",
   );
@@ -60,12 +72,21 @@ export default function HomePage() {
   const waiting = waitingReclaimDays(state);
   const pendingRewards = pendingCashableMoments(state);
   const total = fundTotal(state.fund);
+  const waitingSplit = splitTransfer(dashboard.waiting);
+  const partialNum = Number(partialAmount);
+  const partialSplit = splitTransfer(
+    Number.isFinite(partialNum) && partialNum > 0 ? partialNum : 0,
+  );
   const enabledSupports = state.profile.supports.filter((s) => s.enabled);
   const completedSupportTypes = new Set(
     dashboard.todaySupports.map((t) => t.supportType),
   );
+  const exitingTypes = new Set(exiting.map((e) => e.type));
   const openSupports = enabledSupports.filter(
-    (s) => !skips.has(s.type) && !completedSupportTypes.has(s.type),
+    (s) =>
+      !skips.has(s.type) &&
+      !completedSupportTypes.has(s.type) &&
+      !exitingTypes.has(s.type),
   );
   const morningSkipped = skips.has("morning");
   const eveningSkipped = skips.has("evening");
@@ -74,7 +95,10 @@ export default function HomePage() {
   const showMorningOpen = !morningDone && !morningSkipped;
   const showEveningOpen = !eveningDone && !eveningSkipped;
   const openCount =
-    (showMorningOpen ? 1 : 0) + openSupports.length + (showEveningOpen ? 1 : 0);
+    (showMorningOpen ? 1 : 0) +
+    openSupports.length +
+    exiting.length +
+    (showEveningOpen ? 1 : 0);
 
   const completedSupports = dashboard.todaySupports;
   const skippedToday = (state.skips ?? []).filter((s) => s.date === today);
@@ -84,15 +108,22 @@ export default function HomePage() {
     morningDone ||
     eveningDone;
 
-  async function completeSupport(type: SupportType) {
-    setBusyType(type);
+  async function completeSupport(item: ExitingSupport) {
+    setBusyType(item.type);
+    setExiting((prev) =>
+      prev.some((e) => e.type === item.type) ? prev : [...prev, item],
+    );
     try {
-      await post("/api/support", {
-        date: today,
-        supportType: type,
-        completed: true,
-      });
+      await Promise.all([
+        post("/api/support", {
+          date: today,
+          supportType: item.type,
+          completed: true,
+        }),
+        new Promise((r) => setTimeout(r, 700)),
+      ]);
     } finally {
+      setExiting((prev) => prev.filter((e) => e.type !== item.type));
       setBusyType(null);
     }
   }
@@ -211,12 +242,12 @@ export default function HomePage() {
           <p className="muted">
             {total > 0
               ? "Treat Yourself or Save for the Future."
-              : "Move money to Rebuild first, then Treat or Save."}
+              : "Move waiting money first (30% Future · 70% Treat), then Treat or Save."}
           </p>
           <div style={{ marginTop: 12 }}>
             <Link href={total > 0 ? "/evening" : "/money"}>
               <PrimaryButton>
-                {total > 0 ? "Open reward moment" : "Move money to Rebuild"}
+                {total > 0 ? "Open reward moment" : "Move waiting money"}
               </PrimaryButton>
             </Link>
           </div>
@@ -316,7 +347,14 @@ export default function HomePage() {
                   type="button"
                   className="check-item-main"
                   disabled={busyType === s.type}
-                  onClick={() => completeSupport(s.type)}
+                  onClick={() =>
+                    completeSupport({
+                      type: s.type,
+                      label: s.label,
+                      weekDone,
+                      weeklyTarget: s.weeklyTarget,
+                    })
+                  }
                 >
                   <span className="check-box" />
                   <span className="check-label">
@@ -334,6 +372,24 @@ export default function HomePage() {
               </div>
             );
           })}
+
+          {exiting.map((s) => (
+            <div
+              key={`exit-${s.type}`}
+              className="check-item check-item-row clearing"
+              aria-live="polite"
+            >
+              <div className="check-item-main" aria-hidden>
+                <span className="check-box checked">✓</span>
+                <span className="check-label">
+                  {s.label}, week {s.weekDone + 1} of {s.weeklyTarget}
+                </span>
+              </div>
+              <span className="clear-burst" aria-hidden>
+                +1
+              </span>
+            </div>
+          ))}
 
           {showEveningOpen && (
             <div className="check-item check-item-row">
@@ -369,7 +425,7 @@ export default function HomePage() {
             <p className="money money-xl">
               <Money value={total} />
             </p>
-            <p className="tiny">Already in Rebuild</p>
+            <p className="tiny">Future · Treat Yourself</p>
           </div>
           <div style={{ textAlign: "right" }}>
             <p className="tiny">Waiting to reclaim</p>
@@ -384,7 +440,7 @@ export default function HomePage() {
         {waiting.length > 0 && reclaimStep === "idle" && (
           <div style={{ marginTop: 14 }}>
             <PrimaryButton onClick={openReclaim}>
-              Move to Rebuild
+              Move waiting money
             </PrimaryButton>
           </div>
         )}
@@ -392,7 +448,10 @@ export default function HomePage() {
         {waiting.length > 0 && reclaimStep === "choose" && (
           <div className="reclaim-chooser" style={{ marginTop: 14 }}>
             <p className="tiny" style={{ marginBottom: 10 }}>
-              Move <Money value={dashboard.waiting} /> from waiting into Total
+              Move <Money value={dashboard.waiting} /> from waiting — 30% Future
+              · 70% Treat Yourself (
+              <Money value={waitingSplit.future} /> ·{" "}
+              <Money value={waitingSplit.treat} />)
             </p>
             <div className="choice-row">
               <button
@@ -401,7 +460,7 @@ export default function HomePage() {
                 disabled={reclaimBusy}
                 onClick={() => confirmReclaim(dashboard.waiting)}
               >
-                Total · ${dashboard.waiting}
+                All · ${dashboard.waiting}
               </button>
               <button
                 type="button"
@@ -421,7 +480,8 @@ export default function HomePage() {
         {waiting.length > 0 && reclaimStep === "partial" && (
           <div className="reclaim-chooser" style={{ marginTop: 14 }}>
             <p className="tiny" style={{ marginBottom: 8 }}>
-              How much of the ${dashboard.waiting} waiting are you moving?
+              How much of the ${dashboard.waiting} waiting? Splits 30% Future ·
+              70% Treat Yourself.
             </p>
             <label className="field">
               <span className="field-label">Amount</span>
@@ -434,17 +494,23 @@ export default function HomePage() {
                 onChange={(e) => setPartialAmount(e.target.value)}
               />
             </label>
+            {Number.isFinite(partialNum) && partialNum > 0 && (
+              <p className="tiny" style={{ marginBottom: 8 }}>
+                <Money value={partialSplit.future} /> Future ·{" "}
+                <Money value={partialSplit.treat} /> Treat Yourself
+              </p>
+            )}
             <PrimaryButton
               disabled={
                 reclaimBusy ||
-                !Number.isFinite(Number(partialAmount)) ||
-                Number(partialAmount) < 0
+                !Number.isFinite(partialNum) ||
+                partialNum < 0
               }
-              onClick={() => confirmReclaim(Number(partialAmount))}
+              onClick={() => confirmReclaim(partialNum)}
             >
               {reclaimBusy
                 ? "Moving…"
-                : `Move $${Number(partialAmount) || 0} to Rebuild`}
+                : `Move $${partialNum || 0}`}
             </PrimaryButton>
             <div style={{ marginTop: 8 }}>
               <SecondaryButton

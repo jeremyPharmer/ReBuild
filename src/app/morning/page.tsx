@@ -111,6 +111,7 @@ export default function MorningPage() {
           value={sleepHours}
           min={0}
           max={14}
+          step={0.5}
           onChange={setSleepHours}
         />
         <ScaleInput
