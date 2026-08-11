@@ -1,43 +1,66 @@
 # Fund model (locked)
 
 Last updated: 2026-08-11  
-Status: **Decision locked** — supersedes three-bucket 50/25/25 in prior V1 notes.
+Status: **Decision locked** — supersedes three-bucket 50/25/25 and the old “Save into Treat” direction.
 
-## Why we had three buckets
+## Mental model
 
-| Bucket | Original intent |
-| --- | --- |
-| **Future** | Longer-horizon goals — keep money parked for bigger later aims |
-| **Rebuild** | “Life spends” while rebuilding — practical spends that aren’t a treat and aren’t long-term savings |
-| **Treat Yourself** | Near-term celebration / wishlist — cashable on Reward & Destination days; fed by Save & compound |
+| Bucket | Horizon | Job |
+| --- | --- | --- |
+| **Future** | Longer | Park money for bigger / later goals |
+| **Treat Yourself** | Short-term | Near-term spendable incentive — “I have $5 in here…” |
 
-**Rebuild** was meant as a middle spending lane. In practice it overlaps both sides: practical life spends can come from Future later, and celebratory spends already have Treat. Three segments also make the Venmo-matching bar harder to read without adding a clear third *user*.
+**Venmo-matching Total** = Future + Treat Yourself  
+**What I Rebuilt** (spent / left Venmo) sits outside Total.
 
-## Locked model: two buckets, 50 / 50
+## Split on each Move
 
 On each confirmed **Move to Rebuild** amount `$X`:
 
-| Bucket | Share | Job |
-| --- | --- | --- |
-| **Future** | **50%** | Park money for larger / later goals |
-| **Treat Yourself** | **50%** | Near-term incentive pool for wishlist Treats; also receives Save & compound and the weekly $20 gift |
+| Bucket | Share |
+| --- | --- |
+| **Future** | **50%** |
+| **Treat Yourself** | **50%** |
 
-**Venmo-matching Total** = Future + Treat Yourself  
-**What I Rebuilt** (spent / left Venmo) still sits outside Total.
+Weekly support gift ($20 OOP) → into **Treat**; does not count toward Save-delay.
 
-### Flow rules under two buckets
+## Reward / Destination moment (UX)
 
-- **Save & compound** → move $ into **Treat** from **Future** (only source left). Leftover vs suggested stays in Future, not Treat.
-- **Treat Yourself** spend → debit Treat; only if Treat ≥ item cost.
-- Practical “rebuild life” spends that used to debit Rebuild → either (a) treat as **What I Rebuilt** from Treat when it’s a wishlist win, or (b) spend from **Future** when it’s a longer-horizon life investment. No third ledger line.
-- Weekly support gift ($20 OOP) → still into **Treat**; still does not count toward Save-delay.
+When the journey hits a **Reward** or **Destination** day, present two choices:
 
-### What we drop
+### 1. Treat Yourself (short-term)
 
-- Rebuild fund segment (25%)
+- Spend on a wishlist item (or create one in-flow).
+- Default pay-from: **Treat Yourself** balance.
+- User may spend **up to the Treat balance**, and **optionally pull from Future** if they want a bigger treat than Treat alone covers.
+- Example: Treat = $5, item = $40 → user can pull $35 from Future (if available) to complete the Treat, or pick a cheaper item, or Save for the Future instead.
+- Debits: Treat first, then any opted Future pull. Logged under **What I Rebuilt**.
+
+### 2. Save for the Future (longer horizon)
+
+- Choose **not** to spend the short-term Treat right now.
+- Reinforces parking for later — Future stays the long-horizon bucket.
+- Does **not** move money *into* Treat (that old “Save & compound → Treat” direction is **retired**).
+- Max **2 Saves for the Future in a row**; 3rd reward moment **must** Treat Yourself (Save hidden) so the short-term loop still fires.
+
+## What we drop
+
+- **Rebuild** middle bucket (25%)
 - Split of 50 / 25 / 25
-- “Debit Rebuild for life spends” as a separate path
+- “Save & compound” that moved Future → Treat
+- Rule that Treat spend required Treat ≥ full cost with no Future pull
+
+## UX review ask (UXUI)
+
+Please review Money + reward-moment flows for:
+
+1. Two-segment bar: Future | Treat Yourself (50/50 after each Move)
+2. Reward screen copy: **Treat Yourself** vs **Save for the Future**
+3. Treat flow: show Treat balance; allow optional **pull from Future** when item > Treat
+4. Clear short-term vs long-horizon language (Treat = now / soon; Future = park)
+
+Handoff detail: `product/UX_HANDOFF_FUND_BUCKETS.md`
 
 ## Implementation note
 
-App code on the daily-loop branch still uses `future / rebuild / treat` and `splitTransfer` 50/25/25. Implementers should migrate ledger + UI bar + Save sourcing to **Future + Treat @ 50/50** per this doc.
+App code may still use `future / rebuild / treat` and 50/25/25. Migrate ledger + Money UI + milestone reward screen to this model.

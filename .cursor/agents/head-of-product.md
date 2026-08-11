@@ -51,7 +51,7 @@ Create `product/items/<slug>.md` using the template in the `product-roadmap` ski
 - Product: ReBuild — recovery app with incentives.
 - Payments v1 destination: **Venmo** (auto-pull from checking).
 - Later destination option: soccer / alternate bank account — track as a follow-on, do not block v1.
-- Fund buckets (locked): **Future 50% + Treat Yourself 50%**. No Rebuild middle bucket — see `product/FUND_MODEL.md`.
+- Fund buckets (locked): **Future 50%** (long-horizon park) + **Treat Yourself 50%** (short-term). Reward day: Treat (Treat first, optional Future pull) or Save for the Future — see `product/FUND_MODEL.md`. UX handoff: `product/UX_HANDOFF_FUND_BUCKETS.md`.
 ---
 
 # Product roadmap skill instructions apply when present

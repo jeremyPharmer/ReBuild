@@ -28,7 +28,7 @@ _Nothing in progress._ Top items: RB-001 (Venmo), RB-005 (weekly recovery conten
 2. **RB-005 — Recovery content: weekly podcast & book offers**  
    Each week, show **two selectable** offers (podcasts and/or books) in the recovery content box.
 3. **RB-006 — Fund buckets: Future + Treat @ 50/50**  
-   Drop the Rebuild middle bucket. Locked in [`FUND_MODEL.md`](./FUND_MODEL.md).
+   Future = long-horizon park; Treat = short-term. Reward day: Treat Yourself (optional Future pull) or Save for the Future. UXUI review: [`UX_HANDOFF_FUND_BUCKETS.md`](./UX_HANDOFF_FUND_BUCKETS.md).
 
 ### Later
 
@@ -43,7 +43,7 @@ _Nothing in progress._ Top items: RB-001 (Venmo), RB-005 (weekly recovery conten
 | --- | --- | --- |
 | Unscheduled | RB-001 discovery + build | Effort **L**; due TBD |
 | Unscheduled | RB-005 weekly 2-offer rotation (podcasts + books) | Effort **M**; backlog/consider |
-| With fund/Money work | RB-006 migrate ledger to 50/50 | Effort **S**; decision locked |
+| With fund/Money work | RB-006 two-bucket + reward Treat/Save UX | Effort **M**; UXUI review requested |
 | After RB-001 v1 | RB-002 → RB-003 | Email platform first, then daily digest |
 | After email path (or parallel if capacity) | RB-004 SMS | P2 |
 | After RB-001 v1 | Soccer / alternate bank destination | Explicitly deferred |
