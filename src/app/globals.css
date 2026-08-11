@@ -722,14 +722,18 @@ h2 {
 
 .shop-grid {
   display: grid;
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .shop-card {
+  display: flex;
+  flex-direction: column;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: 12px;
   overflow: hidden;
+  min-height: 0;
 }
 
 .shop-card.selected {
@@ -738,25 +742,52 @@ h2 {
 }
 
 .shop-card-main {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  flex: 1;
   width: 100%;
   text-align: left;
   background: transparent;
   border: none;
-  padding: 16px;
+  padding: 12px 12px 8px;
   cursor: pointer;
   color: inherit;
+}
+
+.shop-card-title {
+  font-size: 0.95rem;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shop-card-price {
+  font-size: 1.05rem;
+}
+
+.shop-card-meta {
+  margin: 0;
+  opacity: 0.85;
 }
 
 .shop-card-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 0 12px 14px;
+  gap: 6px;
+  padding: 0 8px 10px;
+  margin-top: auto;
 }
 
 .shop-card-actions .btn.ghost {
   width: auto;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  font-size: 0.78rem;
 }
 
 .segment-bar > div {

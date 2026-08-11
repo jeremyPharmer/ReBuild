@@ -313,21 +313,16 @@ export default function MoneyPage() {
                   className="shop-card-main"
                   onClick={() => openEdit(r)}
                 >
-                  <div className="row">
-                    <strong>{r.name}</strong>
-                    <span className="money">
-                      <Money value={r.estimatedCost} />
-                    </span>
-                  </div>
-                  <p className="tiny" style={{ marginTop: 6 }}>
+                  <strong className="shop-card-title">{r.name}</strong>
+                  <span className="money shop-card-price">
+                    <Money value={r.estimatedCost} />
+                  </span>
+                  <p className="tiny shop-card-meta">
                     {r.category}
                     {r.assignedMilestoneDay
                       ? ` · Day ${r.assignedMilestoneDay}`
                       : ""}
                     {affordable ? " · ready" : ""}
-                  </p>
-                  <p className="tiny" style={{ marginTop: 8 }}>
-                    Tap to edit or delete
                   </p>
                 </button>
                 <div className="shop-card-actions">
@@ -339,7 +334,7 @@ export default function MoneyPage() {
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      Buy link
+                      Buy
                     </a>
                   )}
                   <button
@@ -347,7 +342,7 @@ export default function MoneyPage() {
                     className="btn ghost"
                     onClick={() => executeReward(r.id, r.estimatedCost)}
                   >
-                    Mark done
+                    Done
                   </button>
                 </div>
               </article>
