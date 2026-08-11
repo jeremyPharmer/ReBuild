@@ -90,14 +90,15 @@ export type FinancialTransfer = {
   note?: string;
   createdAt: string;
   /** Split applied at confirm time */
-  split?: { future: number; rebuild: number; treat: number };
+  split?: { future: number; treat: number; rebuild?: number };
 };
 
 /** Venmo-matching balances still set aside */
 export type FundLedger = {
   future: number;
-  rebuild: number;
   treat: number;
+  /** @deprecated folded into future on normalize — two-bucket model */
+  rebuild?: number;
 };
 
 export type MilestoneDecision = {

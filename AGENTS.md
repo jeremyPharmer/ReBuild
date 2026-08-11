@@ -1,34 +1,17 @@
-# AGENTS.md
+# Agents
 
-## Project overview
+## Product
 
-REBUILD is a recovery companion + financial OS. Next.js 16 App Router serves UI
-and API. Persistence is `.data/db.json` (gitignored). No auth in V1.
+For roadmap, backlog, ranking, and fund-model decisions, use **head-of-product** (`.cursor/agents/head-of-product.md`) and the **product-roadmap** skill.
 
-Core logic: `src/lib/journey.ts` (pure) and `src/lib/mutations.ts` (evening /
-reclaim side effects). Fund ledger: `src/lib/fund.ts`. UI under `src/app/*`.
+Source of truth:
 
-## Agent roles
+- `product/ROADMAP.md`
+- `product/BACKLOG.md`
+- `product/FUND_MODEL.md`
+- `product/items/`
+- `PRODUCT_DECISIONS.md` (V1 locked behaviors)
 
-| Agent | Owns | Notes |
-|---|---|---|
-| **Reese** (backend) | `src/lib/*`, `src/app/api/**`, `PRODUCT_DECISIONS.md` tests | Journey math, skips, mutations, API contracts |
-| **Bugbot** | Bug fixes across stack; prod readiness | Inspect, minimal fixes, keep Venmo Total honest; coordinate with Reese before overlapping backend |
-| **UXUI** | `src/app/**/*.tsx`, `src/components/**`, `globals.css` | Home / Journey / nav polish |
-| **Oscar** (product) | `product/**`, roadmap ranking | Backlog only — not runtime |
+## App / ship
 
-Keep changes in your lane when sharing a branch. Prefer small PRs that can ship.
-
-## Prod path (simple)
-
-1. Source of truth for app code: tip that includes V1 + home/journey UX
-2. Verify on **dev** first: https://rebuild-dev.fly.dev
-3. Deploy **prod** only when ready: `fly deploy -c fly.prod.toml -a rebuild-prod`
-4. Never wipe prod data (`POST /api/reset` is blocked when `REBUILD_ENV=prod`)
-
-## Cursor Cloud notes
-
-- `npm run dev` → http://localhost:3000
-- Reset data: `POST /api/reset` (dev only) or delete `.data/db.json`
-- Run `npm test` for journey/reclaim/milestone/fund tests
-- `npm run build` before relying on `npm run typecheck` (Next generates types)
+Implement and deploy against Fly **dev** then **prod** per `DEPLOY.md`. Prod data wipe for Day-1 restart: clear `/app/.data/db.json` on `rebuild-prod` (reset API is blocked on prod).
