@@ -122,6 +122,8 @@ export type Reward = {
   estimatedCost: number;
   actualCost?: number;
   assignedMilestoneDay?: number;
+  /** Optional link to buy / view the reward */
+  url?: string;
   executed: boolean;
   executedAt?: string;
   notes?: string;

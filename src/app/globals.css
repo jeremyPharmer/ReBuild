@@ -720,13 +720,43 @@ h2 {
   margin-bottom: 18px;
 }
 
-.segment-bar {
-  display: flex;
-  height: 14px;
-  border-radius: 999px;
+.shop-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.shop-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.06);
-  margin-top: 14px;
+}
+
+.shop-card.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.shop-card-main {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 16px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.shop-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 12px 14px;
+}
+
+.shop-card-actions .btn.ghost {
+  width: auto;
 }
 
 .segment-bar > div {
