@@ -42,7 +42,7 @@ npm run build
 
 See `DEPLOY.md`, `PRODUCT_DECISIONS.md`, and `product/` (roadmap + locked fund model).
 
-**Fund buckets (locked):** Future 50% (longer-horizon park) + Treat Yourself 50% (short-term). On reward days: Treat Yourself (Treat first, optional Future pull) or Save for the Future.
+**Fund buckets (locked):** Future 30% (longer-horizon park) + Treat Yourself 70% (short-term). On reward days: Treat Yourself (Treat first, optional Future pull) or Save for the Future.
 
 ## First-run path
 

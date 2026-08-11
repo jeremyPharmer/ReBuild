@@ -34,9 +34,12 @@ export function normalizeState(state: RebuildState): RebuildState {
   };
 }
 
-/** Locked split: Future 50% / Treat Yourself 50%. */
+/** Locked split: Future 30% / Treat Yourself 70%. */
+export const FUTURE_SPLIT = 0.3;
+export const TREAT_SPLIT = 0.7;
+
 export function splitTransfer(amount: number): FundLedger {
-  const future = round2(amount * 0.5);
+  const future = round2(amount * FUTURE_SPLIT);
   const treat = round2(amount - future);
   return { future, treat };
 }

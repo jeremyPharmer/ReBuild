@@ -17,7 +17,7 @@
 ### Money
 
 - Segmented bar: only **Future** and **Treat Yourself** (no Rebuild)
-- After Move $X → 50% / 50%
+- After Move $X → 30% Future / 70% Treat
 
 ### Reward / Destination moment
 

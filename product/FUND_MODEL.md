@@ -8,7 +8,7 @@ Status: **Decision locked** — supersedes three-bucket 50/25/25 and the old “
 | Bucket | Horizon | Job |
 | --- | --- | --- |
 | **Future** | Longer | Park money for bigger / later goals |
-| **Treat Yourself** | Short-term | Near-term spendable incentive — “I have $5 in here…” |
+| **Treat Yourself** | Short-term | Near-term spendable incentive — “I have $7 in here…” |
 
 **Venmo-matching Total** = Future + Treat Yourself  
 **What I Rebuilt** (spent / left Venmo) sits outside Total.
@@ -19,8 +19,8 @@ On each confirmed **Move to Rebuild** amount `$X`:
 
 | Bucket | Share |
 | --- | --- |
-| **Future** | **50%** |
-| **Treat Yourself** | **50%** |
+| **Future** | **30%** |
+| **Treat Yourself** | **70%** |
 
 Weekly support gift ($20 OOP) → into **Treat**; does not count toward Save-delay.
 
@@ -33,7 +33,7 @@ When the journey hits a **Reward** or **Destination** day, present two choices:
 - Spend on a wishlist item (or create one in-flow).
 - Default pay-from: **Treat Yourself** balance.
 - User may spend **up to the Treat balance**, and **optionally pull from Future** if they want a bigger treat than Treat alone covers.
-- Example: Treat = $5, item = $40 → user can pull $35 from Future (if available) to complete the Treat, or pick a cheaper item, or Save for the Future instead.
+- Example: Treat = $7, item = $40 → user can pull $33 from Future (if available) to complete the Treat, or pick a cheaper item, or Save for the Future instead.
 - Debits: Treat first, then any opted Future pull. Logged under **What I Rebuilt**.
 
 ### 2. Save for the Future (longer horizon)
@@ -54,7 +54,7 @@ When the journey hits a **Reward** or **Destination** day, present two choices:
 
 Please review Money + reward-moment flows for:
 
-1. Two-segment bar: Future | Treat Yourself (50/50 after each Move)
+1. Two-segment bar: Future | Treat Yourself (30/70 after each Move)
 2. Reward screen copy: **Treat Yourself** vs **Save for the Future**
 3. Treat flow: show Treat balance; allow optional **pull from Future** when item > Treat
 4. Clear short-term vs long-horizon language (Treat = now / soon; Future = park)

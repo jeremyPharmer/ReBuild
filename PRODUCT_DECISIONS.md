@@ -69,8 +69,8 @@ First cashable: **Day 3**. Micro every-14: paused.
 
 | Bucket | Share | Horizon |
 |---|---|---|
-| Future | 50% | Longer-horizon park |
-| Treat Yourself | 50% | Short-term spendable |
+| Future | 30% | Longer-horizon park |
+| Treat Yourself | 70% | Short-term spendable |
 
 Not editable in V1. Big Total + segmented bar underneath.  
 Legacy **Rebuild** bucket removed (any leftover folds into Future on normalize).
