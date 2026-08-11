@@ -7,7 +7,11 @@ import { useApp } from "@/components/AppProvider";
 import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
 import { FundSegmentBar } from "@/components/MilestoneReward";
 import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
-import { fundTotal, pendingCashableMoments } from "@/lib/fund";
+import {
+  fundTotal,
+  pendingCashableMoments,
+  splitTransfer,
+} from "@/lib/fund";
 import {
   assignedRewardForMilestone,
   nextIncentive,
@@ -68,6 +72,11 @@ export default function HomePage() {
   const waiting = waitingReclaimDays(state);
   const pendingRewards = pendingCashableMoments(state);
   const total = fundTotal(state.fund);
+  const waitingSplit = splitTransfer(dashboard.waiting);
+  const partialNum = Number(partialAmount);
+  const partialSplit = splitTransfer(
+    Number.isFinite(partialNum) && partialNum > 0 ? partialNum : 0,
+  );
   const enabledSupports = state.profile.supports.filter((s) => s.enabled);
   const completedSupportTypes = new Set(
     dashboard.todaySupports.map((t) => t.supportType),
@@ -233,12 +242,12 @@ export default function HomePage() {
           <p className="muted">
             {total > 0
               ? "Treat Yourself or Save for the Future."
-              : "Move money to Rebuild first, then Treat or Save."}
+              : "Move waiting money first (30% Future · 70% Treat), then Treat or Save."}
           </p>
           <div style={{ marginTop: 12 }}>
             <Link href={total > 0 ? "/evening" : "/money"}>
               <PrimaryButton>
-                {total > 0 ? "Open reward moment" : "Move money to Rebuild"}
+                {total > 0 ? "Open reward moment" : "Move waiting money"}
               </PrimaryButton>
             </Link>
           </div>
@@ -416,7 +425,7 @@ export default function HomePage() {
             <p className="money money-xl">
               <Money value={total} />
             </p>
-            <p className="tiny">Already in Rebuild</p>
+            <p className="tiny">Future · Treat Yourself</p>
           </div>
           <div style={{ textAlign: "right" }}>
             <p className="tiny">Waiting to reclaim</p>
@@ -431,7 +440,7 @@ export default function HomePage() {
         {waiting.length > 0 && reclaimStep === "idle" && (
           <div style={{ marginTop: 14 }}>
             <PrimaryButton onClick={openReclaim}>
-              Move to Rebuild
+              Move waiting money
             </PrimaryButton>
           </div>
         )}
@@ -439,7 +448,10 @@ export default function HomePage() {
         {waiting.length > 0 && reclaimStep === "choose" && (
           <div className="reclaim-chooser" style={{ marginTop: 14 }}>
             <p className="tiny" style={{ marginBottom: 10 }}>
-              Move <Money value={dashboard.waiting} /> from waiting into Total
+              Move <Money value={dashboard.waiting} /> from waiting — 30% Future
+              · 70% Treat Yourself (
+              <Money value={waitingSplit.future} /> ·{" "}
+              <Money value={waitingSplit.treat} />)
             </p>
             <div className="choice-row">
               <button
@@ -448,7 +460,7 @@ export default function HomePage() {
                 disabled={reclaimBusy}
                 onClick={() => confirmReclaim(dashboard.waiting)}
               >
-                Total · ${dashboard.waiting}
+                All · ${dashboard.waiting}
               </button>
               <button
                 type="button"
@@ -468,7 +480,8 @@ export default function HomePage() {
         {waiting.length > 0 && reclaimStep === "partial" && (
           <div className="reclaim-chooser" style={{ marginTop: 14 }}>
             <p className="tiny" style={{ marginBottom: 8 }}>
-              How much of the ${dashboard.waiting} waiting are you moving?
+              How much of the ${dashboard.waiting} waiting? Splits 30% Future ·
+              70% Treat Yourself.
             </p>
             <label className="field">
               <span className="field-label">Amount</span>
@@ -481,17 +494,23 @@ export default function HomePage() {
                 onChange={(e) => setPartialAmount(e.target.value)}
               />
             </label>
+            {Number.isFinite(partialNum) && partialNum > 0 && (
+              <p className="tiny" style={{ marginBottom: 8 }}>
+                <Money value={partialSplit.future} /> Future ·{" "}
+                <Money value={partialSplit.treat} /> Treat Yourself
+              </p>
+            )}
             <PrimaryButton
               disabled={
                 reclaimBusy ||
-                !Number.isFinite(Number(partialAmount)) ||
-                Number(partialAmount) < 0
+                !Number.isFinite(partialNum) ||
+                partialNum < 0
               }
-              onClick={() => confirmReclaim(Number(partialAmount))}
+              onClick={() => confirmReclaim(partialNum)}
             >
               {reclaimBusy
                 ? "Moving…"
-                : `Move $${Number(partialAmount) || 0} to Rebuild`}
+                : `Move $${partialNum || 0}`}
             </PrimaryButton>
             <div style={{ marginTop: 8 }}>
               <SecondaryButton
