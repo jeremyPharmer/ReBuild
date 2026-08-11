@@ -869,6 +869,17 @@ h2 {
   padding: 8px 12px;
 }
 
+.trail-day-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.trail-day-header .trail-day-toggle {
+  flex: 1;
+  min-width: 0;
+}
+
 .trail-day-toggle {
   width: 100%;
   display: flex;
@@ -917,6 +928,38 @@ h2 {
   align-items: center;
   gap: 8px;
   flex: none;
+}
+
+.trail-day-menu {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.trail-day-menu:hover,
+.trail-day-menu:focus-visible {
+  color: var(--text);
+  background: var(--surface-strong);
+  outline: none;
+}
+
+.trail-intention-edit {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.trail-intention-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .caret {

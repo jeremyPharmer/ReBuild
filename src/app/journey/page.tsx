@@ -11,10 +11,13 @@ import {
   type TrailDay,
 } from "@/lib/trail";
 import {
-  TREND_METRICS,
+  CONDITION_METRICS,
+  cravingPointsLastYear,
   formatTrendDate,
   trendPointsLastYear,
-  type TrendMetric,
+  type ConditionMetric,
+  type CravingPointsPoint,
+  type TrendPoint,
 } from "@/lib/trends";
 import { MILESTONE_DEFS } from "@/lib/types";
 
@@ -22,18 +25,15 @@ function WeatherDots({
   mood,
   energy,
   stress,
-  craving,
 }: {
   mood?: number;
   energy?: number;
   stress?: number;
-  craving?: number;
 }) {
   const bits = [
     mood !== undefined ? `Mood ${mood}` : null,
     energy !== undefined ? `Energy ${energy}` : null,
     stress !== undefined ? `Stress ${stress}` : null,
-    craving !== undefined ? `Craving ${craving}` : null,
   ].filter(Boolean);
   if (bits.length === 0) return null;
   return <p className="tiny trail-conditions">{bits.join(" · ")}</p>;
@@ -82,62 +82,147 @@ function TrailDayCard({
   supportLabel: (type: string) => string;
   defaultCollapsed: boolean;
 }) {
+  const { post } = useApp();
   const [open, setOpen] = useState(!defaultCollapsed);
+  const [editingIntention, setEditingIntention] = useState(false);
+  const [intentionDraft, setIntentionDraft] = useState("");
+  const [intentionBusy, setIntentionBusy] = useState(false);
+  const [intentionError, setIntentionError] = useState("");
   const evening = day.evening;
   const morning = day.morning;
   /** Collapsed row shows the close-the-day one-liner only. */
   const thesis = evening?.oneLine?.trim() || "Day marked on the trail";
 
+  function startEditIntention() {
+    if (!morning) return;
+    setIntentionDraft(morning.intention);
+    setIntentionError("");
+    setEditingIntention(true);
+    setOpen(true);
+  }
+
+  async function saveIntention() {
+    const next = intentionDraft.trim();
+    if (!next || !morning) return;
+    setIntentionBusy(true);
+    setIntentionError("");
+    try {
+      await post("/api/morning", {
+        action: "updateIntention",
+        date: day.date,
+        intention: next,
+      });
+      setEditingIntention(false);
+    } catch (err) {
+      setIntentionError(err instanceof Error ? err.message : "Could not save");
+    } finally {
+      setIntentionBusy(false);
+    }
+  }
+
   return (
     <article className={open ? "trail-day" : "trail-day collapsed"}>
-      <button
-        type="button"
-        className="trail-day-toggle"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <div className="trail-day-toggle-main">
-          <span className="tiny trail-day-toggle-label">
-            Day {day.dayNumber}
-          </span>
-          {!open && (
-            <span className="trail-day-thesis">&ldquo;{thesis}&rdquo;</span>
-          )}
-          {open && (
-            <strong className="trail-day-toggle-title">{trailDayLabel(day)}</strong>
-          )}
-        </div>
-        <div className="trail-day-toggle-meta">
-          {open && evening && (
-            <span
-              className={
-                evening.alignment === "aligned"
-                  ? "chip good"
-                  : evening.alignment === "return_to_use"
-                    ? "chip warn"
-                    : "chip"
-              }
-            >
-              {evening.alignment === "aligned"
-                ? "Aligned"
-                : evening.alignment === "return_to_use"
-                  ? "Storm"
-                  : "Other"}
+      <div className="trail-day-header">
+        <button
+          type="button"
+          className="trail-day-toggle"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <div className="trail-day-toggle-main">
+            <span className="tiny trail-day-toggle-label">
+              Day {day.dayNumber}
             </span>
-          )}
-          <span className={open ? "caret open" : "caret"} aria-hidden>
-            ▾
-          </span>
-        </div>
-      </button>
+            {!open && (
+              <span className="trail-day-thesis">&ldquo;{thesis}&rdquo;</span>
+            )}
+            {open && (
+              <strong className="trail-day-toggle-title">
+                {trailDayLabel(day)}
+              </strong>
+            )}
+          </div>
+          <div className="trail-day-toggle-meta">
+            {open && evening && (
+              <span
+                className={
+                  evening.alignment === "aligned"
+                    ? "chip good"
+                    : evening.alignment === "return_to_use"
+                      ? "chip warn"
+                      : "chip"
+                }
+              >
+                {evening.alignment === "aligned"
+                  ? "Aligned"
+                  : evening.alignment === "return_to_use"
+                    ? "Storm"
+                    : "Other"}
+              </span>
+            )}
+            <span className={open ? "caret open" : "caret"} aria-hidden>
+              ▾
+            </span>
+          </div>
+        </button>
+        {open && morning && (
+          <button
+            type="button"
+            className="trail-day-menu"
+            aria-label="Edit morning intention"
+            onClick={startEditIntention}
+          >
+            ⋯
+          </button>
+        )}
+      </div>
 
       {open && (
         <div className="trail-day-body fade-in">
           {morning && (
             <div className="trail-block">
               <p className="tiny trail-block-label">Set out</p>
-              {morning.intention && (
-                <p className="trail-quote">&ldquo;{morning.intention}&rdquo;</p>
+              {editingIntention ? (
+                <div className="trail-intention-edit">
+                  <label className="field">
+                    <span className="field-label">
+                      One thing you want to do well today
+                    </span>
+                    <input
+                      type="text"
+                      value={intentionDraft}
+                      onChange={(e) => setIntentionDraft(e.target.value)}
+                      autoFocus
+                    />
+                  </label>
+                  {intentionError && (
+                    <p className="tiny" style={{ color: "var(--danger)" }}>
+                      {intentionError}
+                    </p>
+                  )}
+                  <div className="trail-intention-actions">
+                    <button
+                      type="button"
+                      className="btn primary"
+                      disabled={intentionBusy || !intentionDraft.trim()}
+                      onClick={saveIntention}
+                    >
+                      {intentionBusy ? "Saving…" : "Save"}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn ghost"
+                      disabled={intentionBusy}
+                      onClick={() => setEditingIntention(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                morning.intention && (
+                  <p className="trail-quote">&ldquo;{morning.intention}&rdquo;</p>
+                )
               )}
               <p className="tiny">
                 Sleep {formatSleepHours(morning.sleepHours)} hrs
@@ -149,7 +234,6 @@ function TrailDayCard({
                 mood={morning.mood}
                 energy={morning.energy}
                 stress={morning.stress}
-                craving={morning.craving}
               />
               {morning.trigger && (
                 <p className="tiny" style={{ marginTop: 6 }}>
@@ -213,7 +297,7 @@ function TrailDayCard({
             <div className="trail-block">
               <p className="tiny trail-block-label">Make camp</p>
               <p className="tiny">{alignmentTrailLabel(evening.alignment)}</p>
-              <WeatherDots mood={evening.mood} craving={evening.craving} />
+              <WeatherDots mood={evening.mood} />
               {evening.oneLine && (
                 <p className="trail-quote" style={{ marginTop: 8 }}>
                   &ldquo;{evening.oneLine}&rdquo;
@@ -232,38 +316,48 @@ function TrailDayCard({
   );
 }
 
-function TrendsChart({
+function LineChartFrame({
+  width = 320,
+  height = 180,
+  yMin,
+  yMax,
+  yTicks,
   points,
+  series,
+  emptyMessage,
+  footer,
 }: {
-  points: ReturnType<typeof trendPointsLastYear>;
+  width?: number;
+  height?: number;
+  yMin: number;
+  yMax: number;
+  yTicks: number[];
+  points: { date: string }[];
+  series: {
+    key: string;
+    color: string;
+    values: (number | undefined)[];
+  }[];
+  emptyMessage: string;
+  footer?: string;
 }) {
-  const [active, setActive] = useState<Record<TrendMetric, boolean>>({
-    sleepQuality: true,
-    mood: true,
-    energy: true,
-    stress: true,
-    craving: true,
-  });
-
-  const width = 320;
-  const height = 180;
   const pad = { top: 16, right: 12, bottom: 28, left: 28 };
   const innerW = width - pad.left - pad.right;
   const innerH = height - pad.top - pad.bottom;
+  const range = Math.max(yMax - yMin, 1);
 
-  const paths = useMemo(() => {
-    if (points.length === 0) return [];
-    const xs = points.map((_, i) =>
-      points.length === 1
-        ? pad.left + innerW / 2
-        : pad.left + (i / (points.length - 1)) * innerW,
-    );
-    return TREND_METRICS.filter((m) => active[m.key]).map((metric) => {
-      const coords = points
-        .map((p, i) => {
-          const v = p[metric.key];
+  const xs = points.map((_, i) =>
+    points.length === 1
+      ? pad.left + innerW / 2
+      : pad.left + (i / (points.length - 1)) * innerW,
+  );
+
+  const paths = series
+    .map((s) => {
+      const coords = s.values
+        .map((v, i) => {
           if (v === undefined) return null;
-          const y = pad.top + innerH - ((v - 1) / 9) * innerH;
+          const y = pad.top + innerH - ((v - yMin) / range) * innerH;
           return { x: xs[i], y };
         })
         .filter(Boolean) as { x: number; y: number }[];
@@ -271,27 +365,112 @@ function TrendsChart({
       const d = coords
         .map((c, i) => `${i === 0 ? "M" : "L"} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`)
         .join(" ");
-      return { ...metric, d, coords };
-    }).filter(Boolean) as {
-      key: TrendMetric;
-      label: string;
-      color: string;
-      d: string;
-      coords: { x: number; y: number }[];
-    }[];
-  }, [points, active, innerW, innerH]);
-
-  function toggle(key: TrendMetric) {
-    setActive((prev) => ({ ...prev, [key]: !prev[key] }));
-  }
+      return { ...s, d, coords };
+    })
+    .filter(Boolean) as {
+    key: string;
+    color: string;
+    d: string;
+    coords: { x: number; y: number }[];
+  }[];
 
   const first = points[0]?.date;
   const last = points[points.length - 1]?.date;
 
+  if (points.length === 0) {
+    return (
+      <p className="muted" style={{ marginTop: 12 }}>
+        {emptyMessage}
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <svg
+        className="trend-svg"
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label="Trend chart"
+      >
+        {yTicks.map((v) => {
+          const y = pad.top + innerH - ((v - yMin) / range) * innerH;
+          return (
+            <g key={v}>
+              <line
+                x1={pad.left}
+                x2={width - pad.right}
+                y1={y}
+                y2={y}
+                className="trend-grid"
+              />
+              <text x={4} y={y + 3} className="trend-axis">
+                {v}
+              </text>
+            </g>
+          );
+        })}
+        {paths.map((p) => (
+          <g key={p.key}>
+            <path d={p.d} fill="none" stroke={p.color} strokeWidth="2.25" />
+            {p.coords.map((c, i) => (
+              <circle
+                key={`${p.key}-${i}`}
+                cx={c.x}
+                cy={c.y}
+                r="3.2"
+                fill={p.color}
+              />
+            ))}
+          </g>
+        ))}
+        {first && (
+          <text x={pad.left} y={height - 8} className="trend-axis">
+            {formatTrendDate(first)}
+          </text>
+        )}
+        {last && last !== first && (
+          <text
+            x={width - pad.right}
+            y={height - 8}
+            textAnchor="end"
+            className="trend-axis"
+          >
+            {formatTrendDate(last)}
+          </text>
+        )}
+      </svg>
+      {footer && (
+        <p className="tiny" style={{ marginTop: 8 }}>
+          {footer}
+        </p>
+      )}
+    </>
+  );
+}
+
+function ConditionsChart({ points }: { points: TrendPoint[] }) {
+  const [active, setActive] = useState<Record<ConditionMetric, boolean>>({
+    sleepQuality: true,
+    mood: true,
+    energy: true,
+    stress: true,
+  });
+
+  function toggle(key: ConditionMetric) {
+    setActive((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  const series = CONDITION_METRICS.filter((m) => active[m.key]).map((m) => ({
+    key: m.key,
+    color: m.color,
+    values: points.map((p) => p[m.key]),
+  }));
+
   return (
     <div className="trends">
       <div className="trend-toggles">
-        {TREND_METRICS.map((m) => (
+        {CONDITION_METRICS.map((m) => (
           <button
             key={m.key}
             type="button"
@@ -303,76 +482,41 @@ function TrendsChart({
           </button>
         ))}
       </div>
+      <LineChartFrame
+        yMin={1}
+        yMax={10}
+        yTicks={[1, 4, 7, 10]}
+        points={points}
+        series={series}
+        emptyMessage="Trends appear as you log mornings."
+        footer="Sleep quality · mood · energy · stress (1–10). Tap to show or hide."
+      />
+    </div>
+  );
+}
 
-      {points.length === 0 ? (
-        <p className="muted" style={{ marginTop: 12 }}>
-          Trends appear as you log mornings and evenings.
-        </p>
-      ) : (
-        <>
-          <svg
-            className="trend-svg"
-            viewBox={`0 0 ${width} ${height}`}
-            role="img"
-            aria-label="Condition trends over time"
-          >
-            {[1, 4, 7, 10].map((v) => {
-              const y = pad.top + innerH - ((v - 1) / 9) * innerH;
-              return (
-                <g key={v}>
-                  <line
-                    x1={pad.left}
-                    x2={width - pad.right}
-                    y1={y}
-                    y2={y}
-                    className="trend-grid"
-                  />
-                  <text x={4} y={y + 3} className="trend-axis">
-                    {v}
-                  </text>
-                </g>
-              );
-            })}
-            {paths.map((p) => (
-              <g key={p.key}>
-                <path d={p.d} fill="none" stroke={p.color} strokeWidth="2.25" />
-                {p.coords.map((c, i) => (
-                  <circle
-                    key={`${p.key}-${i}`}
-                    cx={c.x}
-                    cy={c.y}
-                    r="3.2"
-                    fill={p.color}
-                  />
-                ))}
-              </g>
-            ))}
-            {first && (
-              <text
-                x={pad.left}
-                y={height - 8}
-                className="trend-axis"
-              >
-                {formatTrendDate(first)}
-              </text>
-            )}
-            {last && last !== first && (
-              <text
-                x={width - pad.right}
-                y={height - 8}
-                textAnchor="end"
-                className="trend-axis"
-              >
-                {formatTrendDate(last)}
-              </text>
-            )}
-          </svg>
-          <p className="tiny" style={{ marginTop: 8 }}>
-            Sleep · mood · energy · stress · craving over the last year. Tap a
-            metric to show or hide.
-          </p>
-        </>
-      )}
+function CravingPointsChart({ points }: { points: CravingPointsPoint[] }) {
+  const maxPoints = Math.max(10, ...points.map((p) => p.points), 0);
+  const top = Math.ceil(maxPoints / 5) * 5 || 10;
+  const mid = Math.round(top / 2);
+
+  return (
+    <div className="trends craving-points-chart">
+      <LineChartFrame
+        yMin={0}
+        yMax={top}
+        yTicks={[0, mid, top].filter((v, i, a) => a.indexOf(v) === i)}
+        points={points}
+        series={[
+          {
+            key: "points",
+            color: "#8b9dc3",
+            values: points.map((p) => p.points),
+          },
+        ]}
+        emptyMessage="Craving points appear when you log a craving."
+        footer="Craving points = sum of intensity before intervention that day."
+      />
     </div>
   );
 }
@@ -391,6 +535,10 @@ export default function JourneyPage() {
   const trendPoints = useMemo(() => {
     if (!today) return [];
     return trendPointsLastYear(state, today);
+  }, [state, today]);
+  const cravingPoints = useMemo(() => {
+    if (!today) return [];
+    return cravingPointsLastYear(state, today);
   }, [state, today]);
 
   function supportLabel(type: string) {
@@ -418,11 +566,18 @@ export default function JourneyPage() {
               key={day.date}
               day={day}
               supportLabel={supportLabel}
-              // Past days stay collapsed to the end-of-day line; today stays open.
               defaultCollapsed={day.date < today}
             />
           ))}
         </div>
+      </section>
+
+      <section className="panel">
+        <p className="eyebrow">Over time</p>
+        <h2 style={{ marginBottom: 10 }}>Conditions</h2>
+        <ConditionsChart points={trendPoints} />
+        <h2 style={{ margin: "22px 0 10px" }}>Craving points</h2>
+        <CravingPointsChart points={cravingPoints} />
       </section>
 
       <section className="panel">
@@ -458,12 +613,6 @@ export default function JourneyPage() {
         <p className="tiny" style={{ marginTop: 8 }}>
           Full year trail continues through Day 365.
         </p>
-      </section>
-
-      <section className="panel">
-        <p className="eyebrow">Over time</p>
-        <h2 style={{ marginBottom: 10 }}>Conditions</h2>
-        <TrendsChart points={trendPoints} />
       </section>
 
       {state.returns.length > 0 && (
