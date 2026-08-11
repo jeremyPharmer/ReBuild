@@ -760,3 +760,52 @@ h2 {
   display: grid;
   gap: 6px;
 }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(6, 12, 10, 0.72);
+  display: grid;
+  place-items: end center;
+  padding: 18px;
+  animation: fade-backdrop 0.2s ease;
+}
+
+.modal-sheet {
+  width: min(480px, 100%);
+  max-height: min(78dvh, 640px);
+  overflow: auto;
+  background:
+    linear-gradient(165deg, rgba(30, 52, 44, 0.98), rgba(15, 28, 24, 0.98));
+  border: 1px solid var(--line);
+  border-radius: 22px 22px 18px 18px;
+  padding: 18px 16px 16px;
+  box-shadow: var(--shadow);
+  animation: sheet-up 0.28s ease;
+}
+
+.reward-pick-list {
+  display: grid;
+  gap: 6px;
+}
+
+@keyframes fade-backdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
