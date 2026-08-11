@@ -105,7 +105,12 @@ export default function SettingsPage() {
     if (!window.confirm("Reset all Rebuild data for this device/server?")) {
       return;
     }
-    await fetch("/api/reset", { method: "POST" });
+    const res = await fetch("/api/reset", { method: "POST" });
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    if (!res.ok) {
+      window.alert(data.error || "Reset failed");
+      return;
+    }
     await refresh();
     router.push("/onboarding");
   }

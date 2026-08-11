@@ -253,7 +253,7 @@ export function emptyState(): RebuildState {
     weeklyBonuses: [],
     journals: [],
     skips: [],
-    fund: { future: 0, rebuild: 0, treat: 0 },
+    fund: { future: 0, treat: 0 },
     consecutiveSaves: 0,
     milestoneDecisions: [],
   };

@@ -9,7 +9,6 @@ import {
   mustTreat,
   pendingCashableMoments,
 } from "@/lib/fund";
-import { suggestedRewardPool } from "@/lib/journey";
 import type { MilestoneAchievement } from "@/lib/types";
 
 export function MilestoneRewardMoment({
@@ -22,23 +21,26 @@ export function MilestoneRewardMoment({
   const { state, post } = useApp();
   const forced = mustTreat(state);
   const isDestination = moment.type === "destination";
-  const suggested = suggestedRewardPool(
-    moment.dayNumber,
-    state.profile?.historicalDailySpend ?? 0,
-  );
+  const treatBal = state.fund.treat ?? 0;
+  const futureBal = state.fund.future ?? 0;
   const [mode, setMode] = useState<"choose" | "save" | "treat">(
     forced ? "treat" : "choose",
   );
-  const [saveAmount, setSaveAmount] = useState(String(suggested));
   const [rewardId, setRewardId] = useState("");
   const [newName, setNewName] = useState("");
   const [newCost, setNewCost] = useState("");
   const [note, setNote] = useState("");
+  const [pullFuture, setPullFuture] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [doneMsg, setDoneMsg] = useState("");
 
   const eligible = useMemo(() => eligibleWishlist(state), [state]);
+  const selectedCost = rewardId
+    ? (state.rewards.find((r) => r.id === rewardId)?.estimatedCost ?? 0)
+    : Number(newCost) || 0;
+  const deficit = Math.max(0, Math.round((selectedCost - treatBal) * 100) / 100);
+  const needsPull = deficit > 0;
 
   async function doSave() {
     setBusy(true);
@@ -47,9 +49,8 @@ export function MilestoneRewardMoment({
       await post("/api/milestone-reward", {
         action: "save",
         milestoneAchievementId: moment.id,
-        amount: Number(saveAmount),
       });
-      setDoneMsg(`Saved $${saveAmount} into Treat Yourself.`);
+      setDoneMsg("Saved for the Future — short-term Treat stays parked.");
       onDone();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed");
@@ -66,6 +67,7 @@ export function MilestoneRewardMoment({
         action: "treat",
         milestoneAchievementId: moment.id,
         note: note || undefined,
+        futurePull: needsPull && pullFuture ? deficit : needsPull ? 0 : undefined,
       };
       if (rewardId) body.rewardId = rewardId;
       else
@@ -106,7 +108,8 @@ export function MilestoneRewardMoment({
         </p>
       )}
       <p className="tiny" style={{ marginTop: 8 }}>
-        Treat pool now: <Money value={state.fund.treat} /> · Saves in a row:{" "}
+        Treat Yourself (short-term): <Money value={treatBal} /> · Future
+        (parked): <Money value={futureBal} /> · Saves in a row:{" "}
         {state.consecutiveSaves}/2
       </p>
 
@@ -117,7 +120,7 @@ export function MilestoneRewardMoment({
           </PrimaryButton>
           {!forced && (
             <SecondaryButton onClick={() => setMode("save")}>
-              Save & compound
+              Save for the Future
             </SecondaryButton>
           )}
           {forced && (
@@ -132,22 +135,11 @@ export function MilestoneRewardMoment({
       {mode === "save" && (
         <div style={{ marginTop: 16 }}>
           <p className="muted">
-            Suggested Save based on day × daily spend curve. Edit if you want.
-            Unmoved remainder stays in Future/Rebuild — not Treat.
+            Keep this win parked for later. You are not spending your short-term
+            Treat pool right now.
           </p>
-          <label className="field">
-            <span className="field-label">
-              Save into Treat Yourself (suggested ${suggested})
-            </span>
-            <input
-              type="number"
-              min={1}
-              value={saveAmount}
-              onChange={(e) => setSaveAmount(e.target.value)}
-            />
-          </label>
           <PrimaryButton onClick={doSave} disabled={busy}>
-            Save ${saveAmount} into Treat Yourself
+            Save for the Future
           </PrimaryButton>
           <div style={{ marginTop: 8 }}>
             <SecondaryButton onClick={() => setMode("choose")}>
@@ -160,8 +152,8 @@ export function MilestoneRewardMoment({
       {mode === "treat" && (
         <div style={{ marginTop: 16 }}>
           <p className="muted">
-            Pick a wishlist item you can afford (Treat pool ≥ cost), or add one
-            now.
+            Pick a wishlist item. Pay from Treat Yourself first. If it costs
+            more than Treat, you can pull the rest from Future.
           </p>
           <div className="choice-row">
             {eligible.map((r) => (
@@ -212,20 +204,40 @@ export function MilestoneRewardMoment({
               placeholder="What did you rebuild?"
             />
           </label>
-          {newCost && Number(newCost) > state.fund.treat && (
+          {needsPull && (
+            <label
+              className="field"
+              style={{
+                display: "flex",
+                gap: 8,
+                alignItems: "flex-start",
+                marginTop: 8,
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={pullFuture}
+                onChange={(e) => setPullFuture(e.target.checked)}
+                style={{ marginTop: 4 }}
+              />
+              <span className="tiny">
+                Pull <Money value={deficit} /> from Future (you have{" "}
+                <Money value={futureBal} /> parked)
+              </span>
+            </label>
+          )}
+          {needsPull && !pullFuture && (
             <p className="tiny" style={{ color: "var(--warn)" }}>
-              Cost is above Treat pool — add it to wishlist only after lowering
-              cost, or Save more first. Claim blocked until pool ≥ cost.
+              Cost is above Treat — enable Future pull or pick a cheaper item.
             </p>
           )}
           <PrimaryButton
             onClick={doTreat}
             disabled={
               busy ||
-              (!rewardId &&
-                (!newName.trim() ||
-                  !newCost ||
-                  Number(newCost) > state.fund.treat))
+              (!rewardId && (!newName.trim() || !newCost)) ||
+              (needsPull && !pullFuture) ||
+              (needsPull && pullFuture && deficit > futureBal)
             }
           >
             Confirm Treat Yourself
@@ -250,29 +262,22 @@ export function MilestoneRewardMoment({
 export function FundSegmentBar({
   fund,
 }: {
-  fund: { future: number; rebuild: number; treat: number };
+  fund: { future: number; treat: number; rebuild?: number };
 }) {
-  const total = fundTotal(fund) || 1;
+  const future = (fund.future ?? 0) + (fund.rebuild ?? 0);
+  const treat = fund.treat ?? 0;
+  const total = fundTotal({ future, treat }) || 1;
   const segments = [
     {
       key: "future",
       name: "Future",
-      share: "50%",
-      value: fund.future,
+      value: future,
       color: "#5b8a7a",
-    },
-    {
-      key: "rebuild",
-      name: "Rebuild",
-      share: "25%",
-      value: fund.rebuild,
-      color: "#c4784a",
     },
     {
       key: "treat",
       name: "Treat Yourself",
-      share: "25%",
-      value: fund.treat,
+      value: treat,
       color: "#d4a24a",
     },
   ];
@@ -286,7 +291,7 @@ export function FundSegmentBar({
               width: `${(s.value / total) * 100}%`,
               background: s.color,
             }}
-            title={`${s.name} ${s.share}: $${s.value}`}
+            title={`${s.name}: $${s.value}`}
           />
         ))}
       </div>

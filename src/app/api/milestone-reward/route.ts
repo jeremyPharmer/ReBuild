@@ -37,11 +37,7 @@ export async function POST(req: Request) {
 
     if (action === "save") {
       const state = await updateState((prev) =>
-        saveCompound(
-          prev,
-          String(body.milestoneAchievementId),
-          Number(body.amount),
-        ),
+        saveCompound(prev, String(body.milestoneAchievementId)),
       );
       return NextResponse.json({
         state,
@@ -80,11 +76,17 @@ export async function POST(req: Request) {
           };
         }
 
+        const futurePull =
+          body.futurePull === undefined || body.futurePull === null
+            ? undefined
+            : Number(body.futurePull);
+
         return treatYourself(
           next,
           String(body.milestoneAchievementId),
           rewardId,
           body.note ? String(body.note) : undefined,
+          futurePull,
         );
       });
       return NextResponse.json({

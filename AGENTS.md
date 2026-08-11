@@ -1,16 +1,17 @@
-# AGENTS.md
+# Agents
 
-## Project overview
+## Product
 
-REBUILD is a recovery companion + financial OS. Next.js 16 App Router serves UI
-and API. Persistence is `.data/db.json` (gitignored). No auth in V1.
+For roadmap, backlog, ranking, and fund-model decisions, use **head-of-product** (`.cursor/agents/head-of-product.md`) and the **product-roadmap** skill.
 
-Core logic: `src/lib/journey.ts` (pure) and `src/lib/mutations.ts` (evening /
-reclaim side effects). UI under `src/app/*`.
+Source of truth:
 
-## Cursor Cloud notes
+- `product/ROADMAP.md`
+- `product/BACKLOG.md`
+- `product/FUND_MODEL.md`
+- `product/items/`
+- `PRODUCT_DECISIONS.md` (V1 locked behaviors)
 
-- `npm run dev` → http://localhost:3000
-- Reset data: `POST /api/reset` or delete `.data/db.json`
-- Run `npm test` for journey/reclaim/milestone tests
-- `npm run build` before relying on `npm run typecheck` (Next generates types)
+## App / ship
+
+Implement and deploy against Fly **dev** then **prod** per `DEPLOY.md`. Prod data wipe for Day-1 restart: clear `/app/.data/db.json` on `rebuild-prod` (reset API is blocked on prod).

@@ -40,7 +40,9 @@ npm run build
 | **Dev** | https://rebuild-dev.fly.dev | Test / sample |
 | **Prod** | https://rebuild-prod.fly.dev | Founder true-source |
 
-See `DEPLOY.md` and `PRODUCT_DECISIONS.md`.
+See `DEPLOY.md`, `PRODUCT_DECISIONS.md`, and `product/` (roadmap + locked fund model).
+
+**Fund buckets (locked):** Future 50% (longer-horizon park) + Treat Yourself 50% (short-term). On reward days: Treat Yourself (Treat first, optional Future pull) or Save for the Future.
 
 ## First-run path
 

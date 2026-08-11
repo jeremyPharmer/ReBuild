@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { todayInTz } from "@/lib/journey";
+import { maybeCreateWeeklyBonus } from "@/lib/mutations";
 import { updateState } from "@/lib/store";
 import type { SupportCompletion, SupportType } from "@/lib/types";
 
@@ -31,7 +32,15 @@ export async function POST(req: Request) {
             s.date === date && s.supportType === supportType ? row : s,
           )
         : [...prev.supports, row];
-      return { ...prev, supports };
+      // Completing a support clears a same-day "Not today" dismiss.
+      const skips = completed
+        ? (prev.skips ?? []).filter(
+            (s) => !(s.date === date && s.itemKey === supportType),
+          )
+        : prev.skips;
+      let next = { ...prev, supports, skips };
+      if (completed) next = maybeCreateWeeklyBonus(next, date);
+      return next;
     });
     return NextResponse.json({ state });
   } catch (e) {
