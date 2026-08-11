@@ -39,16 +39,32 @@ export async function POST(req: Request) {
     if (action === "assign") {
       const id = String(body.id);
       const milestoneDay = Number(body.milestoneDay);
-      const state = await updateState((prev) => ({
-        ...prev,
-        rewards: prev.rewards.map((r) =>
-          r.id === id
-            ? { ...r, assignedMilestoneDay: milestoneDay }
-            : r.assignedMilestoneDay === milestoneDay
-              ? { ...r, assignedMilestoneDay: undefined }
-              : r,
-        ),
-      }));
+      const state = await updateState((prev) => {
+        const current = prev.rewards.find((r) => r.id === id);
+        const clearing =
+          body.clear === true ||
+          current?.assignedMilestoneDay === milestoneDay;
+        if (clearing) {
+          return {
+            ...prev,
+            rewards: prev.rewards.map((r) =>
+              r.assignedMilestoneDay === milestoneDay
+                ? { ...r, assignedMilestoneDay: undefined }
+                : r,
+            ),
+          };
+        }
+        return {
+          ...prev,
+          rewards: prev.rewards.map((r) =>
+            r.id === id
+              ? { ...r, assignedMilestoneDay: milestoneDay }
+              : r.assignedMilestoneDay === milestoneDay
+                ? { ...r, assignedMilestoneDay: undefined }
+                : r,
+          ),
+        };
+      });
       return NextResponse.json({ state });
     }
 

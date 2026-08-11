@@ -161,11 +161,13 @@ export default function HomePage() {
     if (!incentive) return;
     setAssignBusy(true);
     setAssignError("");
+    const clearing = assigned?.id === rewardId;
     try {
       await post("/api/rewards", {
         action: "assign",
         id: rewardId,
         milestoneDay: incentive.dayNumber,
+        ...(clearing ? { clear: true } : {}),
       });
       setRewardPickerOpen(false);
     } catch (e) {
@@ -547,7 +549,7 @@ export default function HomePage() {
             <h2>Choose reward</h2>
             <p className="tiny" style={{ marginTop: 6, marginBottom: 12 }}>
               Showing wishlist items up to <Money value={pool} /> for this
-              incentive.
+              incentive. Tap the checked item again to clear.
             </p>
 
             {eligibleRewards.length === 0 ? (
