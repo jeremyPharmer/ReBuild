@@ -20,6 +20,7 @@ Always read and update these files:
 | `product/ROADMAP.md` | Ranked roadmap, timeline, current focus |
 | `product/BACKLOG.md` | Full backlog index |
 | `product/items/*.md` | One file per backlog item (details, scope, notes) |
+| `product/FUND_MODEL.md` | Locked incentive fund buckets and split |
 
 If those files are missing or drift, restore them before making product decisions.
 
@@ -50,6 +51,7 @@ Create `product/items/<slug>.md` using the template in the `product-roadmap` ski
 - Product: ReBuild — recovery app with incentives.
 - Payments v1 destination: **Venmo** (auto-pull from checking).
 - Later destination option: soccer / alternate bank account — track as a follow-on, do not block v1.
+- Fund buckets (locked): **Future 50% + Treat Yourself 50%**. No Rebuild middle bucket — see `product/FUND_MODEL.md`.
 ---
 
 # Product roadmap skill instructions apply when present
