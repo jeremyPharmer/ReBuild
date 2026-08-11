@@ -1,4 +1,4 @@
-# Fund buckets: Future + Treat @ 50/50
+# Fund buckets: Future + Treat @ 30/70
 
 | Field | Value |
 | --- | --- |
@@ -18,8 +18,8 @@ Three fund buckets don’t match a clear short-term vs long-horizon story. Rewar
 
 ## Outcome
 
-- **Future** = longer-horizon park (50% of each Move)
-- **Treat Yourself** = short-term spendable (50% of each Move)
+- **Future** = longer-horizon park (30% of each Move)
+- **Treat Yourself** = short-term spendable (70% of each Move)
 - Reward day: **Treat Yourself** (Treat first, optional Future pull) **or** **Save for the Future**
 - Old “Save & compound → move into Treat” is retired
 
@@ -35,5 +35,5 @@ Canonical rules: [`../FUND_MODEL.md`](../FUND_MODEL.md)
 
 ## Notes
 
-- Locked 2026-08-11; refined same day for reward pull-from-Future + Save-for-Future wording.
+- Locked 2026-08-11 at 50/50; updated same day to **Future 30% / Treat 70%** so ~$1,095 parks by Day 365 at $10/day while Treat stays the dominant short-term incentive.
 - Handed to UXUI for review on PR #3.

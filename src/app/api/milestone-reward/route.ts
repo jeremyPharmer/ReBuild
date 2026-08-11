@@ -59,6 +59,12 @@ export async function POST(req: Request) {
               status: 400,
             });
           }
+          const rawUrl = String(body.newReward.url ?? "").trim();
+          const url = rawUrl
+            ? /^https?:\/\//i.test(rawUrl)
+              ? rawUrl
+              : `https://${rawUrl}`
+            : undefined;
           rewardId = newId("reward");
           next = {
             ...next,
@@ -69,6 +75,7 @@ export async function POST(req: Request) {
                 name,
                 category: (body.newReward.category as RewardCategory) || "other",
                 estimatedCost,
+                url,
                 executed: false,
                 createdAt: new Date().toISOString(),
               },

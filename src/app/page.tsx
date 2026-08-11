@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
+import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
 import { FundSegmentBar } from "@/components/MilestoneReward";
 import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import { fundTotal, pendingCashableMoments } from "@/lib/fund";
@@ -17,13 +18,6 @@ import type { SupportType } from "@/lib/types";
 
 type SkipKey = SupportType | "morning" | "evening";
 
-type ExitingSupport = {
-  type: SupportType;
-  label: string;
-  weekDone: number;
-  weeklyTarget: number;
-};
-
 export default function HomePage() {
   const { state, dashboard, today, post } = useApp();
   const router = useRouter();
@@ -31,7 +25,6 @@ export default function HomePage() {
   const [skipBusy, setSkipBusy] = useState<SkipKey | null>(null);
   const [undoOpen, setUndoOpen] = useState(false);
   const [undoBusy, setUndoBusy] = useState<string | null>(null);
-  const [exiting, setExiting] = useState<ExitingSupport[]>([]);
   const [reclaimStep, setReclaimStep] = useState<"idle" | "choose" | "partial">(
     "idle",
   );
@@ -68,45 +61,38 @@ export default function HomePage() {
   const pendingRewards = pendingCashableMoments(state);
   const total = fundTotal(state.fund);
   const enabledSupports = state.profile.supports.filter((s) => s.enabled);
-  const exitingTypes = new Set(exiting.map((e) => e.type));
-  const openSupports = enabledSupports.filter(
-    (s) =>
-      !skips.has(s.type) &&
-      !exitingTypes.has(s.type) &&
-      !dashboard.todaySupports.some((t) => t.supportType === s.type),
+  const completedSupportTypes = new Set(
+    dashboard.todaySupports.map((t) => t.supportType),
   );
-  const showMorning = !dashboard.todayMorning && !skips.has("morning");
-  const showEvening = !dashboard.todayEvening && !skips.has("evening");
+  const openSupports = enabledSupports.filter(
+    (s) => !skips.has(s.type) && !completedSupportTypes.has(s.type),
+  );
+  const morningSkipped = skips.has("morning");
+  const eveningSkipped = skips.has("evening");
+  const morningDone = Boolean(dashboard.todayMorning);
+  const eveningDone = Boolean(dashboard.todayEvening);
+  const showMorningOpen = !morningDone && !morningSkipped;
+  const showEveningOpen = !eveningDone && !eveningSkipped;
   const openCount =
-    (showMorning ? 1 : 0) +
-    openSupports.length +
-    exiting.length +
-    (showEvening ? 1 : 0);
+    (showMorningOpen ? 1 : 0) + openSupports.length + (showEveningOpen ? 1 : 0);
 
   const completedSupports = dashboard.todaySupports;
   const skippedToday = (state.skips ?? []).filter((s) => s.date === today);
   const hasUndoItems =
     completedSupports.length > 0 ||
     skippedToday.length > 0 ||
-    Boolean(dashboard.todayMorning) ||
-    Boolean(dashboard.todayEvening);
+    morningDone ||
+    eveningDone;
 
-  async function completeSupport(item: ExitingSupport) {
-    setBusyType(item.type);
-    setExiting((prev) =>
-      prev.some((e) => e.type === item.type) ? prev : [...prev, item],
-    );
+  async function completeSupport(type: SupportType) {
+    setBusyType(type);
     try {
-      await Promise.all([
-        post("/api/support", {
-          date: today,
-          supportType: item.type,
-          completed: true,
-        }),
-        new Promise((r) => setTimeout(r, 700)),
-      ]);
+      await post("/api/support", {
+        date: today,
+        supportType: type,
+        completed: true,
+      });
     } finally {
-      setExiting((prev) => prev.filter((e) => e.type !== item.type));
       setBusyType(null);
     }
   }
@@ -176,11 +162,13 @@ export default function HomePage() {
     if (!incentive) return;
     setAssignBusy(true);
     setAssignError("");
+    const clearing = assigned?.id === rewardId;
     try {
       await post("/api/rewards", {
         action: "assign",
         id: rewardId,
         milestoneDay: incentive.dayNumber,
+        ...(clearing ? { clear: true } : {}),
       });
       setRewardPickerOpen(false);
     } catch (e) {
@@ -222,7 +210,7 @@ export default function HomePage() {
           </h2>
           <p className="muted">
             {total > 0
-              ? "Treat Yourself or Save & compound."
+              ? "Treat Yourself or Save for the Future."
               : "Move money to Rebuild first, then Treat or Save."}
           </p>
           <div style={{ marginTop: 12 }}>
@@ -292,17 +280,17 @@ export default function HomePage() {
                 </button>
               </div>
             ))}
-            {dashboard.todayMorning && (
+            {morningDone && (
               <p className="tiny">Morning check-in is logged for today.</p>
             )}
-            {dashboard.todayEvening && (
+            {eveningDone && (
               <p className="tiny">Evening check-in is logged for today.</p>
             )}
           </div>
         )}
 
         <div className="daily-actions" style={{ marginTop: 10 }}>
-          {showMorning && (
+          {showMorningOpen && (
             <div className="check-item check-item-row">
               <Link href="/morning" className="check-item-main">
                 <span className="check-box" />
@@ -328,14 +316,7 @@ export default function HomePage() {
                   type="button"
                   className="check-item-main"
                   disabled={busyType === s.type}
-                  onClick={() =>
-                    completeSupport({
-                      type: s.type,
-                      label: s.label,
-                      weekDone,
-                      weeklyTarget: s.weeklyTarget,
-                    })
-                  }
+                  onClick={() => completeSupport(s.type)}
                 >
                   <span className="check-box" />
                   <span className="check-label">
@@ -354,25 +335,7 @@ export default function HomePage() {
             );
           })}
 
-          {exiting.map((s) => (
-            <div
-              key={`exit-${s.type}`}
-              className="check-item check-item-row clearing"
-              aria-live="polite"
-            >
-              <div className="check-item-main" aria-hidden>
-                <span className="check-box checked">✓</span>
-                <span className="check-label">
-                  {s.label}, week {s.weekDone + 1} of {s.weeklyTarget}
-                </span>
-              </div>
-              <span className="clear-burst" aria-hidden>
-                +1
-              </span>
-            </div>
-          ))}
-
-          {showEvening && (
+          {showEveningOpen && (
             <div className="check-item check-item-row">
               <Link href="/evening" className="check-item-main">
                 <span className="check-box" />
@@ -396,6 +359,8 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      <RecoveryPodcastCard />
 
       <section className="panel">
         <div className="row">

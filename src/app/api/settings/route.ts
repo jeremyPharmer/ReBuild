@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { normalizeReminders } from "@/lib/reminders";
 import { updateState } from "@/lib/store";
 import { DEFAULT_SUPPORTS, type SupportConfig } from "@/lib/types";
 
@@ -18,6 +19,27 @@ export async function POST(req: Request) {
         body.historicalDailySpend !== undefined
           ? Number(body.historicalDailySpend)
           : prev.profile.historicalDailySpend;
+
+      const email =
+        body.email !== undefined
+          ? String(body.email || "").trim() || undefined
+          : prev.profile.email;
+
+      const reminders =
+        body.reminders !== undefined
+          ? normalizeReminders({
+              enabled: Boolean(body.reminders.enabled),
+              morningHour: Number(body.reminders.morningHour),
+              eveningHour: Number(body.reminders.eveningHour),
+            })
+          : prev.profile.reminders;
+
+      if (reminders?.enabled && !email) {
+        const err = new Error("Add an email before enabling reminders");
+        (err as Error & { status: number }).status = 400;
+        throw err;
+      }
+
       return {
         ...prev,
         profile: {
@@ -27,6 +49,8 @@ export async function POST(req: Request) {
           displayName: body.displayName
             ? String(body.displayName)
             : prev.profile.displayName,
+          email,
+          reminders,
         },
       };
     });

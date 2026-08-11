@@ -95,7 +95,7 @@ export type FinancialTransfer = {
   split?: { future: number; treat: number; rebuild?: number };
 };
 
-/** Venmo-matching balances still set aside */
+/** Balances still set aside (must match external total) */
 export type FundLedger = {
   future: number;
   treat: number;
@@ -122,6 +122,8 @@ export type Reward = {
   estimatedCost: number;
   actualCost?: number;
   assignedMilestoneDay?: number;
+  /** Optional link to buy / view the reward */
+  url?: string;
   executed: boolean;
   executedAt?: string;
   notes?: string;
@@ -176,6 +178,14 @@ export type JournalEntry = {
   createdAt: string;
 };
 
+export type ReminderPrefs = {
+  enabled: boolean;
+  /** Local hour 0–23 in profile.timezone */
+  morningHour: number;
+  /** Local hour 0–23 in profile.timezone */
+  eveningHour: number;
+};
+
 export type RebuildProfile = {
   id: string;
   createdAt: string;
@@ -189,6 +199,9 @@ export type RebuildProfile = {
   currentRunStartedOn: string;
   supports: SupportConfig[];
   timezone: string;
+  /** Where morning/evening reminder emails go */
+  email?: string;
+  reminders?: ReminderPrefs;
 };
 
 export type RebuildState = {
@@ -206,11 +219,15 @@ export type RebuildState = {
   journals: JournalEntry[];
   /** Today's Rebuild items dismissed for a given date */
   skips: DailySkip[];
-  /** Venmo-matching segmented balances */
+  /** Segmented balances still set aside */
   fund: FundLedger;
   /** Consecutive Save choices since last Treat (max 2, then forced Treat) */
   consecutiveSaves: number;
   milestoneDecisions: MilestoneDecision[];
+  /** Last local dates a reminder email was sent (YYYY-MM-DD) */
+  reminderLog?: { morning?: string; evening?: string };
+  /** Podcast episode ids marked listened — never offered again */
+  listenedPodcasts?: string[];
 };
 
 export const DEFAULT_SUPPORTS: SupportConfig[] = [
