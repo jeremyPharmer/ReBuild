@@ -13,7 +13,7 @@ Last updated: 2026-08-11
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | RB-001 | Auto-pull funds: checking → Venmo | P0 | Backlog | L | TBD |
 | 2 | RB-005 | Recovery content: weekly podcast & book offers | P0 | Backlog | M | TBD |
-| 3 | RB-006 | Fund buckets: Future + Treat @ 50/50 | P0 | Backlog | S | TBD |
+| 3 | RB-006 | Fund buckets: Future + Treat @ 30/70 | P0 | Backlog | S | TBD |
 
 ## Now / Next / Later
 
@@ -27,7 +27,7 @@ _Nothing in progress._ Top items: RB-001 (Venmo), RB-005 (weekly recovery conten
    Auto-pull from linked checking into Venmo for incentive flows.
 2. **RB-005 — Recovery content: weekly podcast & book offers**  
    Each week, show **two selectable** offers (podcasts and/or books) in the recovery content box.
-3. **RB-006 — Fund buckets: Future + Treat @ 50/50**  
+3. **RB-006 — Fund buckets: Future + Treat @ 30/70**  
    Future = long-horizon park; Treat = short-term. Reward day: Treat Yourself (optional Future pull) or Save for the Future. UXUI review: [`UX_HANDOFF_FUND_BUCKETS.md`](./UX_HANDOFF_FUND_BUCKETS.md).
 
 ### Later

@@ -30,10 +30,10 @@ function base(): RebuildState {
 }
 
 describe("fund split", () => {
-  it("splits 50/50 Future / Treat on transfer", () => {
+  it("splits 30/70 Future / Treat on transfer", () => {
     expect(splitTransfer(100)).toEqual({
-      future: 50,
-      treat: 50,
+      future: 30,
+      treat: 70,
     });
     let state = base();
     state = applyEveningSideEffects(state, {
@@ -46,7 +46,7 @@ describe("fund split", () => {
     });
     state = confirmTransfer(state, ["2026-08-01"], 40);
     expect(fundTotal(state.fund)).toBe(40);
-    expect(state.fund).toEqual({ future: 20, treat: 20 });
+    expect(state.fund).toEqual({ future: 12, treat: 28 });
   });
 
   it("folds the legacy Rebuild bucket into Future", () => {

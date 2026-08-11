@@ -22,7 +22,7 @@ function slugify(label: string) {
 }
 
 export default function SettingsPage() {
-  const { state, today, post, refresh } = useApp();
+  const { state, today, post, refresh, env } = useApp();
   const router = useRouter();
   const [supports, setSupports] = useState<SupportConfig[]>(
     state.profile?.supports ?? DEFAULT_SUPPORTS,
@@ -30,10 +30,21 @@ export default function SettingsPage() {
   const [spend, setSpend] = useState(
     String(state.profile?.historicalDailySpend ?? 40),
   );
+  const [email, setEmail] = useState(state.profile?.email ?? "");
+  const [remindersOn, setRemindersOn] = useState(
+    Boolean(state.profile?.reminders?.enabled),
+  );
+  const [morningHour, setMorningHour] = useState(
+    String(state.profile?.reminders?.morningHour ?? 7),
+  );
+  const [eveningHour, setEveningHour] = useState(
+    String(state.profile?.reminders?.eveningHour ?? 20),
+  );
   const [newLabel, setNewLabel] = useState("");
   const [newTarget, setNewTarget] = useState("3");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [testMsg, setTestMsg] = useState("");
 
   const week = useMemo(
     () => weeklySupportProgress(state, today),
@@ -76,10 +87,33 @@ export default function SettingsPage() {
       await post("/api/settings", {
         supports,
         historicalDailySpend: Number(spend),
+        email,
+        reminders: {
+          enabled: remindersOn,
+          morningHour: Number(morningHour),
+          eveningHour: Number(eveningHour),
+        },
       });
       setMsg("Saved.");
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendTest(kind: "morning" | "evening") {
+    setBusy(true);
+    setTestMsg("");
+    try {
+      await post("/api/reminders/test", { kind, email });
+      setTestMsg(
+        kind === "morning"
+          ? "Test Start-the-day email sent."
+          : "Test Close-the-day email sent.",
+      );
+    } catch (e) {
+      setTestMsg(e instanceof Error ? e.message : "Send failed");
     } finally {
       setBusy(false);
     }
@@ -102,7 +136,8 @@ export default function SettingsPage() {
   }
 
   async function resetAll() {
-    if (!window.confirm("Reset all Rebuild data for this device/server?")) {
+    if (env === "prod") return;
+    if (!window.confirm("Reset all Rebuild data on DEV?")) {
       return;
     }
     const res = await fetch("/api/reset", { method: "POST" });
@@ -121,9 +156,81 @@ export default function SettingsPage() {
         <p className="eyebrow">Configure</p>
         <h1>Settings</h1>
         <p className="muted">
-          Spend, supports, and this week&apos;s plan — edit anytime.
+          Environment: <strong>{env}</strong>
+          {env === "prod"
+            ? " · history retained across updates"
+            : " · safe to reset for testing"}
+          . Spend, supports, and this week&apos;s plan — edit anytime.
         </p>
       </header>
+
+      <section className="panel">
+        <p className="eyebrow">Email nudges</p>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Morning and evening emails with a one-tap link into Rebuild (
+          {state.profile?.timezone || "America/New_York"}).
+        </p>
+        <label className="field">
+          <span className="field-label">Email</span>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@email.com"
+            autoComplete="email"
+          />
+        </label>
+        <label className="check-item check-item-row" style={{ marginTop: 8 }}>
+          <input
+            type="checkbox"
+            checked={remindersOn}
+            onChange={(e) => setRemindersOn(e.target.checked)}
+            style={{ width: 18, height: 18 }}
+          />
+          <span className="check-label">Send daily Start / Close emails</span>
+        </label>
+        <div className="grid-2" style={{ marginTop: 10 }}>
+          <label className="field">
+            <span className="field-label">Start hour (0–23)</span>
+            <input
+              type="number"
+              min={0}
+              max={23}
+              value={morningHour}
+              onChange={(e) => setMorningHour(e.target.value)}
+            />
+          </label>
+          <label className="field">
+            <span className="field-label">Close hour (0–23)</span>
+            <input
+              type="number"
+              min={0}
+              max={23}
+              value={eveningHour}
+              onChange={(e) => setEveningHour(e.target.value)}
+            />
+          </label>
+        </div>
+        <div className="grid-2" style={{ marginTop: 12 }}>
+          <SecondaryButton
+            onClick={() => sendTest("morning")}
+            disabled={busy || !email.trim()}
+          >
+            Test morning
+          </SecondaryButton>
+          <SecondaryButton
+            onClick={() => sendTest("evening")}
+            disabled={busy || !email.trim()}
+          >
+            Test evening
+          </SecondaryButton>
+        </div>
+        {testMsg && (
+          <p className="tiny" style={{ marginTop: 10 }}>
+            {testMsg}
+          </p>
+        )}
+      </section>
 
       <section className="panel">
         <p className="eyebrow">Historical daily spend</p>
@@ -248,7 +355,9 @@ export default function SettingsPage() {
         )}
       </section>
 
-      <SecondaryButton onClick={resetAll}>Reset all data</SecondaryButton>
+      {env !== "prod" && (
+        <SecondaryButton onClick={resetAll}>Reset all data (dev)</SecondaryButton>
+      )}
     </main>
   );
 }

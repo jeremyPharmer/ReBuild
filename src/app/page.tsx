@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
+import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
 import { FundSegmentBar } from "@/components/MilestoneReward";
 import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import { fundTotal, pendingCashableMoments } from "@/lib/fund";
@@ -68,28 +69,35 @@ export default function HomePage() {
   const pendingRewards = pendingCashableMoments(state);
   const total = fundTotal(state.fund);
   const enabledSupports = state.profile.supports.filter((s) => s.enabled);
+  const completedSupportTypes = new Set(
+    dashboard.todaySupports.map((t) => t.supportType),
+  );
   const exitingTypes = new Set(exiting.map((e) => e.type));
   const openSupports = enabledSupports.filter(
     (s) =>
       !skips.has(s.type) &&
-      !exitingTypes.has(s.type) &&
-      !dashboard.todaySupports.some((t) => t.supportType === s.type),
+      !completedSupportTypes.has(s.type) &&
+      !exitingTypes.has(s.type),
   );
-  const showMorning = !dashboard.todayMorning && !skips.has("morning");
-  const showEvening = !dashboard.todayEvening && !skips.has("evening");
+  const morningSkipped = skips.has("morning");
+  const eveningSkipped = skips.has("evening");
+  const morningDone = Boolean(dashboard.todayMorning);
+  const eveningDone = Boolean(dashboard.todayEvening);
+  const showMorningOpen = !morningDone && !morningSkipped;
+  const showEveningOpen = !eveningDone && !eveningSkipped;
   const openCount =
-    (showMorning ? 1 : 0) +
+    (showMorningOpen ? 1 : 0) +
     openSupports.length +
     exiting.length +
-    (showEvening ? 1 : 0);
+    (showEveningOpen ? 1 : 0);
 
   const completedSupports = dashboard.todaySupports;
   const skippedToday = (state.skips ?? []).filter((s) => s.date === today);
   const hasUndoItems =
     completedSupports.length > 0 ||
     skippedToday.length > 0 ||
-    Boolean(dashboard.todayMorning) ||
-    Boolean(dashboard.todayEvening);
+    morningDone ||
+    eveningDone;
 
   async function completeSupport(item: ExitingSupport) {
     setBusyType(item.type);
@@ -176,11 +184,13 @@ export default function HomePage() {
     if (!incentive) return;
     setAssignBusy(true);
     setAssignError("");
+    const clearing = assigned?.id === rewardId;
     try {
       await post("/api/rewards", {
         action: "assign",
         id: rewardId,
         milestoneDay: incentive.dayNumber,
+        ...(clearing ? { clear: true } : {}),
       });
       setRewardPickerOpen(false);
     } catch (e) {
@@ -222,7 +232,7 @@ export default function HomePage() {
           </h2>
           <p className="muted">
             {total > 0
-              ? "Treat Yourself or Save & compound."
+              ? "Treat Yourself or Save for the Future."
               : "Move money to Rebuild first, then Treat or Save."}
           </p>
           <div style={{ marginTop: 12 }}>
@@ -292,17 +302,17 @@ export default function HomePage() {
                 </button>
               </div>
             ))}
-            {dashboard.todayMorning && (
+            {morningDone && (
               <p className="tiny">Morning check-in is logged for today.</p>
             )}
-            {dashboard.todayEvening && (
+            {eveningDone && (
               <p className="tiny">Evening check-in is logged for today.</p>
             )}
           </div>
         )}
 
         <div className="daily-actions" style={{ marginTop: 10 }}>
-          {showMorning && (
+          {showMorningOpen && (
             <div className="check-item check-item-row">
               <Link href="/morning" className="check-item-main">
                 <span className="check-box" />
@@ -372,7 +382,7 @@ export default function HomePage() {
             </div>
           ))}
 
-          {showEvening && (
+          {showEveningOpen && (
             <div className="check-item check-item-row">
               <Link href="/evening" className="check-item-main">
                 <span className="check-box" />
@@ -396,6 +406,8 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      <RecoveryPodcastCard />
 
       <section className="panel">
         <div className="row">
