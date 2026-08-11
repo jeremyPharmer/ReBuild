@@ -741,6 +741,12 @@ h2 {
   margin-top: 12px;
 }
 
+@media (min-width: 380px) {
+  .segment-legend {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .segment-item {
   display: flex;
   align-items: center;
