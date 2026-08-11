@@ -222,7 +222,7 @@ export default function HomePage() {
           </h2>
           <p className="muted">
             {total > 0
-              ? "Treat Yourself or Save & compound."
+              ? "Treat Yourself or Save for the Future."
               : "Move money to Rebuild first, then Treat or Save."}
           </p>
           <div style={{ marginTop: 12 }}>

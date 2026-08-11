@@ -132,7 +132,7 @@ export default function MoneyPage() {
         <FundSegmentBar fund={state.fund} />
         <div className="grid-2" style={{ marginTop: 16 }}>
           <div>
-            <p className="tiny">Reinvested (left Venmo)</p>
+            <p className="tiny">Reinvested (spent)</p>
             <p className="money" style={{ fontSize: "1.4rem" }}>
               <Money value={moneyReinvested(state)} />
             </p>
@@ -187,7 +187,7 @@ export default function MoneyPage() {
           ) : (
             <div style={{ marginTop: 14 }}>
               <p className="tiny">
-                Confirm the amount you actually Venmo&apos;d / set aside.
+                Confirm the amount you actually moved / set aside.
                 Difference from estimate is written off.
               </p>
               <label className="field">

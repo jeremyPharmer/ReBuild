@@ -95,7 +95,7 @@ export type FinancialTransfer = {
   split?: { future: number; treat: number; rebuild?: number };
 };
 
-/** Venmo-matching balances still set aside */
+/** Balances still set aside (must match external total) */
 export type FundLedger = {
   future: number;
   treat: number;
@@ -206,7 +206,7 @@ export type RebuildState = {
   journals: JournalEntry[];
   /** Today's Rebuild items dismissed for a given date */
   skips: DailySkip[];
-  /** Venmo-matching segmented balances */
+  /** Segmented balances still set aside */
   fund: FundLedger;
   /** Consecutive Save choices since last Treat (max 2, then forced Treat) */
   consecutiveSaves: number;
