@@ -34,6 +34,12 @@ export default function HomePage() {
   const [undoOpen, setUndoOpen] = useState(false);
   const [undoBusy, setUndoBusy] = useState<string | null>(null);
   const [exiting, setExiting] = useState<ExitingSupport[]>([]);
+  const [reclaimStep, setReclaimStep] = useState<"idle" | "choose" | "partial">(
+    "idle",
+  );
+  const [partialAmount, setPartialAmount] = useState("");
+  const [reclaimBusy, setReclaimBusy] = useState(false);
+  const [reclaimError, setReclaimError] = useState("");
 
   useEffect(() => {
     if (!state.profile?.onboarded) router.replace("/onboarding");
@@ -135,6 +141,36 @@ export default function HomePage() {
     } finally {
       setUndoBusy(null);
     }
+  }
+
+  async function confirmReclaim(amount: number) {
+    if (!Number.isFinite(amount) || amount < 0 || waiting.length === 0) return;
+    setReclaimBusy(true);
+    setReclaimError("");
+    try {
+      await post("/api/reclaim", {
+        dayDates: waiting.map((d) => d.date),
+        amount,
+      });
+      setReclaimStep("idle");
+      setPartialAmount("");
+    } catch (e) {
+      setReclaimError(e instanceof Error ? e.message : "Could not move");
+    } finally {
+      setReclaimBusy(false);
+    }
+  }
+
+  function openReclaim() {
+    setReclaimError("");
+    setPartialAmount(String(dashboard?.waiting ?? ""));
+    setReclaimStep("choose");
+  }
+
+  function cancelReclaim() {
+    setReclaimStep("idle");
+    setPartialAmount("");
+    setReclaimError("");
   }
 
   function supportLabel(type: string) {
@@ -345,7 +381,7 @@ export default function HomePage() {
             <p className="money money-xl">
               <Money value={total} />
             </p>
-            <p className="tiny">Already in Rebuild (Venmo set aside)</p>
+            <p className="tiny">Already in Rebuild</p>
           </div>
           <div style={{ textAlign: "right" }}>
             <p className="tiny">Waiting to reclaim</p>
@@ -356,18 +392,93 @@ export default function HomePage() {
           </div>
         </div>
         <FundSegmentBar fund={state.fund} />
-        {waiting.length > 0 ? (
+
+        {waiting.length > 0 && reclaimStep === "idle" && (
           <div style={{ marginTop: 14 }}>
-            <Link href="/money">
-              <PrimaryButton>
-                Move ${dashboard.waiting} to Rebuild
-              </PrimaryButton>
-            </Link>
+            <PrimaryButton onClick={openReclaim}>
+              Move to Rebuild
+            </PrimaryButton>
           </div>
-        ) : (
+        )}
+
+        {waiting.length > 0 && reclaimStep === "choose" && (
+          <div className="reclaim-chooser" style={{ marginTop: 14 }}>
+            <p className="tiny" style={{ marginBottom: 10 }}>
+              Move <Money value={dashboard.waiting} /> from waiting into Total
+            </p>
+            <div className="choice-row">
+              <button
+                type="button"
+                className="choice"
+                disabled={reclaimBusy}
+                onClick={() => confirmReclaim(dashboard.waiting)}
+              >
+                Total · ${dashboard.waiting}
+              </button>
+              <button
+                type="button"
+                className="choice"
+                disabled={reclaimBusy}
+                onClick={() => setReclaimStep("partial")}
+              >
+                Partial
+              </button>
+            </div>
+            <div style={{ marginTop: 8 }}>
+              <SecondaryButton onClick={cancelReclaim}>Cancel</SecondaryButton>
+            </div>
+          </div>
+        )}
+
+        {waiting.length > 0 && reclaimStep === "partial" && (
+          <div className="reclaim-chooser" style={{ marginTop: 14 }}>
+            <p className="tiny" style={{ marginBottom: 8 }}>
+              How much of the ${dashboard.waiting} waiting are you moving?
+            </p>
+            <label className="field">
+              <span className="field-label">Amount</span>
+              <input
+                type="number"
+                min={0}
+                max={dashboard.waiting}
+                step="1"
+                value={partialAmount}
+                onChange={(e) => setPartialAmount(e.target.value)}
+              />
+            </label>
+            <PrimaryButton
+              disabled={
+                reclaimBusy ||
+                !Number.isFinite(Number(partialAmount)) ||
+                Number(partialAmount) < 0
+              }
+              onClick={() => confirmReclaim(Number(partialAmount))}
+            >
+              {reclaimBusy
+                ? "Moving…"
+                : `Move $${Number(partialAmount) || 0} to Rebuild`}
+            </PrimaryButton>
+            <div style={{ marginTop: 8 }}>
+              <SecondaryButton
+                onClick={() => {
+                  setReclaimStep("choose");
+                  setReclaimError("");
+                }}
+              >
+                Back
+              </SecondaryButton>
+            </div>
+          </div>
+        )}
+
+        {reclaimError && (
+          <p style={{ color: "var(--danger)", marginTop: 8 }}>{reclaimError}</p>
+        )}
+
+        {waiting.length === 0 && reclaimStep === "idle" && (
           <p className="tiny" style={{ marginTop: 12, lineHeight: 1.45 }}>
-            Close an aligned day to earn ~${dailySpend} in waiting. Total
-            grows after you Move to Rebuild — not at the start of the day.
+            Close an aligned day to earn ~${dailySpend} waiting. Then Move to
+            Rebuild to grow Total.
           </p>
         )}
       </section>
