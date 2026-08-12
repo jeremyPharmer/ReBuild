@@ -743,6 +743,8 @@ h2 {
   overflow: hidden;
   background: rgba(255, 255, 255, 0.06);
   margin-top: 14px;
+}
+
 .shop-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -867,6 +869,17 @@ h2 {
   padding: 8px 12px;
 }
 
+.trail-day-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.trail-day-header .trail-day-toggle {
+  flex: 1;
+  min-width: 0;
+}
+
 .trail-day-toggle {
   width: 100%;
   display: flex;
@@ -876,20 +889,6 @@ h2 {
   background: transparent;
   border: 0;
   padding: 4px 0;
-.podcast-card h2 {
-  margin: 0;
-  font-size: 1.35rem;
-}
-
-.podcast-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: transparent;
   color: inherit;
   cursor: pointer;
   text-align: left;
@@ -929,6 +928,38 @@ h2 {
   align-items: center;
   gap: 8px;
   flex: none;
+}
+
+.trail-day-menu {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.trail-day-menu:hover,
+.trail-day-menu:focus-visible {
+  color: var(--text);
+  background: var(--surface-strong);
+  outline: none;
+}
+
+.trail-intention-edit {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.trail-intention-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .caret {
@@ -971,6 +1002,77 @@ h2 {
   margin-bottom: 6px;
 }
 
+.trail-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.trail-block-head .trail-block-label {
+  margin-bottom: 0;
+}
+
+.trail-reward-star {
+  color: var(--accent);
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.journal-day-row {
+  padding-bottom: 10px;
+}
+
+.journal-day-toggle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.journal-day-toggle:disabled {
+  cursor: default;
+}
+
+.journal-day-toggle-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.journal-day-headline {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.journal-day-notes {
+  margin-top: 8px;
+  display: grid;
+  gap: 8px;
+}
+
+.journal-day-note {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 0.92rem;
+}
+
+.journal-day-note .tiny {
+  display: block;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .trail-quote {
   margin: 0 0 6px;
   font-family: var(--font-display);
@@ -984,68 +1086,6 @@ h2 {
 }
 
 .trail-provisions {
-.podcast-caret {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  font-size: 1.1rem;
-  line-height: 1;
-  color: var(--muted);
-  transform: rotate(-90deg);
-  transition: transform 0.18s ease;
-}
-
-.podcast-caret.open {
-  transform: rotate(0deg);
-}
-
-.podcast-card-head {
-  margin-bottom: 4px;
-}
-
-.podcast-list {
-  list-style: none;
-  margin: 14px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 0;
-}
-
-.podcast-row {
-  display: grid;
-  gap: 10px;
-  padding: 14px 0;
-  border-top: 1px solid var(--line);
-}
-
-.podcast-row:first-child {
-  border-top: none;
-  padding-top: 8px;
-}
-
-.podcast-show {
-  margin: 0;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.podcast-title {
-  margin: 4px 0 0;
-  font-size: 1.02rem;
-  font-weight: 650;
-  line-height: 1.3;
-}
-
-.podcast-blurb {
-  margin: 6px 0 0;
-  line-height: 1.4;
-}
-
-.podcast-row-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -1151,6 +1191,94 @@ h2 {
   fill: var(--muted);
   font-size: 9px;
   font-family: var(--font-body);
+}
+
+.podcast-card h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.podcast-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.podcast-caret {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--muted);
+  transform: rotate(-90deg);
+  transition: transform 0.18s ease;
+}
+
+.podcast-caret.open {
+  transform: rotate(0deg);
+}
+
+.podcast-card-head {
+  margin-bottom: 4px;
+}
+
+.podcast-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+
+.podcast-row {
+  display: grid;
+  gap: 10px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+
+.podcast-row:first-child {
+  border-top: none;
+  padding-top: 8px;
+}
+
+.podcast-show {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.podcast-title {
+  margin: 4px 0 0;
+  font-size: 1.02rem;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.podcast-blurb {
+  margin: 6px 0 0;
+  line-height: 1.4;
+}
+
+.podcast-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .podcast-row-actions .btn.ghost {
   width: auto;
   padding: 6px 10px;
@@ -1204,4 +1332,62 @@ h2 {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.home-reward-card h2 {
+  margin-top: 4px;
+}
+
+.home-reward-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.photo-subtle {
+  margin-top: 10px;
+}
+
+.photo-subtle-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.photo-subtle-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.photo-subtle-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.photo-subtle-preview img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+.trail-reward-photo {
+  margin-top: 10px;
+}
+
+.trail-reward-photo img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--line);
 }

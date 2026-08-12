@@ -15,7 +15,6 @@ export default function MorningPage() {
   const [mood, setMood] = useState(6);
   const [energy, setEnergy] = useState(6);
   const [stress, setStress] = useState(5);
-  const [craving, setCraving] = useState(3);
   const [intention, setIntention] = useState("");
   const [trigger, setTrigger] = useState("");
   const [busy, setBusy] = useState(false);
@@ -33,7 +32,6 @@ export default function MorningPage() {
         mood,
         energy,
         stress,
-        craving,
         intention,
         trigger: trigger || undefined,
       });
@@ -126,7 +124,6 @@ export default function MorningPage() {
         <ScaleInput label="Mood" value={mood} onChange={setMood} />
         <ScaleInput label="Energy" value={energy} onChange={setEnergy} />
         <ScaleInput label="Stress" value={stress} onChange={setStress} />
-        <ScaleInput label="Craving" value={craving} onChange={setCraving} />
       </section>
 
       <section className="panel">

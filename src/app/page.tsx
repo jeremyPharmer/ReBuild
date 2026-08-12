@@ -5,11 +5,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
-import { FundSegmentBar } from "@/components/MilestoneReward";
+import { FundSegmentBar, HomeRewardCard } from "@/components/MilestoneReward";
 import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import {
   fundTotal,
   pendingCashableMoments,
+  projectedTreatYourselfAt,
   splitTransfer,
 } from "@/lib/fund";
 import {
@@ -224,6 +225,9 @@ export default function HomePage() {
   const daysToIncentive = incentive
     ? incentive.dayNumber - dashboard.cleanDays
     : 0;
+  const projectedTreat = incentive
+    ? projectedTreatYourselfAt(state, incentive.dayNumber, today)
+    : 0;
 
   return (
     <main className="fade-in stack">
@@ -233,26 +237,9 @@ export default function HomePage() {
         <p className="muted">{dashboard.sinceLabel}</p>
       </header>
 
-      {pendingRewards.length > 0 && (
-        <section className="panel">
-          <p className="eyebrow">Decision waiting</p>
-          <h2>
-            Day {pendingRewards[0].dayNumber} · {pendingRewards[0].title}
-          </h2>
-          <p className="muted">
-            {total > 0
-              ? "Treat Yourself or Save for the Future."
-              : "Move waiting money first (30% Future · 70% Treat), then Treat or Save."}
-          </p>
-          <div style={{ marginTop: 12 }}>
-            <Link href={total > 0 ? "/evening" : "/money"}>
-              <PrimaryButton>
-                {total > 0 ? "Open reward moment" : "Move waiting money"}
-              </PrimaryButton>
-            </Link>
-          </div>
-        </section>
-      )}
+      {pendingRewards.map((m) => (
+        <HomeRewardCard key={m.id} moment={m} onDone={() => undefined} />
+      ))}
 
       <section className="panel">
         <div className="row">
@@ -538,6 +525,13 @@ export default function HomePage() {
           </h2>
           <p className="muted" style={{ marginTop: 6 }}>
             {daysToIncentive} day{daysToIncentive === 1 ? "" : "s"} away
+          </p>
+          <p style={{ marginTop: 12, fontWeight: 650, fontSize: "1.15rem" }}>
+            Projected Treat Yourself · <Money value={projectedTreat} />
+          </p>
+          <p className="tiny" style={{ marginTop: 4 }}>
+            70% of reclaimed so far + Treat accruing through Day{" "}
+            {incentive.dayNumber}
           </p>
 
           {assigned ? (
