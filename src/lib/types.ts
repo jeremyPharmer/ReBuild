@@ -36,7 +36,8 @@ export type MorningCheckIn = {
   mood: number;
   energy: number;
   stress: number;
-  craving: number;
+  /** @deprecated removed from morning UI; prefer craving events */
+  craving?: number;
   intention: string;
   trigger?: string;
   notes?: string;
@@ -46,10 +47,18 @@ export type MorningCheckIn = {
 export type EveningCheckIn = {
   date: string;
   mood: number;
-  craving: number;
+  /** Evening stress 1–10; optional on legacy rows */
+  stress?: number;
+  /** @deprecated removed from evening UI; use craving flow events */
+  craving?: number;
+  /**
+   * Always "aligned" for new closes (reclaim always).
+   * Legacy rows may be return_to_use / other. Journey reset lives in Settings.
+   */
   alignment: AlignmentStatus;
   returnNotes?: string;
   oneLine: string;
+  /** Optional “anything specific stand out today?” note */
   expandedJournal?: string;
   completedAt: string;
 };
@@ -108,10 +117,12 @@ export type MilestoneDecision = {
   milestoneAchievementId: string;
   dayNumber: number;
   choice: "save" | "treat";
-  /** Save: $ moved into Treat. Treat: $ spent from Treat. */
+  /** Save: $ moved into Treat. Treat: $ spent from Treat (0 = celebration-only). */
   amount: number;
   rewardId?: string;
   note?: string;
+  /** Optional celebration photo id under .data/photos */
+  photoId?: string;
   createdAt: string;
 };
 
@@ -127,6 +138,8 @@ export type Reward = {
   executed: boolean;
   executedAt?: string;
   notes?: string;
+  /** Optional celebration photo id under .data/photos */
+  photoId?: string;
   createdAt: string;
 };
 

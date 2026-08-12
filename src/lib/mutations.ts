@@ -39,8 +39,11 @@ export function applyEveningSideEffects(
 
   if (evening.alignment === "aligned") {
     next = ensureReclaimDay(next, evening.date);
-    next = awardCrossedMilestones(next, evening.date);
   }
+
+  // Milestones unlock when the day is reached (calendar clean days),
+  // not only when the evening is closed.
+  next = ensureMilestonesReached(next, evening.date);
 
   if (evening.alignment === "return_to_use") {
     next = handleReturnToUse(next, evening);
@@ -70,23 +73,36 @@ function handleReturnToUse(
   state: RebuildState,
   evening: EveningCheckIn,
 ): RebuildState {
+  return resetCurrentRun(state, evening.date, evening.returnNotes);
+}
+
+/**
+ * Reset the current abstinence run (Settings → Reset my journey).
+ * History, money, journals, and milestones stay; clean-day counter
+ * starts again the next calendar day.
+ */
+export function resetCurrentRun(
+  state: RebuildState,
+  asOfDate: string,
+  notes?: string,
+): RebuildState {
   if (!state.profile) return state;
   const start = state.profile.currentRunStartedOn;
-  // Abstinence days completed before the return day (return day does not count).
+  // Abstinence days completed before the reset day (reset day does not count).
   const previousClean =
-    evening.date > start ? calendarDaysBetween(start, evening.date) : 0;
+    asOfDate > start ? calendarDaysBetween(start, asOfDate) : 0;
 
   const endedRunId = state.profile.currentRunId;
   const returnEvent: ReturnEvent = {
     id: newId("return"),
-    date: evening.date,
-    notes: evening.returnNotes,
+    date: asOfDate,
+    notes,
     previousCleanDays: previousClean,
     runIdEnded: endedRunId,
     createdAt: new Date().toISOString(),
   };
 
-  const [y, m, d] = evening.date.split("-").map(Number);
+  const [y, m, d] = asOfDate.split("-").map(Number);
   const nextDay = new Date(y, m - 1, d + 1);
   const yyyy = nextDay.getFullYear();
   const mm = String(nextDay.getMonth() + 1).padStart(2, "0");
@@ -104,7 +120,12 @@ function handleReturnToUse(
   };
 }
 
-function awardCrossedMilestones(
+/**
+ * Unlock milestones for every day reached this run (Day N when
+ * cleanDaysThisRun >= N). Reward/Destination cards can appear on Home
+ * as soon as that calendar day starts — not only after evening close.
+ */
+export function ensureMilestonesReached(
   state: RebuildState,
   asOfDate: string,
 ): RebuildState {

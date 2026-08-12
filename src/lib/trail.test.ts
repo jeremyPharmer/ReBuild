@@ -56,7 +56,7 @@ describe("trailDaysThisRun", () => {
       {
         date: "2026-08-01",
         mood: 5,
-        craving: 2,
+        stress: 2,
         alignment: "aligned",
         oneLine: "old climb",
         completedAt: "",
