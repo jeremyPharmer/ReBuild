@@ -312,7 +312,7 @@ function TrailDayCard({
               {rewardOutcome.kind === "save" && (
                 <>
                   <p style={{ marginTop: 6, lineHeight: 1.45 }}>
-                    Saved $ for the Future — short-term Treat stayed parked.
+                    Saved $ for the Future — short-term treat stayed parked.
                   </p>
                   {rewardOutcome.decision.note && (
                     <p className="tiny" style={{ marginTop: 6, lineHeight: 1.45 }}>

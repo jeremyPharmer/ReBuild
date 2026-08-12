@@ -202,7 +202,7 @@ export function HomeRewardCard({
         <p className="eyebrow">Save $ for future · Day {moment.dayNumber}</p>
         <h2>{moment.title}</h2>
         <p className="muted" style={{ marginTop: 6, lineHeight: 1.45 }}>
-          Keep the short-term Treat parked. Still celebrate today in a way that
+          Keep the short-term treat parked. Still celebrate today in a way that
           costs little or nothing.
         </p>
         <label className="field" style={{ marginTop: 12 }}>
