@@ -319,6 +319,15 @@ function TrailDayCard({
                       {rewardOutcome.decision.note}
                     </p>
                   )}
+                  {rewardOutcome.decision.photoId && (
+                    <div className="trail-reward-photo">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`/api/photos/${encodeURIComponent(rewardOutcome.decision.photoId)}`}
+                        alt={rewardOutcome.decision.note || "Celebration"}
+                      />
+                    </div>
+                  )}
                 </>
               )}
               {rewardOutcome.kind === "treat" && (

@@ -519,16 +519,23 @@ export default function HomePage() {
 
       {incentive && (
         <section className="panel">
-          <p className="eyebrow">Next incentive</p>
-          <h2>
-            Day {incentive.dayNumber} · {incentive.title}
-          </h2>
-          <p className="muted" style={{ marginTop: 6 }}>
-            {daysToIncentive} day{daysToIncentive === 1 ? "" : "s"} away
-          </p>
-          <p style={{ marginTop: 12, fontWeight: 650, fontSize: "1.15rem" }}>
-            <Money value={treatAvailable} /> to Treat Yourself with
-          </p>
+          <div className="incentive-head">
+            <div className="incentive-head-main">
+              <p className="eyebrow">Next incentive</p>
+              <h2>
+                Day {incentive.dayNumber} · {incentive.title}
+              </h2>
+              <p className="muted" style={{ marginTop: 6 }}>
+                {daysToIncentive} day{daysToIncentive === 1 ? "" : "s"} away
+              </p>
+            </div>
+            <div className="incentive-treat">
+              <p className="incentive-treat-amount">
+                <Money value={treatAvailable} />
+              </p>
+              <p className="incentive-treat-label">to treat yourself</p>
+            </div>
+          </div>
 
           {assigned ? (
             <div className="incentive-reward" style={{ marginTop: 14 }}>

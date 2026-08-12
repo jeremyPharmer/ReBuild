@@ -109,6 +109,7 @@ export function HomeRewardCard({
         action: "save",
         milestoneAchievementId: moment.id,
         note: saveNote.trim(),
+        photoDataUrl: photoDataUrl || undefined,
       });
       onDone();
     } catch (e) {
@@ -212,9 +213,13 @@ export function HomeRewardCard({
             value={saveNote}
             onChange={(e) => setSaveNote(e.target.value)}
             placeholder="A walk, good coffee, calling a friend…"
-            autoFocus
           />
         </label>
+        <SubtlePhotoPicker
+          preview={photoDataUrl}
+          onPick={setPhotoDataUrl}
+          onClear={() => setPhotoDataUrl(null)}
+        />
         {error && (
           <p style={{ color: "var(--danger)", marginTop: 10 }}>{error}</p>
         )}

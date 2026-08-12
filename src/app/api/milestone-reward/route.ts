@@ -49,6 +49,7 @@ export async function POST(req: Request) {
           String(body.milestoneAchievementId),
           undefined,
           body.note ? String(body.note) : undefined,
+          photoId,
         ),
       );
       return NextResponse.json({

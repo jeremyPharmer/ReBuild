@@ -1,4 +1,4 @@
-import { newId, cleanDaysThisRun, moneyReclaimed, waitingReclaimTotal } from "./journey";
+import { newId, cleanDaysThisRun, waitingReclaimTotal } from "./journey";
 import type {
   FundLedger,
   MilestoneAchievement,
@@ -152,6 +152,7 @@ export function saveForFuture(
   state: RebuildState,
   milestoneAchievementId: string,
   note?: string,
+  photoId?: string,
 ): RebuildState {
   const moment = state.milestones.find((m) => m.id === milestoneAchievementId);
   if (!moment || !moment.rewardEligible) {
@@ -191,6 +192,7 @@ export function saveForFuture(
         choice: "save",
         amount: 0,
         note: trimmed,
+        photoId,
         createdAt: new Date().toISOString(),
       },
     ],
@@ -203,8 +205,9 @@ export function saveCompound(
   milestoneAchievementId: string,
   _amount?: number,
   note?: string,
+  photoId?: string,
 ): RebuildState {
-  return saveForFuture(state, milestoneAchievementId, note);
+  return saveForFuture(state, milestoneAchievementId, note, photoId);
 }
 
 /**
