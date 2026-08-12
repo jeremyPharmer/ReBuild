@@ -16,27 +16,46 @@ function SubtlePhotoPicker({
   onPick: (dataUrl: string) => void;
   onClear: () => void;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const libraryRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [localError, setLocalError] = useState("");
 
-  function onFile(file: File | undefined) {
-    if (!file || !file.type.startsWith("image/")) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") onPick(reader.result);
-    };
-    reader.readAsDataURL(file);
+  async function onFile(file: File | undefined) {
+    if (!file) return;
+    setBusy(true);
+    setLocalError("");
+    try {
+      const { fileToCompressedDataUrl } = await import("@/lib/clientPhoto");
+      const dataUrl = await fileToCompressedDataUrl(file);
+      onPick(dataUrl);
+    } catch (e) {
+      setLocalError(e instanceof Error ? e.message : "Could not use that photo");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
     <div className="photo-subtle">
       <input
-        ref={inputRef}
+        ref={cameraRef}
         type="file"
         accept="image/*"
         capture="environment"
         hidden
         onChange={(e) => {
-          onFile(e.target.files?.[0]);
+          void onFile(e.target.files?.[0]);
+          e.target.value = "";
+        }}
+      />
+      <input
+        ref={libraryRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={(e) => {
+          void onFile(e.target.files?.[0]);
           e.target.value = "";
         }}
       />
@@ -49,14 +68,29 @@ function SubtlePhotoPicker({
           </button>
         </div>
       ) : (
-        <button
-          type="button"
-          className="photo-subtle-btn"
-          onClick={() => inputRef.current?.click()}
-        >
-          Add a photo · optional
-        </button>
+        <div className="photo-subtle-actions">
+          <button
+            type="button"
+            className="photo-subtle-btn"
+            disabled={busy}
+            onClick={() => cameraRef.current?.click()}
+          >
+            {busy ? "Preparing photo…" : "Take a photo · optional"}
+          </button>
+          <button
+            type="button"
+            className="photo-subtle-btn"
+            disabled={busy}
+            onClick={() => libraryRef.current?.click()}
+          >
+            Choose from library
+          </button>
+          <p className="tiny photo-subtle-hint">
+            Phone shots are shrunk automatically so they upload cleanly.
+          </p>
+        </div>
       )}
+      {localError && <p className="error">{localError}</p>}
     </div>
   );
 }

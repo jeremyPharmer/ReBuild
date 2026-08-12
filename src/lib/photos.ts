@@ -40,7 +40,9 @@ export async function savePhotoDataUrl(dataUrl: string): Promise<string> {
   const buffer = Buffer.from(match[2].replace(/\s/g, ""), "base64");
   if (buffer.length === 0 || buffer.length > MAX_BYTES) {
     throw Object.assign(
-      new Error("Photo must be under 2.5MB"),
+      new Error(
+        "Photo must be under 2.5MB (the app shrinks phone shots automatically — try Choose from library if Take a photo still fails)",
+      ),
       { status: 400 },
     );
   }

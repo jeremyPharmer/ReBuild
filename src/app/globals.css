@@ -1348,6 +1348,11 @@ h2 {
   margin-top: 10px;
 }
 
+.photo-subtle-actions {
+  display: grid;
+  gap: 8px;
+}
+
 .photo-subtle-btn {
   appearance: none;
   background: transparent;
@@ -1361,9 +1366,19 @@ h2 {
   text-align: left;
 }
 
-.photo-subtle-btn:hover {
+.photo-subtle-btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.photo-subtle-btn:hover:not(:disabled) {
   color: var(--text);
   border-color: var(--accent);
+}
+
+.photo-subtle-hint {
+  margin: 0;
+  color: var(--muted);
 }
 
 .photo-subtle-preview {
