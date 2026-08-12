@@ -179,10 +179,26 @@ export function saveForFuture(
     );
   }
 
+  const rewardId = newId("reward");
+  const reward: Reward = {
+    id: rewardId,
+    name: trimmed,
+    category: "other",
+    estimatedCost: 0,
+    actualCost: 0,
+    assignedMilestoneDay: moment.dayNumber,
+    executed: true,
+    executedAt: new Date().toISOString(),
+    notes: `Day ${moment.dayNumber} · Saved $ for future`,
+    photoId,
+    createdAt: new Date().toISOString(),
+  };
+
   return {
     ...state,
     fund: normalizeFund(state.fund),
     consecutiveSaves: (state.consecutiveSaves ?? 0) + 1,
+    rewards: [...state.rewards, reward],
     milestoneDecisions: [
       ...state.milestoneDecisions,
       {
@@ -191,6 +207,7 @@ export function saveForFuture(
         dayNumber: moment.dayNumber,
         choice: "save",
         amount: 0,
+        rewardId,
         note: trimmed,
         photoId,
         createdAt: new Date().toISOString(),

@@ -13,6 +13,7 @@ import type {
   MilestoneAchievement,
   RebuildState,
   ReturnEvent,
+  Reward,
 } from "./types";
 import { MILESTONE_DEFS } from "./types";
 
@@ -121,6 +122,40 @@ export function resetCurrentRun(
 }
 
 /**
+ * Backfill executed reward rows for older Saves that only stored a
+ * decision + note (so they appear under Rewards → What I rebuilt).
+ */
+export function ensureSaveRewards(state: RebuildState): RebuildState {
+  const newRewards: Reward[] = [];
+  const decisions = state.milestoneDecisions.map((d) => {
+    if (d.choice !== "save" || d.rewardId) return d;
+    const note = d.note?.trim();
+    if (!note) return d;
+    const rewardId = newId("reward");
+    newRewards.push({
+      id: rewardId,
+      name: note,
+      category: "other",
+      estimatedCost: 0,
+      actualCost: 0,
+      assignedMilestoneDay: d.dayNumber,
+      executed: true,
+      executedAt: d.createdAt,
+      notes: `Day ${d.dayNumber} · Saved $ for future`,
+      photoId: d.photoId,
+      createdAt: d.createdAt,
+    });
+    return { ...d, rewardId };
+  });
+  if (newRewards.length === 0) return state;
+  return {
+    ...state,
+    rewards: [...state.rewards, ...newRewards],
+    milestoneDecisions: decisions,
+  };
+}
+
+/**
  * Unlock milestones for every day reached this run (Day N when
  * cleanDaysThisRun >= N). Reward/Destination cards can appear on Home
  * as soon as that calendar day starts — not only after evening close.
@@ -130,6 +165,7 @@ export function ensureMilestonesReached(
   asOfDate: string,
 ): RebuildState {
   if (!state.profile) return state;
+  state = ensureSaveRewards(state);
   const clean = cleanDaysThisRun(state, asOfDate);
   const runId = state.profile.currentRunId;
   const alreadyThisRun = new Set(

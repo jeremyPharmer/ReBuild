@@ -83,6 +83,8 @@ describe("fund split", () => {
     expect(state.consecutiveSaves).toBe(1);
     expect(mustTreat(state)).toBe(false);
     expect(state.milestoneDecisions[0].note).toBe("Walked the block");
+    expect(state.milestoneDecisions[0].rewardId).toBeTruthy();
+    expect(state.rewards.some((r) => r.executed && r.name === "Walked the block")).toBe(true);
   });
 
   it("treat can pull from Future when Treat is short", () => {
