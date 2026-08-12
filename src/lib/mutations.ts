@@ -165,11 +165,12 @@ export function ensureMilestonesReached(
   asOfDate: string,
 ): RebuildState {
   if (!state.profile) return state;
-  state = ensureSaveRewards(state);
-  const clean = cleanDaysThisRun(state, asOfDate);
-  const runId = state.profile.currentRunId;
+  const profile = state.profile;
+  let next = ensureSaveRewards(state);
+  const clean = cleanDaysThisRun(next, asOfDate);
+  const runId = profile.currentRunId;
   const alreadyThisRun = new Set(
-    state.milestones
+    next.milestones
       .filter((m) => m.runId === runId)
       .map((m) => m.dayNumber),
   );
@@ -190,8 +191,8 @@ export function ensureMilestonesReached(
     });
   }
 
-  if (newly.length === 0) return state;
-  return { ...state, milestones: [...state.milestones, ...newly] };
+  if (newly.length === 0) return next;
+  return { ...next, milestones: [...next.milestones, ...newly] };
 }
 
 export function maybeCreateWeeklyBonus(
