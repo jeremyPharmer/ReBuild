@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
-import { FundSegmentBar } from "@/components/MilestoneReward";
+import { FundSegmentBar, HomeRewardCard } from "@/components/MilestoneReward";
 import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import {
   fundTotal,
@@ -233,26 +233,9 @@ export default function HomePage() {
         <p className="muted">{dashboard.sinceLabel}</p>
       </header>
 
-      {pendingRewards.length > 0 && (
-        <section className="panel">
-          <p className="eyebrow">Decision waiting</p>
-          <h2>
-            Day {pendingRewards[0].dayNumber} · {pendingRewards[0].title}
-          </h2>
-          <p className="muted">
-            {total > 0
-              ? "Treat Yourself or Save for the Future."
-              : "Move waiting money first (30% Future · 70% Treat), then Treat or Save."}
-          </p>
-          <div style={{ marginTop: 12 }}>
-            <Link href={total > 0 ? "/evening" : "/money"}>
-              <PrimaryButton>
-                {total > 0 ? "Open reward moment" : "Move waiting money"}
-              </PrimaryButton>
-            </Link>
-          </div>
-        </section>
-      )}
+      {pendingRewards.map((m) => (
+        <HomeRewardCard key={m.id} moment={m} onDone={() => undefined} />
+      ))}
 
       <section className="panel">
         <div className="row">

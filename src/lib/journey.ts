@@ -188,7 +188,8 @@ export function weeklySupportProgress(
         type: s.type,
         label: s.label,
         target: s.weeklyTarget,
-        done: Math.min(done, s.weeklyTarget),
+        // Allow over-goal (e.g. 5 of 2) — targets are aspirational, not caps.
+        done,
       };
     });
 }
@@ -268,6 +269,28 @@ export function assignedRewardForMilestone(
   return state.rewards.find(
     (r) => r.assignedMilestoneDay === dayNumber && !r.executed,
   );
+}
+
+/** Claimed treat for a trail day in the current run (name + optional photo). */
+export function claimedRewardForTrailDay(
+  state: RebuildState,
+  dayNumber: number,
+) {
+  if (!state.profile) return undefined;
+  const runId = state.profile.currentRunId;
+  const moment = state.milestones.find(
+    (m) =>
+      m.runId === runId &&
+      m.dayNumber === dayNumber &&
+      (m.type === "reward" || m.type === "destination"),
+  );
+  if (!moment) return undefined;
+  const decision = state.milestoneDecisions.find(
+    (d) =>
+      d.milestoneAchievementId === moment.id && d.choice === "treat" && d.rewardId,
+  );
+  if (!decision?.rewardId) return undefined;
+  return state.rewards.find((r) => r.id === decision.rewardId);
 }
 
 export function moneyReinvested(state: RebuildState): number {

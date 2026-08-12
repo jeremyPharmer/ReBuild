@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  claimCelebration,
   eligibleWishlist,
   fundTotal,
   mustTreat,
@@ -39,7 +40,7 @@ describe("fund split", () => {
     state = applyEveningSideEffects(state, {
       date: "2026-08-01",
       mood: 7,
-      craving: 2,
+      stress: 2,
       alignment: "aligned",
       oneLine: "a",
       completedAt: "",
@@ -62,7 +63,7 @@ describe("fund split", () => {
       state = applyEveningSideEffects(state, {
         date: `2026-08-0${i}`,
         mood: 7,
-        craving: 2,
+        stress: 2,
         alignment: "aligned",
         oneLine: `${i}`,
         completedAt: "",
@@ -119,6 +120,48 @@ describe("fund split", () => {
     expect(state.rewards.find((r) => r.id === "r1")?.executed).toBe(true);
   });
 
+  it("debits the actual spend when it differs from estimated", () => {
+    let state = base();
+    state = {
+      ...state,
+      fund: { future: 20, treat: 50 },
+      rewards: [
+        {
+          id: "r_act",
+          name: "Massage",
+          category: "wellness",
+          estimatedCost: 40,
+          executed: false,
+          createdAt: "",
+        },
+      ],
+      milestones: [
+        {
+          id: "ms_act",
+          dayNumber: 3,
+          title: "First Win",
+          type: "reward",
+          runId: "run_1",
+          cleanDaysAtAchieve: 3,
+          achievedAt: "",
+          rewardEligible: true,
+        },
+      ],
+    };
+    state = treatYourself(
+      state,
+      "ms_act",
+      "r_act",
+      undefined,
+      undefined,
+      undefined,
+      32,
+    );
+    expect(state.fund).toEqual({ future: 20, treat: 18 });
+    expect(state.rewards.find((r) => r.id === "r_act")?.actualCost).toBe(32);
+    expect(state.milestoneDecisions[0].amount).toBe(32);
+  });
+
   it("forces treat after two saves for the future", () => {
     let state = base();
     for (let i = 1; i <= 7; i++) {
@@ -126,7 +169,7 @@ describe("fund split", () => {
       state = applyEveningSideEffects(state, {
         date: day,
         mood: 7,
-        craving: 2,
+        stress: 2,
         alignment: "aligned",
         oneLine: `${i}`,
         completedAt: "",
@@ -173,5 +216,33 @@ describe("fund split", () => {
     state = treatYourself(state, fake.id, "r2", "small win");
     expect(state.consecutiveSaves).toBe(0);
     expect(state.rewards.find((r) => r.id === "r2")?.executed).toBe(true);
+  });
+
+  it("claims a free-text celebration without debiting funds", () => {
+    let state = base();
+    state = {
+      ...state,
+      milestones: [
+        {
+          id: "ms_c",
+          dayNumber: 3,
+          title: "First Win",
+          type: "reward",
+          runId: "run_1",
+          cleanDaysAtAchieve: 3,
+          achievedAt: "",
+          rewardEligible: true,
+        },
+      ],
+      fund: { future: 40, treat: 20 },
+    };
+    state = claimCelebration(state, "ms_c", "Sunset walk", "felt calm", "photo_1.jpg");
+    expect(state.fund).toEqual({ future: 40, treat: 20 });
+    expect(state.consecutiveSaves).toBe(0);
+    expect(state.milestoneDecisions[0].choice).toBe("treat");
+    expect(state.milestoneDecisions[0].amount).toBe(0);
+    expect(state.rewards[0].name).toBe("Sunset walk");
+    expect(state.rewards[0].photoId).toBe("photo_1.jpg");
+    expect(state.rewards[0].executed).toBe(true);
   });
 });

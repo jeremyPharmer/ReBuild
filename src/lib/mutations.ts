@@ -70,23 +70,36 @@ function handleReturnToUse(
   state: RebuildState,
   evening: EveningCheckIn,
 ): RebuildState {
+  return resetCurrentRun(state, evening.date, evening.returnNotes);
+}
+
+/**
+ * Reset the current abstinence run (Settings → Reset my journey).
+ * History, money, journals, and milestones stay; clean-day counter
+ * starts again the next calendar day.
+ */
+export function resetCurrentRun(
+  state: RebuildState,
+  asOfDate: string,
+  notes?: string,
+): RebuildState {
   if (!state.profile) return state;
   const start = state.profile.currentRunStartedOn;
-  // Abstinence days completed before the return day (return day does not count).
+  // Abstinence days completed before the reset day (reset day does not count).
   const previousClean =
-    evening.date > start ? calendarDaysBetween(start, evening.date) : 0;
+    asOfDate > start ? calendarDaysBetween(start, asOfDate) : 0;
 
   const endedRunId = state.profile.currentRunId;
   const returnEvent: ReturnEvent = {
     id: newId("return"),
-    date: evening.date,
-    notes: evening.returnNotes,
+    date: asOfDate,
+    notes,
     previousCleanDays: previousClean,
     runIdEnded: endedRunId,
     createdAt: new Date().toISOString(),
   };
 
-  const [y, m, d] = evening.date.split("-").map(Number);
+  const [y, m, d] = asOfDate.split("-").map(Number);
   const nextDay = new Date(y, m - 1, d + 1);
   const yyyy = nextDay.getFullYear();
   const mm = String(nextDay.getMonth() + 1).padStart(2, "0");

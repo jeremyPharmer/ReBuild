@@ -1,11 +1,45 @@
 import { NextResponse } from "next/server";
 import { getMorning, todayInTz } from "@/lib/journey";
 import { updateState } from "@/lib/store";
+import { roundSleepHours } from "@/lib/trends";
 import type { MorningCheckIn } from "@/lib/types";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const action = String(body.action ?? "create");
+
+    if (action === "updateIntention") {
+      const intention = String(body.intention ?? "").trim();
+      if (!intention) {
+        return NextResponse.json(
+          { error: "Intention is required" },
+          { status: 400 },
+        );
+      }
+      const state = await updateState((prev) => {
+        if (!prev.profile) {
+          const err = new Error("Not onboarded");
+          (err as Error & { status: number }).status = 400;
+          throw err;
+        }
+        const date = String(body.date ?? todayInTz(prev.profile.timezone));
+        const existing = getMorning(prev, date);
+        if (!existing) {
+          const err = new Error("Morning not found for that day");
+          (err as Error & { status: number }).status = 404;
+          throw err;
+        }
+        return {
+          ...prev,
+          mornings: prev.mornings.map((m) =>
+            m.date === date ? { ...m, intention } : m,
+          ),
+        };
+      });
+      return NextResponse.json({ state });
+    }
+
     const state = await updateState((prev) => {
       if (!prev.profile) {
         const err = new Error("Not onboarded");
@@ -20,12 +54,13 @@ export async function POST(req: Request) {
       }
       const morning: MorningCheckIn = {
         date,
-        sleepHours: Number(body.sleepHours),
+        sleepHours: roundSleepHours(Number(body.sleepHours)),
         sleepQuality: Number(body.sleepQuality),
         mood: Number(body.mood),
         energy: Number(body.energy),
         stress: Number(body.stress),
-        craving: Number(body.craving),
+        // Morning craving scale removed from UI; kept optional for older rows.
+        craving: body.craving !== undefined ? Number(body.craving) : undefined,
         intention: String(body.intention ?? "").trim(),
         trigger: body.trigger ? String(body.trigger) : undefined,
         notes: body.notes ? String(body.notes) : undefined,
