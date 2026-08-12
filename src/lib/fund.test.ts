@@ -248,7 +248,7 @@ describe("fund split", () => {
     expect(state.rewards[0].executed).toBe(true);
   });
 
-  it("projects Treat Yourself as 70% of reclaimed plus future accrual", () => {
+  it("Treat Yourself available = current Treat + accrual through target day", () => {
     let state = base();
     state = applyEveningSideEffects(state, {
       date: "2026-08-01",
@@ -259,8 +259,7 @@ describe("fund split", () => {
       completedAt: "",
     });
     state = confirmTransfer(state, ["2026-08-01"], 40);
-    // Day 1 done; next incentive Day 3 → 2 days to go × $40 daily
-    // reclaimedTreat = 0.7*40=28; future = 0.7*(0 + 2*40)=56; total=84
+    // treat now = 28; Day 3 → 2 days × $40 × 0.7 = 56; total = 84
     expect(projectedTreatYourselfAt(state, 3, "2026-08-01")).toBe(84);
   });
 });

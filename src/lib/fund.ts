@@ -118,8 +118,8 @@ export function mustTreat(state: RebuildState): boolean {
 }
 
 /**
- * Projected Treat Yourself by a future incentive day:
- * 70% of money already moved + 70% of (waiting reclaim + days-to-go × daily).
+ * Treat Yourself available by a future incentive day:
+ * current Treat Yourself balance + 70% of (waiting reclaim + days-to-go × daily).
  */
 export function projectedTreatYourselfAt(
   state: RebuildState,
@@ -129,12 +129,11 @@ export function projectedTreatYourselfAt(
   if (!state.profile) return 0;
   const current = cleanDaysThisRun(state, asOfDate);
   const daily = state.profile.historicalDailySpend;
-  const already = moneyReclaimed(state);
   const waiting = waitingReclaimTotal(state);
   const daysToGo = Math.max(0, targetCleanDay - current);
-  const reclaimedTreat = already * TREAT_SPLIT;
+  const treatNow = normalizeFund(state.fund).treat;
   const futureTreat = (waiting + daysToGo * daily) * TREAT_SPLIT;
-  return round2(reclaimedTreat + futureTreat);
+  return round2(treatNow + futureTreat);
 }
 
 /** Affordable if Treat + Future can cover (optional Future pull). */
