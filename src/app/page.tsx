@@ -556,10 +556,6 @@ export default function HomePage() {
             </div>
           ) : (
             <div style={{ marginTop: 14 }}>
-              <p className="muted" style={{ marginBottom: 12, lineHeight: 1.45 }}>
-                Choose what {incentive.title} is for — something you can reach
-                with this incentive.
-              </p>
               <PrimaryButton
                 onClick={() => {
                   setAssignError("");

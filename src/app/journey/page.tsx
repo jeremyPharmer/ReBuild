@@ -235,7 +235,7 @@ function TrailDayCard({
               />
               {morning.trigger && (
                 <p className="tiny" style={{ marginTop: 6 }}>
-                  Trigger on the mind: {morning.trigger}
+                  Trigger or concern: {morning.trigger}
                 </p>
               )}
             </div>
