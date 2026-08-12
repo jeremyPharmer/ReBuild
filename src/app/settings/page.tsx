@@ -150,6 +150,27 @@ export default function SettingsPage() {
     router.push("/onboarding");
   }
 
+  async function resetJourney() {
+    if (
+      !window.confirm(
+        "Are you sure you want to do this?",
+      )
+    ) {
+      return;
+    }
+    setBusy(true);
+    setMsg("");
+    try {
+      await post("/api/journey/reset", { date: today });
+      setMsg("Journey reset. Your next climb starts tomorrow.");
+      await refresh();
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "Could not reset journey");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <main className="stack fade-in">
       <header>
@@ -358,6 +379,17 @@ export default function SettingsPage() {
       {env !== "prod" && (
         <SecondaryButton onClick={resetAll}>Reset all data (dev)</SecondaryButton>
       )}
+
+      <section className="panel" style={{ marginTop: 8 }}>
+        <p className="eyebrow">Journey</p>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Starts your clean-day count over tomorrow. Money, journals, and
+          history stay.
+        </p>
+        <SecondaryButton onClick={resetJourney} disabled={busy}>
+          Reset my journey
+        </SecondaryButton>
+      </section>
     </main>
   );
 }

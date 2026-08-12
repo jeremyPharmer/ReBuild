@@ -188,7 +188,8 @@ export function weeklySupportProgress(
         type: s.type,
         label: s.label,
         target: s.weeklyTarget,
-        done: Math.min(done, s.weeklyTarget),
+        // Allow over-goal (e.g. 5 of 2) — targets are aspirational, not caps.
+        done,
       };
     });
 }

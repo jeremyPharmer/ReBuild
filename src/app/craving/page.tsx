@@ -49,6 +49,7 @@ export default function CravingPage() {
         intervention: "delay",
       })) as { craving: { id: string } };
       setCravingId(data.craving.id);
+      setAfter((prev) => Math.min(prev, intensity));
       setSeconds(600);
       setStep(2);
     } finally {
@@ -59,13 +60,14 @@ export default function CravingPage() {
   async function finish() {
     setBusy(true);
     try {
+      const capped = Math.min(after, intensity);
       await post("/api/craving", {
         action: "complete",
         id: cravingId,
-        intensityAfter: after,
+        intensityAfter: capped,
         outcome: intervention,
       });
-      // update intervention on the event via complete outcome field
+      setAfter(capped);
       setStep(4);
     } finally {
       setBusy(false);
@@ -153,10 +155,10 @@ export default function CravingPage() {
           </div>
           <ScaleInput
             label="Craving now"
-            value={after}
+            value={Math.min(after, intensity)}
             min={0}
-            max={10}
-            onChange={setAfter}
+            max={intensity}
+            onChange={(n) => setAfter(Math.min(n, intensity))}
           />
           <PrimaryButton
             onClick={finish}

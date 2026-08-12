@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { cleanDaysThisRun } from "@/lib/journey";
 import {
-  alignmentTrailLabel,
   formatSleepHours,
   trailDayLabel,
   trailDaysThisRun,
@@ -143,23 +142,6 @@ function TrailDayCard({
             )}
           </div>
           <div className="trail-day-toggle-meta">
-            {open && evening && (
-              <span
-                className={
-                  evening.alignment === "aligned"
-                    ? "chip good"
-                    : evening.alignment === "return_to_use"
-                      ? "chip warn"
-                      : "chip"
-                }
-              >
-                {evening.alignment === "aligned"
-                  ? "Aligned"
-                  : evening.alignment === "return_to_use"
-                    ? "Storm"
-                    : "Other"}
-              </span>
-            )}
             <span className={open ? "caret open" : "caret"} aria-hidden>
               ▾
             </span>
@@ -296,11 +278,15 @@ function TrailDayCard({
           {evening && (
             <div className="trail-block">
               <p className="tiny trail-block-label">Make camp</p>
-              <p className="tiny">{alignmentTrailLabel(evening.alignment)}</p>
-              <WeatherDots mood={evening.mood} />
+              <WeatherDots mood={evening.mood} stress={evening.stress} />
               {evening.oneLine && (
                 <p className="trail-quote" style={{ marginTop: 8 }}>
                   &ldquo;{evening.oneLine}&rdquo;
+                </p>
+              )}
+              {evening.expandedJournal && (
+                <p className="tiny" style={{ marginTop: 8, lineHeight: 1.45 }}>
+                  {evening.expandedJournal}
                 </p>
               )}
               {evening.returnNotes && (

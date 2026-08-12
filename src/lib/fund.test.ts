@@ -39,7 +39,7 @@ describe("fund split", () => {
     state = applyEveningSideEffects(state, {
       date: "2026-08-01",
       mood: 7,
-      craving: 2,
+      stress: 2,
       alignment: "aligned",
       oneLine: "a",
       completedAt: "",
@@ -62,7 +62,7 @@ describe("fund split", () => {
       state = applyEveningSideEffects(state, {
         date: `2026-08-0${i}`,
         mood: 7,
-        craving: 2,
+        stress: 2,
         alignment: "aligned",
         oneLine: `${i}`,
         completedAt: "",
@@ -126,7 +126,7 @@ describe("fund split", () => {
       state = applyEveningSideEffects(state, {
         date: day,
         mood: 7,
-        craving: 2,
+        stress: 2,
         alignment: "aligned",
         oneLine: `${i}`,
         completedAt: "",
