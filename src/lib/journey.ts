@@ -276,6 +276,32 @@ export function claimedRewardForTrailDay(
   state: RebuildState,
   dayNumber: number,
 ) {
+  const outcome = rewardOutcomeForTrailDay(state, dayNumber);
+  return outcome?.kind === "treat" ? outcome.reward : undefined;
+}
+
+export type TrailRewardOutcome =
+  | {
+      kind: "pending";
+      moment: { id: string; dayNumber: number; title: string; type: string };
+    }
+  | {
+      kind: "save";
+      moment: { id: string; dayNumber: number; title: string; type: string };
+      decision: RebuildState["milestoneDecisions"][number];
+    }
+  | {
+      kind: "treat";
+      moment: { id: string; dayNumber: number; title: string; type: string };
+      decision: RebuildState["milestoneDecisions"][number];
+      reward?: RebuildState["rewards"][number];
+    };
+
+/** Save / claim / still-open outcome for a reward or destination day. */
+export function rewardOutcomeForTrailDay(
+  state: RebuildState,
+  dayNumber: number,
+): TrailRewardOutcome | undefined {
   if (!state.profile) return undefined;
   const runId = state.profile.currentRunId;
   const moment = state.milestones.find(
@@ -284,13 +310,31 @@ export function claimedRewardForTrailDay(
       m.dayNumber === dayNumber &&
       (m.type === "reward" || m.type === "destination"),
   );
-  if (!moment) return undefined;
+  if (!moment) {
+    const def = MILESTONE_DEFS.find((d) => d.dayNumber === dayNumber);
+    if (!def || (def.type !== "reward" && def.type !== "destination")) {
+      return undefined;
+    }
+    return undefined;
+  }
   const decision = state.milestoneDecisions.find(
-    (d) =>
-      d.milestoneAchievementId === moment.id && d.choice === "treat" && d.rewardId,
+    (d) => d.milestoneAchievementId === moment.id,
   );
-  if (!decision?.rewardId) return undefined;
-  return state.rewards.find((r) => r.id === decision.rewardId);
+  if (!decision) {
+    return { kind: "pending", moment };
+  }
+  if (decision.choice === "save") {
+    return { kind: "save", moment, decision };
+  }
+  const reward = decision.rewardId
+    ? state.rewards.find((r) => r.id === decision.rewardId)
+    : undefined;
+  return { kind: "treat", moment, decision, reward };
+}
+
+export function isCashableMilestoneDay(dayNumber: number): boolean {
+  const def = MILESTONE_DEFS.find((d) => d.dayNumber === dayNumber);
+  return Boolean(def && (def.type === "reward" || def.type === "destination"));
 }
 
 export function moneyReinvested(state: RebuildState): number {

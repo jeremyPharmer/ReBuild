@@ -2,7 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { cleanDaysThisRun, claimedRewardForTrailDay } from "@/lib/journey";
+import {
+  cleanDaysThisRun,
+  isCashableMilestoneDay,
+  rewardOutcomeForTrailDay,
+} from "@/lib/journey";
+import { Money } from "@/components/ui";
 import {
   formatSleepHours,
   trailDayLabel,
@@ -89,7 +94,8 @@ function TrailDayCard({
   const [intentionError, setIntentionError] = useState("");
   const evening = day.evening;
   const morning = day.morning;
-  const claimed = claimedRewardForTrailDay(state, day.dayNumber);
+  const rewardDay = isCashableMilestoneDay(day.dayNumber);
+  const rewardOutcome = rewardOutcomeForTrailDay(state, day.dayNumber);
   /** Collapsed row shows the close-the-day one-liner only. */
   const thesis = evening?.oneLine?.trim() || "Day marked on the trail";
 
@@ -132,6 +138,11 @@ function TrailDayCard({
           <div className="trail-day-toggle-main">
             <span className="tiny trail-day-toggle-label">
               Day {day.dayNumber}
+              {rewardDay && (
+                <span className="trail-reward-star" title="Reward day">
+                  *
+                </span>
+              )}
             </span>
             {!open && (
               <span className="trail-day-thesis">&ldquo;{thesis}&rdquo;</span>
@@ -139,6 +150,7 @@ function TrailDayCard({
             {open && (
               <strong className="trail-day-toggle-title">
                 {trailDayLabel(day)}
+                {rewardDay ? " *" : ""}
               </strong>
             )}
           </div>
@@ -148,23 +160,23 @@ function TrailDayCard({
             </span>
           </div>
         </button>
-        {open && morning && (
-          <button
-            type="button"
-            className="trail-day-menu"
-            aria-label="Edit morning intention"
-            onClick={startEditIntention}
-          >
-            ⋯
-          </button>
-        )}
       </div>
 
       {open && (
         <div className="trail-day-body fade-in">
           {morning && (
             <div className="trail-block">
-              <p className="tiny trail-block-label">Set out</p>
+              <div className="trail-block-head">
+                <p className="tiny trail-block-label">Set out</p>
+                <button
+                  type="button"
+                  className="trail-day-menu"
+                  aria-label="Edit morning intention"
+                  onClick={startEditIntention}
+                >
+                  ⋯
+                </button>
+              </div>
               {editingIntention ? (
                 <div className="trail-intention-edit">
                   <label className="field">
@@ -226,6 +238,13 @@ function TrailDayCard({
             </div>
           )}
 
+          {!morning && (
+            <div className="trail-block">
+              <p className="tiny trail-block-label">Set out</p>
+              <p className="muted tiny">No morning check-in logged.</p>
+            </div>
+          )}
+
           {day.supports.length > 0 && (
             <div className="trail-block">
               <p className="tiny trail-block-label">Provisions</p>
@@ -276,23 +295,53 @@ function TrailDayCard({
             </div>
           )}
 
-          {claimed && (
+          {rewardOutcome && (
             <div className="trail-block">
-              <p className="tiny trail-block-label">Celebration</p>
-              <p className="trail-quote">&ldquo;{claimed.name}&rdquo;</p>
-              {claimed.notes && (
-                <p className="tiny" style={{ marginTop: 6, lineHeight: 1.45 }}>
-                  {claimed.notes}
+              <p className="tiny trail-block-label">Reward</p>
+              <p className="tiny" style={{ marginTop: 2 }}>
+                {rewardOutcome.moment.title}
+              </p>
+              {rewardOutcome.kind === "pending" && (
+                <p className="muted" style={{ marginTop: 6, lineHeight: 1.45 }}>
+                  Waiting on Home — Claim reward or Save for future.
                 </p>
               )}
-              {claimed.photoId && (
-                <div className="trail-reward-photo">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`/api/photos/${encodeURIComponent(claimed.photoId)}`}
-                    alt={claimed.name}
-                  />
-                </div>
+              {rewardOutcome.kind === "save" && (
+                <p style={{ marginTop: 6, lineHeight: 1.45 }}>
+                  Saved for the Future — short-term Treat stayed parked.
+                </p>
+              )}
+              {rewardOutcome.kind === "treat" && (
+                <>
+                  <p style={{ marginTop: 6, lineHeight: 1.45 }}>
+                    Claimed
+                    {rewardOutcome.reward?.name
+                      ? `: ${rewardOutcome.reward.name}`
+                      : ""}
+                    {rewardOutcome.decision.amount > 0 && (
+                      <>
+                        {" "}
+                        · <Money value={rewardOutcome.decision.amount} />
+                      </>
+                    )}
+                  </p>
+                  {(rewardOutcome.reward?.notes ||
+                    rewardOutcome.decision.note) && (
+                    <p className="tiny" style={{ marginTop: 6, lineHeight: 1.45 }}>
+                      {rewardOutcome.reward?.notes ||
+                        rewardOutcome.decision.note}
+                    </p>
+                  )}
+                  {rewardOutcome.reward?.photoId && (
+                    <div className="trail-reward-photo">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`/api/photos/${encodeURIComponent(rewardOutcome.reward.photoId)}`}
+                        alt={rewardOutcome.reward.name}
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}

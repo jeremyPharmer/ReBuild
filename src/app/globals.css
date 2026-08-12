@@ -1002,6 +1002,77 @@ h2 {
   margin-bottom: 6px;
 }
 
+.trail-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.trail-block-head .trail-block-label {
+  margin-bottom: 0;
+}
+
+.trail-reward-star {
+  color: var(--accent);
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.journal-day-row {
+  padding-bottom: 10px;
+}
+
+.journal-day-toggle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.journal-day-toggle:disabled {
+  cursor: default;
+}
+
+.journal-day-toggle-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.journal-day-headline {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.journal-day-notes {
+  margin-top: 8px;
+  display: grid;
+  gap: 8px;
+}
+
+.journal-day-note {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 0.92rem;
+}
+
+.journal-day-note .tiny {
+  display: block;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .trail-quote {
   margin: 0 0 6px;
   font-family: var(--font-display);

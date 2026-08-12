@@ -22,6 +22,7 @@ Venmo reconcile / link = later (UI totals first).
 - One journey: cannabis + alcohol abstinence
 - Combined historical daily spend
 - Home: **ReBuilding for N days** = calendar days on the current abstinence run (**Day 1 = start date** / `currentRunStartedOn`, including the start day before any evening)
+- **Milestones unlock when that day is reached** (clean-day count ≥ milestone day), not only after evening close — Home reward card can appear on the morning of Day 3, etc.
 - Reclaim / Move to Rebuild from **every closed evening** (close always aligns for reclaim)
 - **Reset my journey** (Settings) → run resets next calendar day; history kept; re-climb / re-achieve
 - Return to use via evening alignment UI is **retired** (legacy `return_to_use` evenings still in history)

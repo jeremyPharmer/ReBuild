@@ -39,8 +39,11 @@ export function applyEveningSideEffects(
 
   if (evening.alignment === "aligned") {
     next = ensureReclaimDay(next, evening.date);
-    next = awardCrossedMilestones(next, evening.date);
   }
+
+  // Milestones unlock when the day is reached (calendar clean days),
+  // not only when the evening is closed.
+  next = ensureMilestonesReached(next, evening.date);
 
   if (evening.alignment === "return_to_use") {
     next = handleReturnToUse(next, evening);
@@ -117,7 +120,12 @@ export function resetCurrentRun(
   };
 }
 
-function awardCrossedMilestones(
+/**
+ * Unlock milestones for every day reached this run (Day N when
+ * cleanDaysThisRun >= N). Reward/Destination cards can appear on Home
+ * as soon as that calendar day starts — not only after evening close.
+ */
+export function ensureMilestonesReached(
   state: RebuildState,
   asOfDate: string,
 ): RebuildState {
