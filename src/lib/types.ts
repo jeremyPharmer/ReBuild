@@ -117,10 +117,12 @@ export type MilestoneDecision = {
   milestoneAchievementId: string;
   dayNumber: number;
   choice: "save" | "treat";
-  /** Save: $ moved into Treat. Treat: $ spent from Treat. */
+  /** Save: $ moved into Treat. Treat: $ spent from Treat (0 = celebration-only). */
   amount: number;
   rewardId?: string;
   note?: string;
+  /** Optional celebration photo id under .data/photos */
+  photoId?: string;
   createdAt: string;
 };
 
@@ -136,6 +138,8 @@ export type Reward = {
   executed: boolean;
   executedAt?: string;
   notes?: string;
+  /** Optional celebration photo id under .data/photos */
+  photoId?: string;
   createdAt: string;
 };
 

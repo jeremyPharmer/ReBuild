@@ -225,6 +225,7 @@ export function treatYourself(
   rewardId: string,
   note?: string,
   futurePull?: number,
+  photoId?: string,
 ): RebuildState {
   const moment = state.milestones.find((m) => m.id === milestoneAchievementId);
   if (!moment || !moment.rewardEligible) {
@@ -259,6 +260,7 @@ export function treatYourself(
             actualCost: cost,
             notes: note || r.notes,
             assignedMilestoneDay: moment.dayNumber,
+            photoId: photoId || r.photoId,
           }
         : r,
     ),
@@ -272,6 +274,73 @@ export function treatYourself(
         amount: cost,
         rewardId,
         note,
+        photoId,
+        createdAt: new Date().toISOString(),
+      },
+    ],
+  };
+}
+
+/**
+ * Claim without a pre-assigned wishlist item: name + optional note/photo.
+ * No fund debit — celebration record only.
+ */
+export function claimCelebration(
+  state: RebuildState,
+  milestoneAchievementId: string,
+  name: string,
+  note?: string,
+  photoId?: string,
+): RebuildState {
+  const moment = state.milestones.find((m) => m.id === milestoneAchievementId);
+  if (!moment || !moment.rewardEligible) {
+    throw Object.assign(new Error("Milestone not cashable"), { status: 400 });
+  }
+  if (
+    state.milestoneDecisions.some(
+      (d) => d.milestoneAchievementId === milestoneAchievementId,
+    )
+  ) {
+    throw Object.assign(new Error("Already decided"), { status: 409 });
+  }
+  const trimmed = name.trim();
+  if (!trimmed) {
+    throw Object.assign(new Error("Tell us how you treated yourself"), {
+      status: 400,
+    });
+  }
+
+  const rewardId = newId("reward");
+  const reward: Reward = {
+    id: rewardId,
+    name: trimmed,
+    category: "other",
+    estimatedCost: 0,
+    actualCost: 0,
+    assignedMilestoneDay: moment.dayNumber,
+    executed: true,
+    executedAt: new Date().toISOString(),
+    notes: note,
+    photoId,
+    createdAt: new Date().toISOString(),
+  };
+
+  return {
+    ...state,
+    fund: normalizeFund(state.fund),
+    consecutiveSaves: 0,
+    rewards: [...state.rewards, reward],
+    milestoneDecisions: [
+      ...state.milestoneDecisions,
+      {
+        id: newId("decision"),
+        milestoneAchievementId,
+        dayNumber: moment.dayNumber,
+        choice: "treat",
+        amount: 0,
+        rewardId,
+        note,
+        photoId,
         createdAt: new Date().toISOString(),
       },
     ],

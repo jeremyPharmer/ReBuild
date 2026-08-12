@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  claimCelebration,
   eligibleWishlist,
   fundTotal,
   mustTreat,
@@ -173,5 +174,33 @@ describe("fund split", () => {
     state = treatYourself(state, fake.id, "r2", "small win");
     expect(state.consecutiveSaves).toBe(0);
     expect(state.rewards.find((r) => r.id === "r2")?.executed).toBe(true);
+  });
+
+  it("claims a free-text celebration without debiting funds", () => {
+    let state = base();
+    state = {
+      ...state,
+      milestones: [
+        {
+          id: "ms_c",
+          dayNumber: 3,
+          title: "First Win",
+          type: "reward",
+          runId: "run_1",
+          cleanDaysAtAchieve: 3,
+          achievedAt: "",
+          rewardEligible: true,
+        },
+      ],
+      fund: { future: 40, treat: 20 },
+    };
+    state = claimCelebration(state, "ms_c", "Sunset walk", "felt calm", "photo_1.jpg");
+    expect(state.fund).toEqual({ future: 40, treat: 20 });
+    expect(state.consecutiveSaves).toBe(0);
+    expect(state.milestoneDecisions[0].choice).toBe("treat");
+    expect(state.milestoneDecisions[0].amount).toBe(0);
+    expect(state.rewards[0].name).toBe("Sunset walk");
+    expect(state.rewards[0].photoId).toBe("photo_1.jpg");
+    expect(state.rewards[0].executed).toBe(true);
   });
 });

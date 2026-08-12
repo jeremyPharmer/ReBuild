@@ -1262,3 +1262,61 @@ h2 {
     transform: translateY(0);
   }
 }
+
+.home-reward-card h2 {
+  margin-top: 4px;
+}
+
+.home-reward-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.photo-subtle {
+  margin-top: 10px;
+}
+
+.photo-subtle-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.photo-subtle-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.photo-subtle-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.photo-subtle-preview img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+.trail-reward-photo {
+  margin-top: 10px;
+}
+
+.trail-reward-photo img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}

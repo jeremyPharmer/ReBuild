@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { cleanDaysThisRun } from "@/lib/journey";
+import { cleanDaysThisRun, claimedRewardForTrailDay } from "@/lib/journey";
 import {
   formatSleepHours,
   trailDayLabel,
@@ -81,7 +81,7 @@ function TrailDayCard({
   supportLabel: (type: string) => string;
   defaultCollapsed: boolean;
 }) {
-  const { post } = useApp();
+  const { post, state } = useApp();
   const [open, setOpen] = useState(!defaultCollapsed);
   const [editingIntention, setEditingIntention] = useState(false);
   const [intentionDraft, setIntentionDraft] = useState("");
@@ -89,6 +89,7 @@ function TrailDayCard({
   const [intentionError, setIntentionError] = useState("");
   const evening = day.evening;
   const morning = day.morning;
+  const claimed = claimedRewardForTrailDay(state, day.dayNumber);
   /** Collapsed row shows the close-the-day one-liner only. */
   const thesis = evening?.oneLine?.trim() || "Day marked on the trail";
 
@@ -272,6 +273,27 @@ function TrailDayCard({
                   )}
                 </div>
               ))}
+            </div>
+          )}
+
+          {claimed && (
+            <div className="trail-block">
+              <p className="tiny trail-block-label">Celebration</p>
+              <p className="trail-quote">&ldquo;{claimed.name}&rdquo;</p>
+              {claimed.notes && (
+                <p className="tiny" style={{ marginTop: 6, lineHeight: 1.45 }}>
+                  {claimed.notes}
+                </p>
+              )}
+              {claimed.photoId && (
+                <div className="trail-reward-photo">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/api/photos/${encodeURIComponent(claimed.photoId)}`}
+                    alt={claimed.name}
+                  />
+                </div>
+              )}
             </div>
           )}
 
