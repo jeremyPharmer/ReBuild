@@ -1,6 +1,6 @@
 # REBUILD — Product decisions (locked)
 
-Last updated: 2026-08-10  
+Last updated: 2026-08-12  
 Status: **Ready to implement** — schedule, Treat/Save, fund ledger, daily/weekly loop, Fly envs.
 
 ---
@@ -22,8 +22,9 @@ Venmo reconcile / link = later (UI totals first).
 - One journey: cannabis + alcohol abstinence
 - Combined historical daily spend
 - Home: **ReBuilding for N days** = calendar days on the current abstinence run (**Day 1 = start date** / `currentRunStartedOn`, including the start day before any evening)
-- Reclaim / Move to Rebuild still only from **aligned evenings** (separate from the day counter)
-- Return to use → run resets next calendar day; history kept; re-climb / re-achieve
+- Reclaim / Move to Rebuild from **every closed evening** (close always aligns for reclaim)
+- **Reset my journey** (Settings) → run resets next calendar day; history kept; re-climb / re-achieve
+- Return to use via evening alignment UI is **retired** (legacy `return_to_use` evenings still in history)
 - No auth V1; honor system
 - Weekly support 100% gift: **$20** out-of-pocket; **not** in Save-delay rule
 
@@ -35,10 +36,14 @@ Interactive every day:
 
 **Morning** — Start the day (sleep, state, intention) → Today’s Rebuild supports  
 **Day** — Log supports: recovery content (2/wk), meditation (5), medication (7), gym (4)  
-**Evening** — Close the day, alignment, one-line journal → Move to Rebuild → Treat/Save if milestone  
+**Evening** — Close the day: **Mood + Stress** (1–10), one-line journal, optional “anything specific stand out today?” → Move to Rebuild → Treat/Save if milestone  
 
-Weekly supports are **targets** (not shame). Hitting all four unlocks **$20 treat gift** (out of pocket).  
+Weekly supports are **targets** (not shame). Counts may go **above** the weekly goal (e.g. 5 of 2). Hitting all four unlocks **$20 treat gift** (out of pocket).  
 Content log asks: “What will you do differently because of this?”
+
+Closing the day **always counts as aligned** for reclaim / milestones. There is no evening “did you stay aligned?” card.
+
+**Reset my journey** lives in **Settings** (bottom): confirm → same run reset as legacy return-to-use (history kept; clean-day counter restarts next calendar day).
 
 ---
 

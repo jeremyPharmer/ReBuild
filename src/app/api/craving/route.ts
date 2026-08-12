@@ -12,15 +12,18 @@ export async function POST(req: Request) {
       const id = String(body.id);
       const state = await updateState((prev) => ({
         ...prev,
-        cravings: prev.cravings.map((c) =>
-          c.id === id
-            ? {
-                ...c,
-                intensityAfter: Number(body.intensityAfter),
-                outcome: body.outcome ? String(body.outcome) : undefined,
-              }
-            : c,
-        ),
+        cravings: prev.cravings.map((c) => {
+          if (c.id !== id) return c;
+          const rawAfter = Number(body.intensityAfter);
+          const capped = Number.isFinite(rawAfter)
+            ? Math.min(rawAfter, c.intensityBefore)
+            : c.intensityBefore;
+          return {
+            ...c,
+            intensityAfter: Math.max(0, capped),
+            outcome: body.outcome ? String(body.outcome) : undefined,
+          };
+        }),
       }));
       return NextResponse.json({ state });
     }

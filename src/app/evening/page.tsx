@@ -6,21 +6,17 @@ import { useApp } from "@/components/AppProvider";
 import { MilestoneRewardMoment } from "@/components/MilestoneReward";
 import { PrimaryButton, ScaleInput, SecondaryButton } from "@/components/ui";
 import { pendingCashableMoments } from "@/lib/fund";
-import type { AlignmentStatus, MilestoneAchievement } from "@/lib/types";
+import type { MilestoneAchievement } from "@/lib/types";
 
 export default function EveningPage() {
   const { post, state, today, refresh } = useApp();
   const router = useRouter();
   const [mood, setMood] = useState(6);
-  const [craving, setCraving] = useState(3);
-  const [alignment, setAlignment] = useState<AlignmentStatus | null>(null);
-  const [returnNotes, setReturnNotes] = useState("");
+  const [stress, setStress] = useState(5);
   const [oneLine, setOneLine] = useState("");
-  const [expanded, setExpanded] = useState("");
+  const [standOut, setStandOut] = useState("");
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<
-    "aligned" | "return_to_use" | "other" | null
-  >(null);
+  const [result, setResult] = useState(false);
   const [pending, setPending] = useState<MilestoneAchievement[]>([]);
   const [error, setError] = useState("");
 
@@ -29,21 +25,19 @@ export default function EveningPage() {
   );
 
   async function submit() {
-    if (!alignment || !oneLine.trim()) return;
+    if (!oneLine.trim()) return;
     setBusy(true);
     setError("");
     try {
       const data = (await post("/api/evening", {
         date: today,
         mood,
-        craving,
-        alignment,
-        returnNotes: alignment === "return_to_use" ? returnNotes : undefined,
+        stress,
         oneLine,
-        expandedJournal: expanded || undefined,
+        expandedJournal: standOut.trim() || undefined,
       })) as { pendingRewards?: MilestoneAchievement[] };
       setPending(data.pendingRewards ?? []);
-      setResult(alignment);
+      setResult(true);
       await refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed");
@@ -78,22 +72,6 @@ export default function EveningPage() {
         <p className="eyebrow">Close the day</p>
         <h1>Already complete</h1>
         <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
-      </main>
-    );
-  }
-
-  if (result === "return_to_use") {
-    return (
-      <main className="stack success-pop">
-        <p className="eyebrow">Your journey continues</p>
-        <h1>You encountered a storm.</h1>
-        <p className="muted" style={{ lineHeight: 1.5 }}>
-          You did not lose the journey. Earned money, history, milestones, and
-          journal entries stay. The current run starts again tomorrow.
-        </p>
-        <PrimaryButton onClick={() => router.push("/")}>
-          Keep going
-        </PrimaryButton>
       </main>
     );
   }
@@ -135,40 +113,7 @@ export default function EveningPage() {
       <section className="panel">
         <p className="eyebrow">How did today go?</p>
         <ScaleInput label="Mood" value={mood} onChange={setMood} />
-        <ScaleInput label="Craving" value={craving} onChange={setCraving} />
-      </section>
-
-      <section className="panel">
-        <p className="eyebrow">Did you stay aligned with your Rebuild goal?</p>
-        <div className="choice-row">
-          {(
-            [
-              ["aligned", "✓ Yes"],
-              ["return_to_use", "⚠ Return to use"],
-              ["other", "→ Something else happened"],
-            ] as const
-          ).map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              className={alignment === value ? "choice selected" : "choice"}
-              onClick={() => setAlignment(value)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        {alignment === "return_to_use" && (
-          <label className="field" style={{ marginTop: 12 }}>
-            <span className="field-label">What happened?</span>
-            <textarea
-              rows={3}
-              value={returnNotes}
-              onChange={(e) => setReturnNotes(e.target.value)}
-              placeholder="Context, what preceded it…"
-            />
-          </label>
-        )}
+        <ScaleInput label="Stress" value={stress} onChange={setStress} />
       </section>
 
       <section className="panel">
@@ -184,12 +129,18 @@ export default function EveningPage() {
             placeholder="One sentence is enough"
           />
         </label>
+      </section>
+
+      <section className="panel">
         <label className="field">
-          <span className="field-label">Optional longer note</span>
+          <span className="field-label">
+            Anything specific stand out today?
+          </span>
           <textarea
-            rows={3}
-            value={expanded}
-            onChange={(e) => setExpanded(e.target.value)}
+            rows={2}
+            value={standOut}
+            onChange={(e) => setStandOut(e.target.value)}
+            placeholder="Optional — a little more context"
           />
         </label>
       </section>
@@ -197,7 +148,7 @@ export default function EveningPage() {
       {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
       <PrimaryButton
         onClick={submit}
-        disabled={busy || !alignment || !oneLine.trim()}
+        disabled={busy || !oneLine.trim()}
       >
         {busy ? "Saving…" : "Close the day"}
       </PrimaryButton>

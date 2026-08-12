@@ -3,7 +3,7 @@ import { getEvening, newId, todayInTz } from "@/lib/journey";
 import { pendingCashableMoments } from "@/lib/fund";
 import { applyEveningSideEffects } from "@/lib/mutations";
 import { updateState } from "@/lib/store";
-import type { AlignmentStatus, EveningCheckIn, JournalEntry } from "@/lib/types";
+import type { EveningCheckIn, JournalEntry } from "@/lib/types";
 
 export async function POST(req: Request) {
   try {
@@ -20,21 +20,25 @@ export async function POST(req: Request) {
         (err as Error & { status: number }).status = 409;
         throw err;
       }
-      const alignment = body.alignment as AlignmentStatus;
-      if (!["aligned", "return_to_use", "other"].includes(alignment)) {
-        const err = new Error("Invalid alignment");
+      const oneLine = String(body.oneLine ?? "").trim();
+      if (!oneLine) {
+        const err = new Error("One line is required");
         (err as Error & { status: number }).status = 400;
         throw err;
       }
+
+      // Close always counts as aligned for reclaim / milestones.
+      // Journey reset is Settings → Reset my journey.
       const evening: EveningCheckIn = {
         date,
         mood: Number(body.mood),
-        craving: Number(body.craving),
-        alignment,
-        returnNotes: body.returnNotes ? String(body.returnNotes) : undefined,
-        oneLine: String(body.oneLine ?? "").trim(),
+        stress: Number(body.stress),
+        craving:
+          body.craving !== undefined ? Number(body.craving) : undefined,
+        alignment: "aligned",
+        oneLine,
         expandedJournal: body.expandedJournal
-          ? String(body.expandedJournal)
+          ? String(body.expandedJournal).trim() || undefined
           : undefined,
         completedAt: new Date().toISOString(),
       };

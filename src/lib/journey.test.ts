@@ -12,7 +12,7 @@ import {
   weekFullyComplete,
   weeklySupportProgress,
 } from "./journey";
-import { applyEveningSideEffects, confirmTransfer } from "./mutations";
+import { applyEveningSideEffects, confirmTransfer, resetCurrentRun } from "./mutations";
 import { DEFAULT_SUPPORTS, type RebuildState } from "./types";
 import { emptyState } from "./journey";
 
@@ -66,7 +66,7 @@ describe("clean days and return reset", () => {
       state = applyEveningSideEffects(state, {
         date,
         mood: 7,
-        craving: 2,
+        stress: 2,
         alignment: "aligned",
         oneLine: `day ${i}`,
         completedAt: new Date().toISOString(),
@@ -79,7 +79,7 @@ describe("clean days and return reset", () => {
     state = applyEveningSideEffects(state, {
       date: "2026-08-04",
       mood: 4,
-      craving: 8,
+      stress: 8,
       alignment: "return_to_use",
       returnNotes: "stress",
       oneLine: "hard night",
@@ -104,7 +104,7 @@ describe("clean days and return reset", () => {
     state = applyEveningSideEffects(state, {
       date: "2026-08-01",
       mood: 7,
-      craving: 2,
+      stress: 2,
       alignment: "aligned",
       oneLine: "1",
       completedAt: "",
@@ -112,7 +112,7 @@ describe("clean days and return reset", () => {
     state = applyEveningSideEffects(state, {
       date: "2026-08-02",
       mood: 4,
-      craving: 9,
+      stress: 9,
       alignment: "return_to_use",
       oneLine: "storm",
       completedAt: "",
@@ -122,7 +122,7 @@ describe("clean days and return reset", () => {
     state = applyEveningSideEffects(state, {
       date: "2026-08-03",
       mood: 7,
-      craving: 2,
+      stress: 2,
       alignment: "aligned",
       oneLine: "again",
       completedAt: "",
@@ -139,7 +139,7 @@ describe("reclaim transfer", () => {
     state = applyEveningSideEffects(state, {
       date: "2026-08-01",
       mood: 7,
-      craving: 2,
+      stress: 2,
       alignment: "aligned",
       oneLine: "a",
       completedAt: "",
@@ -147,7 +147,7 @@ describe("reclaim transfer", () => {
     state = applyEveningSideEffects(state, {
       date: "2026-08-02",
       mood: 7,
-      craving: 2,
+      stress: 2,
       alignment: "aligned",
       oneLine: "b",
       completedAt: "",
@@ -187,7 +187,7 @@ describe("milestones and projections", () => {
     state = applyEveningSideEffects(state, {
       date: "2026-08-01",
       mood: 7,
-      craving: 2,
+      stress: 2,
       alignment: "aligned",
       oneLine: "a",
       completedAt: "",
@@ -240,7 +240,7 @@ describe("weekly supports", () => {
     state = applyEveningSideEffects(state, {
       date: "2026-08-10",
       mood: 7,
-      craving: 2,
+      stress: 2,
       alignment: "aligned",
       oneLine: "strong week",
       completedAt: "",
@@ -262,5 +262,56 @@ describe("weekly supports", () => {
     const week = weeklySupportProgress(state, "2026-08-10");
     const meditation = week.find((w) => w.type === "meditation");
     expect(meditation?.done).toBe(0);
+  });
+
+  it("allows weekly done counts above the target", () => {
+    const state = baseState();
+    // recovery_content weeklyTarget = 2; log 5 days
+    state.supports = [0, 1, 2, 3, 4].map((n) => ({
+      date: `2026-08-0${n + 1}`,
+      supportType: "recovery_content",
+      completed: true,
+      completedAt: "",
+    }));
+    // weekBounds for 2026-08-05 is Sun 08-02 – Sat 08-08 → days 2,3,4,5 = 4
+    const week = weeklySupportProgress(state, "2026-08-05");
+    const content = week.find((w) => w.type === "recovery_content");
+    expect(content?.target).toBe(2);
+    expect(content?.done).toBe(4);
+    expect(content!.done).toBeGreaterThan(content!.target);
+  });
+});
+
+describe("resetCurrentRun (Settings)", () => {
+  it("resets climb like return_to_use without needing an evening", () => {
+    let state = baseState();
+    state = applyEveningSideEffects(state, {
+      date: "2026-08-01",
+      mood: 7,
+      stress: 2,
+      alignment: "aligned",
+      oneLine: "a",
+      completedAt: "",
+    });
+    state = applyEveningSideEffects(state, {
+      date: "2026-08-02",
+      mood: 7,
+      stress: 2,
+      alignment: "aligned",
+      oneLine: "b",
+      completedAt: "",
+    });
+    expect(cleanDaysThisRun(state, "2026-08-02")).toBe(2);
+    expect(state.reclaimDays).toHaveLength(2);
+
+    state = resetCurrentRun(state, "2026-08-02", "Reset my journey (Settings)");
+    expect(state.returns).toHaveLength(1);
+    expect(state.returns[0].previousCleanDays).toBe(1);
+    expect(state.profile?.currentRunStartedOn).toBe("2026-08-03");
+    expect(cleanDaysThisRun(state, "2026-08-02")).toBe(0);
+    expect(cleanDaysThisRun(state, "2026-08-03")).toBe(1);
+    // history + reclaim preserved
+    expect(state.reclaimDays).toHaveLength(2);
+    expect(state.evenings).toHaveLength(2);
   });
 });
