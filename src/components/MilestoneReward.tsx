@@ -77,18 +77,27 @@ export function HomeRewardCard({
   const [step, setStep] = useState<"celebrate" | "claim">("celebrate");
   const [name, setName] = useState(assigned?.name ?? "");
   const [note, setNote] = useState("");
+  const [spent, setSpent] = useState(
+    assigned ? String(assigned.estimatedCost) : "",
+  );
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [pullFuture, setPullFuture] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  const cost = assigned?.estimatedCost ?? 0;
+  const spentNum = Number(spent);
+  const cost =
+    assigned && Number.isFinite(spentNum) && spentNum > 0
+      ? spentNum
+      : (assigned?.estimatedCost ?? 0);
   const deficit = assigned
     ? Math.max(0, Math.round((cost - treatBal) * 100) / 100)
     : 0;
   const needsPull = Boolean(assigned && deficit > 0);
   const canAfford =
     !assigned || cost <= treatBal || (pullFuture && deficit <= futureBal);
+  const spentValid =
+    !assigned || (Number.isFinite(spentNum) && spentNum > 0);
 
   async function doSave() {
     setBusy(true);
@@ -115,6 +124,7 @@ export function HomeRewardCard({
           action: "treat",
           milestoneAchievementId: moment.id,
           rewardId: assigned.id,
+          actualCost: spentNum,
           note: note.trim() || undefined,
           futurePull:
             needsPull && pullFuture ? deficit : needsPull ? 0 : undefined,
@@ -186,6 +196,8 @@ export function HomeRewardCard({
           reward={assigned}
           treatBal={treatBal}
           futureBal={futureBal}
+          spent={spent}
+          setSpent={setSpent}
           deficit={deficit}
           needsPull={needsPull}
           pullFuture={pullFuture}
@@ -215,7 +227,7 @@ export function HomeRewardCard({
           onClick={doClaim}
           disabled={
             busy ||
-            (assigned ? !canAfford : !name.trim()) ||
+            (assigned ? !canAfford || !spentValid : !name.trim()) ||
             (needsPull && !pullFuture)
           }
         >
@@ -239,6 +251,8 @@ function AssignedClaim({
   reward,
   treatBal,
   futureBal,
+  spent,
+  setSpent,
   deficit,
   needsPull,
   pullFuture,
@@ -251,6 +265,8 @@ function AssignedClaim({
   reward: Reward;
   treatBal: number;
   futureBal: number;
+  spent: string;
+  setSpent: (v: string) => void;
   deficit: number;
   needsPull: boolean;
   pullFuture: boolean;
@@ -266,9 +282,21 @@ function AssignedClaim({
         {reward.name}
       </p>
       <p className="tiny" style={{ marginTop: 4 }}>
-        Cost <Money value={reward.estimatedCost} /> · Treat{" "}
+        Planned <Money value={reward.estimatedCost} /> · Treat{" "}
         <Money value={treatBal} /> · Future <Money value={futureBal} />
       </p>
+      <label className="field" style={{ marginTop: 12 }}>
+        <span className="field-label">How much did you spend?</span>
+        <input
+          type="number"
+          min={0}
+          step="0.01"
+          value={spent}
+          onChange={(e) => setSpent(e.target.value)}
+          placeholder={String(reward.estimatedCost)}
+          autoFocus
+        />
+      </label>
       {needsPull && (
         <label
           className="field"

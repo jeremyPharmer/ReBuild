@@ -113,6 +113,11 @@ export async function POST(req: Request) {
             ? undefined
             : Number(body.futurePull);
 
+        const actualCost =
+          body.actualCost === undefined || body.actualCost === null
+            ? undefined
+            : Number(body.actualCost);
+
         return treatYourself(
           next,
           String(body.milestoneAchievementId),
@@ -120,6 +125,7 @@ export async function POST(req: Request) {
           body.note ? String(body.note) : undefined,
           futurePull,
           photoId,
+          actualCost,
         );
       });
       return NextResponse.json({

@@ -226,6 +226,7 @@ export function treatYourself(
   note?: string,
   futurePull?: number,
   photoId?: string,
+  actualCost?: number,
 ): RebuildState {
   const moment = state.milestones.find((m) => m.id === milestoneAchievementId);
   if (!moment || !moment.rewardEligible) {
@@ -244,7 +245,13 @@ export function treatYourself(
     throw Object.assign(new Error("Pick a wishlist item"), { status: 400 });
   }
 
-  const cost = reward.estimatedCost;
+  const cost =
+    actualCost !== undefined && Number.isFinite(actualCost)
+      ? actualCost
+      : reward.estimatedCost;
+  if (!Number.isFinite(cost) || cost <= 0) {
+    throw Object.assign(new Error("Enter how much you spent"), { status: 400 });
+  }
   const fund = spendFromTreatAndFuture(state.fund, cost, futurePull);
 
   return {

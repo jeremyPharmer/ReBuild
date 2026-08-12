@@ -120,6 +120,48 @@ describe("fund split", () => {
     expect(state.rewards.find((r) => r.id === "r1")?.executed).toBe(true);
   });
 
+  it("debits the actual spend when it differs from estimated", () => {
+    let state = base();
+    state = {
+      ...state,
+      fund: { future: 20, treat: 50 },
+      rewards: [
+        {
+          id: "r_act",
+          name: "Massage",
+          category: "wellness",
+          estimatedCost: 40,
+          executed: false,
+          createdAt: "",
+        },
+      ],
+      milestones: [
+        {
+          id: "ms_act",
+          dayNumber: 3,
+          title: "First Win",
+          type: "reward",
+          runId: "run_1",
+          cleanDaysAtAchieve: 3,
+          achievedAt: "",
+          rewardEligible: true,
+        },
+      ],
+    };
+    state = treatYourself(
+      state,
+      "ms_act",
+      "r_act",
+      undefined,
+      undefined,
+      undefined,
+      32,
+    );
+    expect(state.fund).toEqual({ future: 20, treat: 18 });
+    expect(state.rewards.find((r) => r.id === "r_act")?.actualCost).toBe(32);
+    expect(state.milestoneDecisions[0].amount).toBe(32);
+  });
+
   it("forces treat after two saves for the future", () => {
     let state = base();
     for (let i = 1; i <= 7; i++) {
