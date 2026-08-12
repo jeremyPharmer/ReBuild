@@ -10,6 +10,7 @@ import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import {
   fundTotal,
   pendingCashableMoments,
+  projectedTreatYourselfAt,
   splitTransfer,
 } from "@/lib/fund";
 import {
@@ -223,6 +224,9 @@ export default function HomePage() {
 
   const daysToIncentive = incentive
     ? incentive.dayNumber - dashboard.cleanDays
+    : 0;
+  const projectedTreat = incentive
+    ? projectedTreatYourselfAt(state, incentive.dayNumber, today)
     : 0;
 
   return (
@@ -521,6 +525,13 @@ export default function HomePage() {
           </h2>
           <p className="muted" style={{ marginTop: 6 }}>
             {daysToIncentive} day{daysToIncentive === 1 ? "" : "s"} away
+          </p>
+          <p style={{ marginTop: 12, fontWeight: 650, fontSize: "1.15rem" }}>
+            Projected Treat Yourself · <Money value={projectedTreat} />
+          </p>
+          <p className="tiny" style={{ marginTop: 4 }}>
+            70% of reclaimed so far + Treat accruing through Day{" "}
+            {incentive.dayNumber}
           </p>
 
           {assigned ? (

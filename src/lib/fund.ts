@@ -1,4 +1,4 @@
-import { newId } from "./journey";
+import { newId, cleanDaysThisRun, moneyReclaimed, waitingReclaimTotal } from "./journey";
 import type {
   FundLedger,
   MilestoneAchievement,
@@ -117,6 +117,26 @@ export function mustTreat(state: RebuildState): boolean {
   return (state.consecutiveSaves ?? 0) >= 2;
 }
 
+/**
+ * Projected Treat Yourself by a future incentive day:
+ * 70% of money already moved + 70% of (waiting reclaim + days-to-go × daily).
+ */
+export function projectedTreatYourselfAt(
+  state: RebuildState,
+  targetCleanDay: number,
+  asOfDate?: string,
+): number {
+  if (!state.profile) return 0;
+  const current = cleanDaysThisRun(state, asOfDate);
+  const daily = state.profile.historicalDailySpend;
+  const already = moneyReclaimed(state);
+  const waiting = waitingReclaimTotal(state);
+  const daysToGo = Math.max(0, targetCleanDay - current);
+  const reclaimedTreat = already * TREAT_SPLIT;
+  const futureTreat = (waiting + daysToGo * daily) * TREAT_SPLIT;
+  return round2(reclaimedTreat + futureTreat);
+}
+
 /** Affordable if Treat + Future can cover (optional Future pull). */
 export function eligibleWishlist(state: RebuildState): Reward[] {
   const fund = normalizeFund(state.fund);
@@ -127,10 +147,12 @@ export function eligibleWishlist(state: RebuildState): Reward[] {
 /**
  * Save for the Future — skip spending short-term Treat this reward moment.
  * Does not move money into Treat (old Save & compound direction retired).
+ * `note` is required: how you rewarded yourself (can be free / non-spend).
  */
 export function saveForFuture(
   state: RebuildState,
   milestoneAchievementId: string,
+  note?: string,
 ): RebuildState {
   const moment = state.milestones.find((m) => m.id === milestoneAchievementId);
   if (!moment || !moment.rewardEligible) {
@@ -149,6 +171,13 @@ export function saveForFuture(
       { status: 400 },
     );
   }
+  const trimmed = String(note ?? "").trim();
+  if (!trimmed) {
+    throw Object.assign(
+      new Error("Tell us how you are rewarding yourself today"),
+      { status: 400 },
+    );
+  }
 
   return {
     ...state,
@@ -162,6 +191,7 @@ export function saveForFuture(
         dayNumber: moment.dayNumber,
         choice: "save",
         amount: 0,
+        note: trimmed,
         createdAt: new Date().toISOString(),
       },
     ],
@@ -173,8 +203,9 @@ export function saveCompound(
   state: RebuildState,
   milestoneAchievementId: string,
   _amount?: number,
+  note?: string,
 ): RebuildState {
-  return saveForFuture(state, milestoneAchievementId);
+  return saveForFuture(state, milestoneAchievementId, note);
 }
 
 /**

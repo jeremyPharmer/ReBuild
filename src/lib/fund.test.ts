@@ -5,6 +5,7 @@ import {
   fundTotal,
   mustTreat,
   normalizeFund,
+  projectedTreatYourselfAt,
   saveForFuture,
   splitTransfer,
   treatYourself,
@@ -77,10 +78,11 @@ describe("fund split", () => {
     // fund 60/60
     const ms = state.milestones.find((m) => m.dayNumber === 3)!;
     const before = { ...state.fund };
-    state = saveForFuture(state, ms.id);
+    state = saveForFuture(state, ms.id, "Walked the block");
     expect(state.fund).toEqual(before);
     expect(state.consecutiveSaves).toBe(1);
     expect(mustTreat(state)).toBe(false);
+    expect(state.milestoneDecisions[0].note).toBe("Walked the block");
   });
 
   it("treat can pull from Future when Treat is short", () => {
@@ -182,8 +184,8 @@ describe("fund split", () => {
 
     const ms3 = state.milestones.find((m) => m.dayNumber === 3)!;
     const ms7 = state.milestones.find((m) => m.dayNumber === 7)!;
-    state = saveForFuture(state, ms3.id);
-    state = saveForFuture(state, ms7.id);
+    state = saveForFuture(state, ms3.id, "Quiet morning");
+    state = saveForFuture(state, ms7.id, "Called a friend");
     expect(mustTreat(state)).toBe(true);
 
     state = {
@@ -210,7 +212,7 @@ describe("fund split", () => {
       rewardEligible: true,
     };
     state = { ...state, milestones: [...state.milestones, fake] };
-    expect(() => saveForFuture(state, fake.id)).toThrow(
+    expect(() => saveForFuture(state, fake.id, "Nope")).toThrow(
       /Treat Yourself required/,
     );
     state = treatYourself(state, fake.id, "r2", "small win");
@@ -244,5 +246,21 @@ describe("fund split", () => {
     expect(state.rewards[0].name).toBe("Sunset walk");
     expect(state.rewards[0].photoId).toBe("photo_1.jpg");
     expect(state.rewards[0].executed).toBe(true);
+  });
+
+  it("projects Treat Yourself as 70% of reclaimed plus future accrual", () => {
+    let state = base();
+    state = applyEveningSideEffects(state, {
+      date: "2026-08-01",
+      mood: 7,
+      stress: 2,
+      alignment: "aligned",
+      oneLine: "a",
+      completedAt: "",
+    });
+    state = confirmTransfer(state, ["2026-08-01"], 40);
+    // Day 1 done; next incentive Day 3 → 2 days to go × $40 daily
+    // reclaimedTreat = 0.7*40=28; future = 0.7*(0 + 2*40)=56; total=84
+    expect(projectedTreatYourselfAt(state, 3, "2026-08-01")).toBe(84);
   });
 });

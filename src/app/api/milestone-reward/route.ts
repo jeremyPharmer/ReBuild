@@ -44,7 +44,12 @@ export async function POST(req: Request) {
 
     if (action === "save") {
       const state = await updateState((prev) =>
-        saveCompound(prev, String(body.milestoneAchievementId)),
+        saveCompound(
+          prev,
+          String(body.milestoneAchievementId),
+          undefined,
+          body.note ? String(body.note) : undefined,
+        ),
       );
       return NextResponse.json({
         state,

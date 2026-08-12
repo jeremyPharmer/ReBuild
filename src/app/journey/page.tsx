@@ -96,8 +96,11 @@ function TrailDayCard({
   const morning = day.morning;
   const rewardDay = isCashableMilestoneDay(day.dayNumber);
   const rewardOutcome = rewardOutcomeForTrailDay(state, day.dayNumber);
-  /** Collapsed row shows the close-the-day one-liner only. */
-  const thesis = evening?.oneLine?.trim() || "Day marked on the trail";
+  /** Collapsed row shows morning Set out intention (not evening one-line). */
+  const thesis =
+    morning?.intention?.trim() ||
+    evening?.oneLine?.trim() ||
+    "Day marked on the trail";
 
   function startEditIntention() {
     if (!morning) return;
@@ -307,9 +310,16 @@ function TrailDayCard({
                 </p>
               )}
               {rewardOutcome.kind === "save" && (
-                <p style={{ marginTop: 6, lineHeight: 1.45 }}>
-                  Saved for the Future — short-term Treat stayed parked.
-                </p>
+                <>
+                  <p style={{ marginTop: 6, lineHeight: 1.45 }}>
+                    Saved $ for the Future — short-term Treat stayed parked.
+                  </p>
+                  {rewardOutcome.decision.note && (
+                    <p className="tiny" style={{ marginTop: 6, lineHeight: 1.45 }}>
+                      {rewardOutcome.decision.note}
+                    </p>
+                  )}
+                </>
               )}
               {rewardOutcome.kind === "treat" && (
                 <>

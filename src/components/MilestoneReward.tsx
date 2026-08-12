@@ -74,9 +74,10 @@ export function HomeRewardCard({
   const treatBal = state.fund.treat ?? 0;
   const futureBal = state.fund.future ?? 0;
 
-  const [step, setStep] = useState<"celebrate" | "claim">("celebrate");
+  const [step, setStep] = useState<"celebrate" | "claim" | "save">("celebrate");
   const [name, setName] = useState(assigned?.name ?? "");
   const [note, setNote] = useState("");
+  const [saveNote, setSaveNote] = useState("");
   const [spent, setSpent] = useState(
     assigned ? String(assigned.estimatedCost) : "",
   );
@@ -100,12 +101,14 @@ export function HomeRewardCard({
     !assigned || (Number.isFinite(spentNum) && spentNum > 0);
 
   async function doSave() {
+    if (!saveNote.trim()) return;
     setBusy(true);
     setError("");
     try {
       await post("/api/milestone-reward", {
         action: "save",
         milestoneAchievementId: moment.id,
+        note: saveNote.trim(),
       });
       onDone();
     } catch (e) {
@@ -169,8 +172,14 @@ export function HomeRewardCard({
             Claim reward
           </PrimaryButton>
           {!forced && (
-            <SecondaryButton onClick={doSave} disabled={busy}>
-              Save for future
+            <SecondaryButton
+              onClick={() => {
+                setError("");
+                setStep("save");
+              }}
+              disabled={busy}
+            >
+              Save $ for future
             </SecondaryButton>
           )}
           {forced && (
@@ -182,6 +191,50 @@ export function HomeRewardCard({
         {error && (
           <p style={{ color: "var(--danger)", marginTop: 10 }}>{error}</p>
         )}
+      </section>
+    );
+  }
+
+  if (step === "save") {
+    return (
+      <section className="panel home-reward-card fade-in">
+        <p className="eyebrow">Save $ for future · Day {moment.dayNumber}</p>
+        <h2>{moment.title}</h2>
+        <p className="muted" style={{ marginTop: 6, lineHeight: 1.45 }}>
+          Keep the short-term Treat parked. Still celebrate today in a way that
+          costs little or nothing.
+        </p>
+        <label className="field" style={{ marginTop: 12 }}>
+          <span className="field-label">
+            How are you rewarding yourself today?
+          </span>
+          <input
+            value={saveNote}
+            onChange={(e) => setSaveNote(e.target.value)}
+            placeholder="A walk, good coffee, calling a friend…"
+            autoFocus
+          />
+        </label>
+        {error && (
+          <p style={{ color: "var(--danger)", marginTop: 10 }}>{error}</p>
+        )}
+        <div className="home-reward-actions">
+          <PrimaryButton
+            onClick={doSave}
+            disabled={busy || !saveNote.trim()}
+          >
+            {busy ? "Saving…" : "Confirm save"}
+          </PrimaryButton>
+          <SecondaryButton
+            onClick={() => {
+              setStep("celebrate");
+              setError("");
+            }}
+            disabled={busy}
+          >
+            Back
+          </SecondaryButton>
+        </div>
       </section>
     );
   }
