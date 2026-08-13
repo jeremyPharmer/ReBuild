@@ -44,3 +44,4 @@ ReBuild can initiate an automatic pull from a user’s checking account and depo
 
 - Product decision (2026-08-10): **Venmo is the v1 destination.** Soccer / alternate bank account is explicitly later — do not block v1 on it.
 - Added to product backlog as highest rank (1).
+- 2026-08-13: Acorns / segregated ReBuild hold explored as a **later alternate destination** (not replacing Venmo v1) — see [RB-007](./segregated-rebuild-account-rails.md) and research [`acorns-partner-rails-feasibility.md`](../research/acorns-partner-rails-feasibility.md).
