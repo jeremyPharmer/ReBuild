@@ -40,6 +40,6 @@ The product can send transactional and product emails to the user (authenticated
 
 ## Notes
 
-- Added 2026-08-10 as future backlog; renumbered to rank **3** when RB-005 (recovery podcasts) took rank 2.
-- Platform enabler for daily end-of-day checklist email (RB-003).
-- Still behind Venmo (RB-001) and recovery content podcasts (RB-005).
+- Added 2026-08-10 as future backlog; renumbered when RB-005 / RB-007 shifted ranks (now rank **5**).
+- Platform enabler for daily end-of-day checklist email (RB-003) and **forgot-password delivery** for RB-007.
+- Still behind accounts (RB-007), Venmo (RB-001), and recovery content podcasts (RB-005).

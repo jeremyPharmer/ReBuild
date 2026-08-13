@@ -28,8 +28,10 @@ Every visitor must create an account before using the app. Onboarding is one con
 - Forgot password → email reset link only (delivery depends on RB-002; can stub until email ships)
 - Optional **4-digit PIN**, synced to the user account (quick access on any device after account exists)
 - Optional **Remember this device** (long-lived session; today’s “always in” feel on that device)
-- Required profile: **display name**, **gender**, **state** (fixed option sets; include prefer-not-to-say where appropriate)
+- Required profile: **display name**, **gender**, **state** (fixed option sets below)
 - Admin = **specific email allowlist** (not “first user wins”)
+  - **v1 allowlist (founder only):** `jeremyrschrader@gmail.com`
+  - Expand the list later without changing the admin UX pattern
 - Migrate current **prod** journey/state onto the first admin account; retain history
 
 ### Trail onboarding (one continuous flow)
@@ -78,6 +80,9 @@ Progress UI consistent with trail / journey language. Suggested steps:
 
 - Intake dialog 2026-08-13 (cloud agent / Head of Product). Rank **1** — platform prerequisite for multi-user; renumbers prior P0s down.
 - Canned support inspiration (examples, not final copy): walk, gym, meditate, recovery content, meetings, medication — plus custom.
-- Gender / state: fixed datasets (US states + DC; small gender set + prefer not to say). Exact option lists confirmed at implementation / UX pass.
+- **Gender (required, fixed):** Woman · Man · Non-binary · Prefer not to say
+- **State (required, fixed):** US states + DC (dropdown)
+- Admin confirm 2026-08-13: allowlist = founder email only for now (`jeremyrschrader@gmail.com`).
 - Money stays as today: daily spend drives reclaim; Future/Treat split defaults 30/70 per `FUND_MODEL.md`.
 - Walkthrough explicitly deferred past v1 of this item.
+- Prod Hx migration: snapshot/attach existing prod `db.json` to admin account when RB-007 ships (backup-only is available before build).
