@@ -340,9 +340,38 @@ export default function HomePage() {
             </div>
           )}
 
-          {openSupports.map((s) => {
+          {enabledSupports.map((s) => {
+            if (skips.has(s.type)) return null;
+            const isExiting = exitingTypes.has(s.type);
+            const isDone =
+              completedSupportTypes.has(s.type) && !isExiting;
+            if (isDone) return null;
+
             const weekDone =
               dashboard.week.find((w) => w.type === s.type)?.done ?? 0;
+            const exitingItem = exiting.find((e) => e.type === s.type);
+
+            if (isExiting && exitingItem) {
+              return (
+                <div
+                  key={s.type}
+                  className="check-item check-item-row clearing"
+                  aria-live="polite"
+                >
+                  <div className="check-item-main" aria-hidden>
+                    <span className="check-box checked">✓</span>
+                    <span className="check-label">
+                      {exitingItem.label}, week {exitingItem.weekDone + 1} of{" "}
+                      {exitingItem.weeklyTarget}
+                    </span>
+                  </div>
+                  <span className="clear-burst" aria-hidden>
+                    +1
+                  </span>
+                </div>
+              );
+            }
+
             return (
               <div key={s.type} className="check-item check-item-row">
                 <button
@@ -374,24 +403,6 @@ export default function HomePage() {
               </div>
             );
           })}
-
-          {exiting.map((s) => (
-            <div
-              key={`exit-${s.type}`}
-              className="check-item check-item-row clearing"
-              aria-live="polite"
-            >
-              <div className="check-item-main" aria-hidden>
-                <span className="check-box checked">✓</span>
-                <span className="check-label">
-                  {s.label}, week {s.weekDone + 1} of {s.weeklyTarget}
-                </span>
-              </div>
-              <span className="clear-burst" aria-hidden>
-                +1
-              </span>
-            </div>
-          ))}
 
           {showEveningOpen && (
             <div className="check-item check-item-row">
