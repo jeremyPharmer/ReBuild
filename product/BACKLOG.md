@@ -6,7 +6,7 @@ Index of all product items. Canonical detail lives in `product/items/`.
 
 | Rank | ID | Item | Priority | Status | Effort | Target due | Milestone | File |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | RB-007 | Accounts + trail onboarding (multi-user) | P0 | Backlog | XL | TBD | v1 | [items/account-creation-onboarding.md](./items/account-creation-onboarding.md) |
+| 1 | RB-007 | Accounts + trail onboarding (multi-user) | P0 | In Progress | XL | TBD | v1 | [items/account-creation-onboarding.md](./items/account-creation-onboarding.md) |
 | 2 | RB-001 | Auto-pull funds: checking → Venmo | P0 | Backlog | L | TBD | v1 | [items/auto-pull-funds-venmo.md](./items/auto-pull-funds-venmo.md) |
 | 3 | RB-005 | Recovery content: weekly podcast & book offers | P0 | Backlog | M | TBD | v1 | [items/recovery-content-offers.md](./items/recovery-content-offers.md) |
 | 4 | RB-006 | Fund buckets: Future + Treat @ 30/70 | P0 | Backlog | M | TBD | v1 | [items/fund-two-buckets.md](./items/fund-two-buckets.md) |
@@ -18,9 +18,9 @@ Index of all product items. Canonical detail lives in `product/items/`.
 
 | Status | Count |
 | --- | --- |
-| Backlog | 7 |
+| Backlog | 6 |
 | Ready | 0 |
-| In Progress | 0 |
+| In Progress | 1 |
 | Blocked | 0 |
 | Done | 0 |
 | Won't Do | 0 |
