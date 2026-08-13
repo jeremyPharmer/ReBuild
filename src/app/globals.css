@@ -429,17 +429,17 @@ h2 {
 @keyframes clear-row {
   0% {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: scale(1);
     max-height: 48px;
     margin-bottom: 0;
   }
   55% {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateX(12px) scale(0.98);
+    transform: scale(0.98);
     max-height: 0;
     margin-bottom: -6px;
     padding-top: 0;
