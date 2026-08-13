@@ -1396,13 +1396,70 @@ h2 {
 }
 
 .target-input {
-  width: 52px;
-  background: var(--surface-strong);
+  width: 44px;
+  background: rgba(15, 28, 24, 0.45);
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 10px 8px;
+  border-radius: 10px;
+  padding: 8px 6px;
   text-align: center;
   flex-shrink: 0;
+}
+
+.support-tile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.support-tile {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 108px;
+}
+
+.support-tile-name {
+  font-size: 0.98rem;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.support-tile-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+}
+
+.support-tile-name-input {
+  width: 100%;
+  background: rgba(15, 28, 24, 0.45);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+  outline: none;
+}
+
+.support-tile-custom {
+  gap: 10px;
+}
+
+.support-tile-custom-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.support-tile-add {
+  padding: 8px 12px !important;
+  min-height: 0 !important;
+  width: auto !important;
 }
 
 .check-row {

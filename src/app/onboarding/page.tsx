@@ -486,12 +486,10 @@ export default function OnboardingPage() {
               );
             })}
           </div>
-          <div className="stack" style={{ gap: 10 }}>
+          <div className="support-tile-grid">
             {supports.map((s) => (
-              <div key={s.type} className="panel enroll-support-row">
-                <div className="enroll-support-label">
-                  <strong>{s.label}</strong>
-                </div>
+              <div key={s.type} className="support-tile">
+                <strong className="support-tile-name">{s.label}</strong>
                 <div className="enroll-support-target">
                   <input
                     className="target-input"
@@ -508,22 +506,16 @@ export default function OnboardingPage() {
                 </div>
               </div>
             ))}
-          </div>
-          <div className="panel">
-            <p className="tiny" style={{ marginTop: 0 }}>
-              Add your own
-            </p>
-            <div className="enroll-support-row custom-add-row">
-              <label className="field enroll-support-label">
-                <span className="field-label">Support</span>
-                <input
-                  value={customLabel}
-                  onChange={(e) => setCustomLabel(e.target.value)}
-                  placeholder="e.g. Journal"
-                />
-              </label>
-              <label className="field enroll-support-target-field">
-                <span className="field-label">Weekly</span>
+            <div className="support-tile support-tile-custom">
+              <span className="tiny muted support-tile-kicker">Add your own</span>
+              <input
+                className="support-tile-name-input"
+                value={customLabel}
+                onChange={(e) => setCustomLabel(e.target.value)}
+                placeholder="e.g. Journal"
+                aria-label="Custom support name"
+              />
+              <div className="support-tile-custom-foot">
                 <div className="enroll-support-target">
                   <input
                     className="target-input"
@@ -532,12 +524,19 @@ export default function OnboardingPage() {
                     max={21}
                     value={customTarget}
                     onChange={(e) => setCustomTarget(e.target.value)}
+                    aria-label="Custom support times per week"
                   />
                   <span className="tiny muted">/wk</span>
                 </div>
-              </label>
+                <button
+                  type="button"
+                  className="btn ghost support-tile-add"
+                  onClick={addCustomSupport}
+                >
+                  Add
+                </button>
+              </div>
             </div>
-            <SecondaryButton onClick={addCustomSupport}>Add</SecondaryButton>
           </div>
           {error && <p className="form-error">{error}</p>}
           <PrimaryButton
@@ -582,7 +581,7 @@ export default function OnboardingPage() {
             </p>
             <p className="tiny muted">
               Treat is for near-term rewards. Future is longer-horizon park. We
-              recommend 70 / 30 — set the mix you want; it applies to every Move
+              recommend 70 / 30 — set the mix you want; it applies to every move
               into your fund.
             </p>
             <label className="field" style={{ marginTop: 12 }}>
