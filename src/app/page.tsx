@@ -366,8 +366,7 @@ export default function HomePage() {
                         {truncateSupportLabel(exitingItem.label)}
                       </span>
                       <span className="check-label-meta">
-                        , week {exitingItem.weekDone + 1} of{" "}
-                        {exitingItem.weeklyTarget}
+                        · {exitingItem.weekDone + 1}/{exitingItem.weeklyTarget}
                       </span>
                     </span>
                   </div>
@@ -399,7 +398,7 @@ export default function HomePage() {
                       {truncateSupportLabel(s.label)}
                     </span>
                     <span className="check-label-meta">
-                      , week {weekDone} of {s.weeklyTarget}
+                      · {weekDone}/{s.weeklyTarget}
                     </span>
                   </span>
                 </button>

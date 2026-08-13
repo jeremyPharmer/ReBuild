@@ -92,7 +92,7 @@ export function validatePin(pin: string): boolean {
 }
 
 /** Max length for support labels so Today’s Rebuild fits on mobile. */
-export const SUPPORT_LABEL_MAX = 22;
+export const SUPPORT_LABEL_MAX = 16;
 
 export function truncateSupportLabel(label: string, max = SUPPORT_LABEL_MAX) {
   const t = label.trim();
