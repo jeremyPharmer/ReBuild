@@ -6,6 +6,7 @@ import {
 } from "./journey";
 import type {
   CravingEvent,
+  DayProvision,
   EveningCheckIn,
   MorningCheckIn,
   RebuildState,
@@ -18,6 +19,7 @@ export type TrailDay = {
   morning?: MorningCheckIn;
   evening?: EveningCheckIn;
   supports: SupportCompletion[];
+  provisions: DayProvision[];
   cravings: CravingEvent[];
 };
 
@@ -67,10 +69,19 @@ export function trailDaysThisRun(
     const supports = state.supports.filter(
       (s) => s.date === date && s.completed,
     );
+    const provisions = (state.dayProvisions ?? []).filter((p) => p.date === date);
     const cravings = state.cravings.filter(
       (c) => dateKeyFromIso(c.at, tz) === date,
     );
-    if (!morning && !evening && supports.length === 0 && cravings.length === 0) {
+    const isToday = date === asOfDate;
+    if (
+      !isToday &&
+      !morning &&
+      !evening &&
+      supports.length === 0 &&
+      provisions.length === 0 &&
+      cravings.length === 0
+    ) {
       continue;
     }
     days.push({
@@ -79,6 +90,7 @@ export function trailDaysThisRun(
       morning,
       evening,
       supports,
+      provisions,
       cravings,
     });
   }

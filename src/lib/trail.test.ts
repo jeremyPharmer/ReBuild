@@ -64,9 +64,12 @@ describe("trailDaysThisRun", () => {
     ];
 
     const days = trailDaysThisRun(state, "2026-08-11");
-    expect(days).toHaveLength(1);
-    expect(days[0].date).toBe("2026-08-10");
-    expect(days[0].dayNumber).toBe(1);
-    expect(days[0].cravings).toHaveLength(1);
+    // Today (asOf) is always on the trail so placeholders can show; plus activity day.
+    expect(days).toHaveLength(2);
+    expect(days[0].date).toBe("2026-08-11");
+    expect(days[1].date).toBe("2026-08-10");
+    expect(days[1].dayNumber).toBe(1);
+    expect(days[1].cravings).toHaveLength(1);
+    expect(days[1].provisions).toEqual([]);
   });
 });

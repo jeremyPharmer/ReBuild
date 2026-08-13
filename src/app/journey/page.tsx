@@ -2,7 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { cleanDaysThisRun } from "@/lib/journey";
+import {
+  cleanDaysThisRun,
+  isCashableMilestoneDay,
+  rewardOutcomeForTrailDay,
+} from "@/lib/journey";
+import { Money } from "@/components/ui";
 import {
   formatSleepHours,
   trailDayLabel,
@@ -81,7 +86,7 @@ function TrailDayCard({
   supportLabel: (type: string) => string;
   defaultCollapsed: boolean;
 }) {
-  const { post } = useApp();
+  const { post, state } = useApp();
   const [open, setOpen] = useState(!defaultCollapsed);
   const [editingIntention, setEditingIntention] = useState(false);
   const [intentionDraft, setIntentionDraft] = useState("");
@@ -89,8 +94,13 @@ function TrailDayCard({
   const [intentionError, setIntentionError] = useState("");
   const evening = day.evening;
   const morning = day.morning;
-  /** Collapsed row shows the close-the-day one-liner only. */
-  const thesis = evening?.oneLine?.trim() || "Day marked on the trail";
+  const rewardDay = isCashableMilestoneDay(day.dayNumber);
+  const rewardOutcome = rewardOutcomeForTrailDay(state, day.dayNumber);
+  /** Collapsed row shows morning Set out intention (not evening one-line). */
+  const thesis =
+    morning?.intention?.trim() ||
+    evening?.oneLine?.trim() ||
+    "Day marked on the trail";
 
   function startEditIntention() {
     if (!morning) return;
@@ -131,6 +141,11 @@ function TrailDayCard({
           <div className="trail-day-toggle-main">
             <span className="tiny trail-day-toggle-label">
               Day {day.dayNumber}
+              {rewardDay && (
+                <span className="trail-reward-star" title="Reward day">
+                  *
+                </span>
+              )}
             </span>
             {!open && (
               <span className="trail-day-thesis">&ldquo;{thesis}&rdquo;</span>
@@ -138,6 +153,7 @@ function TrailDayCard({
             {open && (
               <strong className="trail-day-toggle-title">
                 {trailDayLabel(day)}
+                {rewardDay ? " *" : ""}
               </strong>
             )}
           </div>
@@ -147,23 +163,23 @@ function TrailDayCard({
             </span>
           </div>
         </button>
-        {open && morning && (
-          <button
-            type="button"
-            className="trail-day-menu"
-            aria-label="Edit morning intention"
-            onClick={startEditIntention}
-          >
-            ⋯
-          </button>
-        )}
       </div>
 
       {open && (
         <div className="trail-day-body fade-in">
           {morning && (
             <div className="trail-block">
-              <p className="tiny trail-block-label">Set out</p>
+              <div className="trail-block-head">
+                <p className="tiny trail-block-label">Set out</p>
+                <button
+                  type="button"
+                  className="trail-day-menu"
+                  aria-label="Edit morning intention"
+                  onClick={startEditIntention}
+                >
+                  ⋯
+                </button>
+              </div>
               {editingIntention ? (
                 <div className="trail-intention-edit">
                   <label className="field">
@@ -219,83 +235,178 @@ function TrailDayCard({
               />
               {morning.trigger && (
                 <p className="tiny" style={{ marginTop: 6 }}>
-                  Trigger on the mind: {morning.trigger}
+                  Trigger or concern: {morning.trigger}
                 </p>
               )}
             </div>
           )}
 
-          {day.supports.length > 0 && (
+          {!morning && (
             <div className="trail-block">
-              <p className="tiny trail-block-label">Provisions</p>
+              <p className="tiny trail-block-label">Set out</p>
+            </div>
+          )}
+
+          <div className="trail-block">
+            <p className="tiny trail-block-label">Provisions</p>
+            {(day.supports.length > 0 || day.provisions.length > 0) && (
               <div className="trail-provisions">
                 {day.supports.map((s) => (
                   <span key={s.supportType} className="provision-chip">
                     {supportLabel(s.supportType)}
                   </span>
                 ))}
-              </div>
-              {day.supports
-                .filter(
-                  (s) => s.supportType === "recovery_content" && s.actionNote,
-                )
-                .map((s) => (
-                  <p
-                    key={`${s.supportType}-note`}
-                    className="tiny"
-                    style={{ marginTop: 8 }}
+                {day.provisions.map((p) => (
+                  <span
+                    key={p.id}
+                    className={
+                      p.completed
+                        ? "provision-chip"
+                        : "provision-chip provision-chip-open"
+                    }
                   >
-                    Content note: {s.actionNote}
-                  </p>
+                    {p.label}
+                  </span>
                 ))}
-            </div>
-          )}
-
-          {day.cravings.length > 0 && (
-            <div className="trail-block">
-              <p className="tiny trail-block-label">Headwind</p>
-              {day.cravings.map((c) => (
-                <div key={c.id} className="trail-craving">
-                  <p className="tiny">
-                    Intensity {c.intensityBefore}
-                    {c.intensityAfter !== undefined
-                      ? ` → ${c.intensityAfter}`
-                      : ""}
-                    {c.outcome || c.intervention
-                      ? ` · ${c.outcome || c.intervention}`
-                      : ""}
-                  </p>
-                  {c.situation && (
-                    <PrivateReveal label="Reveal situation">
-                      <p className="trail-private-text">{c.situation}</p>
-                    </PrivateReveal>
-                  )}
-                </div>
+              </div>
+            )}
+            {day.supports
+              .filter(
+                (s) => s.supportType === "recovery_content" && s.actionNote,
+              )
+              .map((s) => (
+                <p
+                  key={`${s.supportType}-note`}
+                  className="tiny"
+                  style={{ marginTop: 8 }}
+                >
+                  Content note: {s.actionNote}
+                </p>
               ))}
+          </div>
+
+          <div className="trail-block">
+            <p className="tiny trail-block-label">Headwind</p>
+            {day.cravings.map((c) => (
+              <div key={c.id} className="trail-craving">
+                <p className="tiny">
+                  Intensity {c.intensityBefore}
+                  {c.intensityAfter !== undefined
+                    ? ` → ${c.intensityAfter}`
+                    : ""}
+                  {c.outcome || c.intervention
+                    ? ` · ${c.outcome || c.intervention}`
+                    : ""}
+                </p>
+                {c.situation && (
+                  <PrivateReveal label="Reveal situation">
+                    <p className="trail-private-text">{c.situation}</p>
+                  </PrivateReveal>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {rewardDay && (
+            <div className="trail-block">
+              <p className="tiny trail-block-label">Reward</p>
+              {rewardOutcome && (
+                <>
+                  <p className="tiny" style={{ marginTop: 2 }}>
+                    {rewardOutcome.moment.title}
+                  </p>
+                  {rewardOutcome.kind === "pending" && (
+                    <p className="muted" style={{ marginTop: 6, lineHeight: 1.45 }}>
+                      Waiting on Home — Claim reward or Save for future.
+                    </p>
+                  )}
+                  {rewardOutcome.kind === "save" && (
+                    <>
+                      <p style={{ marginTop: 6, lineHeight: 1.45 }}>
+                        Saved $ for the Future — short-term treat stayed parked.
+                      </p>
+                      {rewardOutcome.decision.note && (
+                        <p
+                          className="tiny"
+                          style={{ marginTop: 6, lineHeight: 1.45 }}
+                        >
+                          {rewardOutcome.decision.note}
+                        </p>
+                      )}
+                      {rewardOutcome.decision.photoId && (
+                        <div className="trail-reward-photo">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={`/api/photos/${encodeURIComponent(rewardOutcome.decision.photoId)}`}
+                            alt={rewardOutcome.decision.note || "Celebration"}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {rewardOutcome.kind === "treat" && (
+                    <>
+                      <p style={{ marginTop: 6, lineHeight: 1.45 }}>
+                        Claimed
+                        {rewardOutcome.reward?.name
+                          ? `: ${rewardOutcome.reward.name}`
+                          : ""}
+                        {rewardOutcome.decision.amount > 0 && (
+                          <>
+                            {" "}
+                            · <Money value={rewardOutcome.decision.amount} />
+                          </>
+                        )}
+                      </p>
+                      {(rewardOutcome.reward?.notes ||
+                        rewardOutcome.decision.note) && (
+                        <p
+                          className="tiny"
+                          style={{ marginTop: 6, lineHeight: 1.45 }}
+                        >
+                          {rewardOutcome.reward?.notes ||
+                            rewardOutcome.decision.note}
+                        </p>
+                      )}
+                      {rewardOutcome.reward?.photoId && (
+                        <div className="trail-reward-photo">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={`/api/photos/${encodeURIComponent(rewardOutcome.reward.photoId)}`}
+                            alt={rewardOutcome.reward.name}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
             </div>
           )}
 
-          {evening && (
-            <div className="trail-block">
-              <p className="tiny trail-block-label">Make camp</p>
-              <WeatherDots mood={evening.mood} stress={evening.stress} />
-              {evening.oneLine && (
-                <p className="trail-quote" style={{ marginTop: 8 }}>
-                  &ldquo;{evening.oneLine}&rdquo;
-                </p>
-              )}
-              {evening.expandedJournal && (
-                <p className="tiny" style={{ marginTop: 8, lineHeight: 1.45 }}>
-                  {evening.expandedJournal}
-                </p>
-              )}
-              {evening.returnNotes && (
-                <PrivateReveal label="Reveal storm notes">
-                  <p className="trail-private-text">{evening.returnNotes}</p>
-                </PrivateReveal>
-              )}
-            </div>
-          )}
+          <div className="trail-block">
+            <p className="tiny trail-block-label">Make camp</p>
+            {evening && (
+              <>
+                <WeatherDots mood={evening.mood} stress={evening.stress} />
+                {evening.oneLine && (
+                  <p className="trail-quote" style={{ marginTop: 8 }}>
+                    &ldquo;{evening.oneLine}&rdquo;
+                  </p>
+                )}
+                {evening.expandedJournal && (
+                  <p className="tiny" style={{ marginTop: 8, lineHeight: 1.45 }}>
+                    {evening.expandedJournal}
+                  </p>
+                )}
+                {evening.returnNotes && (
+                  <PrivateReveal label="Reveal storm notes">
+                    <p className="trail-private-text">{evening.returnNotes}</p>
+                  </PrivateReveal>
+                )}
+              </>
+            )}
+          </div>
         </div>
       )}
     </article>
@@ -501,7 +612,7 @@ function CravingPointsChart({ points }: { points: CravingPointsPoint[] }) {
           },
         ]}
         emptyMessage="Craving points appear when you log a craving."
-        footer="Craving points = sum of intensity before intervention that day."
+        footer="Total daily cravings points prior to intervention"
       />
     </div>
   );

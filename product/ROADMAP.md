@@ -38,14 +38,9 @@ Last updated: 2026-08-13
 1. **RB-002 — Email integration** — shared email channel (enables digests + forgot-password delivery for RB-007)
 2. **RB-003 — Daily email: open checklist at close of day** — leftover open checklist items; close-the-day UX stays as-is
 3. **RB-004 — SMS integration** — transactional SMS channel
-<<<<<<< HEAD
-4. Alternate payment destination: checking → **soccer bank account** (follow-on to Venmo v1)
-5. In-app how-to walkthrough (explicitly deferred from RB-007 v1)
-=======
-4. **RB-007 — Segregated ReBuild account (feasibility)** — Move money → real hold; Acorns outreach + rails shortlist (BaaS vs ACH wallet vs Venmo-only). Does **not** replace Venmo v1. Research: [`research/acorns-partner-rails-feasibility.md`](./research/acorns-partner-rails-feasibility.md)
+4. **RB-008 — Segregated ReBuild account (feasibility)** — Move money → real hold; Acorns outreach + rails shortlist (BaaS vs ACH wallet vs Venmo-only). Does **not** replace Venmo v1. Research: [`research/acorns-partner-rails-feasibility.md`](./research/acorns-partner-rails-feasibility.md)
 5. Alternate payment destination: checking → **soccer bank account** (follow-on to Venmo v1)
->>>>>>> origin/main
-
+6. In-app how-to walkthrough (explicitly deferred from RB-007 v1)
 ## Timeline (draft)
 
 | Window | Planned | Notes |

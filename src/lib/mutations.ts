@@ -13,6 +13,7 @@ import type {
   MilestoneAchievement,
   RebuildState,
   ReturnEvent,
+  Reward,
 } from "./types";
 import { MILESTONE_DEFS } from "./types";
 
@@ -39,8 +40,11 @@ export function applyEveningSideEffects(
 
   if (evening.alignment === "aligned") {
     next = ensureReclaimDay(next, evening.date);
-    next = awardCrossedMilestones(next, evening.date);
   }
+
+  // Milestones unlock when the day is reached (calendar clean days),
+  // not only when the evening is closed.
+  next = ensureMilestonesReached(next, evening.date);
 
   if (evening.alignment === "return_to_use") {
     next = handleReturnToUse(next, evening);
@@ -117,15 +121,56 @@ export function resetCurrentRun(
   };
 }
 
-function awardCrossedMilestones(
+/**
+ * Backfill executed reward rows for older Saves that only stored a
+ * decision + note (so they appear under Rewards → What I rebuilt).
+ */
+export function ensureSaveRewards(state: RebuildState): RebuildState {
+  const newRewards: Reward[] = [];
+  const decisions = state.milestoneDecisions.map((d) => {
+    if (d.choice !== "save" || d.rewardId) return d;
+    const note = d.note?.trim();
+    if (!note) return d;
+    const rewardId = newId("reward");
+    newRewards.push({
+      id: rewardId,
+      name: note,
+      category: "other",
+      estimatedCost: 0,
+      actualCost: 0,
+      assignedMilestoneDay: d.dayNumber,
+      executed: true,
+      executedAt: d.createdAt,
+      notes: `Day ${d.dayNumber} · Saved $ for future`,
+      photoId: d.photoId,
+      createdAt: d.createdAt,
+    });
+    return { ...d, rewardId };
+  });
+  if (newRewards.length === 0) return state;
+  return {
+    ...state,
+    rewards: [...state.rewards, ...newRewards],
+    milestoneDecisions: decisions,
+  };
+}
+
+/**
+ * Unlock milestones for every day reached this run (Day N when
+ * cleanDaysThisRun >= N). Reward/Destination cards can appear on Home
+ * as soon as that calendar day starts — not only after evening close.
+ */
+export function ensureMilestonesReached(
   state: RebuildState,
   asOfDate: string,
 ): RebuildState {
   if (!state.profile) return state;
-  const clean = cleanDaysThisRun(state, asOfDate);
-  const runId = state.profile.currentRunId;
+  const profile = state.profile;
+  let next = ensureSaveRewards(state);
+  const clean = cleanDaysThisRun(next, asOfDate);
+  const runId = profile.currentRunId;
   const alreadyThisRun = new Set(
-    state.milestones
+    next.milestones
       .filter((m) => m.runId === runId)
       .map((m) => m.dayNumber),
   );
@@ -146,8 +191,8 @@ function awardCrossedMilestones(
     });
   }
 
-  if (newly.length === 0) return state;
-  return { ...state, milestones: [...state.milestones, ...newly] };
+  if (newly.length === 0) return next;
+  return { ...next, milestones: [...next.milestones, ...newly] };
 }
 
 export function maybeCreateWeeklyBonus(

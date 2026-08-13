@@ -5,14 +5,16 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
-import { FundSegmentBar } from "@/components/MilestoneReward";
+import { FundSegmentBar, HomeRewardCard } from "@/components/MilestoneReward";
 import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import {
   fundTotal,
   pendingCashableMoments,
+  projectedTreatYourselfAt,
   splitTransfer,
 } from "@/lib/fund";
 import {
+  addDays,
   assignedRewardForMilestone,
   nextIncentive,
   suggestedRewardPool,
@@ -20,6 +22,11 @@ import {
 } from "@/lib/journey";
 import type { SupportType } from "@/lib/types";
 import { truncateSupportLabel } from "@/lib/auth-constants";
+
+function formatMd(iso: string): string {
+  const [, m, d] = iso.split("-");
+  return `${m}/${d}`;
+}
 
 type SkipKey = SupportType | "morning" | "evening";
 
@@ -91,6 +98,11 @@ export default function HomePage() {
       !completedSupportTypes.has(s.type) &&
       !exitingTypes.has(s.type),
   );
+  const todayProvisions = (state.dayProvisions ?? []).filter(
+    (p) => p.date === today,
+  );
+  const openProvisions = todayProvisions.filter((p) => !p.completed);
+  const completedProvisions = todayProvisions.filter((p) => p.completed);
   const morningSkipped = skips.has("morning");
   const eveningSkipped = skips.has("evening");
   const morningDone = Boolean(dashboard.todayMorning);
@@ -100,6 +112,7 @@ export default function HomePage() {
   const openCount =
     (showMorningOpen ? 1 : 0) +
     openSupports.length +
+    openProvisions.length +
     exiting.length +
     (showEveningOpen ? 1 : 0);
 
@@ -107,6 +120,7 @@ export default function HomePage() {
   const skippedToday = (state.skips ?? []).filter((s) => s.date === today);
   const hasUndoItems =
     completedSupports.length > 0 ||
+    completedProvisions.length > 0 ||
     skippedToday.length > 0 ||
     morningDone ||
     eveningDone;
@@ -157,6 +171,41 @@ export default function HomePage() {
     setUndoBusy(`skip:${itemKey}`);
     try {
       await post("/api/skip", { date: today, itemKey, clear: true });
+    } finally {
+      setUndoBusy(null);
+    }
+  }
+
+  async function undoMorning() {
+    setUndoBusy("morning");
+    try {
+      await post("/api/morning", { action: "undo", date: today });
+    } finally {
+      setUndoBusy(null);
+    }
+  }
+
+  async function completeProvision(id: string) {
+    setUndoBusy(`prov:${id}`);
+    try {
+      await post("/api/day-provision", {
+        action: "complete",
+        id,
+        date: today,
+      });
+    } finally {
+      setUndoBusy(null);
+    }
+  }
+
+  async function undoProvision(id: string) {
+    setUndoBusy(`prov:${id}`);
+    try {
+      await post("/api/day-provision", {
+        action: "undo",
+        id,
+        date: today,
+      });
     } finally {
       setUndoBusy(null);
     }
@@ -227,6 +276,13 @@ export default function HomePage() {
   const daysToIncentive = incentive
     ? incentive.dayNumber - dashboard.cleanDays
     : 0;
+  const incentiveDate =
+    incentive && daysToIncentive >= 0
+      ? formatMd(addDays(today, daysToIncentive))
+      : null;
+  const treatAvailable = incentive
+    ? projectedTreatYourselfAt(state, incentive.dayNumber, today)
+    : 0;
 
   return (
     <main className="fade-in stack">
@@ -236,26 +292,9 @@ export default function HomePage() {
         <p className="muted">{dashboard.sinceLabel}</p>
       </header>
 
-      {pendingRewards.length > 0 && (
-        <section className="panel">
-          <p className="eyebrow">Decision waiting</p>
-          <h2>
-            Day {pendingRewards[0].dayNumber} · {pendingRewards[0].title}
-          </h2>
-          <p className="muted">
-            {total > 0
-              ? "Treat Yourself or Save for the Future."
-              : "Move waiting money first (30% Future · 70% Treat), then Treat or Save."}
-          </p>
-          <div style={{ marginTop: 12 }}>
-            <Link href={total > 0 ? "/evening" : "/money"}>
-              <PrimaryButton>
-                {total > 0 ? "Open reward moment" : "Move waiting money"}
-              </PrimaryButton>
-            </Link>
-          </div>
-        </section>
-      )}
+      {pendingRewards.map((m) => (
+        <HomeRewardCard key={m.id} moment={m} onDone={() => undefined} />
+      ))}
 
       <section className="panel">
         <div className="row">
@@ -314,8 +353,31 @@ export default function HomePage() {
                 </button>
               </div>
             ))}
+            {completedProvisions.map((p) => (
+              <div key={`prov-done-${p.id}`} className="undo-row">
+                <span>{p.label} · done</span>
+                <button
+                  type="button"
+                  className="dismiss-btn"
+                  disabled={undoBusy === `prov:${p.id}`}
+                  onClick={() => undoProvision(p.id)}
+                >
+                  Undo
+                </button>
+              </div>
+            ))}
             {morningDone && (
-              <p className="tiny">Morning check-in is logged for today.</p>
+              <div className="undo-row">
+                <span>Start the day · done</span>
+                <button
+                  type="button"
+                  className="dismiss-btn"
+                  disabled={undoBusy === "morning"}
+                  onClick={() => undoMorning()}
+                >
+                  Undo
+                </button>
+              </div>
             )}
             {eveningDone && (
               <p className="tiny">Evening check-in is logged for today.</p>
@@ -413,6 +475,20 @@ export default function HomePage() {
               </div>
             );
           })}
+
+          {openProvisions.map((p) => (
+            <div key={p.id} className="check-item check-item-row">
+              <button
+                type="button"
+                className="check-item-main"
+                disabled={undoBusy === `prov:${p.id}`}
+                onClick={() => completeProvision(p.id)}
+              >
+                <span className="check-box" />
+                <span className="check-label">{p.label}</span>
+              </button>
+            </div>
+          ))}
 
           {showEveningOpen && (
             <div className="check-item check-item-row">
@@ -555,13 +631,24 @@ export default function HomePage() {
 
       {incentive && (
         <section className="panel">
-          <p className="eyebrow">Next incentive</p>
-          <h2>
-            Day {incentive.dayNumber} · {incentive.title}
-          </h2>
-          <p className="muted" style={{ marginTop: 6 }}>
-            {daysToIncentive} day{daysToIncentive === 1 ? "" : "s"} away
-          </p>
+          <div className="incentive-head">
+            <div className="incentive-head-main">
+              <p className="eyebrow">Next incentive</p>
+              <h2>
+                Day {incentive.dayNumber} · {incentive.title}
+              </h2>
+              <p className="muted" style={{ marginTop: 6 }}>
+                {daysToIncentive} day{daysToIncentive === 1 ? "" : "s"} away
+                {incentiveDate ? ` · ${incentiveDate}` : ""}
+              </p>
+            </div>
+            <div className="incentive-treat">
+              <p className="incentive-treat-amount">
+                <Money value={treatAvailable} />
+              </p>
+              <p className="incentive-treat-label">to treat yourself</p>
+            </div>
+          </div>
 
           {assigned ? (
             <div className="incentive-reward" style={{ marginTop: 14 }}>

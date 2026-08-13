@@ -22,6 +22,7 @@ Venmo reconcile / link = later (UI totals first).
 - One journey: cannabis + alcohol abstinence
 - Combined historical daily spend
 - Home: **ReBuilding for N days** = calendar days on the current abstinence run (**Day 1 = start date** / `currentRunStartedOn`, including the start day before any evening)
+- **Milestones unlock when that day is reached** (clean-day count ≥ milestone day), not only after evening close — Home reward card can appear on the morning of Day 3, etc.
 - Reclaim / Move to Rebuild from **every closed evening** (close always aligns for reclaim)
 - **Reset my journey** (Settings) → run resets next calendar day; history kept; re-climb / re-achieve
 - Return to use via evening alignment UI is **retired** (legacy `return_to_use` evenings still in history)
@@ -90,13 +91,15 @@ Venmo drift / force-reconcile: later.
 
 ## Treat / Save rules
 
-- Screen: **right after evening check-in** on Reward/Destination day  
-- Choices: **Treat Yourself** or **Save for the Future**  
-- Max **2 Saves for the Future in a row**; 3rd **must Treat** (Save hidden)  
+- **Home celebration card** (not evening): when a Reward/Destination is pending — “You’ve earned this” → **Claim reward** or **Save for future**
+- Evening close only moves money / journals — **no** Treat/Save moment there
+- Max **2 Saves for the Future in a row**; 3rd **must Claim** (Save hidden)
+- Claim with **assigned** wishlist item → show cost, debit Treat (+ optional Future pull), optional photo
+- Claim with **nothing assigned** → “How did you treat yourself?” + optional note/photo (no fund debit)
+- Photos optional; stored on Fly volume under `.data/photos`; shown on that Journey trail day
 - Treat resets delay counter  
 - Wishlist claimable if **Treat + optional Future pull** covers cost  
-- Auto **What I Rebuilt** (item + optional note)  
-- Forced Treat: must pick or **create** wishlist item in-flow  
+- Forced Treat: must Claim (Save hidden) 
 
 ### Projected next-incentive pool
 
@@ -111,7 +114,6 @@ projected = alreadyReclaimed + waitingReclaim + daysToGo × historicalDailySpend
 ## Deferred
 
 - Micro-reward every 14 days  
-- Persistent Home reward card  
 - Venmo API / bank verify / reconcile flow  
 - Editable segment amounts  
 - AI, travel polish, community  
