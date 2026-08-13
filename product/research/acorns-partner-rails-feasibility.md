@@ -45,14 +45,30 @@ Cost mostly on ReBuild/platform; consumer can be **$0**:
 | **Stripe ACH** | Stripe | 0.8% capped $5 — simple but not ideal for “segregated checking.” |
 | **Venmo destination** | Existing RB-001 | Locked v1 path; different UX (peer wallet vs dedicated savings). |
 
-### 5. Feasibility summary
+### 5. Venmo “Move money” auto-pull (founder follow-up)
+
+**Can ReBuild make Venmo pull from the user’s assigned checking when they tap Move money?**
+
+**No — not via any official partner API.**
+
+| Mechanism | Who controls it | Triggered by ReBuild Move money? |
+| --- | --- | --- |
+| Venmo **Add Money** (bank → Venmo balance) | User in Venmo app | No |
+| Venmo **Auto Reload** / **Schedule** | User in Venmo app | No (threshold/schedule only; not amount-synced to ReBuild) |
+| PayPal **Payouts → Venmo** | ReBuild business PayPal → user Venmo | Yes, but money comes **from ReBuild**, not the user’s checking |
+| Unofficial Venmo private APIs | Scripts / reverse engineering | Technically some exist; **ToS / ban risk — do not ship** |
+
+So with Venmo as the *destination hold*, the user still has to fund Venmo themselves (or rely on Venmo’s own Auto Reload, which won’t match Move money amounts). True “tap Move money → debit my checking into the hold” needs **BaaS or ACH+wallet** (or similar), not Venmo as the pull rail.
+
+### 6. Feasibility summary
 
 | Question | Verdict |
 | --- | --- |
 | Desired UX feasible? | **Yes** with BaaS or ACH+wallet |
 | Feasible via public Acorns Partner API for push-to-deposit? | **Not clearly** — public surface looks read/data |
 | Acorns fit on consumer cost? | **Weak** unless partner waives subscription |
-| Next action | One outreach email to confirm unpublished partner funding product; then shortlist 2–3 rails vs stay Venmo-only |
+| Venmo auto-pull checking → Venmo on Move money? | **No** official API; user funds Venmo manually (or in-app Auto Reload) |
+| Next action | One outreach email to confirm unpublished partner funding product; then shortlist 2–3 rails vs stay Venmo-only (honor-system + deep-link) |
 
 ---
 
@@ -100,3 +116,4 @@ jeremyrschrader@gmail.com
 | Date | Note |
 | --- | --- |
 | 2026-08-13 | Initial research capture from founder discovery; email draft added for RB-007 |
+| 2026-08-13 | Clarified Venmo cannot be partner-triggered to Add Money from checking on Move money |
