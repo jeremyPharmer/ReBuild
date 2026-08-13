@@ -23,8 +23,9 @@ A written feasibility decision: whether (and how) ReBuild can fund a segregated 
 
 - Capture research verdict in [`product/research/acorns-partner-rails-feasibility.md`](../research/acorns-partner-rails-feasibility.md)
 - Outreach to Acorns Partner API (`partner-api@acorns.com`) to confirm whether any partner funding path exists beyond read/data access
-- Shortlist **2–3 rails**: BaaS (Column / Unit / Treasury Prime) vs ACH + wallet (Moov / Plaid Transfer / Dwolla) vs stay Venmo-only for longer
+- Shortlist rails: **me-to-me ACH** (Dwolla/Moov: checking → user’s own HYSA) vs ACH + partner wallet vs BaaS vs stay Venmo-only
 - Decision memo: recommend path for post–Venmo-v1 (or stay Venmo), including consumer-cost and compliance notes
+- Outreach drafts: Acorns (optional) + **Dwolla me-to-me** (primary MVP ask) — see research doc
 
 ## Out of scope / later
 
@@ -46,5 +47,6 @@ A written feasibility decision: whether (and how) ReBuild can fund a segregated 
 - Intake: 2026-08-13 from founder discovery (Jeremy). Rank **7** (Later) — does not displace RB-001.
 - Priority **P1**: strategic money-rail discovery, but after v1 P0s and email path; before/alongside other Later channel work by rank order.
 - Effort **S** = discovery + outreach + shortlist memo only. Production segregated account = separate **XL** item if approved.
-- Draft outreach target: `partner-api@acorns.com` — full ready-to-send email lives in the research doc.
+- Draft outreach: Dwolla me-to-me (primary) + Acorns (optional) — emails in research doc.
+- 2026-08-13: Founder ChatGPT share points to Dwolla me-to-me MVP (checking → user’s own HYSA); reconciled into research — prefer orchestrate A→B over BaaS for first 1-tap.
 - SoberSave is a third-party recovery app with affiliate investment links, not proof that Acorns Partner API moves money for partners.

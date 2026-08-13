@@ -114,27 +114,81 @@ User never opens Venmo/Acorns. Consumer fee can be **$0** if ReBuild absorbs pla
 
 | # | Solution | 1-tap? | Consumer $ | Hold type | Viable now? |
 | --- | --- | --- | --- | --- | --- |
-| **A** | **ACH + wallet** (Moov, Plaid Transfer, Dwolla) | Yes after bank link + auth | $0 possible | In-app wallet / ledger at licensed partner — **not** a full consumer checking UI | **Best near-term path to 1-tap** — lighter than full BaaS |
-| **B** | **BaaS deposit account** (Column / Unit / Treasury Prime) | Yes after KYC + bank link | $0 possible | Real FDIC checking/savings | **Viable later** — right product shape, heavy ops |
-| **C** | **Stripe ACH** into Stripe balance/Connect | Possible | $0 (you eat 0.8% capped $5) | Processor balance, not “my savings account” | Viable if you already live on Stripe; weak “segmented account” story |
-| **D** | **Venmo as hold** | **No** | $0 | Peer wallet user funds themselves | Keep as **honor-system / deep-link** until A or B |
-| **E** | **Acorns** | Unlikely via Partner API | $3–12/mo | Invest/checking inside Acorns | Weak unless unpublished partner funding + fee waiver |
+| **A0** | **Me-to-me ACH** (Dwolla / Moov / Plaid Transfer): checking → **user’s own** Ally/Cap One/etc HYSA | Yes after dual bank link + auth | $0 possible (platform pays ACH) | External HYSA — ReBuild **never holds** funds | **Best MVP 1-tap** if vendor approves use case |
+| **A** | **ACH + partner wallet** (Moov / Dwolla balance) | Yes after bank link + auth | $0 possible | Balance at licensed partner — not full consumer checking UI | Near-term if money must sit “in” ReBuild without BaaS |
+| **B** | **BaaS deposit account** (Column / Unit / Treasury Prime) | Yes after KYC + bank link | $0 possible | Real FDIC checking/savings branded in-app | **Later** — right product shape, heavy ops |
+| **C** | **Stripe ACH** into Stripe balance/Connect | Possible | $0 (you eat 0.8% capped $5) | Processor balance, not “my savings account” | Easy if on Stripe; weak savings story |
+| **D** | **Venmo as hold** | **No** | $0 | Peer wallet user funds themselves | Honor-system / deep-link until A0/A/B |
+| **E** | **Acorns** | Unlikely via Partner API | $3–12/mo | Invest/checking inside Acorns | Weak unless partner funding + fee waiver |
 | **F** | **Manual forever** | No | $0 | Whatever user chooses | Current V1 truth |
+
+### Founder ChatGPT share (2026-08-13) — reconciled
+
+Source: shared chat *“Free Checking & Transfers”* (chatgpt.com/share/6a7e0a70-…). Aligns with our rails research:
+
+| ChatGPT claim | Our take |
+| --- | --- |
+| Dwolla for **me-to-me** (checking → user’s own savings), not personal DIY Dwolla | **Agree** — best MVP 1-tap if greenlit |
+| Don’t become a bank / BaaS for MVP | **Agree** |
+| Ally / Cap One 360 / SoFi / Axos as free destination HYSA | **Agree** — consumer opens that account |
+| Ledger first; mark saved only after ACH webhook | **Agree** |
+| Prefer ~2 Move days/week (~104 ACH/yr) vs daily | **Product choice** — cheaper/safer ACH; may conflict with daily Move ritual. Revisit with unit economics |
+| Contact Dwolla sales **before** coding | **Agree** |
+| Dwolla ≠ automatically compliant | **Agree** — still get counsel |
+
+**Implication:** Prefer **orchestrate user’s money A→B** over **ReBuild holds the money**. Cleaner than Venmo for true auto-pull.
 
 ### Recommended sequencing for 1-tap
 
-1. **Ship now:** honor-system Move money + clear “transfer $X to your hold” copy (Venmo deep-link if useful).  
-2. **If 1-tap is the next money bet:** start vendor talks on **ACH + wallet (Moov / Plaid Transfer / Dwolla)** — closest to 1-tap without standing up a full bank program.  
-3. **If the brand promise is “ReBuild checking/savings”:** pursue **BaaS** as a dedicated program (counsel + sales), not as a side feature.  
-4. Do **not** plan on Venmo or Acorns for partner-triggered bank→balance pulls.
+1. **Ship now:** honor-system Move money + clear copy.  
+2. **Next money bet:** **Dwolla (or Moov) me-to-me** — checking → user’s own free HYSA.  
+3. **If money must live “in ReBuild”:** ACH + partner wallet, then **BaaS**.  
+4. Do **not** plan on Venmo/Acorns for partner-triggered bank→balance pulls.
 
 ### Decision shortlist (for RB-007 memo — fill after outreach)
 
-1. **ACH + wallet** (Moov / Plaid Transfer / Dwolla) — preferred **near-term 1-tap** candidate  
-2. **BaaS** (Column / Unit / Treasury Prime) — preferred **true segregated account** candidate (later / XL)  
-3. **Stay Venmo honor-system** — no 1-tap pull; lowest cost/compliance  
+1. **Me-to-me ACH** (Dwolla / Moov) — preferred **MVP 1-tap**  
+2. **ACH + partner wallet** — if destination must be in-app  
+3. **BaaS** — if brand requires ReBuild-owned FDIC account (later / XL)  
+4. **Stay Venmo honor-system** — no 1-tap pull  
 
-_Pending: Acorns reply; Moov/Plaid/Dwolla + one BaaS sales call; compliance skim with counsel._
+_Pending: Dwolla/Moov me-to-me eligibility + pricing; Acorns reply (optional); counsel skim._
+
+---
+
+## Ready-to-send email draft (Dwolla)
+
+**To:** Dwolla sales / solutions (via dwolla.com contact / sales form)  
+**From:** Jeremy Schrader / ReBuild  
+**Reply-to:** jeremyrschrader@gmail.com  
+**Subject:** Me-to-me ACH eligibility — consumer Move money (checking → user’s own savings)
+
+```
+Hello Dwolla team,
+
+I’m Jeremy Schrader, founder of ReBuild (jeremyrschrader@gmail.com) — a recovery companion app with incentive-based savings. We’re evaluating Dwolla for a me-to-me Move money flow before we build.
+
+Use case:
+- User links their personal checking account and a personal savings account (e.g. Ally / Capital One 360).
+- During the week, our app tracks amounts the user chooses to save (behavioral ledger only — we do not hold funds).
+- On user-selected Move days (or on tap), the user explicitly authorizes a transfer.
+- We initiate an ACH me-to-me debit from their checking and credit to their own savings.
+- Expected volume ~50–104 transfers per user per year to start; pilot ~1k users with path to 100k+.
+
+Questions:
+1. Is this eligible for Dwolla’s me-to-me / consumer transfer flow under current platform terms?
+2. Full fee breakdown: per transfer (standard + same-day), bank link / Open Banking (Plaid), customer KYC/verification, monthly platform / minimums, ACH return fees.
+3. Webhooks / status model for READY → PROCESSING → COMPLETED / FAILED / RETURNED.
+4. Any restrictions for recovery / wellness apps or for destination = user’s external HYSA (not a Dwolla balance)?
+5. Sandbox access and typical onboarding timeline.
+
+Happy to hop on a short call. Thank you.
+
+Best,
+Jeremy Schrader
+Founder, ReBuild
+jeremyrschrader@gmail.com
+```
 
 ---
 
@@ -174,3 +228,5 @@ jeremyrschrader@gmail.com
 | 2026-08-13 | Initial research capture from founder discovery; email draft added for RB-007 |
 | 2026-08-13 | Clarified Venmo cannot be partner-triggered to Add Money from checking on Move money |
 | 2026-08-13 | Expanded BaaS explanation + 1-tap options matrix (ACH+wallet vs BaaS vs Venmo) |
+| 2026-08-13 | Reconciled founder ChatGPT share (Dwolla me-to-me MVP); added Dwolla outreach draft |
+
