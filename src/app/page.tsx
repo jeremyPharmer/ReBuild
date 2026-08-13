@@ -28,11 +28,6 @@ function formatMd(iso: string): string {
   return `${m}/${d}`;
 }
 
-function formatMd(iso: string): string {
-  const [, m, d] = iso.split("-");
-  return `${m}/${d}`;
-}
-
 type SkipKey = SupportType | "morning" | "evening";
 
 type ExitingSupport = {
