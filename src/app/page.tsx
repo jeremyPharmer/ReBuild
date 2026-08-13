@@ -10,15 +10,22 @@ import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import {
   fundTotal,
   pendingCashableMoments,
+  projectedTreatYourselfAt,
   splitTransfer,
 } from "@/lib/fund";
 import {
+  addDays,
   assignedRewardForMilestone,
   nextIncentive,
   suggestedRewardPool,
   waitingReclaimDays,
 } from "@/lib/journey";
 import type { SupportType } from "@/lib/types";
+
+function formatMd(iso: string): string {
+  const [, m, d] = iso.split("-");
+  return `${m}/${d}`;
+}
 
 type SkipKey = SupportType | "morning" | "evening";
 
@@ -223,6 +230,13 @@ export default function HomePage() {
 
   const daysToIncentive = incentive
     ? incentive.dayNumber - dashboard.cleanDays
+    : 0;
+  const incentiveDate =
+    incentive && daysToIncentive >= 0
+      ? formatMd(addDays(today, daysToIncentive))
+      : null;
+  const treatAvailable = incentive
+    ? projectedTreatYourselfAt(state, incentive.dayNumber, today)
     : 0;
 
   return (
@@ -532,13 +546,24 @@ export default function HomePage() {
 
       {incentive && (
         <section className="panel">
-          <p className="eyebrow">Next incentive</p>
-          <h2>
-            Day {incentive.dayNumber} · {incentive.title}
-          </h2>
-          <p className="muted" style={{ marginTop: 6 }}>
-            {daysToIncentive} day{daysToIncentive === 1 ? "" : "s"} away
-          </p>
+          <div className="incentive-head">
+            <div className="incentive-head-main">
+              <p className="eyebrow">Next incentive</p>
+              <h2>
+                Day {incentive.dayNumber} · {incentive.title}
+              </h2>
+              <p className="muted" style={{ marginTop: 6 }}>
+                {daysToIncentive} day{daysToIncentive === 1 ? "" : "s"} away
+                {incentiveDate ? ` · ${incentiveDate}` : ""}
+              </p>
+            </div>
+            <div className="incentive-treat">
+              <p className="incentive-treat-amount">
+                <Money value={treatAvailable} />
+              </p>
+              <p className="incentive-treat-label">to treat yourself</p>
+            </div>
+          </div>
 
           {assigned ? (
             <div className="incentive-reward" style={{ marginTop: 14 }}>

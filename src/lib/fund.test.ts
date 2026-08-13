@@ -4,6 +4,7 @@ import {
   fundTotal,
   mustTreat,
   normalizeFund,
+  projectedTreatYourselfAt,
   saveForFuture,
   splitTransfer,
   treatYourself,
@@ -173,5 +174,20 @@ describe("fund split", () => {
     state = treatYourself(state, fake.id, "r2", "small win");
     expect(state.consecutiveSaves).toBe(0);
     expect(state.rewards.find((r) => r.id === "r2")?.executed).toBe(true);
+  });
+
+  it("Treat Yourself available = current Treat + accrual through target day", () => {
+    let state = base();
+    state = applyEveningSideEffects(state, {
+      date: "2026-08-01",
+      mood: 7,
+      stress: 2,
+      alignment: "aligned",
+      oneLine: "a",
+      completedAt: "",
+    });
+    state = confirmTransfer(state, ["2026-08-01"], 40);
+    // treat now = 28; Day 3 → 2 days × $40 × 0.7 = 56; total = 84
+    expect(projectedTreatYourselfAt(state, 3, "2026-08-01")).toBe(84);
   });
 });

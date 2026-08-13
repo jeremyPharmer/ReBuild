@@ -121,6 +121,8 @@ export type MilestoneDecision = {
   amount: number;
   rewardId?: string;
   note?: string;
+  /** Optional celebration photo id under .data/photos */
+  photoId?: string;
   createdAt: string;
 };
 
@@ -136,6 +138,8 @@ export type Reward = {
   executed: boolean;
   executedAt?: string;
   notes?: string;
+  /** Optional celebration photo id under .data/photos */
+  photoId?: string;
   createdAt: string;
 };
 
