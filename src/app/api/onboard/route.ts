@@ -1,38 +1,70 @@
 import { NextResponse } from "next/server";
+import { refreshSessionCookie, requireSessionUser } from "@/lib/auth";
+import { FUTURE_SPLIT, TREAT_SPLIT } from "@/lib/fund";
 import { newId } from "@/lib/journey";
-import { updateState } from "@/lib/store";
-import { DEFAULT_SUPPORTS, type SupportConfig } from "@/lib/types";
+import { updateState, updateUserRecord } from "@/lib/store";
+import { DEFAULT_SUPPORTS, type RewardCategory, type SupportConfig } from "@/lib/types";
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const displayName = String(body.displayName ?? "Founder").trim() || "Founder";
-  const historicalDailySpend = Number(body.historicalDailySpend);
-  if (!Number.isFinite(historicalDailySpend) || historicalDailySpend < 0) {
-    return NextResponse.json(
-      { error: "historicalDailySpend required" },
-      { status: 400 },
-    );
-  }
-
-  const supports: SupportConfig[] = Array.isArray(body.supports)
-    ? body.supports
-    : DEFAULT_SUPPORTS;
-
-  const startDate = String(body.startDate ?? "").trim();
-  const timezone = String(body.timezone ?? "America/Los_Angeles");
+  const body = await req.json().catch(() => ({}));
 
   try {
+    const account = await requireSessionUser();
+    const displayName =
+      String(body.displayName ?? account.displayName).trim() ||
+      account.displayName;
+    const historicalDailySpend = Number(body.historicalDailySpend);
+    if (!Number.isFinite(historicalDailySpend) || historicalDailySpend < 0) {
+      return NextResponse.json(
+        { error: "historicalDailySpend required" },
+        { status: 400 },
+      );
+    }
+
+    const supports: SupportConfig[] = Array.isArray(body.supports)
+      ? body.supports.filter(
+          (s: SupportConfig) => s && s.enabled !== false && s.label,
+        )
+      : DEFAULT_SUPPORTS;
+
+    if (supports.length === 0) {
+      return NextResponse.json(
+        { error: "Choose at least one weekly support" },
+        { status: 400 },
+      );
+    }
+
+    const startDate = String(body.startDate ?? "").trim();
+    const timezone = String(
+      body.timezone ?? "America/Los_Angeles",
+    );
+    // Split is locked 30/70; accept client values only for UX confirmation
+    const treatPct = Number(body.treatPercent ?? TREAT_SPLIT * 100);
+    const futurePct = Number(body.futurePercent ?? FUTURE_SPLIT * 100);
+    if (Math.round(treatPct + futurePct) !== 100) {
+      return NextResponse.json(
+        { error: "Treat + Future must equal 100%" },
+        { status: 400 },
+      );
+    }
+
+    const seedRewards = Array.isArray(body.rewards) ? body.rewards : [];
+
     const state = await updateState((prev) => {
-      if (prev.profile?.onboarded) {
-        const err = new Error(
-          "Already onboarded — use Settings → Reset only if you intend to wipe data",
-        );
+      if (prev.profile?.onboarded && !body.force) {
+        const err = new Error("Already onboarded");
         (err as Error & { status: number }).status = 409;
         throw err;
       }
 
+      // If admin claimed legacy state that is already onboarded, keep journey
+      if (prev.profile?.onboarded) {
+        return prev;
+      }
+
       const today =
         startDate ||
+        (prev.profile?.startDate) ||
         new Intl.DateTimeFormat("en-CA", {
           timeZone: timezone,
           year: "numeric",
@@ -40,25 +72,62 @@ export async function POST(req: Request) {
           day: "2-digit",
         }).format(new Date());
 
-      const runId = newId("run");
+      const runId = prev.profile?.currentRunId ?? newId("run");
+      const rewards = [...(prev.rewards ?? [])];
+      for (const r of seedRewards) {
+        const name = String(r.name ?? "").trim();
+        const estimatedCost = Number(r.estimatedCost ?? r.cost);
+        if (!name || !Number.isFinite(estimatedCost)) continue;
+        rewards.push({
+          id: newId("reward"),
+          name,
+          category: (String(r.category || "other") as RewardCategory) || "other",
+          estimatedCost,
+          url: r.url ? String(r.url) : undefined,
+          assignedMilestoneDay: r.milestoneDay
+            ? Number(r.milestoneDay)
+            : undefined,
+          executed: false,
+          createdAt: new Date().toISOString(),
+        });
+      }
+
       return {
         ...prev,
+        rewards,
         profile: {
-          id: prev.profile?.id ?? newId("user"),
-          createdAt: prev.profile?.createdAt ?? new Date().toISOString(),
+          id: prev.profile?.id ?? account.id,
+          createdAt: prev.profile?.createdAt ?? account.createdAt,
           onboarded: true,
           displayName,
           historicalDailySpend,
           startDate: today,
           currentRunId: runId,
-          currentRunStartedOn: today,
-          supports,
+          currentRunStartedOn: prev.profile?.currentRunStartedOn ?? today,
+          supports: supports.map((s) => ({
+            type: String(s.type),
+            label: String(s.label),
+            weeklyTarget: Math.max(0, Math.min(21, Number(s.weeklyTarget) || 0)),
+            enabled: s.enabled !== false,
+          })),
           timezone,
+          email: account.email,
+          reminders: prev.profile?.reminders,
         },
       };
     });
 
-    return NextResponse.json({ state });
+    if (displayName !== account.displayName) {
+      await updateUserRecord(account.id, (u) => ({ ...u, displayName }));
+    }
+
+    const refreshed = { ...account, displayName, state };
+    await refreshSessionCookie(refreshed);
+
+    return NextResponse.json({
+      state,
+      split: { future: FUTURE_SPLIT, treat: TREAT_SPLIT },
+    });
   } catch (e) {
     const err = e as Error & { status?: number };
     return NextResponse.json(

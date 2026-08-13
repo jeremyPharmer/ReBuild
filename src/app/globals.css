@@ -212,6 +212,9 @@ h2 {
 
 .field input[type="text"],
 .field input[type="number"],
+.field input[type="email"],
+.field input[type="password"],
+.field input[type="url"],
 .field textarea,
 .field select {
   width: 100%;
@@ -1256,6 +1259,170 @@ h2 {
   from {
     opacity: 0;
     transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* —— Account / trail enrollment —— */
+.enroll-shell {
+  padding-bottom: 24px;
+}
+
+.enroll-step {
+  animation: enroll-rise 0.45s ease both;
+}
+
+.enroll-lead {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.trail-progress {
+  margin-bottom: 22px;
+  animation: enroll-rise 0.4s ease both;
+}
+
+.trail-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.trail-progress-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(232, 224, 212, 0.1);
+  overflow: hidden;
+}
+
+.trail-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), #e0a06a);
+  transition: width 0.45s ease;
+}
+
+.trail-progress-dots {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  gap: 4px;
+}
+
+.trail-progress-dots .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(232, 224, 212, 0.18);
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.trail-progress-dots .dot.done {
+  background: var(--good);
+}
+
+.trail-progress-dots .dot.current {
+  background: var(--accent);
+  transform: scale(1.35);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.chip:hover {
+  border-color: rgba(212, 132, 74, 0.45);
+}
+
+.chip.selected {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.support-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.target-input {
+  width: 72px;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.check-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.form-error {
+  color: var(--danger);
+  margin: 0;
+}
+
+.text-link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.admin-user-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.admin-user-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.admin-user-row:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+@keyframes enroll-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
   }
   to {
     opacity: 1;

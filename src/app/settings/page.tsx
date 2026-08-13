@@ -21,9 +21,21 @@ function slugify(label: string) {
   return base || "support";
 }
 
+type AdminUserRow = {
+  id: string;
+  email: string;
+  displayName: string;
+  createdAt: string;
+  lastLoginAt: string;
+  onboarded: boolean;
+};
+
 export default function SettingsPage() {
-  const { state, today, post, refresh, env } = useApp();
+  const { state, today, post, refresh, env, user } = useApp();
   const router = useRouter();
+  const [adminUsers, setAdminUsers] = useState<AdminUserRow[] | null>(null);
+  const [adminError, setAdminError] = useState("");
+  const [adminOpen, setAdminOpen] = useState(false);
   const [supports, setSupports] = useState<SupportConfig[]>(
     state.profile?.supports ?? DEFAULT_SUPPORTS,
   );
@@ -150,6 +162,34 @@ export default function SettingsPage() {
     router.push("/onboarding");
   }
 
+  async function loadAdmin() {
+    setAdminError("");
+    setBusy(true);
+    try {
+      const res = await fetch("/api/admin/users", { credentials: "include" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+      setAdminUsers(data.users || []);
+      setAdminOpen(true);
+    } catch (e) {
+      setAdminError(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function logout() {
+    setBusy(true);
+    try {
+      await post("/api/auth/logout", {});
+      router.replace("/login");
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "Logout failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function resetJourney() {
     if (
       !window.confirm(
@@ -184,6 +224,53 @@ export default function SettingsPage() {
           . Spend, supports, and this week&apos;s plan — edit anytime.
         </p>
       </header>
+
+      <section className="panel">
+        <p className="eyebrow">Account</p>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Signed in as <strong>{user?.email || state.profile?.email}</strong>
+        </p>
+        <SecondaryButton onClick={() => void logout()} disabled={busy}>
+          Log out
+        </SecondaryButton>
+      </section>
+
+      {user?.isAdmin && (
+        <section className="panel">
+          <p className="eyebrow">Admin</p>
+          <p className="muted" style={{ marginTop: 0 }}>
+            See who has created an account and when they last signed in.
+          </p>
+          {!adminOpen ? (
+            <PrimaryButton onClick={() => void loadAdmin()} disabled={busy}>
+              Open admin
+            </PrimaryButton>
+          ) : (
+            <div className="admin-user-list">
+              {(adminUsers || []).map((u) => (
+                <div key={u.id} className="admin-user-row">
+                  <div>
+                    <strong>{u.displayName || u.email}</strong>
+                    <p className="tiny muted" style={{ margin: "4px 0 0" }}>
+                      {u.email}
+                    </p>
+                  </div>
+                  <div className="tiny" style={{ textAlign: "right" }}>
+                    <div>Joined {new Date(u.createdAt).toLocaleDateString()}</div>
+                    <div>
+                      Last login {new Date(u.lastLoginAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {adminUsers?.length === 0 && (
+                <p className="muted">No users yet.</p>
+              )}
+            </div>
+          )}
+          {adminError && <p className="form-error">{adminError}</p>}
+        </section>
+      )}
 
       <section className="panel">
         <p className="eyebrow">Email nudges</p>

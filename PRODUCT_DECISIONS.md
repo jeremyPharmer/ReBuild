@@ -25,7 +25,7 @@ Venmo reconcile / link = later (UI totals first).
 - Reclaim / Move to Rebuild from **every closed evening** (close always aligns for reclaim)
 - **Reset my journey** (Settings) → run resets next calendar day; history kept; re-climb / re-achieve
 - Return to use via evening alignment UI is **retired** (legacy `return_to_use` evenings still in history)
-- No auth V1; honor system
+- Auth (RB-007): email/password accounts required; synced optional PIN; remember-this-device; admin allowlist; honor-system reclaim remains until verification exists
 - Weekly support 100% gift: **$20** out-of-pocket; **not** in Save-delay rule
 
 ---

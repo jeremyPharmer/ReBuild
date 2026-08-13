@@ -11,10 +11,11 @@ function fromAddress(): string {
   );
 }
 
-export async function sendReminderEmail(opts: {
+export async function sendEmail(opts: {
   to: string;
-  kind: ReminderKind;
-  displayName?: string;
+  subject: string;
+  html: string;
+  text: string;
 }): Promise<SendEmailResult> {
   const key = process.env.RESEND_API_KEY?.trim();
   if (!key) {
@@ -25,6 +26,46 @@ export async function sendReminderEmail(opts: {
     };
   }
 
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: fromAddress(),
+      to: [opts.to.trim()],
+      subject: opts.subject,
+      html: opts.html,
+      text: opts.text,
+    }),
+  });
+
+  const data = (await res.json().catch(() => ({}))) as {
+    id?: string;
+    message?: string;
+    error?: { message?: string };
+  };
+
+  if (!res.ok) {
+    return {
+      ok: false,
+      status: res.status,
+      error:
+        data.error?.message ||
+        data.message ||
+        `Resend failed (${res.status})`,
+    };
+  }
+
+  return { ok: true, id: data.id };
+}
+
+export async function sendReminderEmail(opts: {
+  to: string;
+  kind: ReminderKind;
+  displayName?: string;
+}): Promise<SendEmailResult> {
   const link = reminderLink(opts.kind);
   const isMorning = opts.kind === "morning";
   const subject = isMorning
@@ -54,38 +95,5 @@ export async function sendReminderEmail(opts: {
   `;
 
   const text = `${greeting}\n\n${bodyLine}\n\n${link}\n`;
-
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: fromAddress(),
-      to: [opts.to.trim()],
-      subject,
-      html,
-      text,
-    }),
-  });
-
-  const data = (await res.json().catch(() => ({}))) as {
-    id?: string;
-    message?: string;
-    error?: { message?: string };
-  };
-
-  if (!res.ok) {
-    return {
-      ok: false,
-      status: res.status,
-      error:
-        data.error?.message ||
-        data.message ||
-        `Resend failed (${res.status})`,
-    };
-  }
-
-  return { ok: true, id: data.id };
+  return sendEmail({ to: opts.to, subject, html, text });
 }
