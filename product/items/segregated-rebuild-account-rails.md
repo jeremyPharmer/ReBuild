@@ -36,7 +36,7 @@ A written feasibility decision: whether (and how) ReBuild can fund a segregated 
 
 ## Dependencies & risks
 
-- **Related:** [RB-001 — Auto-pull funds: checking → Venmo](./auto-pull-funds-venmo.md) remains **P0 rank 1** and locked v1 destination; this item explores an **alternate later hold**, not a replacement for Venmo v1
+- **Related:** [RB-001 — Auto-pull funds: checking → Venmo](./auto-pull-funds-venmo.md) remains **P0** (rank **2** after accounts) and locked v1 destination; this item explores an **alternate later hold**, not a replacement for Venmo v1
 - Banks generally do not expose free public APIs to open a customer account and ACH-debit another bank without a fintech/BaaS program
 - BaaS path: KYC, bank partnership, compliance, money-transmission considerations; pricing custom
 - Acorns public Partner API appears read/data-focused; consumer subscription ($3/$6/$12 mo) conflicts with little/no consumer cost unless an unpublished partner funding product exists
@@ -44,7 +44,7 @@ A written feasibility decision: whether (and how) ReBuild can fund a segregated 
 
 ## Notes
 
-- Intake: 2026-08-13 from founder discovery (Jeremy). Rank **7** (Later) — does not displace RB-001.
+- Intake: 2026-08-13 from founder discovery (Jeremy). Originally drafted as RB-007; renumbered to **RB-008** on 2026-08-13 when accounts onboarding claimed RB-007. Rank **8** (Later) — does not displace RB-001.
 - Priority **P1**: strategic money-rail discovery, but after v1 P0s and email path; before/alongside other Later channel work by rank order.
 - Effort **S** = discovery + outreach + shortlist memo only. Production segregated account = separate **XL** item if approved.
 - Draft outreach: Dwolla me-to-me (primary) + Acorns (optional) — emails in research doc.
