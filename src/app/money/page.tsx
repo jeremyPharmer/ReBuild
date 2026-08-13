@@ -153,7 +153,37 @@ export default function MoneyPage() {
   const [showAdd, setShowAdd] = useState(false);
 
   const openWishlist = state.rewards.filter((r) => !r.executed);
-  const rebuilt = state.rewards.filter((r) => r.executed);
+  const rebuilt = useMemo(() => {
+    const fromRewards = state.rewards.filter((r) => r.executed);
+    const covered = new Set(
+      fromRewards.map((r) => r.id).concat(
+        state.milestoneDecisions
+          .filter((d) => d.rewardId)
+          .map((d) => d.rewardId as string),
+      ),
+    );
+    // Legacy saves before we wrote a reward row — still show in What I rebuilt.
+    const legacySaves: Reward[] = state.milestoneDecisions
+      .filter((d) => d.choice === "save" && (!d.rewardId || !covered.has(d.rewardId)))
+      .filter((d) => !d.rewardId)
+      .map((d) => ({
+        id: `legacy_save_${d.id}`,
+        name: d.note?.trim() || `Day ${d.dayNumber} save`,
+        category: "other" as const,
+        estimatedCost: 0,
+        actualCost: 0,
+        assignedMilestoneDay: d.dayNumber,
+        executed: true,
+        executedAt: d.createdAt,
+        notes: `Day ${d.dayNumber} · Saved $ for future`,
+        photoId: d.photoId,
+        createdAt: d.createdAt,
+      }));
+    return [...fromRewards, ...legacySaves].sort((a, b) =>
+      (b.executedAt || b.createdAt).localeCompare(a.executedAt || a.createdAt),
+    );
+  }, [state.rewards, state.milestoneDecisions]);
+  const [rebuiltOpen, setRebuiltOpen] = useState(false);
   const pendingBonus = state.weeklyBonuses.find((b) => !b.confirmed);
   const treatBal = state.fund?.treat ?? 0;
 
@@ -521,26 +551,50 @@ export default function MoneyPage() {
 
       {rebuilt.length > 0 && (
         <section className="panel">
-          <p className="eyebrow">What I rebuilt</p>
-          {rebuilt.map((r) => (
-            <div key={r.id} className="support-row">
-              <div className="row">
-                <div>
-                  <strong>{r.name}</strong>
-                  {r.url && (
-                    <p className="tiny">
-                      <a href={r.url} target="_blank" rel="noopener noreferrer">
-                        Link
-                      </a>
-                    </p>
-                  )}
+          <button
+            type="button"
+            className="rebuilt-toggle"
+            aria-expanded={rebuiltOpen}
+            onClick={() => setRebuiltOpen((v) => !v)}
+          >
+            <p className="eyebrow" style={{ margin: 0 }}>
+              What I rebuilt
+            </p>
+            <span className={rebuiltOpen ? "caret open" : "caret"} aria-hidden>
+              ▾
+            </span>
+          </button>
+          {rebuiltOpen && (
+            <div className="rebuilt-list fade-in">
+              {rebuilt.map((r) => (
+                <div key={r.id} className="support-row">
+                  <div className="row">
+                    <div>
+                      <strong>{r.name}</strong>
+                      {r.notes && <p className="tiny">{r.notes}</p>}
+                      {r.url && (
+                        <p className="tiny">
+                          <a
+                            href={r.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Link
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                    {(r.actualCost ?? r.estimatedCost) > 0 ? (
+                      <Money value={r.actualCost ?? r.estimatedCost} />
+                    ) : (
+                      <span className="tiny">Saved</span>
+                    )}
+                  </div>
+                  <RebuiltPhoto reward={r} onAttach={attachRebuiltPhoto} />
                 </div>
-                <Money value={r.actualCost ?? r.estimatedCost} />
-              </div>
-              {r.notes && <p className="tiny">{r.notes}</p>}
-              <RebuiltPhoto reward={r} onAttach={attachRebuiltPhoto} />
+              ))}
             </div>
-          ))}
+          )}
         </section>
       )}
     </main>

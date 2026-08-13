@@ -11,9 +11,9 @@ Last updated: 2026-08-13
 
 | Rank | ID | Item | Priority | Status | Effort | Target due |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2 | RB-001 | Auto-pull funds: checking → Venmo | P0 | Backlog | L | TBD |
-| 3 | RB-005 | Recovery content: weekly podcast & book offers | P0 | Backlog | M | TBD |
-| 4 | RB-006 | Fund buckets: Future + Treat @ 30/70 | P0 | Backlog | M | TBD |
+| 1 | RB-001 | Auto-pull funds: checking → Venmo | P0 | Backlog | L | TBD |
+| 2 | RB-005 | Recovery content: weekly podcast & book offers | P0 | Backlog | M | TBD |
+| 3 | RB-006 | Fund buckets: Future + Treat @ 30/70 | P0 | Backlog | M | TBD |
 
 ## Now / Next / Later
 

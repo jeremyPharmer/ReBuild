@@ -1,5 +1,4 @@
-import { cleanDaysThisRun, newId, waitingReclaimTotal } from "./journey";
-import type {
+import { cleanDaysThisRun, newId, waitingReclaimTotal } from "./journey";import type {
   FundLedger,
   MilestoneAchievement,
   RebuildState,
@@ -33,6 +32,8 @@ export function normalizeState(state: RebuildState): RebuildState {
     milestoneDecisions: state.milestoneDecisions ?? [],
     listenedPodcasts: state.listenedPodcasts ?? [],
     reminderLog: state.reminderLog ?? {},
+    dayProvisions: state.dayProvisions ?? [],
+    quoteLog: state.quoteLog ?? [],
   };
 }
 
@@ -167,10 +168,13 @@ export function eligibleWishlist(state: RebuildState): Reward[] {
 /**
  * Save for the Future — skip spending short-term Treat this reward moment.
  * Does not move money into Treat (old Save & compound direction retired).
+ * `note` is required: how you rewarded yourself (can be free / non-spend).
  */
 export function saveForFuture(
   state: RebuildState,
   milestoneAchievementId: string,
+  note?: string,
+  photoId?: string,
 ): RebuildState {
   const moment = state.milestones.find((m) => m.id === milestoneAchievementId);
   if (!moment || !moment.rewardEligible) {
@@ -189,11 +193,34 @@ export function saveForFuture(
       { status: 400 },
     );
   }
+  const trimmed = String(note ?? "").trim();
+  if (!trimmed) {
+    throw Object.assign(
+      new Error("Tell us how you are rewarding yourself today"),
+      { status: 400 },
+    );
+  }
+
+  const rewardId = newId("reward");
+  const reward: Reward = {
+    id: rewardId,
+    name: trimmed,
+    category: "other",
+    estimatedCost: 0,
+    actualCost: 0,
+    assignedMilestoneDay: moment.dayNumber,
+    executed: true,
+    executedAt: new Date().toISOString(),
+    notes: `Day ${moment.dayNumber} · Saved $ for future`,
+    photoId,
+    createdAt: new Date().toISOString(),
+  };
 
   return {
     ...state,
     fund: normalizeFund(state.fund),
     consecutiveSaves: (state.consecutiveSaves ?? 0) + 1,
+    rewards: [...state.rewards, reward],
     milestoneDecisions: [
       ...state.milestoneDecisions,
       {
@@ -202,6 +229,9 @@ export function saveForFuture(
         dayNumber: moment.dayNumber,
         choice: "save",
         amount: 0,
+        rewardId,
+        note: trimmed,
+        photoId,
         createdAt: new Date().toISOString(),
       },
     ],
@@ -213,8 +243,10 @@ export function saveCompound(
   state: RebuildState,
   milestoneAchievementId: string,
   _amount?: number,
+  note?: string,
+  photoId?: string,
 ): RebuildState {
-  return saveForFuture(state, milestoneAchievementId);
+  return saveForFuture(state, milestoneAchievementId, note, photoId);
 }
 
 /**
@@ -266,6 +298,7 @@ export function treatYourself(
   note?: string,
   futurePull?: number,
   photoId?: string,
+  actualCost?: number,
 ): RebuildState {
   const moment = state.milestones.find((m) => m.id === milestoneAchievementId);
   if (!moment || !moment.rewardEligible) {
@@ -284,7 +317,13 @@ export function treatYourself(
     throw Object.assign(new Error("Pick a wishlist item"), { status: 400 });
   }
 
-  const cost = reward.estimatedCost;
+  const cost =
+    actualCost !== undefined && Number.isFinite(actualCost)
+      ? actualCost
+      : reward.estimatedCost;
+  if (!Number.isFinite(cost) || cost <= 0) {
+    throw Object.assign(new Error("Enter how much you spent"), { status: 400 });
+  }
   const fund = spendFromTreatAndFuture(state.fund, cost, futurePull);
 
   return {

@@ -12,7 +12,7 @@ import {
   weekFullyComplete,
   weeklySupportProgress,
 } from "./journey";
-import { applyEveningSideEffects, confirmTransfer, resetCurrentRun } from "./mutations";
+import { applyEveningSideEffects, confirmTransfer, ensureMilestonesReached, resetCurrentRun } from "./mutations";
 import { DEFAULT_SUPPORTS, type RebuildState } from "./types";
 import { emptyState } from "./journey";
 
@@ -46,6 +46,19 @@ describe("formatSinceDate", () => {
   it("formats without zero-padding", () => {
     expect(formatSinceDate("2026-08-10")).toBe("8-10-2026");
     expect(formatSinceDate("2026-12-01")).toBe("12-1-2026");
+  });
+});
+
+describe("ensureMilestonesReached (reach day)", () => {
+  it("awards reward milestones when clean days hit the day number", () => {
+    let state = baseState();
+    // Day 3 of run starting Aug 1 is Aug 3 — no evening needed
+    state = ensureMilestonesReached(state, "2026-08-03");
+    const days = state.milestones.map((m) => m.dayNumber).sort((a, b) => a - b);
+    expect(days).toEqual([1, 2, 3]);
+    expect(state.milestones.find((m) => m.dayNumber === 3)?.rewardEligible).toBe(
+      true,
+    );
   });
 });
 

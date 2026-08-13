@@ -30,8 +30,8 @@ Index of all product items. Canonical detail lives in `product/items/`.
 
 New items: create `product/items/<slug>.md`, assign next ID (`RB-00N`), insert at the correct rank (renumber as needed), then update this table and `ROADMAP.md`. Prefer the **head-of-product** agent or `/product-roadmap` skill.
 
-## Locked finance
+## Related
 
-Fund model: [`FUND_MODEL.md`](./FUND_MODEL.md) — **Future + Treat Yourself @ 30/70** (Rebuild bucket removed).
-
-Research (not locked): [`research/acorns-partner-rails-feasibility.md`](./research/acorns-partner-rails-feasibility.md) — segregated hold / Acorns; Venmo remains v1 destination.
+- Fund model (locked buckets): [`FUND_MODEL.md`](./FUND_MODEL.md)
+- Roadmap / timeline: [`ROADMAP.md`](./ROADMAP.md)
+- V1 locked behaviors: [`../PRODUCT_DECISIONS.md`](../PRODUCT_DECISIONS.md)

@@ -3,10 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { MilestoneRewardMoment } from "@/components/MilestoneReward";
 import { PrimaryButton, ScaleInput, SecondaryButton } from "@/components/ui";
-import { pendingCashableMoments } from "@/lib/fund";
-import type { MilestoneAchievement } from "@/lib/types";
 
 export default function EveningPage() {
   const { post, state, today, refresh } = useApp();
@@ -17,26 +14,20 @@ export default function EveningPage() {
   const [standOut, setStandOut] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(false);
-  const [pending, setPending] = useState<MilestoneAchievement[]>([]);
   const [error, setError] = useState("");
-
-  const openPending = pendingCashableMoments(state).filter((m) =>
-    pending.some((p) => p.id === m.id),
-  );
 
   async function submit() {
     if (!oneLine.trim()) return;
     setBusy(true);
     setError("");
     try {
-      const data = (await post("/api/evening", {
+      await post("/api/evening", {
         date: today,
         mood,
         stress,
         oneLine,
         expandedJournal: standOut.trim() || undefined,
-      })) as { pendingRewards?: MilestoneAchievement[] };
-      setPending(data.pendingRewards ?? []);
+      });
       setResult(true);
       await refresh();
     } catch (e) {
@@ -47,39 +38,19 @@ export default function EveningPage() {
   }
 
   if (state.evenings.some((e) => e.date === today) && !result) {
-    const lingering = pendingCashableMoments(state);
-    if (lingering.length > 0) {
-      return (
-        <main className="stack fade-in">
-          <p className="eyebrow">Reward moment</p>
-          <h1>Finish your decision</h1>
-          <PrimaryButton onClick={() => router.push("/money")}>
-            Move money to Rebuild
-          </PrimaryButton>
-          {lingering.map((m) => (
-            <MilestoneRewardMoment
-              key={m.id}
-              moment={m}
-              onDone={() => refresh()}
-            />
-          ))}
-          <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
-        </main>
-      );
-    }
     return (
       <main className="stack">
         <p className="eyebrow">Close the day</p>
         <h1>Already complete</h1>
+        <PrimaryButton onClick={() => router.push("/money")}>
+          Move money to Rebuild
+        </PrimaryButton>
         <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
       </main>
     );
   }
 
   if (result) {
-    const stillOpen = openPending.length
-      ? openPending
-      : pendingCashableMoments(state);
     return (
       <main className="stack success-pop">
         <p className="eyebrow">Remember</p>
@@ -91,14 +62,6 @@ export default function EveningPage() {
         <PrimaryButton onClick={() => router.push("/money")}>
           Move money to Rebuild
         </PrimaryButton>
-
-        {stillOpen.map((m) => (
-          <MilestoneRewardMoment
-            key={m.id}
-            moment={m}
-            onDone={() => refresh()}
-          />
-        ))}
 
         <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
       </main>

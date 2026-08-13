@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  claimCelebration,
   eligibleWishlist,
   fundTotal,
   mustTreat,
@@ -93,10 +94,13 @@ describe("fund split", () => {
     // fund 60/60
     const ms = state.milestones.find((m) => m.dayNumber === 3)!;
     const before = { ...state.fund };
-    state = saveForFuture(state, ms.id);
+    state = saveForFuture(state, ms.id, "Walked the block");
     expect(state.fund).toEqual(before);
     expect(state.consecutiveSaves).toBe(1);
     expect(mustTreat(state)).toBe(false);
+    expect(state.milestoneDecisions[0].note).toBe("Walked the block");
+    expect(state.milestoneDecisions[0].rewardId).toBeTruthy();
+    expect(state.rewards.some((r) => r.executed && r.name === "Walked the block")).toBe(true);
   });
 
   it("treat can pull from Future when Treat is short", () => {
@@ -136,6 +140,48 @@ describe("fund split", () => {
     expect(state.rewards.find((r) => r.id === "r1")?.executed).toBe(true);
   });
 
+  it("debits the actual spend when it differs from estimated", () => {
+    let state = base();
+    state = {
+      ...state,
+      fund: { future: 20, treat: 50 },
+      rewards: [
+        {
+          id: "r_act",
+          name: "Massage",
+          category: "wellness",
+          estimatedCost: 40,
+          executed: false,
+          createdAt: "",
+        },
+      ],
+      milestones: [
+        {
+          id: "ms_act",
+          dayNumber: 3,
+          title: "First Win",
+          type: "reward",
+          runId: "run_1",
+          cleanDaysAtAchieve: 3,
+          achievedAt: "",
+          rewardEligible: true,
+        },
+      ],
+    };
+    state = treatYourself(
+      state,
+      "ms_act",
+      "r_act",
+      undefined,
+      undefined,
+      undefined,
+      32,
+    );
+    expect(state.fund).toEqual({ future: 20, treat: 18 });
+    expect(state.rewards.find((r) => r.id === "r_act")?.actualCost).toBe(32);
+    expect(state.milestoneDecisions[0].amount).toBe(32);
+  });
+
   it("forces treat after two saves for the future", () => {
     let state = base();
     for (let i = 1; i <= 7; i++) {
@@ -156,8 +202,8 @@ describe("fund split", () => {
 
     const ms3 = state.milestones.find((m) => m.dayNumber === 3)!;
     const ms7 = state.milestones.find((m) => m.dayNumber === 7)!;
-    state = saveForFuture(state, ms3.id);
-    state = saveForFuture(state, ms7.id);
+    state = saveForFuture(state, ms3.id, "Quiet morning");
+    state = saveForFuture(state, ms7.id, "Called a friend");
     expect(mustTreat(state)).toBe(true);
 
     state = {
@@ -184,12 +230,40 @@ describe("fund split", () => {
       rewardEligible: true,
     };
     state = { ...state, milestones: [...state.milestones, fake] };
-    expect(() => saveForFuture(state, fake.id)).toThrow(
+    expect(() => saveForFuture(state, fake.id, "Nope")).toThrow(
       /Treat Yourself required/,
     );
     state = treatYourself(state, fake.id, "r2", "small win");
     expect(state.consecutiveSaves).toBe(0);
     expect(state.rewards.find((r) => r.id === "r2")?.executed).toBe(true);
+  });
+
+  it("claims a free-text celebration without debiting funds", () => {
+    let state = base();
+    state = {
+      ...state,
+      milestones: [
+        {
+          id: "ms_c",
+          dayNumber: 3,
+          title: "First Win",
+          type: "reward",
+          runId: "run_1",
+          cleanDaysAtAchieve: 3,
+          achievedAt: "",
+          rewardEligible: true,
+        },
+      ],
+      fund: { future: 40, treat: 20 },
+    };
+    state = claimCelebration(state, "ms_c", "Sunset walk", "felt calm", "photo_1.jpg");
+    expect(state.fund).toEqual({ future: 40, treat: 20 });
+    expect(state.consecutiveSaves).toBe(0);
+    expect(state.milestoneDecisions[0].choice).toBe("treat");
+    expect(state.milestoneDecisions[0].amount).toBe(0);
+    expect(state.rewards[0].name).toBe("Sunset walk");
+    expect(state.rewards[0].photoId).toBe("photo_1.jpg");
+    expect(state.rewards[0].executed).toBe(true);
   });
 
   it("Treat Yourself available = current Treat + accrual through target day", () => {

@@ -1044,6 +1044,77 @@ h2 {
   margin-bottom: 6px;
 }
 
+.trail-block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.trail-block-head .trail-block-label {
+  margin-bottom: 0;
+}
+
+.trail-reward-star {
+  color: var(--accent);
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.journal-day-row {
+  padding-bottom: 10px;
+}
+
+.journal-day-toggle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.journal-day-toggle:disabled {
+  cursor: default;
+}
+
+.journal-day-toggle-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.journal-day-headline {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.journal-day-notes {
+  margin-top: 8px;
+  display: grid;
+  gap: 8px;
+}
+
+.journal-day-note {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 0.92rem;
+}
+
+.journal-day-note .tiny {
+  display: block;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .trail-quote {
   margin: 0 0 6px;
   font-family: var(--font-display);
@@ -1419,6 +1490,114 @@ h2 {
   min-width: 0;
 }
 
+.home-reward-card h2 {
+  margin-top: 4px;
+}
+
+.home-reward-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.photo-subtle {
+  margin-top: 10px;
+}
+
+.photo-subtle-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.photo-subtle-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.photo-subtle-btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.photo-subtle-btn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.photo-subtle-hint {
+  margin: 0;
+  color: var(--muted);
+}
+
+.photo-subtle-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.photo-subtle-preview img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+.trail-reward-photo {
+  margin-top: 10px;
+}
+
+.trail-reward-photo img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.incentive-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.incentive-head-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.incentive-treat {
+  flex: none;
+  text-align: right;
+  padding-top: 2px;
+}
+
+.incentive-treat-amount {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 650;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.incentive-treat-label {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  color: var(--muted);
+  max-width: 7.5rem;
+}
+
 .enroll-support-target-field {
   flex: 0 0 auto;
   margin: 0;
@@ -1557,13 +1736,9 @@ h2 {
   }
 }
 
-.journal-day-row {
-  padding-bottom: 10px;
-}
-
-.journal-day-toggle {
+.rebuilt-toggle {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
   width: 100%;
@@ -1571,112 +1746,81 @@ h2 {
   border: none;
   padding: 0;
   color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.rebuilt-list {
+  margin-top: 10px;
+}
+
+.morning-quote {
+  text-align: left;
+}
+
+.morning-quote-text {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  font-style: italic;
+  color: var(--text);
+}
+
+.morning-quote-attr {
+  margin: 10px 0 0;
+  color: var(--muted);
+}
+
+.morning-add-provision-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.88rem;
   text-align: left;
   cursor: pointer;
 }
 
-.journal-day-toggle:disabled {
-  cursor: default;
+.morning-add-provision-toggle:hover {
+  color: var(--text);
+  border-color: var(--accent);
 }
 
-.journal-day-toggle-main {
-  flex: 1;
-  min-width: 0;
+.morning-add-plus {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--accent);
+  font-size: 1.15rem;
+  line-height: 1;
+  font-weight: 500;
 }
 
-.journal-day-headline {
-  margin: 4px 0 0;
-  font-size: 1.05rem;
-  line-height: 1.35;
-}
-
-.journal-day-notes {
-  margin-top: 8px;
+.morning-add-provision {
   display: grid;
   gap: 8px;
+  margin-top: 4px;
+  padding: 8px 2px 2px;
 }
 
-.journal-day-note {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.45;
-  font-size: 0.92rem;
-}
-
-.journal-day-note .tiny {
-  display: block;
-  margin-bottom: 2px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.trail-reward-photo {
-  margin-top: 10px;
-}
-
-.trail-reward-photo img {
-  width: 100%;
-  max-height: 220px;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-}
-
-.incentive-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.incentive-head-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.incentive-treat {
-  flex: none;
-  text-align: right;
-  padding-top: 2px;
-}
-
-.incentive-treat-amount {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 650;
-  line-height: 1.1;
-  color: var(--text);
-}
-
-.incentive-treat-label {
-  margin: 4px 0 0;
-  font-size: 0.72rem;
-  line-height: 1.2;
-  color: var(--muted);
-  max-width: 7.5rem;
-}
-
-.photo-subtle-actions {
-  display: flex;
-  flex-wrap: wrap;
+.morning-add-provision-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
-  align-items: center;
 }
 
-.photo-subtle-btn {
-  appearance: none;
-  background: transparent;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--muted);
-  font: inherit;
-  font-size: 0.78rem;
-  padding: 6px 12px;
-  cursor: pointer;
-}
-
-.photo-subtle-btn:disabled {
-  opacity: 0.6;
-  cursor: default;
+.provision-chip-open {
+  opacity: 0.7;
+  border-style: dashed;
 }

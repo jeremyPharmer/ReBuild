@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getMorning, todayInTz } from "@/lib/journey";
+import { pickMorningQuote } from "@/lib/quotes";
 import { updateState } from "@/lib/store";
 import { roundSleepHours } from "@/lib/trends";
 import type { MorningCheckIn } from "@/lib/types";
@@ -40,6 +41,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ state });
     }
 
+    if (action === "undo") {
+      const state = await updateState((prev) => {
+        if (!prev.profile) {
+          const err = new Error("Not onboarded");
+          (err as Error & { status: number }).status = 400;
+          throw err;
+        }
+        const date = String(body.date ?? todayInTz(prev.profile.timezone));
+        if (!getMorning(prev, date)) {
+          const err = new Error("No morning check-in to undo");
+          (err as Error & { status: number }).status = 404;
+          throw err;
+        }
+        return {
+          ...prev,
+          mornings: prev.mornings.filter((m) => m.date !== date),
+          // Clear morning skip so Start the day can return to the list
+          skips: (prev.skips ?? []).filter(
+            (s) => !(s.date === date && s.itemKey === "morning"),
+          ),
+        };
+      });
+      return NextResponse.json({ state });
+    }
+
     const state = await updateState((prev) => {
       if (!prev.profile) {
         const err = new Error("Not onboarded");
@@ -52,6 +78,7 @@ export async function POST(req: Request) {
         (err as Error & { status: number }).status = 409;
         throw err;
       }
+      const quote = pickMorningQuote(prev.quoteLog, date);
       const morning: MorningCheckIn = {
         date,
         sleepHours: roundSleepHours(Number(body.sleepHours)),
@@ -64,9 +91,14 @@ export async function POST(req: Request) {
         intention: String(body.intention ?? "").trim(),
         trigger: body.trigger ? String(body.trigger) : undefined,
         notes: body.notes ? String(body.notes) : undefined,
+        quoteId: quote.id,
         completedAt: new Date().toISOString(),
       };
-      return { ...prev, mornings: [...prev.mornings, morning] };
+      return {
+        ...prev,
+        mornings: [...prev.mornings, morning],
+        quoteLog: [...(prev.quoteLog ?? []), { quoteId: quote.id, usedOn: date }],
+      };
     });
     return NextResponse.json({ state });
   } catch (e) {

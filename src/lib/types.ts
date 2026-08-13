@@ -41,7 +41,18 @@ export type MorningCheckIn = {
   intention: string;
   trigger?: string;
   notes?: string;
+  /** Quote shown on the Set yourself up screen */
+  quoteId?: string;
   completedAt: string;
+};
+
+/** One-off “provision for today” on Today's Rebuild */
+export type DayProvision = {
+  id: string;
+  date: string;
+  label: string;
+  completed: boolean;
+  completedAt?: string;
 };
 
 export type EveningCheckIn = {
@@ -117,7 +128,7 @@ export type MilestoneDecision = {
   milestoneAchievementId: string;
   dayNumber: number;
   choice: "save" | "treat";
-  /** Save: $ moved into Treat. Treat: $ spent from Treat. */
+  /** Save: $ moved into Treat. Treat: $ spent from Treat (0 = celebration-only). */
   amount: number;
   rewardId?: string;
   note?: string;
@@ -246,6 +257,10 @@ export type RebuildState = {
   reminderLog?: { morning?: string; evening?: string };
   /** Podcast episode ids marked listened — never offered again */
   listenedPodcasts?: string[];
+  /** One-off provisions added for a calendar day */
+  dayProvisions?: DayProvision[];
+  /** Morning quotes already shown (avoid reuse for ~1 year) */
+  quoteLog?: { quoteId: string; usedOn: string }[];
 };
 
 export const DEFAULT_SUPPORTS: SupportConfig[] = [

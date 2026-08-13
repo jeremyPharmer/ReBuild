@@ -44,7 +44,30 @@ export async function POST(req: Request) {
 
     if (action === "save") {
       const state = await updateState((prev) =>
-        saveCompound(prev, String(body.milestoneAchievementId)),
+        saveCompound(
+          prev,
+          String(body.milestoneAchievementId),
+          undefined,
+          body.note ? String(body.note) : undefined,
+          photoId,
+        ),
+      );
+      return NextResponse.json({
+        state,
+        pending: pendingCashableMoments(state),
+      });
+    }
+
+    if (action === "claim") {
+      // Free-text celebration when nothing is assigned to the milestone.
+      const state = await updateState((prev) =>
+        claimCelebration(
+          prev,
+          String(body.milestoneAchievementId),
+          String(body.name ?? ""),
+          body.note ? String(body.note) : undefined,
+          photoId,
+        ),
       );
       return NextResponse.json({
         state,
@@ -96,7 +119,8 @@ export async function POST(req: Request) {
               {
                 id: rewardId,
                 name,
-                category: (body.newReward.category as RewardCategory) || "other",
+                category:
+                  (body.newReward.category as RewardCategory) || "other",
                 estimatedCost,
                 url,
                 executed: false,
@@ -111,6 +135,11 @@ export async function POST(req: Request) {
             ? undefined
             : Number(body.futurePull);
 
+        const actualCost =
+          body.actualCost === undefined || body.actualCost === null
+            ? undefined
+            : Number(body.actualCost);
+
         return treatYourself(
           next,
           String(body.milestoneAchievementId),
@@ -118,6 +147,7 @@ export async function POST(req: Request) {
           body.note ? String(body.note) : undefined,
           futurePull,
           photoId,
+          actualCost,
         );
       });
       return NextResponse.json({

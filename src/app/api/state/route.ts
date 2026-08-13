@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { getSessionUser, sessionPublic } from "@/lib/auth";
-import { buildDashboard, todayInTz } from "@/lib/journey";
+import { buildDashboard, emptyState, todayInTz } from "@/lib/journey";
 import { pendingCashableMoments } from "@/lib/fund";
-import { emptyState } from "@/lib/journey";
+import { ensureMilestonesReached } from "@/lib/mutations";
+import { updateState } from "@/lib/store";
 
 export async function GET() {
   const user = await getSessionUser();
@@ -20,7 +21,11 @@ export async function GET() {
     );
   }
 
-  const state = user.state;
+  const state = await updateState((prev) => {
+    if (!prev.profile) return prev;
+    const today = todayInTz(prev.profile.timezone);
+    return ensureMilestonesReached(prev, today);
+  });
   const today = state.profile
     ? todayInTz(state.profile.timezone)
     : todayInTz();
