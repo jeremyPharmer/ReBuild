@@ -36,14 +36,35 @@ export function normalizeState(state: RebuildState): RebuildState {
   };
 }
 
-/** Locked split: Future 30% / Treat Yourself 70%. */
+/** Recommended default: Future 30% / Treat Yourself 70% (user can set at onboarding). */
 export const FUTURE_SPLIT = 0.3;
 export const TREAT_SPLIT = 0.7;
 
-export function splitTransfer(amount: number): FundLedger {
-  const future = round2(amount * FUTURE_SPLIT);
-  const treat = round2(amount - future);
+/** Clamp and normalize Treat share; Future is the remainder. Allows 0–100. */
+export function normalizeTreatSplit(treatSplit?: number): number {
+  if (!Number.isFinite(treatSplit)) return TREAT_SPLIT;
+  const t = Number(treatSplit);
+  if (t > 1) {
+    // allow 0–100 style percents
+    return Math.min(1, Math.max(0, Math.round(t) / 100));
+  }
+  return Math.min(1, Math.max(0, t));
+}
+
+export function splitTransfer(
+  amount: number,
+  treatSplit: number = TREAT_SPLIT,
+): FundLedger {
+  const treatShare = normalizeTreatSplit(treatSplit);
+  const treat = round2(amount * treatShare);
+  const future = round2(amount - treat);
   return { future, treat };
+}
+
+export function profileTreatSplit(state: {
+  profile?: { treatSplit?: number } | null;
+}): number {
+  return normalizeTreatSplit(state.profile?.treatSplit);
 }
 
 export function applySplitToFund(

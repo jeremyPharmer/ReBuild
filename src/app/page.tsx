@@ -21,6 +21,7 @@ import {
   waitingReclaimDays,
 } from "@/lib/journey";
 import type { SupportType } from "@/lib/types";
+import { truncateSupportLabel } from "@/lib/auth-constants";
 
 function formatMd(iso: string): string {
   const [, m, d] = iso.split("-");
@@ -79,10 +80,12 @@ export default function HomePage() {
   const waiting = waitingReclaimDays(state);
   const pendingRewards = pendingCashableMoments(state);
   const total = fundTotal(state.fund);
-  const waitingSplit = splitTransfer(dashboard.waiting);
+  const treatSplit = state.profile.treatSplit;
+  const waitingSplit = splitTransfer(dashboard.waiting, treatSplit);
   const partialNum = Number(partialAmount);
   const partialSplit = splitTransfer(
     Number.isFinite(partialNum) && partialNum > 0 ? partialNum : 0,
+    treatSplit,
   );
   const enabledSupports = state.profile.supports.filter((s) => s.enabled);
   const completedSupportTypes = new Set(
@@ -352,9 +355,42 @@ export default function HomePage() {
             </div>
           )}
 
-          {openSupports.map((s) => {
+          {enabledSupports.map((s) => {
+            if (skips.has(s.type)) return null;
+            const isExiting = exitingTypes.has(s.type);
+            const isDone =
+              completedSupportTypes.has(s.type) && !isExiting;
+            if (isDone) return null;
+
             const weekDone =
               dashboard.week.find((w) => w.type === s.type)?.done ?? 0;
+            const exitingItem = exiting.find((e) => e.type === s.type);
+
+            if (isExiting && exitingItem) {
+              return (
+                <div
+                  key={s.type}
+                  className="check-item check-item-row clearing"
+                  aria-live="polite"
+                >
+                  <div className="check-item-main" aria-hidden>
+                    <span className="check-box checked">✓</span>
+                    <span className="check-label">
+                      <span className="check-label-name">
+                        {truncateSupportLabel(exitingItem.label)}
+                      </span>
+                      <span className="check-label-meta">
+                        · {exitingItem.weekDone + 1}/{exitingItem.weeklyTarget}
+                      </span>
+                    </span>
+                  </div>
+                  <span className="clear-burst" aria-hidden>
+                    +1
+                  </span>
+                </div>
+              );
+            }
+
             return (
               <div key={s.type} className="check-item check-item-row">
                 <button
@@ -372,7 +408,12 @@ export default function HomePage() {
                 >
                   <span className="check-box" />
                   <span className="check-label">
-                    {s.label}, week {weekDone} of {s.weeklyTarget}
+                    <span className="check-label-name">
+                      {truncateSupportLabel(s.label)}
+                    </span>
+                    <span className="check-label-meta">
+                      · {weekDone}/{s.weeklyTarget}
+                    </span>
                   </span>
                 </button>
                 <button
@@ -386,24 +427,6 @@ export default function HomePage() {
               </div>
             );
           })}
-
-          {exiting.map((s) => (
-            <div
-              key={`exit-${s.type}`}
-              className="check-item check-item-row clearing"
-              aria-live="polite"
-            >
-              <div className="check-item-main" aria-hidden>
-                <span className="check-box checked">✓</span>
-                <span className="check-label">
-                  {s.label}, week {s.weekDone + 1} of {s.weeklyTarget}
-                </span>
-              </div>
-              <span className="clear-burst" aria-hidden>
-                +1
-              </span>
-            </div>
-          ))}
 
           {showEveningOpen && (
             <div className="check-item check-item-row">

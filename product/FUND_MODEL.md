@@ -15,14 +15,14 @@ Status: **Decision locked** — supersedes three-bucket 50/25/25 and the old “
 
 ## Split on each Move
 
-On each confirmed **Move to Rebuild** amount `$X`:
+On each confirmed **Move to Rebuild** amount `$X`, split by the user’s **Treat / Future** mix (chosen at onboarding; recommended default **70% Treat / 30% Future**):
 
-| Bucket | Share |
+| Bucket | Default share |
 | --- | --- |
-| **Future** | **30%** |
-| **Treat Yourself** | **70%** |
+| **Future** | **30%** (recommended) |
+| **Treat Yourself** | **70%** (recommended) |
 
-Weekly support gift ($20 OOP) → into **Treat**; does not count toward Save-delay.
+Stored on the profile as `treatSplit` and applied to every Move. Weekly support gift ($20 OOP) → into **Treat**; does not count toward Save-delay.
 
 ## Reward / Destination moment (UX)
 

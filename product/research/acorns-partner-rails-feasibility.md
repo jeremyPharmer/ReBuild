@@ -1,7 +1,7 @@
 # Acorns / segregated hold — rails feasibility
 
 **Status:** Research captured (2026-08-13) — outreach pending  
-**Related backlog:** [RB-007](../items/segregated-rebuild-account-rails.md) (discovery) · [RB-001](../items/auto-pull-funds-venmo.md) (Venmo v1 — locked, not replaced)  
+**Related backlog:** [RB-008](../items/segregated-rebuild-account-rails.md) (discovery) · [RB-001](../items/auto-pull-funds-venmo.md) (Venmo v1 — locked, not replaced) · [RB-007](../items/account-creation-onboarding.md) (accounts — shipped)  
 **Owner:** Product (Jeremy / Oscar)
 
 ## Desired UX (founder)
@@ -145,7 +145,7 @@ Source: shared chat *“Free Checking & Transfers”* (chatgpt.com/share/6a7e0a7
 3. **If money must live “in ReBuild”:** ACH + partner wallet, then **BaaS**.  
 4. Do **not** plan on Venmo/Acorns for partner-triggered bank→balance pulls.
 
-### Decision shortlist (for RB-007 memo — fill after outreach)
+### Decision shortlist (for RB-008 memo — fill after outreach)
 
 1. **Me-to-me ACH** (Dwolla / Moov) — preferred **MVP 1-tap**  
 2. **ACH + partner wallet** — if destination must be in-app  
@@ -225,7 +225,7 @@ jeremyrschrader@gmail.com
 
 | Date | Note |
 | --- | --- |
-| 2026-08-13 | Initial research capture from founder discovery; email draft added for RB-007 |
+| 2026-08-13 | Initial research capture from founder discovery; email draft added for RB-008 (was drafted as RB-007 before accounts claimed that ID) |
 | 2026-08-13 | Clarified Venmo cannot be partner-triggered to Add Money from checking on Move money |
 | 2026-08-13 | Expanded BaaS explanation + 1-tap options matrix (ACH+wallet vs BaaS vs Venmo) |
 | 2026-08-13 | Reconciled founder ChatGPT share (Dwolla me-to-me MVP); added Dwolla outreach draft |

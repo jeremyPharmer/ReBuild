@@ -212,6 +212,11 @@ export type RebuildProfile = {
   currentRunStartedOn: string;
   supports: SupportConfig[];
   timezone: string;
+  /**
+   * Treat Yourself share of each Move (0–1). Future = 1 − treatSplit.
+   * Set at onboarding; defaults to 0.7 when missing (legacy).
+   */
+  treatSplit?: number;
   /** Where morning/evening reminder emails go */
   email?: string;
   reminders?: ReminderPrefs;

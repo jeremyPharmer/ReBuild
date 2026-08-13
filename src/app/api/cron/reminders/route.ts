@@ -5,7 +5,7 @@ import {
   localClock,
   markReminderSent,
 } from "@/lib/reminders";
-import { readState, updateState } from "@/lib/store";
+import { listUsers, updateUserStateById } from "@/lib/store";
 
 function authorized(req: Request): boolean {
   const secret = process.env.CRON_SECRET?.trim();
@@ -16,45 +16,57 @@ function authorized(req: Request): boolean {
   return bearer === secret || alt === secret;
 }
 
-/** Hourly (or on-demand) tick: send due morning/evening reminder emails. */
+/** Hourly tick: send due morning/evening reminder emails for all users. */
 export async function POST(req: Request) {
   if (!authorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const state = await readState();
-  if (!state.profile) {
-    return NextResponse.json({ ok: true, sent: [], skipped: "not_onboarded" });
-  }
+  const users = await listUsers();
+  const sent: { userId: string; kind: string }[] = [];
+  const errors: { userId: string; kind: string; error: string }[] = [];
+  let skipped = 0;
 
-  const due = dueReminderKinds(state);
-  if (due.length === 0) {
-    return NextResponse.json({ ok: true, sent: [], skipped: "nothing_due" });
-  }
-
-  const email = state.profile.email!.trim();
-  const { date } = localClock(state.profile.timezone);
-  const sent: string[] = [];
-  const errors: { kind: string; error: string }[] = [];
-
-  for (const kind of due) {
-    const result = await sendReminderEmail({
-      to: email,
-      kind,
-      displayName: state.profile.displayName,
-    });
-    if (!result.ok) {
-      errors.push({ kind, error: result.error });
+  for (const user of users) {
+    const state = user.state;
+    if (!state.profile?.onboarded) {
+      skipped++;
       continue;
     }
-    await updateState((prev) => markReminderSent(prev, kind, date));
-    sent.push(kind);
+    const due = dueReminderKinds(state);
+    if (due.length === 0) {
+      skipped++;
+      continue;
+    }
+    const email = (state.profile.email || user.email).trim();
+    if (!email) {
+      skipped++;
+      continue;
+    }
+    const { date } = localClock(state.profile.timezone);
+
+    for (const kind of due) {
+      const result = await sendReminderEmail({
+        to: email,
+        kind,
+        displayName: state.profile.displayName || user.displayName,
+      });
+      if (!result.ok) {
+        errors.push({ userId: user.id, kind, error: result.error });
+        continue;
+      }
+      await updateUserStateById(user.id, (prev) =>
+        markReminderSent(prev, kind, date),
+      );
+      sent.push({ userId: user.id, kind });
+    }
   }
 
   return NextResponse.json({
     ok: errors.length === 0,
     sent,
     errors: errors.length ? errors : undefined,
+    skipped,
   });
 }
 

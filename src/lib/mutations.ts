@@ -181,7 +181,10 @@ export function confirmTransfer(
   const today = state.profile
     ? todayInTz(state.profile.timezone)
     : todayInTz();
-  const split = splitTransfer(actualAmount);
+  const split = splitTransfer(
+    actualAmount,
+    state.profile?.treatSplit ?? undefined,
+  );
   const transfers = [
     ...state.transfers,
     {

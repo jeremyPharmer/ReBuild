@@ -15,6 +15,9 @@ export function BottomNav() {
   const path = usePathname();
   if (
     path.startsWith("/onboarding") ||
+    path.startsWith("/login") ||
+    path.startsWith("/forgot-password") ||
+    path.startsWith("/reset-password") ||
     path.startsWith("/morning") ||
     path.startsWith("/evening") ||
     path.startsWith("/craving")

@@ -25,7 +25,7 @@ Venmo reconcile / link = later (UI totals first).
 - Reclaim / Move to Rebuild from **every closed evening** (close always aligns for reclaim)
 - **Reset my journey** (Settings) → run resets next calendar day; history kept; re-climb / re-achieve
 - Return to use via evening alignment UI is **retired** (legacy `return_to_use` evenings still in history)
-- No auth V1; honor system
+- Auth (RB-007): email/password accounts required; synced optional PIN; remember-this-device; admin allowlist; honor-system reclaim remains until verification exists
 - Weekly support 100% gift: **$20** out-of-pocket; **not** in Save-delay rule
 
 ---
@@ -72,12 +72,12 @@ First cashable: **Day 3**. Micro every-14: paused.
 
 ### On each confirmed Move $X
 
-| Bucket | Share | Horizon |
+| Bucket | Default share | Horizon |
 |---|---|---|
 | Future | 30% | Longer-horizon park |
 | Treat Yourself | 70% | Short-term spendable |
 
-Not editable in V1. Big Total + segmented bar underneath.  
+Recommended default **70/30**; user chooses Treat/Future mix at onboarding (`treatSplit`) and that mix applies to every Move. Big Total + segmented bar underneath.  
 Legacy **Rebuild** bucket removed (any leftover folds into Future on normalize).
 
 - **Treat Yourself** spend → debit **Treat** first; optionally **pull from Future** if item costs more than Treat  

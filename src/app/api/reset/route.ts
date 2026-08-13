@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { emptyState } from "@/lib/journey";
-import { writeState } from "@/lib/store";
+import { resetCurrentUserState } from "@/lib/store";
 
-/** Dev/reset helper — clears all data. Blocked on prod true-source. */
+/** Dev helper — clears the signed-in user's journey data. Blocked on prod. */
 export async function POST() {
   if (process.env.REBUILD_ENV === "prod") {
     return NextResponse.json(
@@ -13,6 +13,6 @@ export async function POST() {
       { status: 403 },
     );
   }
-  await writeState(emptyState());
-  return NextResponse.json({ ok: true });
+  const state = await resetCurrentUserState();
+  return NextResponse.json({ ok: true, state: state ?? emptyState() });
 }
