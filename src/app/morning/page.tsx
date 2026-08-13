@@ -23,6 +23,7 @@ export default function MorningPage() {
   const [error, setError] = useState("");
   const [provisionDraft, setProvisionDraft] = useState("");
   const [provisionBusy, setProvisionBusy] = useState(false);
+  const [provisionOpen, setProvisionOpen] = useState(false);
 
   const todayMorning = state.mornings.find((m) => m.date === today);
   const quote = useMemo(
@@ -66,6 +67,7 @@ export default function MorningPage() {
         label,
       });
       setProvisionDraft("");
+      setProvisionOpen(false);
       await refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not add provision");
@@ -120,30 +122,7 @@ export default function MorningPage() {
               </div>
             </div>
           ))}
-          <div className="morning-add-provision">
-            <label className="field" style={{ marginBottom: 0 }}>
-              <span className="field-label">Add a provision for today</span>
-              <input
-                type="text"
-                value={provisionDraft}
-                onChange={(e) => setProvisionDraft(e.target.value)}
-                placeholder="One short line"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    void addProvision();
-                  }
-                }}
-              />
-            </label>
-            <SecondaryButton
-              onClick={() => void addProvision()}
-              disabled={provisionBusy || !provisionDraft.trim()}
-            >
-              {provisionBusy ? "Adding…" : "Add"}
-            </SecondaryButton>
-          </div>
-          <div className="check-item" style={{ marginTop: 12 }}>
+          <div className="check-item" style={{ marginTop: 4 }}>
             <span className="check-box" />
             <div>
               <strong>Money</strong>
@@ -152,6 +131,54 @@ export default function MorningPage() {
               </p>
             </div>
           </div>
+          {!provisionOpen ? (
+            <button
+              type="button"
+              className="morning-add-provision-toggle"
+              onClick={() => setProvisionOpen(true)}
+            >
+              <span>Add a one time provision for today</span>
+              <span className="morning-add-plus" aria-hidden>
+                +
+              </span>
+            </button>
+          ) : (
+            <div className="morning-add-provision fade-in">
+              <label className="field" style={{ marginBottom: 0 }}>
+                <span className="field-label">Provision for today</span>
+                <input
+                  type="text"
+                  value={provisionDraft}
+                  onChange={(e) => setProvisionDraft(e.target.value)}
+                  placeholder="One short line"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      void addProvision();
+                    }
+                  }}
+                />
+              </label>
+              <div className="morning-add-provision-actions">
+                <SecondaryButton
+                  onClick={() => {
+                    setProvisionOpen(false);
+                    setProvisionDraft("");
+                  }}
+                  disabled={provisionBusy}
+                >
+                  Cancel
+                </SecondaryButton>
+                <PrimaryButton
+                  onClick={() => void addProvision()}
+                  disabled={provisionBusy || !provisionDraft.trim()}
+                >
+                  {provisionBusy ? "Adding…" : "Add"}
+                </PrimaryButton>
+              </div>
+            </div>
+          )}
         </div>
         {intention && (
           <div className="panel">

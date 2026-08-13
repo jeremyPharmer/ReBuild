@@ -1477,11 +1477,53 @@ h2 {
   color: var(--muted);
 }
 
+.morning-add-provision-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.88rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.morning-add-provision-toggle:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.morning-add-plus {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--accent);
+  font-size: 1.15rem;
+  line-height: 1;
+  font-weight: 500;
+}
+
 .morning-add-provision {
   display: grid;
   gap: 8px;
   margin-top: 4px;
   padding: 8px 2px 2px;
+}
+
+.morning-add-provision-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
 .provision-chip-open {
