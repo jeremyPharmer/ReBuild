@@ -128,9 +128,6 @@ export default function MorningPage() {
 
       <section className="panel">
         <p className="eyebrow">Alignment</p>
-        <p className="tiny" style={{ marginBottom: 10 }}>
-          Goal: abstinent from cannabis and alcohol today.
-        </p>
         <label className="field">
           <span className="field-label">Any trigger or concern?</span>
           <input

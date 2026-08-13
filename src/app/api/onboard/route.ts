@@ -38,7 +38,6 @@ export async function POST(req: Request) {
     const timezone = String(
       body.timezone ?? "America/Los_Angeles",
     );
-    // Split is locked 30/70; accept client values only for UX confirmation
     const treatPct = Number(body.treatPercent ?? TREAT_SPLIT * 100);
     const futurePct = Number(body.futurePercent ?? FUTURE_SPLIT * 100);
     if (Math.round(treatPct + futurePct) !== 100) {
@@ -47,6 +46,13 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
+    if (treatPct < 5 || treatPct > 95) {
+      return NextResponse.json(
+        { error: "Treat share must be between 5% and 95%" },
+        { status: 400 },
+      );
+    }
+    const treatSplit = Math.round(treatPct) / 100;
 
     const seedRewards = Array.isArray(body.rewards) ? body.rewards : [];
 
@@ -111,6 +117,7 @@ export async function POST(req: Request) {
             enabled: s.enabled !== false,
           })),
           timezone,
+          treatSplit,
           email: account.email,
           reminders: prev.profile?.reminders,
         },
@@ -126,7 +133,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       state,
-      split: { future: FUTURE_SPLIT, treat: TREAT_SPLIT },
+      split: { future: 1 - treatSplit, treat: treatSplit },
     });
   } catch (e) {
     const err = e as Error & { status?: number };

@@ -72,10 +72,12 @@ export default function HomePage() {
   const waiting = waitingReclaimDays(state);
   const pendingRewards = pendingCashableMoments(state);
   const total = fundTotal(state.fund);
-  const waitingSplit = splitTransfer(dashboard.waiting);
+  const treatSplit = state.profile.treatSplit;
+  const waitingSplit = splitTransfer(dashboard.waiting, treatSplit);
   const partialNum = Number(partialAmount);
   const partialSplit = splitTransfer(
     Number.isFinite(partialNum) && partialNum > 0 ? partialNum : 0,
+    treatSplit,
   );
   const enabledSupports = state.profile.supports.filter((s) => s.enabled);
   const completedSupportTypes = new Set(

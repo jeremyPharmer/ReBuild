@@ -1366,13 +1366,43 @@ h2 {
   gap: 12px;
 }
 
+.enroll-support-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.enroll-support-row.custom-add-row {
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+
+.enroll-support-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.enroll-support-target-field {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.enroll-support-target {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 .target-input {
-  width: 72px;
+  width: 52px;
   background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 10px 8px;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .check-row {

@@ -466,8 +466,8 @@ export default function OnboardingPage() {
           <p className="eyebrow">Provisions</p>
           <h1>What will support you each week?</h1>
           <p className="muted enroll-lead">
-            Pick inspiration chips or add your own. Set a weekly rhythm —
-            targets, not shame.
+            Consistently engaging in your recovery is a key to success — what
+            will you do every week to stay on the trail?
           </p>
           <div className="chip-row">
             {SUPPORT_INSPIRATION.map((s) => {
@@ -488,23 +488,24 @@ export default function OnboardingPage() {
           </div>
           <div className="stack" style={{ gap: 10 }}>
             {supports.map((s) => (
-              <div key={s.type} className="panel support-row">
-                <div>
+              <div key={s.type} className="panel enroll-support-row">
+                <div className="enroll-support-label">
                   <strong>{s.label}</strong>
-                  <p className="tiny muted" style={{ margin: "4px 0 0" }}>
-                    times / week
-                  </p>
                 </div>
-                <input
-                  className="target-input"
-                  type="number"
-                  min={0}
-                  max={21}
-                  value={s.weeklyTarget}
-                  onChange={(e) =>
-                    updateSupportTarget(s.type, Number(e.target.value))
-                  }
-                />
+                <div className="enroll-support-target">
+                  <input
+                    className="target-input"
+                    type="number"
+                    min={0}
+                    max={21}
+                    value={s.weeklyTarget}
+                    onChange={(e) =>
+                      updateSupportTarget(s.type, Number(e.target.value))
+                    }
+                    aria-label={`${s.label} times per week`}
+                  />
+                  <span className="tiny muted">/wk</span>
+                </div>
               </div>
             ))}
           </div>
@@ -512,8 +513,8 @@ export default function OnboardingPage() {
             <p className="tiny" style={{ marginTop: 0 }}>
               Add your own
             </p>
-            <div className="grid-2">
-              <label className="field">
+            <div className="enroll-support-row custom-add-row">
+              <label className="field enroll-support-label">
                 <span className="field-label">Support</span>
                 <input
                   value={customLabel}
@@ -521,13 +522,19 @@ export default function OnboardingPage() {
                   placeholder="e.g. Journal"
                 />
               </label>
-              <label className="field">
+              <label className="field enroll-support-target-field">
                 <span className="field-label">Weekly</span>
-                <input
-                  type="number"
-                  value={customTarget}
-                  onChange={(e) => setCustomTarget(e.target.value)}
-                />
+                <div className="enroll-support-target">
+                  <input
+                    className="target-input"
+                    type="number"
+                    min={0}
+                    max={21}
+                    value={customTarget}
+                    onChange={(e) => setCustomTarget(e.target.value)}
+                  />
+                  <span className="tiny muted">/wk</span>
+                </div>
               </label>
             </div>
             <SecondaryButton onClick={addCustomSupport}>Add</SecondaryButton>
@@ -552,10 +559,9 @@ export default function OnboardingPage() {
       {step === 4 && (
         <section className="stack enroll-step" key="s4">
           <p className="eyebrow">Rebuild fund</p>
-          <h1>What did this typically cost you?</h1>
+          <h1>What was your daily spend</h1>
           <p className="muted enroll-lead">
-            Combined daily historical spend. Each aligned day can reclaim this
-            into your fund.
+            Each day you progress, this is what you&apos;ll save.
           </p>
           <label className="field">
             <span className="field-label">Estimated $/day</span>
@@ -575,8 +581,9 @@ export default function OnboardingPage() {
               <strong>{treatPct}% Treat Yourself</strong> · {futurePct}% Future
             </p>
             <p className="tiny muted">
-              Treat is for near-term rewards. Future is longer-horizon park. You
-              can nudge the slider — we recommend 70 / 30.
+              Treat is for near-term rewards. Future is longer-horizon park. We
+              recommend 70 / 30 — set the mix you want; it applies to every Move
+              into your fund.
             </p>
             <label className="field" style={{ marginTop: 12 }}>
               <span className="field-label">Treat Yourself %</span>
@@ -589,10 +596,6 @@ export default function OnboardingPage() {
                 onChange={(e) => setTreatPct(Number(e.target.value))}
               />
             </label>
-            <p className="tiny">
-              Note: the live fund ledger uses the locked 70/30 model; this
-              confirms you understand the split.
-            </p>
           </div>
           {error && <p className="form-error">{error}</p>}
           <PrimaryButton
@@ -728,7 +731,7 @@ export default function OnboardingPage() {
             <p className="tiny">Money potentially reclaimed today</p>
             <p className="money money-xl">${Number(spend) || 0}</p>
             <p className="tiny" style={{ marginTop: 12 }}>
-              Fund split · 70% Treat · 30% Future
+              Fund split · {treatPct}% Treat · {futurePct}% Future
             </p>
             <p className="tiny">First meaningful reward · Day 3 · First Win</p>
           </div>

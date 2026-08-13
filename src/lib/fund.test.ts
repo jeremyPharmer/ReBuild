@@ -30,7 +30,7 @@ function base(): RebuildState {
 }
 
 describe("fund split", () => {
-  it("splits 30/70 Future / Treat on transfer", () => {
+  it("splits 30/70 Future / Treat on transfer by default", () => {
     expect(splitTransfer(100)).toEqual({
       future: 30,
       treat: 70,
@@ -47,6 +47,22 @@ describe("fund split", () => {
     state = confirmTransfer(state, ["2026-08-01"], 40);
     expect(fundTotal(state.fund)).toBe(40);
     expect(state.fund).toEqual({ future: 12, treat: 28 });
+  });
+
+  it("honors profile treatSplit on transfer", () => {
+    expect(splitTransfer(100, 0.6)).toEqual({ future: 40, treat: 60 });
+    let state = base();
+    state.profile = { ...state.profile!, treatSplit: 0.6 };
+    state = applyEveningSideEffects(state, {
+      date: "2026-08-01",
+      mood: 7,
+      stress: 2,
+      alignment: "aligned",
+      oneLine: "a",
+      completedAt: "",
+    });
+    state = confirmTransfer(state, ["2026-08-01"], 40);
+    expect(state.fund).toEqual({ future: 16, treat: 24 });
   });
 
   it("folds the legacy Rebuild bucket into Future", () => {
