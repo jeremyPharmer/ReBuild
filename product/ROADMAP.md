@@ -41,6 +41,7 @@ Last updated: 2026-08-13
 4. **RB-008 — Segregated ReBuild account (feasibility)** — Move money → real hold; Acorns outreach + rails shortlist (BaaS vs ACH wallet vs Venmo-only). Does **not** replace Venmo v1. Research: [`research/acorns-partner-rails-feasibility.md`](./research/acorns-partner-rails-feasibility.md)
 5. Alternate payment destination: checking → **soccer bank account** (follow-on to Venmo v1)
 6. In-app how-to walkthrough (explicitly deferred from RB-007 v1)
+
 ## Timeline (draft)
 
 | Window | Planned | Notes |
@@ -51,7 +52,7 @@ Last updated: 2026-08-13
 | With fund/Money work | RB-006 two-bucket + reward Treat/Save UX | Effort **M**; UXUI review requested |
 | After RB-001 v1 / with RB-007 | RB-002 → forgot-password live + RB-003 | Email platform first, then daily digest |
 | After email path (or parallel if capacity) | RB-004 SMS | P2 |
-| Parallel discovery (does not block Venmo v1) | RB-007 segregated hold feasibility | Effort **S**; Acorns email + rails shortlist; production rails would be **XL** follow-on |
+| Parallel discovery (does not block Venmo v1) | RB-008 segregated hold feasibility | Effort **S**; Acorns email + rails shortlist; production rails would be **XL** follow-on |
 | After RB-001 v1 | Soccer / alternate bank destination | Explicitly deferred |
 
 ## Ranking principles
