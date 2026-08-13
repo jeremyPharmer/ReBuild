@@ -1,11 +1,11 @@
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { isAdminEmail, validatePin } from "./auth-constants";
-
-export { validatePin };
 import {
   DEVICE_USER_COOKIE,
+  REMEMBER_MAX_AGE_SECONDS,
   SESSION_COOKIE,
+  sessionCookieOptions,
   signSessionToken,
   verifySessionToken,
   type SessionPayload,
@@ -18,11 +18,9 @@ import {
   type UserRecord,
 } from "./db";
 
+export { validatePin };
 export type { SessionPayload };
 export { verifySessionToken, SESSION_COOKIE, DEVICE_USER_COOKIE };
-
-const SESSION_DAYS_DEFAULT = 14;
-const SESSION_DAYS_REMEMBER = 180;
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10);
@@ -47,7 +45,6 @@ export async function signSession(
   user: UserRecord,
   remember: boolean,
 ): Promise<string> {
-  const days = remember ? SESSION_DAYS_REMEMBER : SESSION_DAYS_DEFAULT;
   return signSessionToken(
     {
       id: user.id,
@@ -55,7 +52,6 @@ export async function signSession(
       onboarded: Boolean(user.state.profile?.onboarded),
     },
     remember,
-    days,
   );
 }
 
@@ -64,14 +60,7 @@ export async function setSessionCookie(
   remember: boolean,
 ): Promise<void> {
   const jar = await cookies();
-  const days = remember ? SESSION_DAYS_REMEMBER : SESSION_DAYS_DEFAULT;
-  jar.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: days * 24 * 60 * 60,
-  });
+  jar.set(SESSION_COOKIE, token, sessionCookieOptions(remember));
 }
 
 export async function clearSessionCookie(): Promise<void> {
@@ -86,7 +75,7 @@ export async function setDeviceUserCookie(userId: string): Promise<void> {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: SESSION_DAYS_REMEMBER * 24 * 60 * 60,
+    maxAge: REMEMBER_MAX_AGE_SECONDS,
   });
 }
 

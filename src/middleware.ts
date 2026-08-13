@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import {
   SESSION_COOKIE,
+  sessionCookieOptions,
+  signSessionToken,
   verifySessionToken,
 } from "@/lib/session-token";
 
@@ -24,6 +26,25 @@ function isPublic(pathname: string): boolean {
   return PUBLIC_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
+}
+
+/** Slide idle window on activity when Remember this device is off. */
+async function withIdleSlide(
+  req: NextRequest,
+  res: NextResponse,
+  session: { sub: string; email: string; onboarded: boolean; remember: boolean },
+): Promise<NextResponse> {
+  if (session.remember) return res;
+  const token = await signSessionToken(
+    {
+      id: session.sub,
+      email: session.email,
+      onboarded: session.onboarded,
+    },
+    false,
+  );
+  res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(false));
+  return res;
 }
 
 export async function middleware(req: NextRequest) {
@@ -72,7 +93,7 @@ export async function middleware(req: NextRequest) {
       pathname.startsWith("/api/auth") ||
       pathname.startsWith("/api/state")
     ) {
-      return NextResponse.next();
+      return withIdleSlide(req, NextResponse.next(), session);
     }
     if (pathname.startsWith("/api/")) {
       return NextResponse.json(
@@ -80,14 +101,22 @@ export async function middleware(req: NextRequest) {
         { status: 403 },
       );
     }
-    return NextResponse.redirect(new URL("/onboarding", req.url));
+    return withIdleSlide(
+      req,
+      NextResponse.redirect(new URL("/onboarding", req.url)),
+      session,
+    );
   }
 
   if (session.onboarded && pathname.startsWith("/onboarding")) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return withIdleSlide(
+      req,
+      NextResponse.redirect(new URL("/", req.url)),
+      session,
+    );
   }
 
-  return NextResponse.next();
+  return withIdleSlide(req, NextResponse.next(), session);
 }
 
 export const config = {

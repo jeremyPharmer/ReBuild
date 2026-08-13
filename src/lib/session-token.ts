@@ -3,6 +3,10 @@ import { SignJWT, jwtVerify } from "jose";
 export const SESSION_COOKIE = "rebuild_session";
 export const DEVICE_USER_COOKIE = "rebuild_device_user";
 
+/** Idle logout window when Remember this device is off. */
+export const IDLE_TIMEOUT_SECONDS = 2 * 60 * 60;
+export const REMEMBER_MAX_AGE_SECONDS = 180 * 24 * 60 * 60;
+
 export type SessionPayload = {
   sub: string;
   email: string;
@@ -18,11 +22,15 @@ function authSecret(): Uint8Array {
   return new TextEncoder().encode(raw);
 }
 
+export function sessionMaxAgeSeconds(remember: boolean): number {
+  return remember ? REMEMBER_MAX_AGE_SECONDS : IDLE_TIMEOUT_SECONDS;
+}
+
 export async function signSessionToken(
   user: { id: string; email: string; onboarded: boolean },
   remember: boolean,
-  days: number,
 ): Promise<string> {
+  const maxAge = sessionMaxAgeSeconds(remember);
   return new SignJWT({
     email: user.email,
     onboarded: user.onboarded,
@@ -31,7 +39,7 @@ export async function signSessionToken(
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(user.id)
     .setIssuedAt()
-    .setExpirationTime(`${days}d`)
+    .setExpirationTime(`${maxAge}s`)
     .sign(authSecret());
 }
 
@@ -51,4 +59,14 @@ export async function verifySessionToken(
   } catch {
     return null;
   }
+}
+
+export function sessionCookieOptions(remember: boolean) {
+  return {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: sessionMaxAgeSeconds(remember),
+  };
 }
