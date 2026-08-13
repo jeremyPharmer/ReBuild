@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-001 |
-| Rank | 1 |
+| Rank | 2 |
 | Priority | P0 |
 | Status | Backlog |
 | Effort | L |
@@ -43,4 +43,4 @@ ReBuild can initiate an automatic pull from a user’s checking account and depo
 ## Notes
 
 - Product decision (2026-08-10): **Venmo is the v1 destination.** Soccer / alternate bank account is explicitly later — do not block v1 on it.
-- Added to product backlog as highest rank (1).
+- Added to product backlog as highest rank (1); renumbered to rank **2** on 2026-08-13 when RB-007 (accounts + onboarding) took rank 1 — Venmo needs per-user identity.
