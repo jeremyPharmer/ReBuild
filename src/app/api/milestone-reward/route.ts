@@ -75,6 +75,22 @@ export async function POST(req: Request) {
       });
     }
 
+    if (action === "claim") {
+      const state = await updateState((prev) =>
+        claimCelebration(
+          prev,
+          String(body.milestoneAchievementId),
+          String(body.name ?? ""),
+          body.note ? String(body.note) : undefined,
+          photoId,
+        ),
+      );
+      return NextResponse.json({
+        state,
+        pending: pendingCashableMoments(state),
+      });
+    }
+
     if (action === "treat") {
       const state = await updateState((prev) => {
         let next = prev;
