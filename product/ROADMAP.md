@@ -5,7 +5,7 @@ Living roadmap for **ReBuild** — a recovery app with incentives.
 Maintained by the **Head of Product** agent (`.cursor/agents/head-of-product.md`).  
 **Priority ranking is the primary planning signal.** Due dates, effort, and timeline support rank — they do not override it.
 
-Last updated: 2026-08-11
+Last updated: 2026-08-13
 
 ## Current focus
 
@@ -35,7 +35,8 @@ _Nothing in progress._ Top items: RB-001 (Venmo), RB-005 (weekly recovery conten
 1. **RB-002 — Email integration** — shared email channel (enables digests)
 2. **RB-003 — Daily email: open checklist at close of day** — leftover open checklist items; close-the-day UX stays as-is
 3. **RB-004 — SMS integration** — transactional SMS channel
-4. Alternate payment destination: checking → **soccer bank account** (follow-on to Venmo v1)
+4. **RB-007 — Segregated ReBuild account (feasibility)** — Move money → real hold; Acorns outreach + rails shortlist (BaaS vs ACH wallet vs Venmo-only). Does **not** replace Venmo v1. Research: [`research/acorns-partner-rails-feasibility.md`](./research/acorns-partner-rails-feasibility.md)
+5. Alternate payment destination: checking → **soccer bank account** (follow-on to Venmo v1)
 
 ## Timeline (draft)
 
@@ -46,6 +47,7 @@ _Nothing in progress._ Top items: RB-001 (Venmo), RB-005 (weekly recovery conten
 | With fund/Money work | RB-006 two-bucket + reward Treat/Save UX | Effort **M**; UXUI review requested |
 | After RB-001 v1 | RB-002 → RB-003 | Email platform first, then daily digest |
 | After email path (or parallel if capacity) | RB-004 SMS | P2 |
+| Parallel discovery (does not block Venmo v1) | RB-007 segregated hold feasibility | Effort **S**; Acorns email + rails shortlist; production rails would be **XL** follow-on |
 | After RB-001 v1 | Soccer / alternate bank destination | Explicitly deferred |
 
 ## Ranking principles
