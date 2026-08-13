@@ -1,4 +1,4 @@
-import { newId } from "./journey";
+import { cleanDaysThisRun, newId, waitingReclaimTotal } from "./journey";
 import type {
   FundLedger,
   MilestoneAchievement,
@@ -138,6 +138,25 @@ export function mustTreat(state: RebuildState): boolean {
   return (state.consecutiveSaves ?? 0) >= 2;
 }
 
+/**
+ * Treat Yourself available by a future incentive day:
+ * current Treat Yourself balance + 70% of (waiting reclaim + days-to-go × daily).
+ */
+export function projectedTreatYourselfAt(
+  state: RebuildState,
+  targetCleanDay: number,
+  asOfDate?: string,
+): number {
+  if (!state.profile) return 0;
+  const current = cleanDaysThisRun(state, asOfDate);
+  const daily = state.profile.historicalDailySpend;
+  const waiting = waitingReclaimTotal(state);
+  const daysToGo = Math.max(0, targetCleanDay - current);
+  const treatNow = normalizeFund(state.fund).treat;
+  const futureTreat = (waiting + daysToGo * daily) * TREAT_SPLIT;
+  return round2(treatNow + futureTreat);
+}
+
 /** Affordable if Treat + Future can cover (optional Future pull). */
 export function eligibleWishlist(state: RebuildState): Reward[] {
   const fund = normalizeFund(state.fund);
@@ -246,6 +265,7 @@ export function treatYourself(
   rewardId: string,
   note?: string,
   futurePull?: number,
+  photoId?: string,
 ): RebuildState {
   const moment = state.milestones.find((m) => m.id === milestoneAchievementId);
   if (!moment || !moment.rewardEligible) {
@@ -280,6 +300,7 @@ export function treatYourself(
             actualCost: cost,
             notes: note || r.notes,
             assignedMilestoneDay: moment.dayNumber,
+            photoId: photoId || r.photoId,
           }
         : r,
     ),
@@ -293,6 +314,73 @@ export function treatYourself(
         amount: cost,
         rewardId,
         note,
+        photoId,
+        createdAt: new Date().toISOString(),
+      },
+    ],
+  };
+}
+
+/**
+ * Claim without a pre-assigned wishlist item: name + optional note/photo.
+ * No fund debit — celebration record only.
+ */
+export function claimCelebration(
+  state: RebuildState,
+  milestoneAchievementId: string,
+  name: string,
+  note?: string,
+  photoId?: string,
+): RebuildState {
+  const moment = state.milestones.find((m) => m.id === milestoneAchievementId);
+  if (!moment || !moment.rewardEligible) {
+    throw Object.assign(new Error("Milestone not cashable"), { status: 400 });
+  }
+  if (
+    state.milestoneDecisions.some(
+      (d) => d.milestoneAchievementId === milestoneAchievementId,
+    )
+  ) {
+    throw Object.assign(new Error("Already decided"), { status: 409 });
+  }
+  const trimmed = name.trim();
+  if (!trimmed) {
+    throw Object.assign(new Error("Tell us how you treated yourself"), {
+      status: 400,
+    });
+  }
+
+  const rewardId = newId("reward");
+  const reward: Reward = {
+    id: rewardId,
+    name: trimmed,
+    category: "other",
+    estimatedCost: 0,
+    actualCost: 0,
+    assignedMilestoneDay: moment.dayNumber,
+    executed: true,
+    executedAt: new Date().toISOString(),
+    notes: note,
+    photoId,
+    createdAt: new Date().toISOString(),
+  };
+
+  return {
+    ...state,
+    fund: normalizeFund(state.fund),
+    consecutiveSaves: 0,
+    rewards: [...state.rewards, reward],
+    milestoneDecisions: [
+      ...state.milestoneDecisions,
+      {
+        id: newId("decision"),
+        milestoneAchievementId,
+        dayNumber: moment.dayNumber,
+        choice: "treat",
+        amount: 0,
+        rewardId,
+        note,
+        photoId,
         createdAt: new Date().toISOString(),
       },
     ],

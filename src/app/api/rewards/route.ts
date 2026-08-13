@@ -106,6 +106,35 @@ export async function POST(req: Request) {
       return NextResponse.json({ state });
     }
 
+    if (action === "attachPhoto") {
+      const id = String(body.id ?? "");
+      if (!id || !body.photoDataUrl) {
+        return NextResponse.json(
+          { error: "Reward id and photo required" },
+          { status: 400 },
+        );
+      }
+      const { savePhotoDataUrl } = await import("@/lib/photos");
+      const photoId = await savePhotoDataUrl(String(body.photoDataUrl));
+      const state = await updateState((prev) => {
+        if (!prev.rewards.some((r) => r.id === id && r.executed)) {
+          throw Object.assign(new Error("Rebuilt item not found"), {
+            status: 404,
+          });
+        }
+        return {
+          ...prev,
+          rewards: prev.rewards.map((r) =>
+            r.id === id ? { ...r, photoId } : r,
+          ),
+          milestoneDecisions: prev.milestoneDecisions.map((d) =>
+            d.rewardId === id ? { ...d, photoId } : d,
+          ),
+        };
+      });
+      return NextResponse.json({ state });
+    }
+
     if (action === "delete") {
       const id = String(body.id ?? "");
       if (!id) {

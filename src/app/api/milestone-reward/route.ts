@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  claimCelebration,
   eligibleWishlist,
   mustTreat,
   pendingCashableMoments,
@@ -7,6 +8,7 @@ import {
   treatYourself,
 } from "@/lib/fund";
 import { newId, suggestedRewardPool } from "@/lib/journey";
+import { savePhotoDataUrl } from "@/lib/photos";
 import { updateState } from "@/lib/store";
 import type { RewardCategory } from "@/lib/types";
 
@@ -35,9 +37,30 @@ export async function POST(req: Request) {
     const body = await req.json();
     const action = String(body.action ?? "");
 
+    let photoId: string | undefined;
+    if (body.photoDataUrl) {
+      photoId = await savePhotoDataUrl(String(body.photoDataUrl));
+    }
+
     if (action === "save") {
       const state = await updateState((prev) =>
         saveCompound(prev, String(body.milestoneAchievementId)),
+      );
+      return NextResponse.json({
+        state,
+        pending: pendingCashableMoments(state),
+      });
+    }
+
+    if (action === "claim") {
+      const state = await updateState((prev) =>
+        claimCelebration(
+          prev,
+          String(body.milestoneAchievementId),
+          String(body.name ?? ""),
+          body.note ? String(body.note) : undefined,
+          photoId,
+        ),
       );
       return NextResponse.json({
         state,
@@ -94,6 +117,7 @@ export async function POST(req: Request) {
           rewardId,
           body.note ? String(body.note) : undefined,
           futurePull,
+          photoId,
         );
       });
       return NextResponse.json({

@@ -10,6 +10,58 @@ type DayRow = {
   other: { id: string; type: string; text: string }[];
 };
 
+function formatMd(iso: string): string {
+  const [, m, d] = iso.split("-");
+  return `${m}/${d}`;
+}
+
+function JournalDayRow({ day }: { day: DayRow }) {
+  const extras = [
+    ...(day.standOut
+      ? [{ id: "standout", label: "Note", text: day.standOut }]
+      : []),
+    ...day.other.map((o) => ({
+      id: o.id,
+      label: o.type,
+      text: o.text,
+    })),
+  ];
+  const [open, setOpen] = useState(false);
+  const headline = day.oneLine?.trim() || extras[0]?.text || "—";
+
+  return (
+    <div className="support-row journal-day-row">
+      <button
+        type="button"
+        className="journal-day-toggle"
+        aria-expanded={extras.length > 0 ? open : undefined}
+        onClick={() => extras.length > 0 && setOpen((v) => !v)}
+        disabled={extras.length === 0}
+      >
+        <div className="journal-day-toggle-main">
+          <p className="tiny">{formatMd(day.date)}</p>
+          <p className="journal-day-headline">{headline}</p>
+        </div>
+        {extras.length > 0 && (
+          <span className={open ? "caret open" : "caret"} aria-hidden>
+            ▾
+          </span>
+        )}
+      </button>
+      {open && extras.length > 0 && (
+        <div className="journal-day-notes fade-in">
+          {extras.map((e) => (
+            <p key={e.id} className="journal-day-note">
+              <span className="tiny">{e.label}</span>
+              {e.text}
+            </p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function JournalPage() {
   const { state } = useApp();
 
@@ -46,27 +98,7 @@ export default function JournalPage() {
           <p className="muted">Close a day to add your first line.</p>
         )}
         {days.map((d) => (
-          <div key={d.date} className="support-row">
-            <p className="tiny">{d.date}</p>
-            {d.oneLine && (
-              <p style={{ margin: "4px 0 0", fontSize: "1.05rem" }}>
-                {d.oneLine}
-              </p>
-            )}
-            {d.standOut && (
-              <p
-                className="muted"
-                style={{ margin: "6px 0 0", lineHeight: 1.45 }}
-              >
-                {d.standOut}
-              </p>
-            )}
-            {d.other.map((o) => (
-              <p key={o.id} className="tiny" style={{ marginTop: 6 }}>
-                {o.type}: {o.text}
-              </p>
-            ))}
-          </div>
+          <JournalDayRow key={d.date} day={d} />
         ))}
       </section>
     </main>
