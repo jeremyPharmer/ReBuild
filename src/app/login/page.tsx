@@ -125,10 +125,7 @@ export default function LoginPage() {
             checked={remember}
             onChange={(e) => setRemember(e.target.checked)}
           />
-          <span>
-            Remember me on this device (stays signed in; otherwise logout after
-            2 hours idle)
-          </span>
+          <span>Remember me on this device</span>
         </label>
 
         {error && <p className="form-error">{error}</p>}
