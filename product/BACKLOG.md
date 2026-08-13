@@ -13,12 +13,13 @@ Index of all product items. Canonical detail lives in `product/items/`.
 | 5 | RB-002 | Email integration | P1 | Backlog | M | TBD | later | [items/email-integration.md](./items/email-integration.md) |
 | 6 | RB-003 | Daily email: open checklist at close of day | P1 | Backlog | S | TBD | later | [items/daily-open-checklist-email.md](./items/daily-open-checklist-email.md) |
 | 7 | RB-004 | SMS integration | P2 | Backlog | M | TBD | later | [items/sms-integration.md](./items/sms-integration.md) |
+| 8 | RB-008 | Segregated ReBuild account (feasibility) | P1 | Backlog | S | TBD | later | [items/segregated-rebuild-account-rails.md](./items/segregated-rebuild-account-rails.md) |
 
 ## Status counts
 
 | Status | Count |
 | --- | --- |
-| Backlog | 6 |
+| Backlog | 7 |
 | Ready | 0 |
 | In Progress | 0 |
 | Blocked | 0 |
@@ -29,6 +30,8 @@ Index of all product items. Canonical detail lives in `product/items/`.
 
 New items: create `product/items/<slug>.md`, assign next ID (`RB-00N`), insert at the correct rank (renumber as needed), then update this table and `ROADMAP.md`. Prefer the **head-of-product** agent or `/product-roadmap` skill.
 
-## Locked finance
+## Related
 
-Fund model: [`FUND_MODEL.md`](./FUND_MODEL.md) — **Future + Treat Yourself @ 30/70** (Rebuild bucket removed).
+- Fund model (locked buckets): [`FUND_MODEL.md`](./FUND_MODEL.md)
+- Roadmap / timeline: [`ROADMAP.md`](./ROADMAP.md)
+- V1 locked behaviors: [`../PRODUCT_DECISIONS.md`](../PRODUCT_DECISIONS.md)
