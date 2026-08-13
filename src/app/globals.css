@@ -1459,3 +1459,32 @@ h2 {
 .rebuilt-list {
   margin-top: 10px;
 }
+
+.morning-quote {
+  text-align: left;
+}
+
+.morning-quote-text {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  font-style: italic;
+  color: var(--text);
+}
+
+.morning-quote-attr {
+  margin: 10px 0 0;
+  color: var(--muted);
+}
+
+.morning-add-provision {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 8px 2px 2px;
+}
+
+.provision-chip-open {
+  opacity: 0.7;
+  border-style: dashed;
+}

@@ -33,6 +33,8 @@ export function normalizeState(state: RebuildState): RebuildState {
     milestoneDecisions: state.milestoneDecisions ?? [],
     listenedPodcasts: state.listenedPodcasts ?? [],
     reminderLog: state.reminderLog ?? {},
+    dayProvisions: state.dayProvisions ?? [],
+    quoteLog: state.quoteLog ?? [],
   };
 }
 
