@@ -8,6 +8,7 @@ import { PrimaryButton, SecondaryButton } from "@/components/ui";
 import {
   GENDER_OPTIONS,
   SUPPORT_INSPIRATION,
+  SUPPORT_LABEL_MAX,
   US_STATES,
   type GenderOption,
 } from "@/lib/auth-constants";
@@ -160,7 +161,7 @@ export default function OnboardingPage() {
   }
 
   function addCustomSupport() {
-    const label = customLabel.trim();
+    const label = customLabel.trim().slice(0, SUPPORT_LABEL_MAX);
     if (!label) return;
     let type = `custom_${slugify(label)}`;
     const existing = new Set(supports.map((s) => s.type));
@@ -511,6 +512,7 @@ export default function OnboardingPage() {
               <input
                 className="support-tile-name-input"
                 value={customLabel}
+                maxLength={SUPPORT_LABEL_MAX}
                 onChange={(e) => setCustomLabel(e.target.value)}
                 placeholder="e.g. Journal"
                 aria-label="Custom support name"
@@ -588,8 +590,8 @@ export default function OnboardingPage() {
               <span className="field-label">Treat Yourself %</span>
               <input
                 type="range"
-                min={50}
-                max={90}
+                min={0}
+                max={100}
                 step={5}
                 value={treatPct}
                 onChange={(e) => setTreatPct(Number(e.target.value))}

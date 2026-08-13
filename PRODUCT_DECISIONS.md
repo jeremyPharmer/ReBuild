@@ -72,12 +72,12 @@ First cashable: **Day 3**. Micro every-14: paused.
 
 ### On each confirmed Move $X
 
-| Bucket | Share | Horizon |
+| Bucket | Default share | Horizon |
 |---|---|---|
 | Future | 30% | Longer-horizon park |
 | Treat Yourself | 70% | Short-term spendable |
 
-Not editable in V1. Big Total + segmented bar underneath.  
+Recommended default **70/30**; user chooses Treat/Future mix at onboarding (`treatSplit`) and that mix applies to every Move. Big Total + segmented bar underneath.  
 Legacy **Rebuild** bucket removed (any leftover folds into Future on normalize).
 
 - **Treat Yourself** spend → debit **Treat** first; optionally **pull from Future** if item costs more than Treat  

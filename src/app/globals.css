@@ -272,6 +272,20 @@ h2 {
   border-bottom: none;
 }
 
+.support-row .row {
+  width: 100%;
+}
+
+.support-row .row > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.support-row .row .btn {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 .bottom-nav {
   position: fixed;
   left: 50%;
@@ -487,6 +501,16 @@ h2 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.check-label-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.check-label-meta {
+  color: var(--muted);
+  font-weight: 500;
 }
 
 .dismiss-btn {
@@ -1161,6 +1185,10 @@ h2 {
   transform: rotate(0deg);
 }
 
+.podcast-body {
+  margin-top: 4px;
+}
+
 .podcast-card-head {
   margin-bottom: 4px;
 }
@@ -1357,13 +1385,6 @@ h2 {
   background: var(--accent-soft);
   border-color: var(--accent);
   color: var(--text);
-}
-
-.support-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
 }
 
 .enroll-support-row {

@@ -19,6 +19,7 @@ import {
   waitingReclaimDays,
 } from "@/lib/journey";
 import type { SupportType } from "@/lib/types";
+import { truncateSupportLabel } from "@/lib/auth-constants";
 
 type SkipKey = SupportType | "morning" | "evening";
 
@@ -361,8 +362,13 @@ export default function HomePage() {
                   <div className="check-item-main" aria-hidden>
                     <span className="check-box checked">✓</span>
                     <span className="check-label">
-                      {exitingItem.label}, week {exitingItem.weekDone + 1} of{" "}
-                      {exitingItem.weeklyTarget}
+                      <span className="check-label-name">
+                        {truncateSupportLabel(exitingItem.label)}
+                      </span>
+                      <span className="check-label-meta">
+                        , week {exitingItem.weekDone + 1} of{" "}
+                        {exitingItem.weeklyTarget}
+                      </span>
                     </span>
                   </div>
                   <span className="clear-burst" aria-hidden>
@@ -389,7 +395,12 @@ export default function HomePage() {
                 >
                   <span className="check-box" />
                   <span className="check-label">
-                    {s.label}, week {weekDone} of {s.weeklyTarget}
+                    <span className="check-label-name">
+                      {truncateSupportLabel(s.label)}
+                    </span>
+                    <span className="check-label-meta">
+                      , week {weekDone} of {s.weeklyTarget}
+                    </span>
                   </span>
                 </button>
                 <button

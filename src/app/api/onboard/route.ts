@@ -3,6 +3,7 @@ import { refreshSessionCookie, requireSessionUser } from "@/lib/auth";
 import { FUTURE_SPLIT, TREAT_SPLIT } from "@/lib/fund";
 import { newId } from "@/lib/journey";
 import { updateState, updateUserRecord } from "@/lib/store";
+import { SUPPORT_LABEL_MAX } from "@/lib/auth-constants";
 import { DEFAULT_SUPPORTS, type RewardCategory, type SupportConfig } from "@/lib/types";
 
 export async function POST(req: Request) {
@@ -46,9 +47,9 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
-    if (treatPct < 5 || treatPct > 95) {
+    if (treatPct < 0 || treatPct > 100) {
       return NextResponse.json(
-        { error: "Treat share must be between 5% and 95%" },
+        { error: "Treat share must be between 0% and 100%" },
         { status: 400 },
       );
     }
@@ -112,7 +113,7 @@ export async function POST(req: Request) {
           currentRunStartedOn: prev.profile?.currentRunStartedOn ?? today,
           supports: supports.map((s) => ({
             type: String(s.type),
-            label: String(s.label),
+            label: String(s.label).trim().slice(0, SUPPORT_LABEL_MAX) || "Support",
             weeklyTarget: Math.max(0, Math.min(21, Number(s.weeklyTarget) || 0)),
             enabled: s.enabled !== false,
           })),

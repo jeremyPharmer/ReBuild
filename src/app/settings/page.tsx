@@ -9,6 +9,7 @@ import {
   weekBounds,
   weeklySupportProgress,
 } from "@/lib/journey";
+import { SUPPORT_LABEL_MAX } from "@/lib/auth-constants";
 import { DEFAULT_SUPPORTS, type SupportConfig } from "@/lib/types";
 
 function slugify(label: string) {
@@ -71,7 +72,7 @@ export default function SettingsPage() {
   }
 
   function addSupport() {
-    const label = newLabel.trim();
+    const label = newLabel.trim().slice(0, SUPPORT_LABEL_MAX);
     if (!label) return;
     let type = `custom_${slugify(label)}`;
     const existing = new Set(supports.map((s) => s.type));
@@ -371,8 +372,11 @@ export default function SettingsPage() {
                 <input
                   className="inline-label"
                   value={s.label}
+                  maxLength={SUPPORT_LABEL_MAX}
                   onChange={(e) =>
-                    updateSupport(s.type, { label: e.target.value })
+                    updateSupport(s.type, {
+                      label: e.target.value.slice(0, SUPPORT_LABEL_MAX),
+                    })
                   }
                 />
               </label>
@@ -399,6 +403,7 @@ export default function SettingsPage() {
           <div className="add-support-row">
             <input
               value={newLabel}
+              maxLength={SUPPORT_LABEL_MAX}
               onChange={(e) => setNewLabel(e.target.value)}
               placeholder="e.g. Walk, Meeting, Therapy"
             />

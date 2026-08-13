@@ -90,3 +90,12 @@ export function isAdminEmail(email: string): boolean {
 export function validatePin(pin: string): boolean {
   return /^\d{4}$/.test(pin);
 }
+
+/** Max length for support labels so Today’s Rebuild fits on mobile. */
+export const SUPPORT_LABEL_MAX = 22;
+
+export function truncateSupportLabel(label: string, max = SUPPORT_LABEL_MAX) {
+  const t = label.trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, Math.max(1, max - 1)).trimEnd()}…`;
+}

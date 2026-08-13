@@ -47,7 +47,7 @@ export function RecoveryPodcastCard() {
       </button>
 
       {open && (
-        <>
+        <div className="podcast-body fade-in">
           {offers.length === 0 ? (
             <p className="muted" style={{ marginTop: 10 }}>
               You’ve cleared this shelf for now.
@@ -94,7 +94,7 @@ export function RecoveryPodcastCard() {
               {error}
             </p>
           )}
-        </>
+        </div>
       )}
     </section>
   );

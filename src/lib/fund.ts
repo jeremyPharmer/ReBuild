@@ -40,15 +40,15 @@ export function normalizeState(state: RebuildState): RebuildState {
 export const FUTURE_SPLIT = 0.3;
 export const TREAT_SPLIT = 0.7;
 
-/** Clamp and normalize Treat share; Future is the remainder. */
+/** Clamp and normalize Treat share; Future is the remainder. Allows 0–100. */
 export function normalizeTreatSplit(treatSplit?: number): number {
   if (!Number.isFinite(treatSplit)) return TREAT_SPLIT;
   const t = Number(treatSplit);
   if (t > 1) {
     // allow 0–100 style percents
-    return Math.min(0.95, Math.max(0.05, Math.round(t) / 100));
+    return Math.min(1, Math.max(0, Math.round(t) / 100));
   }
-  return Math.min(0.95, Math.max(0.05, t));
+  return Math.min(1, Math.max(0, t));
 }
 
 export function splitTransfer(
