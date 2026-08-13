@@ -1262,3 +1262,128 @@ h2 {
     transform: translateY(0);
   }
 }
+
+.journal-day-row {
+  padding-bottom: 10px;
+}
+
+.journal-day-toggle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.journal-day-toggle:disabled {
+  cursor: default;
+}
+
+.journal-day-toggle-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.journal-day-headline {
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.journal-day-notes {
+  margin-top: 8px;
+  display: grid;
+  gap: 8px;
+}
+
+.journal-day-note {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 0.92rem;
+}
+
+.journal-day-note .tiny {
+  display: block;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.trail-reward-photo {
+  margin-top: 10px;
+}
+
+.trail-reward-photo img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.incentive-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.incentive-head-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.incentive-treat {
+  flex: none;
+  text-align: right;
+  padding-top: 2px;
+}
+
+.incentive-treat-amount {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 650;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.incentive-treat-label {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  color: var(--muted);
+  max-width: 7.5rem;
+}
+
+.photo-subtle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.photo-subtle-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.photo-subtle-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+

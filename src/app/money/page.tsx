@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import {
   Money,
@@ -39,6 +39,96 @@ const emptyDraft = (): Draft => ({
   url: "",
   assignDay: "",
 });
+
+function RebuiltPhoto({
+  reward,
+  onAttach,
+}: {
+  reward: Reward;
+  onAttach: (id: string, photoDataUrl: string) => Promise<void>;
+}) {
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const libraryRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleFile(file: File | undefined) {
+    if (!file) return;
+    setBusy(true);
+    setError("");
+    try {
+      const { fileToCompressedDataUrl } = await import("@/lib/clientPhoto");
+      const dataUrl = await fileToCompressedDataUrl(file);
+      await onAttach(reward.id, dataUrl);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not use that photo");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div style={{ marginTop: 8 }}>
+      {reward.photoId && (
+        <div className="trail-reward-photo">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/api/photos/${encodeURIComponent(reward.photoId)}`}
+            alt={reward.name}
+          />
+        </div>
+      )}
+      <div className="photo-subtle-actions" style={{ marginTop: 8 }}>
+        <input
+          ref={cameraRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          hidden
+          onChange={(e) => {
+            void handleFile(e.target.files?.[0]);
+            e.target.value = "";
+          }}
+        />
+        <input
+          ref={libraryRef}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(e) => {
+            void handleFile(e.target.files?.[0]);
+            e.target.value = "";
+          }}
+        />
+        <button
+          type="button"
+          className="photo-subtle-btn"
+          disabled={busy}
+          onClick={() => cameraRef.current?.click()}
+        >
+          {busy
+            ? "Preparing photo…"
+            : reward.photoId
+              ? "Retake photo"
+              : "Add photo"}
+        </button>
+        <button
+          type="button"
+          className="photo-subtle-btn"
+          disabled={busy}
+          onClick={() => libraryRef.current?.click()}
+        >
+          Choose from library
+        </button>
+      </div>
+      {error && (
+        <p style={{ color: "var(--danger)", marginTop: 6 }} className="tiny">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default function MoneyPage() {
   const { state, post } = useApp();
@@ -96,6 +186,14 @@ export default function MoneyPage() {
     setEditingId(null);
     setShowAdd(true);
     setDraft(emptyDraft());
+  }
+
+  async function attachRebuiltPhoto(id: string, photoDataUrl: string) {
+    await post("/api/rewards", {
+      action: "attachPhoto",
+      id,
+      photoDataUrl,
+    });
   }
 
   function cancelForm() {
@@ -440,6 +538,7 @@ export default function MoneyPage() {
                 <Money value={r.actualCost ?? r.estimatedCost} />
               </div>
               {r.notes && <p className="tiny">{r.notes}</p>}
+              <RebuiltPhoto reward={r} onAttach={attachRebuiltPhoto} />
             </div>
           ))}
         </section>
