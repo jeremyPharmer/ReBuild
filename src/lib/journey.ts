@@ -37,6 +37,30 @@ export function formatDisplayDate(date: string): string {
   });
 }
 
+/**
+ * Calendar day (YYYY-MM-DD) of the most recent Start or Close the day,
+ * whichever was completed later. Null if neither exists.
+ */
+export function lastActiveDay(
+  state: Pick<RebuildState, "mornings" | "evenings">,
+): string | null {
+  let bestAt = -1;
+  let bestDay: string | null = null;
+  for (const m of state.mornings ?? []) {
+    const at = Date.parse(m.completedAt);
+    if (Number.isNaN(at) || at < bestAt) continue;
+    bestAt = at;
+    bestDay = m.date;
+  }
+  for (const e of state.evenings ?? []) {
+    const at = Date.parse(e.completedAt);
+    if (Number.isNaN(at) || at < bestAt) continue;
+    bestAt = at;
+    bestDay = e.date;
+  }
+  return bestDay;
+}
+
 /** M-D-YYYY without forced zero-padding (e.g. 8-10-2026) */
 export function formatSinceDate(date: string): string {
   const d = parseDate(date);
