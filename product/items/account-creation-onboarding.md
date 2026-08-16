@@ -49,8 +49,8 @@ Progress UI consistent with trail / journey language. Suggested steps:
 ### Admin (Settings)
 
 - Card visible **only** to allowlisted admin emails
-- Opens user list: email (and/or display name), **account created**, **last login**
-- **Last login** updates on any successful access that proves the user is active: password login, PIN unlock, or remember-me session resume (so admin can see active users)
+- Opens user list: email (and/or display name), **account created**, **last active day**
+- **Last active day** is the calendar day of the most recent Start the day or Close the day (whichever was completed later), derived from existing morning/evening history — not auth/session time
 
 ### Storage
 

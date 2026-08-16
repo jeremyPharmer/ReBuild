@@ -3,6 +3,7 @@ import {
   buildDashboard,
   cleanDaysThisRun,
   formatSinceDate,
+  lastActiveDay,
   nextIncentive,
   nextMilestones,
   projectedReclaimAt,
@@ -32,6 +33,64 @@ function baseState(): RebuildState {
   };
   return state;
 }
+
+describe("lastActiveDay", () => {
+  it("returns null with no mornings or evenings", () => {
+    expect(lastActiveDay(baseState())).toBeNull();
+  });
+
+  it("uses the later of morning vs evening completedAt", () => {
+    const state = baseState();
+    state.mornings = [
+      {
+        date: "2026-08-14",
+        sleepHours: 7,
+        sleepQuality: 7,
+        mood: 7,
+        energy: 7,
+        stress: 3,
+        intention: "focus",
+        completedAt: "2026-08-14T14:00:00.000Z",
+      },
+    ];
+    state.evenings = [
+      {
+        date: "2026-08-15",
+        mood: 7,
+        alignment: "aligned",
+        oneLine: "ok",
+        completedAt: "2026-08-16T02:00:00.000Z",
+      },
+    ];
+    expect(lastActiveDay(state)).toBe("2026-08-15");
+  });
+
+  it("prefers a later morning over an earlier evening", () => {
+    const state = baseState();
+    state.mornings = [
+      {
+        date: "2026-08-16",
+        sleepHours: 7,
+        sleepQuality: 7,
+        mood: 7,
+        energy: 7,
+        stress: 3,
+        intention: "focus",
+        completedAt: "2026-08-16T15:00:00.000Z",
+      },
+    ];
+    state.evenings = [
+      {
+        date: "2026-08-15",
+        mood: 7,
+        alignment: "aligned",
+        oneLine: "ok",
+        completedAt: "2026-08-16T02:00:00.000Z",
+      },
+    ];
+    expect(lastActiveDay(state)).toBe("2026-08-16");
+  });
+});
 
 describe("weekBounds", () => {
   it("returns Sunday–Saturday", () => {

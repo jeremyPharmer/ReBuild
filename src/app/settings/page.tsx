@@ -27,7 +27,7 @@ type AdminUserRow = {
   email: string;
   displayName: string;
   createdAt: string;
-  lastLoginAt: string;
+  lastActiveDay: string | null;
   onboarded: boolean;
 };
 
@@ -240,7 +240,8 @@ export default function SettingsPage() {
         <section className="panel">
           <p className="eyebrow">Admin</p>
           <p className="muted" style={{ marginTop: 0 }}>
-            See who has created an account and when they last signed in.
+            See who has created an account and their last active day (start or
+            close).
           </p>
           {!adminOpen ? (
             <PrimaryButton onClick={() => void loadAdmin()} disabled={busy}>
@@ -258,9 +259,14 @@ export default function SettingsPage() {
                   </div>
                   <div className="tiny" style={{ textAlign: "right" }}>
                     <div>Joined {new Date(u.createdAt).toLocaleDateString()}</div>
-                    <div>
-                      Last login {new Date(u.lastLoginAt).toLocaleDateString()}
-                    </div>
+                    {u.lastActiveDay && (
+                      <div>
+                        Last active day{" "}
+                        {new Date(
+                          `${u.lastActiveDay}T12:00:00`,
+                        ).toLocaleDateString()}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

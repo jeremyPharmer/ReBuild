@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isAdminEmail } from "@/lib/auth-constants";
 import { requireSessionUser } from "@/lib/auth";
+import { lastActiveDay } from "@/lib/journey";
 import { listUsers } from "@/lib/store";
 
 export async function GET() {
@@ -17,7 +18,7 @@ export async function GET() {
           email: u.email,
           displayName: u.displayName,
           createdAt: u.createdAt,
-          lastLoginAt: u.lastLoginAt,
+          lastActiveDay: lastActiveDay(u.state),
           onboarded: Boolean(u.state.profile?.onboarded),
         }))
         .sort(
