@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
+  availableShopRewards,
   claimCelebration,
   eligibleWishlist,
   eligibleWishlistForIncentive,
+  executeWishlist,
   fundTotal,
+  lastShopReward,
   mustTreat,
   normalizeFund,
   projectedTreatYourselfAt,
   saveForFuture,
+  shoppingTreatBudget,
   splitTransfer,
   treatYourself,
 } from "./fund";
@@ -352,5 +356,78 @@ describe("fund split", () => {
     expect(eligibleWishlistForIncentive(state, 3, "2026-08-01").map((r) => r.id)).toEqual(
       ["r_now", "r_later", "r_assigned"],
     );
+  });
+
+  it("shop budget is Treat earned through last unclaimed reward, not running Treat", () => {
+    let state = base();
+    state.rewards = [
+      {
+        id: "r_shop",
+        name: "Dinner",
+        category: "experiences",
+        estimatedCost: 80,
+        executed: false,
+        createdAt: "",
+      },
+      {
+        id: "r_later",
+        name: "Trip",
+        category: "travel",
+        estimatedCost: 120,
+        executed: false,
+        createdAt: "",
+      },
+    ];
+
+    for (let i = 1; i <= 5; i++) {
+      const day = `2026-08-0${i}`;
+      state = applyEveningSideEffects(state, {
+        date: day,
+        mood: 7,
+        stress: 2,
+        alignment: "aligned",
+        oneLine: `${i}`,
+        completedAt: "",
+      });
+      state = confirmTransfer(state, [day], 40);
+    }
+
+    // Running Treat = 5 × $28 = $140. Day 3 still unclaimed (Day 5 is checkpoint).
+    expect(state.fund.treat).toBe(140);
+    expect(lastShopReward(state)?.dayNumber).toBe(3);
+    expect(shoppingTreatBudget(state)).toBe(84);
+    expect(availableShopRewards(state).map((r) => r.id)).toEqual(["r_shop"]);
+
+    state = executeWishlist(state, "r_shop", 80);
+    expect(state.rewards.find((r) => r.id === "r_shop")?.executed).toBe(true);
+    expect(state.milestoneDecisions[0]?.dayNumber).toBe(3);
+    expect(shoppingTreatBudget(state)).toBe(0);
+    expect(state.fund.treat).toBe(60);
+  });
+
+  it("shop stays closed until a reward is ready to claim", () => {
+    let state = base();
+    state = applyEveningSideEffects(state, {
+      date: "2026-08-01",
+      mood: 7,
+      stress: 2,
+      alignment: "aligned",
+      oneLine: "a",
+      completedAt: "",
+    });
+    state = confirmTransfer(state, ["2026-08-01"], 40);
+    state.rewards = [
+      {
+        id: "r1",
+        name: "Coffee",
+        category: "other",
+        estimatedCost: 10,
+        executed: false,
+        createdAt: "",
+      },
+    ];
+    expect(lastShopReward(state)).toBeUndefined();
+    expect(shoppingTreatBudget(state)).toBe(0);
+    expect(() => executeWishlist(state, "r1")).toThrow(/reward is ready/);
   });
 });
