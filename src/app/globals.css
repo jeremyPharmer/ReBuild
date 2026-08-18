@@ -1400,11 +1400,12 @@ h2 {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 40;
-  background: rgba(6, 12, 10, 0.72);
-  display: grid;
-  place-items: end center;
-  padding: 18px;
+  z-index: 80;
+  background: rgba(6, 12, 10, 0.78);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
   animation: fade-backdrop 0.2s ease;
 }
 
