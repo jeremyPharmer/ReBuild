@@ -1,4 +1,10 @@
-import { cleanDaysThisRun, newId, waitingReclaimTotal } from "./journey";import type {
+import {
+  calendarDaysBetween,
+  cleanDaysThisRun,
+  newId,
+  waitingReclaimTotal,
+} from "./journey";
+import type {
   FundLedger,
   MilestoneAchievement,
   RebuildState,
@@ -203,6 +209,93 @@ export function eligibleWishlistForIncentive(
   );
 }
 
+function treatShareOfTransfer(
+  state: RebuildState,
+  transfer: RebuildState["transfers"][number],
+): number {
+  if (transfer.split?.treat != null) return transfer.split.treat;
+  return splitTransfer(transfer.amount, profileTreatSplit(state)).treat;
+}
+
+/** Current-run clean-day number for a calendar date, or null if before this run. */
+function cleanDayOnRun(state: RebuildState, date: string): number | null {
+  const start = state.profile?.currentRunStartedOn;
+  if (!start || date < start) return null;
+  return calendarDaysBetween(start, date) + 1;
+}
+
+/**
+ * Treat share of Moves for current-run days *after* a clean-day number.
+ * That later accrual is the running Treat total, not this reward's shop budget.
+ */
+export function treatAccruedAfterCleanDay(
+  state: RebuildState,
+  targetCleanDay: number,
+): number {
+  let treat = 0;
+  for (const transfer of state.transfers) {
+    const dates = transfer.dayDates ?? [];
+    if (dates.length === 0) continue;
+    const share = treatShareOfTransfer(state, transfer) / dates.length;
+    for (const date of dates) {
+      const day = cleanDayOnRun(state, date);
+      if (day != null && day > targetCleanDay) treat += share;
+    }
+  }
+  return round2(treat);
+}
+
+/** Latest unlocked Reward/Destination this run that has not been spent. */
+export function lastShopReward(
+  state: RebuildState,
+): MilestoneAchievement | undefined {
+  const runId = state.profile?.currentRunId;
+  const spent = new Set(
+    (state.milestoneDecisions ?? [])
+      .filter((d) => d.choice === "treat" && d.amount > 0)
+      .map((d) => d.milestoneAchievementId),
+  );
+  const open = state.milestones.filter(
+    (m) =>
+      m.rewardEligible &&
+      (m.type === "reward" || m.type === "destination") &&
+      (!runId || m.runId === runId) &&
+      !spent.has(m.id),
+  );
+  if (open.length === 0) return undefined;
+  return open.reduce((best, m) =>
+    m.dayNumber >= best.dayNumber ? m : best,
+  );
+}
+
+/**
+ * Treat Yourself you may shop with right now:
+ * Treat earned through the last reached reward that has not been spent —
+ * not the running Treat total from Moves after that day.
+ * Save for the Future does not close the shop (you did not spend).
+ */
+export function shoppingTreatBudget(state: RebuildState): number {
+  const moment = lastShopReward(state);
+  if (!moment) return 0;
+  const treatNow = normalizeFund(state.fund).treat;
+  const later = treatAccruedAfterCleanDay(state, moment.dayNumber);
+  return round2(Math.max(0, treatNow - later));
+}
+
+export function availableShopRewards(state: RebuildState): Reward[] {
+  const ceiling = shoppingTreatBudget(state);
+  return state.rewards.filter(
+    (r) => !r.executed && r.estimatedCost <= ceiling,
+  );
+}
+
+export function otherShopRewards(state: RebuildState): Reward[] {
+  const ceiling = shoppingTreatBudget(state);
+  return state.rewards.filter(
+    (r) => !r.executed && r.estimatedCost > ceiling,
+  );
+}
+
 /**
  * Save for the Future — skip spending short-term Treat this reward moment.
  * Does not move money into Treat (old Save & compound direction retired).
@@ -288,7 +381,10 @@ export function saveCompound(
 }
 
 /**
- * Spend a wishlist item (Treat first, optional Future pull).
+ * Spend a wishlist item from the Rewards shop.
+ * Uses Treat Yourself earned through the last unspent reward (not the
+ * running Treat total). If that reward is still undecided, this is the
+ * Treat claim. After Save, it only debits Treat — the decision already stands.
  */
 export function executeWishlist(
   state: RebuildState,
@@ -297,6 +393,14 @@ export function executeWishlist(
   notes?: string,
   futurePull?: number,
 ): RebuildState {
+  const moment = lastShopReward(state);
+  if (!moment) {
+    throw Object.assign(
+      new Error("Shop opens when a reward is ready to claim"),
+      { status: 400 },
+    );
+  }
+
   const reward = state.rewards.find((r) => r.id === rewardId);
   if (!reward || reward.executed) {
     throw Object.assign(new Error("Wishlist item not available"), {
@@ -308,9 +412,35 @@ export function executeWishlist(
     actualCost !== undefined && Number.isFinite(actualCost)
       ? actualCost
       : reward.estimatedCost;
+  const budget = shoppingTreatBudget(state);
+  if (!Number.isFinite(cost) || cost <= 0) {
+    throw Object.assign(new Error("Enter how much you spent"), { status: 400 });
+  }
+  if (cost > budget) {
+    throw Object.assign(
+      new Error(
+        "That costs more than Treat Yourself from your last reward — pick something in the shop or wait for the next one",
+      ),
+      { status: 400 },
+    );
+  }
+
+  const alreadyDecided = (state.milestoneDecisions ?? []).some(
+    (d) => d.milestoneAchievementId === moment.id,
+  );
+  if (!alreadyDecided) {
+    return treatYourself(
+      state,
+      moment.id,
+      rewardId,
+      notes,
+      futurePull,
+      undefined,
+      cost,
+    );
+  }
 
   const fund = spendFromTreatAndFuture(state.fund, cost, futurePull);
-
   return {
     ...state,
     fund,
@@ -323,6 +453,7 @@ export function executeWishlist(
             executedAt: new Date().toISOString(),
             actualCost: cost,
             notes: notes || r.notes,
+            assignedMilestoneDay: moment.dayNumber,
           }
         : r,
     ),
