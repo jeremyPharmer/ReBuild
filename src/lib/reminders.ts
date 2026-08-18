@@ -13,7 +13,7 @@ export const DEFAULT_REMINDERS: ReminderPrefs = {
 };
 
 export function normalizeReminders(
-  raw: RebuildProfile["reminders"] | undefined,
+  raw: Partial<ReminderPrefs> | RebuildProfile["reminders"] | undefined,
 ): ReminderPrefs {
   const morningHour = clampHour(
     raw?.morningHour ?? DEFAULT_REMINDERS.morningHour,

@@ -40,7 +40,11 @@ describe("reminders", () => {
       supports: DEFAULT_SUPPORTS,
       timezone: "UTC",
       email: "j@example.com",
-      reminders: { enabled: true, morningHour: 7, eveningHour: 20 },
+      reminders: normalizeReminders({
+        enabled: true,
+        morningHour: 7,
+        eveningHour: 20,
+      }),
     };
 
     const morning = dueReminderKinds(state, new Date("2026-08-11T07:05:00.000Z"));

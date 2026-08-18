@@ -35,16 +35,19 @@ function sample(): RebuildState {
       date: "2026-08-17",
       supportType: "recovery_content",
       completed: true,
+      completedAt: "2026-08-17T12:00:00.000Z",
     },
     {
       date: "2026-08-17",
       supportType: "medication",
       completed: true,
+      completedAt: "2026-08-17T12:00:00.000Z",
     },
     {
       date: "2026-08-16",
       supportType: "medication",
       completed: true,
+      completedAt: "2026-08-16T12:00:00.000Z",
     },
   ];
   state.mornings = [
