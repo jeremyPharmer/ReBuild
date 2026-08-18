@@ -870,7 +870,7 @@ h2 {
 }
 
 .rewards-page {
-  padding-bottom: 56px;
+  padding-bottom: 8px;
 }
 
 .shop-wallet {
@@ -891,12 +891,8 @@ h2 {
 }
 
 .shop-add-bar {
-  position: fixed;
-  left: 50%;
-  bottom: 76px;
-  transform: translateX(-50%);
-  width: min(440px, calc(100% - 24px));
-  z-index: 35;
+  width: 100%;
+  margin-top: 8px;
   background: linear-gradient(135deg, #e09358, var(--accent));
   color: #1a120c;
   border: none;

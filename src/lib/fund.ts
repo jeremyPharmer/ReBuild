@@ -245,21 +245,34 @@ export function treatAccruedAfterCleanDay(
   return round2(treat);
 }
 
-/** Latest unlocked Reward/Destination that has not been claimed or saved yet. */
+/** Latest unlocked Reward/Destination this run that has not been spent. */
 export function lastShopReward(
   state: RebuildState,
 ): MilestoneAchievement | undefined {
-  const pending = pendingCashableMoments(state);
-  if (pending.length === 0) return undefined;
-  return pending.reduce((best, m) =>
+  const runId = state.profile?.currentRunId;
+  const spent = new Set(
+    (state.milestoneDecisions ?? [])
+      .filter((d) => d.choice === "treat" && d.amount > 0)
+      .map((d) => d.milestoneAchievementId),
+  );
+  const open = state.milestones.filter(
+    (m) =>
+      m.rewardEligible &&
+      (m.type === "reward" || m.type === "destination") &&
+      (!runId || m.runId === runId) &&
+      !spent.has(m.id),
+  );
+  if (open.length === 0) return undefined;
+  return open.reduce((best, m) =>
     m.dayNumber >= best.dayNumber ? m : best,
   );
 }
 
 /**
  * Treat Yourself you may shop with right now:
- * Treat earned through the last unclaimed reward — not the running Treat
- * total from Moves after that day. $0 if no reward is waiting to be claimed.
+ * Treat earned through the last reached reward that has not been spent —
+ * not the running Treat total from Moves after that day.
+ * Save for the Future does not close the shop (you did not spend).
  */
 export function shoppingTreatBudget(state: RebuildState): number {
   const moment = lastShopReward(state);
@@ -369,8 +382,9 @@ export function saveCompound(
 
 /**
  * Spend a wishlist item from the Rewards shop.
- * Uses Treat Yourself earned through the last unclaimed reward (not the
- * running Treat total). Closes that reward as a Treat claim.
+ * Uses Treat Yourself earned through the last unspent reward (not the
+ * running Treat total). If that reward is still undecided, this is the
+ * Treat claim. After Save, it only debits Treat — the decision already stands.
  */
 export function executeWishlist(
   state: RebuildState,
@@ -411,15 +425,39 @@ export function executeWishlist(
     );
   }
 
-  return treatYourself(
-    state,
-    moment.id,
-    rewardId,
-    notes,
-    futurePull,
-    undefined,
-    cost,
+  const alreadyDecided = (state.milestoneDecisions ?? []).some(
+    (d) => d.milestoneAchievementId === moment.id,
   );
+  if (!alreadyDecided) {
+    return treatYourself(
+      state,
+      moment.id,
+      rewardId,
+      notes,
+      futurePull,
+      undefined,
+      cost,
+    );
+  }
+
+  const fund = spendFromTreatAndFuture(state.fund, cost, futurePull);
+  return {
+    ...state,
+    fund,
+    consecutiveSaves: 0,
+    rewards: state.rewards.map((r) =>
+      r.id === rewardId
+        ? {
+            ...r,
+            executed: true,
+            executedAt: new Date().toISOString(),
+            actualCost: cost,
+            notes: notes || r.notes,
+            assignedMilestoneDay: moment.dayNumber,
+          }
+        : r,
+    ),
+  };
 }
 
 export function treatYourself(

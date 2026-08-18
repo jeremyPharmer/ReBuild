@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import {
@@ -47,7 +47,7 @@ export default function MoneyPage() {
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
-  const [otherOpen, setOtherOpen] = useState(false);
+  const [otherOpen, setOtherOpen] = useState(true);
   const [checkingOut, setCheckingOut] = useState<Reward | null>(null);
   const [spent, setSpent] = useState("");
 
@@ -59,7 +59,6 @@ export default function MoneyPage() {
   const cleanDays = cleanDaysThisRun(state, today);
   const nextShop = shopMoment ? undefined : nextIncentive(cleanDays);
   const formOpen = showAdd || editingId !== null;
-
   const spentNum = Number(spent);
   const checkoutCost =
     checkingOut && Number.isFinite(spentNum) && spentNum > 0
@@ -70,12 +69,6 @@ export default function MoneyPage() {
     Number.isFinite(checkoutCost) &&
     checkoutCost > 0 &&
     checkoutCost <= budget;
-
-  const otherHint = useMemo(() => {
-    if (other.length === 0) return "";
-    if (budget <= 0) return "Waiting on a reward";
-    return `Need more than ${budget.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
-  }, [other.length, budget]);
 
   function openEdit(r: Reward) {
     setCheckingOut(null);
@@ -251,6 +244,12 @@ export default function MoneyPage() {
         <h1>Rewards</h1>
       </header>
 
+      {message && (
+        <p className="chip good success-pop" style={{ margin: 0 }}>
+          {message}
+        </p>
+      )}
+
       <section className="panel shop-wallet">
         <p className="shop-wallet-amount">
           <Money value={budget} />
@@ -261,22 +260,17 @@ export default function MoneyPage() {
               to shop · Day {shopMoment.dayNumber} · {shopMoment.title}
             </p>
             <p className="tiny" style={{ marginTop: 8, lineHeight: 1.45 }}>
-              Treat Yourself earned through this reward — not money moved after
-              it.
+              Treat Yourself through this reward. Later Moves wait for the next
+              one.
             </p>
-            {budget === 0 && (
-              <p className="tiny" style={{ marginTop: 6, lineHeight: 1.45 }}>
-                Move money on Home to bring this into the shop.
-              </p>
-            )}
           </>
         ) : (
           <>
             <p className="shop-wallet-label">to shop</p>
             <p className="tiny" style={{ marginTop: 8, lineHeight: 1.45 }}>
               {nextShop
-                ? `Shop opens at Day ${nextShop.dayNumber} · ${nextShop.title}, with Treat Yourself you earn by then.`
-                : "No reward is waiting — the next one will open the shop."}
+                ? `Opens at Day ${nextShop.dayNumber} · ${nextShop.title}.`
+                : "The next reward will open the shop."}
             </p>
           </>
         )}
@@ -300,8 +294,8 @@ export default function MoneyPage() {
           <div className="panel">
             <p className="muted" style={{ margin: 0, lineHeight: 1.45 }}>
               {budget <= 0
-                ? "Nothing to buy until a reward is ready and Treat Yourself from that day is in the shop."
-                : "Nothing in range yet. Add a reward at or under this balance, or open Other rewards."}
+                ? "Nothing in the shop yet. Your other rewards are below."
+                : "Nothing in range yet — add one at or under this balance, or pick from Other rewards."}
             </p>
           </div>
         ) : (
@@ -326,7 +320,8 @@ export default function MoneyPage() {
                 Other rewards
               </p>
               <p className="tiny" style={{ marginTop: 4 }}>
-                {other.length} · {otherHint}
+                {other.length} saved
+                {budget > 0 ? ` · over $${Math.round(budget)}` : ""}
               </p>
             </div>
             <span className={otherOpen ? "caret open" : "caret"} aria-hidden>
@@ -342,8 +337,6 @@ export default function MoneyPage() {
           )}
         </section>
       )}
-
-      {message && <p className="chip good success-pop">{message}</p>}
 
       {!formOpen && !checkingOut && (
         <button type="button" className="shop-add-bar" onClick={openCreate}>

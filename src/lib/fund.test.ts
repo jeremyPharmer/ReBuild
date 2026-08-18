@@ -405,6 +405,42 @@ describe("fund split", () => {
     expect(state.fund.treat).toBe(60);
   });
 
+  it("Save for the Future keeps the Day 7 shop window open", () => {
+    let state = base();
+    state.rewards = [
+      {
+        id: "r_shop",
+        name: "Dinner",
+        category: "experiences",
+        estimatedCost: 80,
+        executed: false,
+        createdAt: "",
+      },
+    ];
+    for (let i = 1; i <= 9; i++) {
+      const day = `2026-08-${String(i).padStart(2, "0")}`;
+      state = applyEveningSideEffects(state, {
+        date: day,
+        mood: 7,
+        stress: 2,
+        alignment: "aligned",
+        oneLine: `${i}`,
+        completedAt: "",
+      });
+      state = confirmTransfer(state, [day], 40);
+    }
+    const day7 = state.milestones.find((m) => m.dayNumber === 7)!;
+    state = saveForFuture(state, day7.id, "Walked instead");
+    // Running Treat = 9 × $28 = $252. Shop is still Day 7 = 7 × $28 = $196.
+    expect(lastShopReward(state)?.dayNumber).toBe(7);
+    expect(state.fund.treat).toBe(252);
+    expect(shoppingTreatBudget(state)).toBe(196);
+    state = executeWishlist(state, "r_shop", 80);
+    expect(state.rewards.find((r) => r.id === "r_shop")?.executed).toBe(true);
+    expect(state.fund.treat).toBe(172);
+    expect(shoppingTreatBudget(state)).toBe(116);
+  });
+
   it("shop stays closed until a reward is ready to claim", () => {
     let state = base();
     state = applyEveningSideEffects(state, {
