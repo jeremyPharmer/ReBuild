@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
 import { FundSegmentBar, HomeRewardCard } from "@/components/MilestoneReward";
-import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
+import { Money, PrimaryButton, SecondaryButton, Sheet } from "@/components/ui";
 import {
   eligibleWishlistForIncentive,
   fundTotal,
@@ -253,6 +253,19 @@ export default function HomePage() {
       setRewardPickerOpen(false);
     } catch (e) {
       setAssignError(e instanceof Error ? e.message : "Could not assign");
+    } finally {
+      setAssignBusy(false);
+    }
+  }
+
+  async function deletePickerReward(rewardId: string) {
+    if (!window.confirm("Remove this reward from your list?")) return;
+    setAssignBusy(true);
+    setAssignError("");
+    try {
+      await post("/api/rewards", { action: "delete", id: rewardId });
+    } catch (e) {
+      setAssignError(e instanceof Error ? e.message : "Could not delete");
     } finally {
       setAssignBusy(false);
     }
@@ -684,18 +697,11 @@ export default function HomePage() {
       )}
 
       {rewardPickerOpen && incentive && (
-        <div
-          className="modal-backdrop"
-          role="presentation"
-          onClick={() => !assignBusy && setRewardPickerOpen(false)}
+        <Sheet
+          label="Choose reward"
+          busy={assignBusy}
+          onClose={() => setRewardPickerOpen(false)}
         >
-          <div
-            className="modal-sheet"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Choose reward"
-            onClick={(e) => e.stopPropagation()}
-          >
             <p className="eyebrow">Day {incentive.dayNumber}</p>
             <h2>Choose reward</h2>
             <p className="tiny" style={{ marginTop: 6, marginBottom: 12 }}>
@@ -713,31 +719,40 @@ export default function HomePage() {
                 {eligibleRewards.map((r) => {
                   const selected = assigned?.id === r.id;
                   return (
-                    <button
-                      key={r.id}
-                      type="button"
-                      className={
-                        selected
-                          ? "check-item check-item-row done"
-                          : "check-item check-item-row"
-                      }
-                      disabled={assignBusy}
-                      onClick={() => assignReward(r.id)}
-                    >
-                      <span className="check-box">
-                        {selected ? "✓" : ""}
-                      </span>
-                      <span className="check-label">
-                        {r.name}
-                        {r.assignedMilestoneDay &&
-                        r.assignedMilestoneDay !== incentive.dayNumber
-                          ? ` · Day ${r.assignedMilestoneDay}`
-                          : ""}
-                      </span>
-                      <span className="tiny">
-                        <Money value={r.estimatedCost} />
-                      </span>
-                    </button>
+                    <div key={r.id} className="reward-pick-row">
+                      <button
+                        type="button"
+                        className={
+                          selected
+                            ? "check-item check-item-row done"
+                            : "check-item check-item-row"
+                        }
+                        disabled={assignBusy}
+                        onClick={() => assignReward(r.id)}
+                      >
+                        <span className="check-box">
+                          {selected ? "✓" : ""}
+                        </span>
+                        <span className="check-label">
+                          {r.name}
+                          {r.assignedMilestoneDay &&
+                          r.assignedMilestoneDay !== incentive.dayNumber
+                            ? ` · Day ${r.assignedMilestoneDay}`
+                            : ""}
+                        </span>
+                        <span className="tiny">
+                          <Money value={r.estimatedCost} />
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        className="reward-pick-delete"
+                        disabled={assignBusy}
+                        onClick={() => deletePickerReward(r.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   );
                 })}
               </div>
@@ -760,8 +775,7 @@ export default function HomePage() {
                 Close
               </SecondaryButton>
             </div>
-          </div>
-        </div>
+        </Sheet>
       )}
 
       <Link href="/craving">

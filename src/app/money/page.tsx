@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
+import { Money, PrimaryButton, SecondaryButton, Sheet } from "@/components/ui";
 import {
   availableShopRewards,
   lastShopReward,
@@ -47,7 +47,7 @@ export default function MoneyPage() {
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
-  const [otherOpen, setOtherOpen] = useState(true);
+  const [otherOpen, setOtherOpen] = useState(false);
   const [checkingOut, setCheckingOut] = useState<Reward | null>(null);
   const [spent, setSpent] = useState("");
 
@@ -136,6 +136,7 @@ export default function MoneyPage() {
     try {
       await post("/api/rewards", { action: "delete", id });
       if (editingId === id) cancelForm();
+      if (checkingOut?.id === id) setCheckingOut(null);
       setMessage("Reward removed.");
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Failed");
@@ -345,18 +346,11 @@ export default function MoneyPage() {
       )}
 
       {formOpen && (
-        <div
-          className="modal-backdrop"
-          role="presentation"
-          onClick={() => !busy && cancelForm()}
+        <Sheet
+          label={editingId ? "Edit reward" : "New reward"}
+          busy={busy}
+          onClose={cancelForm}
         >
-          <div
-            className="modal-sheet"
-            role="dialog"
-            aria-modal="true"
-            aria-label={editingId ? "Edit reward" : "New reward"}
-            onClick={(e) => e.stopPropagation()}
-          >
             <p className="eyebrow">{editingId ? "Edit reward" : "New reward"}</p>
             <label className="field">
               <span className="field-label">Name</span>
@@ -430,32 +424,26 @@ export default function MoneyPage() {
             </PrimaryButton>
             <div style={{ marginTop: 8, display: "grid", gap: 8 }}>
               {editingId && (
-                <SecondaryButton
+                <button
+                  type="button"
+                  className="btn danger-text"
                   onClick={() => deleteReward(editingId)}
                   disabled={busy}
                 >
                   Delete reward
-                </SecondaryButton>
+                </button>
               )}
               <SecondaryButton onClick={cancelForm}>Cancel</SecondaryButton>
             </div>
-          </div>
-        </div>
+        </Sheet>
       )}
 
       {checkingOut && (
-        <div
-          className="modal-backdrop"
-          role="presentation"
-          onClick={() => !busy && setCheckingOut(null)}
+        <Sheet
+          label="Treat yourself"
+          busy={busy}
+          onClose={() => setCheckingOut(null)}
         >
-          <div
-            className="modal-sheet"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Treat yourself"
-            onClick={(e) => e.stopPropagation()}
-          >
             <p className="eyebrow">Treat yourself</p>
             <h2>{checkingOut.name}</h2>
             <p className="tiny" style={{ marginTop: 6 }}>
@@ -470,6 +458,7 @@ export default function MoneyPage() {
                 type="number"
                 min={0}
                 step="0.01"
+                inputMode="decimal"
                 value={spent}
                 onChange={(e) => setSpent(e.target.value)}
               />
@@ -485,7 +474,15 @@ export default function MoneyPage() {
             >
               Confirm
             </PrimaryButton>
-            <div style={{ marginTop: 8 }}>
+            <div style={{ marginTop: 8, display: "grid", gap: 8 }}>
+              <button
+                type="button"
+                className="btn danger-text"
+                onClick={() => deleteReward(checkingOut.id)}
+                disabled={busy}
+              >
+                Delete reward
+              </button>
               <SecondaryButton
                 onClick={() => setCheckingOut(null)}
                 disabled={busy}
@@ -493,8 +490,7 @@ export default function MoneyPage() {
                 Cancel
               </SecondaryButton>
             </div>
-          </div>
-        </div>
+        </Sheet>
       )}
     </main>
   );
