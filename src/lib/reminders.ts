@@ -6,17 +6,36 @@ export type { ReminderPrefs };
 
 export const DEFAULT_REMINDERS: ReminderPrefs = {
   enabled: false,
+  morningEnabled: false,
+  eveningEnabled: false,
   morningHour: 7,
   eveningHour: 20,
 };
 
 export function normalizeReminders(
-  raw: RebuildProfile["reminders"] | undefined,
+  raw: Partial<ReminderPrefs> | RebuildProfile["reminders"] | undefined,
 ): ReminderPrefs {
+  const morningHour = clampHour(
+    raw?.morningHour ?? DEFAULT_REMINDERS.morningHour,
+  );
+  const eveningHour = clampHour(
+    raw?.eveningHour ?? DEFAULT_REMINDERS.eveningHour,
+  );
+  const legacyOn = Boolean(raw?.enabled);
+  const morningEnabled =
+    raw && "morningEnabled" in raw
+      ? Boolean(raw.morningEnabled)
+      : legacyOn;
+  const eveningEnabled =
+    raw && "eveningEnabled" in raw
+      ? Boolean(raw.eveningEnabled)
+      : legacyOn;
   return {
-    enabled: Boolean(raw?.enabled),
-    morningHour: clampHour(raw?.morningHour ?? DEFAULT_REMINDERS.morningHour),
-    eveningHour: clampHour(raw?.eveningHour ?? DEFAULT_REMINDERS.eveningHour),
+    enabled: morningEnabled || eveningEnabled,
+    morningEnabled,
+    eveningEnabled,
+    morningHour,
+    eveningHour,
   };
 }
 
@@ -71,16 +90,22 @@ export function dueReminderKinds(
   const profile = state.profile;
   if (!profile?.email?.trim()) return [];
   const prefs = normalizeReminders(profile.reminders);
-  if (!prefs.enabled) return [];
-
   const { date, hour } = localClock(profile.timezone, now);
   const log = state.reminderLog ?? {};
   const due: ReminderKind[] = [];
 
-  if (hour === prefs.morningHour && log.morning !== date) {
+  if (
+    prefs.morningEnabled &&
+    hour === prefs.morningHour &&
+    log.morning !== date
+  ) {
     due.push("morning");
   }
-  if (hour === prefs.eveningHour && log.evening !== date) {
+  if (
+    prefs.eveningEnabled &&
+    hour === prefs.eveningHour &&
+    log.evening !== date
+  ) {
     due.push("evening");
   }
   return due;

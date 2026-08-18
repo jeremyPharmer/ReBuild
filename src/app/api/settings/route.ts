@@ -28,11 +28,25 @@ export async function POST(req: Request) {
       const reminders =
         body.reminders !== undefined
           ? normalizeReminders({
-              enabled: Boolean(body.reminders.enabled),
+              enabled: Boolean(
+                body.reminders.morningEnabled ??
+                  body.reminders.eveningEnabled ??
+                  body.reminders.enabled,
+              ),
+              morningEnabled:
+                body.reminders.morningEnabled !== undefined
+                  ? Boolean(body.reminders.morningEnabled)
+                  : Boolean(body.reminders.enabled),
+              eveningEnabled:
+                body.reminders.eveningEnabled !== undefined
+                  ? Boolean(body.reminders.eveningEnabled)
+                  : Boolean(body.reminders.enabled),
               morningHour: Number(body.reminders.morningHour),
               eveningHour: Number(body.reminders.eveningHour),
             })
-          : prev.profile.reminders;
+          : prev.profile.reminders
+            ? normalizeReminders(prev.profile.reminders)
+            : undefined;
 
       if (reminders?.enabled && !email) {
         const err = new Error("Add an email before enabling reminders");

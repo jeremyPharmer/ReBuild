@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       const result = await sendReminderEmail({
         to: email,
         kind,
-        displayName: state.profile.displayName || user.displayName,
+        state,
       });
       if (!result.ok) {
         errors.push({ userId: user.id, kind, error: result.error });
