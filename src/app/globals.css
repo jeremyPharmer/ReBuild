@@ -1331,8 +1331,14 @@ h2 {
 
 .podcast-shuffle {
   width: auto;
-  padding: 6px 12px;
-  font-size: 0.78rem;
+  flex: none;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.podcast-row.heard {
+  opacity: 0.62;
 }
 
 .podcast-card-head {

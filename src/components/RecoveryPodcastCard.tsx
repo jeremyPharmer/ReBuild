@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import {
+  CONTENT_OFFER_COUNT,
   formatDuration,
   pickRecoveryOffers,
   type RecoveryContentItem,
@@ -11,16 +12,19 @@ import {
 export function RecoveryPodcastCard() {
   const { state, today, post } = useApp();
   const listened = state.listenedPodcasts;
+  const heard = new Set(listened ?? []);
   const [open, setOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [deal, setDeal] = useState<RecoveryContentItem[] | null>(null);
+  const [hand, setHand] = useState<RecoveryContentItem[] | null>(null);
+  const [shuffleTick, setShuffleTick] = useState(0);
 
-  const offers = useMemo(() => {
-    const heard = new Set(listened ?? []);
-    const base = deal ?? pickRecoveryOffers(listened);
-    return base.filter((i) => !heard.has(i.id));
-  }, [deal, listened]);
+  const offers = hand ?? pickRecoveryOffers(listened);
+
+  function expand() {
+    setOpen((wasOpen) => !wasOpen);
+    setHand((current) => current ?? pickRecoveryOffers(listened));
+  }
 
   async function markDone(item: RecoveryContentItem) {
     setBusyId(item.id);
@@ -40,12 +44,14 @@ export function RecoveryPodcastCard() {
 
   function shuffle() {
     setError("");
-    setDeal(
+    const current = hand ?? pickRecoveryOffers(listened);
+    setHand(
       pickRecoveryOffers(listened, {
-        excludeIds: offers.map((i) => i.id),
+        excludeIds: current.map((i) => i.id),
         shuffle: true,
       }),
     );
+    setShuffleTick((n) => n + 1);
   }
 
   return (
@@ -54,7 +60,7 @@ export function RecoveryPodcastCard() {
         type="button"
         className="podcast-toggle"
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+        onClick={expand}
       >
         <h2>Recovery Content</h2>
         <span className={`podcast-caret${open ? " open" : ""}`} aria-hidden>
@@ -66,56 +72,67 @@ export function RecoveryPodcastCard() {
         <div className="podcast-body fade-in">
           <div className="podcast-toolbar">
             <p className="tiny" style={{ margin: 0 }}>
-              3 podcasts · 2 articles
+              {CONTENT_OFFER_COUNT} offers · shuffle for a new set
             </p>
-            <button type="button" className="btn ghost podcast-shuffle" onClick={shuffle}>
+            <button
+              type="button"
+              className="btn ghost podcast-shuffle"
+              onClick={shuffle}
+              aria-label="Shuffle five new recovery items"
+            >
               Shuffle
             </button>
           </div>
 
-          {offers.length === 0 ? (
-            <p className="muted" style={{ marginTop: 10 }}>
-              You’ve cleared this shelf for now. Shuffle to recycle.
-            </p>
-          ) : (
-            <ul className="podcast-list">
-              {offers.map((item) => {
-                const isArticle = item.kind === "article";
-                return (
-                  <li key={item.id} className="podcast-row">
-                    <div className="podcast-row-main">
-                      <p className="podcast-show">
-                        {isArticle ? "Article" : "Podcast"} · {item.show}
-                      </p>
-                      <p className="podcast-title">{item.title}</p>
-                      <p className="tiny podcast-blurb">
-                        {item.blurb} · {formatDuration(item.durationMin)}
-                        {isArticle ? " read" : ""}
-                      </p>
-                    </div>
-                    <div className="podcast-row-actions">
-                      <a
-                        className="btn ghost"
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {isArticle ? "Read" : "Play"}
-                      </a>
-                      <button
-                        type="button"
-                        className="btn ghost"
-                        disabled={busyId === item.id}
-                        onClick={() => markDone(item)}
-                      >
-                        {isArticle ? "Done" : "Heard"}
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+          <ul className="podcast-list fade-in" key={shuffleTick}>
+            {offers.map((item) => {
+              const isArticle = item.kind === "article";
+              const done = heard.has(item.id);
+              return (
+                <li
+                  key={item.id}
+                  className={`podcast-row${done ? " heard" : ""}`}
+                >
+                  <div className="podcast-row-main">
+                    <p className="podcast-show">
+                      {isArticle ? "Article" : "Podcast"} · {item.show}
+                    </p>
+                    <p className="podcast-title">{item.title}</p>
+                    <p className="tiny podcast-blurb">
+                      {item.blurb} · {formatDuration(item.durationMin)}
+                      {isArticle ? " read" : ""}
+                    </p>
+                  </div>
+                  <div className="podcast-row-actions">
+                    <a
+                      className="btn ghost"
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {isArticle ? "Read" : "Play"}
+                    </a>
+                    <button
+                      type="button"
+                      className="btn ghost"
+                      disabled={done || busyId === item.id}
+                      onClick={() => markDone(item)}
+                    >
+                      {done
+                        ? isArticle
+                          ? "Done"
+                          : "Heard"
+                        : busyId === item.id
+                          ? "…"
+                          : isArticle
+                            ? "Done"
+                            : "Heard"}
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
 
           {error && (
             <p

@@ -25,10 +25,25 @@ describe("pickRecoveryOffers", () => {
       excludeIds: first.map((i) => i.id),
       shuffle: true,
     });
-    expect(next).toHaveLength(5);
-    expect(next.filter((i) => i.kind === "article")).toHaveLength(2);
+    expect(next).toHaveLength(CONTENT_OFFER_COUNT);
+    expect(next.filter((i) => i.kind === "podcast")).toHaveLength(
+      PODCAST_OFFER_COUNT,
+    );
+    expect(next.filter((i) => i.kind === "article")).toHaveLength(
+      ARTICLE_OFFER_COUNT,
+    );
     const overlap = next.filter((i) => first.some((f) => f.id === i.id));
     expect(overlap).toHaveLength(0);
+  });
+
+  it("shuffle still deals five after some of the current hand is heard", () => {
+    const first = pickRecoveryOffers([]);
+    const next = pickRecoveryOffers([first[0].id, first[1].id], {
+      excludeIds: first.map((i) => i.id),
+      shuffle: true,
+    });
+    expect(next).toHaveLength(CONTENT_OFFER_COUNT);
+    expect(next.every((i) => !first.some((f) => f.id === i.id))).toBe(true);
   });
 
   it("skips heard items when unused ones remain", () => {
