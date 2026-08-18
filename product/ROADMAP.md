@@ -5,7 +5,7 @@ Living roadmap for **ReBuild** — a recovery app with incentives.
 Maintained by the **Head of Product** agent (`.cursor/agents/head-of-product.md`).  
 **Priority ranking is the primary planning signal.** Due dates, effort, and timeline support rank — they do not override it.
 
-Last updated: 2026-08-13
+Last updated: 2026-08-18
 
 ## Current focus
 
@@ -29,6 +29,8 @@ Last updated: 2026-08-13
    Each week, show **two selectable** offers (podcasts and/or books) in the recovery content box.
 3. **RB-006 — Fund buckets: Future + Treat @ 30/70**  
    Future = long-horizon park; Treat = short-term. Reward day: Treat Yourself (optional Future pull) or Save for the Future. UXUI review: [`UX_HANDOFF_FUND_BUCKETS.md`](./UX_HANDOFF_FUND_BUCKETS.md).
+4. **RB-009 — Recovery patterns (Journey)** — **In Progress**  
+   High v1 slice shipping to **rebuild-dev**: playbook, headwind hours, 4-week provision rhythm. No sixth nav tab. Detail: [`items/recovery-patterns-insights.md`](./items/recovery-patterns-insights.md).
 
 ### Later
 
@@ -47,6 +49,7 @@ Last updated: 2026-08-13
 | Unscheduled | RB-001 discovery + build | Effort **L**; after/with identity |
 | Unscheduled | RB-005 weekly 2-offer rotation (podcasts + books) | Effort **M**; backlog/consider |
 | With fund/Money work | RB-006 two-bucket + reward Treat/Save UX | Effort **M**; UXUI review requested |
+| After open P0s (v1.x) | RB-009 recovery patterns on Journey | Effort **M**; daily-loop payoff; does not need Venmo; first P1 |
 | After RB-001 v1 / with accounts | RB-002 → forgot-password live + RB-003 | Email platform first, then daily digest |
 | After email path (or parallel if capacity) | RB-004 SMS | P2 |
 | Parallel discovery (does not block Venmo v1) | RB-008 segregated hold feasibility | Effort **S**; Acorns email + rails shortlist; production rails would be **XL** follow-on |

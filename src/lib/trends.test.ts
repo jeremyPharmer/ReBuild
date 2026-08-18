@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { emptyState } from "./journey";
 import {
+  cravingHeadwindHours,
+  cravingPlaybook,
   cravingPointsLastYear,
+  lastFourWeeks,
+  PLAYBOOK_MIN_N,
   roundSleepHours,
+  supportRhythmLastFourWeeks,
   trendPointsLastYear,
 } from "./trends";
 import { DEFAULT_SUPPORTS } from "./types";
+import type { CravingEvent, SupportCompletion } from "./types";
 
 function baseState() {
   const state = emptyState();
@@ -22,6 +28,17 @@ function baseState() {
     timezone: "America/New_York",
   };
   return state;
+}
+
+function craving(
+  partial: Partial<CravingEvent> &
+    Pick<CravingEvent, "id" | "at" | "intensityBefore">,
+): CravingEvent {
+  return {
+    situation: "x",
+    intervention: "delay",
+    ...partial,
+  };
 }
 
 describe("trendPointsLastYear", () => {
@@ -60,38 +77,249 @@ describe("trendPointsLastYear", () => {
 });
 
 describe("cravingPointsLastYear", () => {
-  it("sums intensityBefore per day and ignores after", () => {
+  it("sums before, remaining, and drop; incomplete events do not fake a drop", () => {
     const state = baseState();
     state.cravings = [
-      {
+      craving({
         id: "c1",
         at: "2026-08-10T14:00:00.000Z",
         intensityBefore: 5,
         intensityAfter: 2,
-        situation: "a",
-        intervention: "walk",
-      },
-      {
+        outcome: "Walk",
+      }),
+      craving({
         id: "c2",
         at: "2026-08-10T20:00:00.000Z",
         intensityBefore: 7,
         intensityAfter: 1,
-        situation: "b",
-        intervention: "call",
-      },
-      {
+        outcome: "Contact someone",
+      }),
+      craving({
         id: "c3",
         at: "2026-08-11T12:00:00.000Z",
         intensityBefore: 3,
-        situation: "c",
-        intervention: "breathe",
-      },
+      }),
     ];
     const points = cravingPointsLastYear(state, "2026-08-11");
     expect(points).toEqual([
-      { date: "2026-08-10", points: 12 },
-      { date: "2026-08-11", points: 3 },
+      { date: "2026-08-10", points: 12, remaining: 3, dropped: 9 },
+      { date: "2026-08-11", points: 3, remaining: 3, dropped: 0 },
     ]);
+  });
+});
+
+describe("cravingPlaybook", () => {
+  it("is empty until enough completed events", () => {
+    const state = baseState();
+    state.cravings = [
+      craving({
+        id: "c1",
+        at: "2026-08-10T14:00:00.000Z",
+        intensityBefore: 8,
+        intensityAfter: 2,
+        outcome: "Walk",
+      }),
+      craving({
+        id: "c2",
+        at: "2026-08-11T14:00:00.000Z",
+        intensityBefore: 6,
+        intensityAfter: 3,
+        outcome: "Walk",
+      }),
+    ];
+    expect(PLAYBOOK_MIN_N).toBe(3);
+    expect(cravingPlaybook(state, "2026-08-11")).toEqual([]);
+  });
+
+  it("ranks outcomes by average drop and ignores before-only events", () => {
+    const state = baseState();
+    state.cravings = [
+      craving({
+        id: "c1",
+        at: "2026-08-10T14:00:00.000Z",
+        intensityBefore: 8,
+        intensityAfter: 2,
+        outcome: "Walk",
+      }),
+      craving({
+        id: "c2",
+        at: "2026-08-10T18:00:00.000Z",
+        intensityBefore: 6,
+        intensityAfter: 4,
+        outcome: "Walk",
+      }),
+      craving({
+        id: "c3",
+        at: "2026-08-11T14:00:00.000Z",
+        intensityBefore: 9,
+        intensityAfter: 1,
+        outcome: "Breathing",
+      }),
+      craving({
+        id: "c4",
+        at: "2026-08-11T20:00:00.000Z",
+        intensityBefore: 5,
+      }),
+      craving({
+        id: "c5",
+        at: "2026-08-12T14:00:00.000Z",
+        intensityBefore: 4,
+        intensityAfter: 3,
+        intervention: "delay",
+      }),
+    ];
+    const rows = cravingPlaybook(state, "2026-08-12");
+    expect(rows).toEqual([
+      { outcome: "Breathing", n: 1, avgDrop: 8 },
+      { outcome: "Walk", n: 2, avgDrop: 4 },
+    ]);
+  });
+});
+
+describe("cravingHeadwindHours", () => {
+  it("buckets by local daypart and weekday", () => {
+    const state = baseState();
+    // NY in August is EDT (UTC-4).
+    // 14:00Z → 10:00 morning Mon; 21:00Z → 17:00 evening Mon;
+    // 02:00Z next day → 22:00 night Mon.
+    state.cravings = [
+      craving({
+        id: "c1",
+        at: "2026-08-10T14:00:00.000Z",
+        intensityBefore: 5,
+      }),
+      craving({
+        id: "c2",
+        at: "2026-08-10T21:00:00.000Z",
+        intensityBefore: 8,
+      }),
+      craving({
+        id: "c3",
+        at: "2026-08-11T02:00:00.000Z",
+        intensityBefore: 6,
+      }),
+    ];
+    const hours = cravingHeadwindHours(state, "2026-08-11");
+    expect(hours.total).toBe(3);
+    const morning = hours.byDaypart.find((p) => p.key === "morning");
+    const evening = hours.byDaypart.find((p) => p.key === "evening");
+    const night = hours.byDaypart.find((p) => p.key === "night");
+    expect(morning?.count).toBe(1);
+    expect(evening?.count).toBe(1);
+    expect(night?.count).toBe(1);
+    expect(hours.peak).toBeUndefined();
+    const monday = hours.byWeekday.find((d) => d.label === "Mon");
+    expect(monday?.count).toBe(3);
+  });
+
+  it("names a peak when one daypart leads", () => {
+    const state = baseState();
+    state.cravings = [
+      craving({
+        id: "c1",
+        at: "2026-08-10T21:00:00.000Z",
+        intensityBefore: 7,
+      }),
+      craving({
+        id: "c2",
+        at: "2026-08-11T21:30:00.000Z",
+        intensityBefore: 6,
+      }),
+      craving({
+        id: "c3",
+        at: "2026-08-11T14:00:00.000Z",
+        intensityBefore: 4,
+      }),
+    ];
+    const hours = cravingHeadwindHours(state, "2026-08-11");
+    expect(hours.peak?.key).toBe("evening");
+    expect(hours.peak?.hoursLabel).toBe("5–8pm");
+  });
+});
+
+describe("supportRhythmLastFourWeeks", () => {
+  it("counts completions vs target across four Sunday weeks", () => {
+    const state = baseState();
+    // 2026-08-18 is a Tuesday; current week Sun 16–Sat 22.
+    state.supports = [
+      {
+        date: "2026-08-17",
+        supportType: "gym",
+        completed: true,
+        completedAt: "",
+      },
+      {
+        date: "2026-08-18",
+        supportType: "gym",
+        completed: true,
+        completedAt: "",
+      },
+      {
+        date: "2026-08-10",
+        supportType: "gym",
+        completed: true,
+        completedAt: "",
+      },
+    ] as SupportCompletion[];
+    const weeks = lastFourWeeks("2026-08-18");
+    expect(weeks).toHaveLength(4);
+    expect(weeks[3].isCurrent).toBe(true);
+    expect(weeks[3].start).toBe("2026-08-16");
+    const gym = supportRhythmLastFourWeeks(state, "2026-08-18").find(
+      (s) => s.type === "gym",
+    );
+    expect(gym?.target).toBe(4);
+    expect(gym?.weeks[3].done).toBe(2);
+    const prev = gym?.weeks.find((w) => w.start === "2026-08-09");
+    expect(prev?.done).toBe(1);
+  });
+
+  it("adds gym vs rest contrast only with enough active days on both sides", () => {
+    const state = baseState();
+    state.mornings = [];
+    for (let i = 0; i < 8; i++) {
+      const date = `2026-08-${String(10 + i).padStart(2, "0")}`;
+      state.mornings.push({
+        date,
+        sleepHours: 7,
+        sleepQuality: 6,
+        mood: 5,
+        energy: 5,
+        stress: 5,
+        intention: "x",
+        completedAt: "",
+      });
+    }
+    state.supports = [10, 12, 14].map((d) => ({
+      date: `2026-08-${d}`,
+      supportType: "gym" as const,
+      completed: true,
+      completedAt: "",
+    }));
+    state.cravings = [
+      craving({
+        id: "g1",
+        at: "2026-08-10T20:00:00.000Z",
+        intensityBefore: 2,
+      }),
+      craving({
+        id: "r1",
+        at: "2026-08-11T20:00:00.000Z",
+        intensityBefore: 8,
+      }),
+      craving({
+        id: "r2",
+        at: "2026-08-13T20:00:00.000Z",
+        intensityBefore: 6,
+      }),
+    ];
+    const gym = supportRhythmLastFourWeeks(state, "2026-08-17").find(
+      (s) => s.type === "gym",
+    );
+    expect(gym?.contrast?.withSupport.days).toBe(3);
+    expect(gym?.contrast?.withoutSupport.days).toBe(5);
+    expect(gym?.contrast?.withSupport.avgPoints).toBeCloseTo(2 / 3);
+    expect(gym?.contrast?.withoutSupport.avgPoints).toBeCloseTo(14 / 5);
   });
 });
 

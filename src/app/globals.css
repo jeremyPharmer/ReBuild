@@ -1824,3 +1824,119 @@ h2 {
   opacity: 0.7;
   border-style: dashed;
 }
+
+.playbook {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.playbook-row .progress-track {
+  margin-top: 6px;
+}
+
+.playbook-meta {
+  font-variant-numeric: tabular-nums;
+  color: var(--good);
+  font-weight: 600;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.pattern-bars {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 14px;
+  min-height: 108px;
+}
+
+.pattern-bars.weekday {
+  min-height: 96px;
+}
+
+.pattern-bar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.pattern-bar-track {
+  width: 100%;
+  max-width: 28px;
+  flex: 1;
+  min-height: 56px;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pattern-bar-fill {
+  width: 100%;
+  min-height: 2px;
+  background: #8b9dc3;
+  border-radius: 8px 8px 0 0;
+}
+
+.pattern-bar.peak .pattern-bar-fill {
+  background: var(--accent);
+}
+
+.pattern-bar-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.rhythm-row {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.rhythm-row:first-of-type {
+  border-top: none;
+  padding-top: 4px;
+}
+
+.rhythm-weeks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.rhythm-week {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.rhythm-week .progress-track {
+  margin-top: 0;
+}
+
+.rhythm-week.met .progress-fill {
+  background: linear-gradient(90deg, #7fbf9a, #8fd4ad);
+}
+
+.rhythm-week-count {
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.rhythm-caveat {
+  margin-top: 8px;
+  line-height: 1.45;
+}
