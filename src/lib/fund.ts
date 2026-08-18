@@ -140,22 +140,41 @@ export function mustTreat(state: RebuildState): boolean {
 }
 
 /**
+ * Fund available by a future incentive day:
+ * current balances + the user's Treat/Future split of
+ * (waiting reclaim + days-to-go × daily).
+ */
+export function projectedFundAt(
+  state: RebuildState,
+  targetCleanDay: number,
+  asOfDate?: string,
+): FundLedger & { total: number } {
+  if (!state.profile) {
+    return { future: 0, treat: 0, total: 0 };
+  }
+  const current = cleanDaysThisRun(state, asOfDate);
+  const daily = state.profile.historicalDailySpend;
+  const waiting = waitingReclaimTotal(state);
+  const daysToGo = Math.max(0, targetCleanDay - current);
+  const incoming = waiting + daysToGo * daily;
+  const split = splitTransfer(incoming, profileTreatSplit(state));
+  const now = normalizeFund(state.fund);
+  const treat = round2(now.treat + split.treat);
+  const future = round2(now.future + split.future);
+  return { future, treat, total: round2(treat + future) };
+}
+
+/**
  * Treat Yourself available by a future incentive day:
- * current Treat Yourself balance + 70% of (waiting reclaim + days-to-go × daily).
+ * current Treat Yourself balance + the Treat share of
+ * (waiting reclaim + days-to-go × daily).
  */
 export function projectedTreatYourselfAt(
   state: RebuildState,
   targetCleanDay: number,
   asOfDate?: string,
 ): number {
-  if (!state.profile) return 0;
-  const current = cleanDaysThisRun(state, asOfDate);
-  const daily = state.profile.historicalDailySpend;
-  const waiting = waitingReclaimTotal(state);
-  const daysToGo = Math.max(0, targetCleanDay - current);
-  const treatNow = normalizeFund(state.fund).treat;
-  const futureTreat = (waiting + daysToGo * daily) * TREAT_SPLIT;
-  return round2(treatNow + futureTreat);
+  return projectedFundAt(state, targetCleanDay, asOfDate).treat;
 }
 
 /** Affordable if Treat + Future can cover (optional Future pull). */
@@ -163,6 +182,25 @@ export function eligibleWishlist(state: RebuildState): Reward[] {
   const fund = normalizeFund(state.fund);
   const ceiling = round2(fund.treat + fund.future);
   return state.rewards.filter((r) => !r.executed && r.estimatedCost <= ceiling);
+}
+
+/**
+ * Wishlist items you can assign to a future incentive:
+ * cost ≤ Treat Yourself you will have on that day (not today's Treat balance).
+ * Already-assigned items stay listed so the assignment can be changed.
+ */
+export function eligibleWishlistForIncentive(
+  state: RebuildState,
+  targetCleanDay: number,
+  asOfDate?: string,
+): Reward[] {
+  const ceiling = projectedTreatYourselfAt(state, targetCleanDay, asOfDate);
+  return state.rewards.filter(
+    (r) =>
+      !r.executed &&
+      (r.estimatedCost <= ceiling ||
+        r.assignedMilestoneDay === targetCleanDay),
+  );
 }
 
 /**

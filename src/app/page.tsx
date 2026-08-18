@@ -8,6 +8,7 @@ import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
 import { FundSegmentBar, HomeRewardCard } from "@/components/MilestoneReward";
 import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import {
+  eligibleWishlistForIncentive,
   fundTotal,
   pendingCashableMoments,
   projectedTreatYourselfAt,
@@ -17,7 +18,6 @@ import {
   addDays,
   assignedRewardForMilestone,
   nextIncentive,
-  suggestedRewardPool,
   waitingReclaimDays,
 } from "@/lib/journey";
 import type { SupportType } from "@/lib/types";
@@ -68,15 +68,12 @@ export default function HomePage() {
   const assigned = incentive
     ? assignedRewardForMilestone(state, incentive.dayNumber)
     : undefined;
-  const pool = incentive
-    ? suggestedRewardPool(
-        incentive.dayNumber,
-        state.profile.historicalDailySpend,
-      )
+  const treatAvailable = incentive
+    ? projectedTreatYourselfAt(state, incentive.dayNumber, today)
     : 0;
-  const eligibleRewards = state.rewards.filter(
-    (r) => !r.executed && r.estimatedCost <= pool,
-  );
+  const eligibleRewards = incentive
+    ? eligibleWishlistForIncentive(state, incentive.dayNumber, today)
+    : [];
   const waiting = waitingReclaimDays(state);
   const pendingRewards = pendingCashableMoments(state);
   const total = fundTotal(state.fund);
@@ -280,9 +277,6 @@ export default function HomePage() {
     incentive && daysToIncentive >= 0
       ? formatMd(addDays(today, daysToIncentive))
       : null;
-  const treatAvailable = incentive
-    ? projectedTreatYourselfAt(state, incentive.dayNumber, today)
-    : 0;
 
   return (
     <main className="fade-in stack">
@@ -705,14 +699,14 @@ export default function HomePage() {
             <p className="eyebrow">Day {incentive.dayNumber}</p>
             <h2>Choose reward</h2>
             <p className="tiny" style={{ marginTop: 6, marginBottom: 12 }}>
-              Showing wishlist items up to <Money value={pool} /> for this
-              incentive.
+              Showing wishlist items up to{" "}
+              <Money value={treatAvailable} /> you&apos;ll have by this date.
             </p>
 
             {eligibleRewards.length === 0 ? (
               <p className="muted" style={{ lineHeight: 1.45 }}>
                 No matching rewards yet. Add one on the Rewards tab at or under{" "}
-                <Money value={pool} />.
+                <Money value={treatAvailable} />.
               </p>
             ) : (
               <div className="reward-pick-list">

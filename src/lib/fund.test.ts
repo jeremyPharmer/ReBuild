@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   claimCelebration,
   eligibleWishlist,
+  eligibleWishlistForIncentive,
   fundTotal,
   mustTreat,
   normalizeFund,
@@ -279,5 +280,77 @@ describe("fund split", () => {
     state = confirmTransfer(state, ["2026-08-01"], 40);
     // treat now = 28; Day 3 → 2 days × $40 × 0.7 = 56; total = 84
     expect(projectedTreatYourselfAt(state, 3, "2026-08-01")).toBe(84);
+  });
+
+  it("honors profile treatSplit when projecting Treat Yourself", () => {
+    let state = base();
+    state.profile = { ...state.profile!, treatSplit: 0.6 };
+    state = applyEveningSideEffects(state, {
+      date: "2026-08-01",
+      mood: 7,
+      stress: 2,
+      alignment: "aligned",
+      oneLine: "a",
+      completedAt: "",
+    });
+    state = confirmTransfer(state, ["2026-08-01"], 40);
+    // treat now = 24; Day 3 → 2 days × $40 × 0.6 = 48; total = 72
+    expect(projectedTreatYourselfAt(state, 3, "2026-08-01")).toBe(72);
+  });
+
+  it("next-incentive wishlist uses projected Treat, not today's Treat bank", () => {
+    let state = base();
+    state = applyEveningSideEffects(state, {
+      date: "2026-08-01",
+      mood: 7,
+      stress: 2,
+      alignment: "aligned",
+      oneLine: "a",
+      completedAt: "",
+    });
+    state = confirmTransfer(state, ["2026-08-01"], 40);
+    // treat now = 28; projected Treat at Day 3 = 84
+    state = {
+      ...state,
+      rewards: [
+        {
+          id: "r_now",
+          name: "Coffee",
+          category: "other",
+          estimatedCost: 20,
+          executed: false,
+          createdAt: "",
+        },
+        {
+          id: "r_later",
+          name: "Dinner",
+          category: "experiences",
+          estimatedCost: 70,
+          executed: false,
+          createdAt: "",
+        },
+        {
+          id: "r_too_much",
+          name: "Weekend trip",
+          category: "experiences",
+          estimatedCost: 200,
+          executed: false,
+          createdAt: "",
+        },
+        {
+          id: "r_assigned",
+          name: "Already picked",
+          category: "other",
+          estimatedCost: 90,
+          assignedMilestoneDay: 3,
+          executed: false,
+          createdAt: "",
+        },
+      ],
+    };
+    expect(state.fund.treat).toBe(28);
+    expect(eligibleWishlistForIncentive(state, 3, "2026-08-01").map((r) => r.id)).toEqual(
+      ["r_now", "r_later", "r_assigned"],
+    );
   });
 });
