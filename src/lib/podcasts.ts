@@ -130,8 +130,17 @@ const PODCASTS: RecoveryContentItem[] = [
   },
 ];
 
-/** Free lived-experience essays from independent recovery publications. */
+/** Two articles per hand, from a mixed addiction pool — no government sources. */
 const ARTICLES: RecoveryContentItem[] = [
+  {
+    id: "guardian-hari-connection",
+    kind: "article",
+    show: "The Guardian",
+    title: "The Opposite of Addiction Isn’t Sobriety — It’s Connection",
+    blurb: "Johann Hari on isolation, love, and why connection does more than white-knuckling ever could.",
+    url: "https://www.theguardian.com/books/2016/apr/12/johann-hari-chasing-the-scream-war-on-drugs",
+    durationMin: 10,
+  },
   {
     id: "temper-replaced-drinking-reading",
     kind: "article",
@@ -142,13 +151,13 @@ const ARTICLES: RecoveryContentItem[] = [
     durationMin: 8,
   },
   {
-    id: "temper-kids-mom-who-lives",
+    id: "time-szalavitz-recover",
     kind: "article",
-    show: "The Temper",
-    title: "My Kids Will Never Know a Mom Who Drinks",
-    blurb: "A mom who quit wine at 30, then learned how to play, camp, and actually be there.",
-    url: "https://www.thetemper.com/my-kids-will-never-know-a-mom-who-drinks-but-theyll-know-one-who-lives/",
-    durationMin: 10,
+    show: "TIME",
+    title: "Rethinking What It Means to Recover from Addiction",
+    blurb: "Maia Szalavitz on many roads out — abstinence, medication, moderation, any positive change.",
+    url: "https://time.com/6102343/recovering-from-addiction/",
+    durationMin: 12,
   },
   {
     id: "re-heartache-to-healing",
@@ -160,13 +169,22 @@ const ARTICLES: RecoveryContentItem[] = [
     durationMin: 9,
   },
   {
-    id: "re-staying-hopeful",
+    id: "filter-undoing-drugs",
     kind: "article",
-    show: "Recovery Elevator",
-    title: "Staying Hopeful Through This Long Journey",
-    blurb: "Two years of almosts, and one Sunday she did something different. A win counted in hours.",
-    url: "https://www.recoveryelevator.com/staying-hopeful-through-this-long-journey/",
+    show: "Filter",
+    title: "The Untold Story of Harm Reduction",
+    blurb: "How people who use drugs built a movement that treats staying alive as the first win.",
+    url: "https://filtermag.org/undoing-drugs-szalavitz-harm-reduction/",
     durationMin: 8,
+  },
+  {
+    id: "guardian-mate-trauma",
+    kind: "article",
+    show: "The Guardian",
+    title: "How Dealing With Past Trauma May Be the Key to Breaking Addiction",
+    blurb: "Gabor Maté’s question isn’t what you use — it’s what pain the using was trying to soothe.",
+    url: "https://www.theguardian.com/lifeandstyle/2018/nov/24/joanna-moorhead-gabriel-mate-trauma-addiction-treat",
+    durationMin: 9,
   },
   {
     id: "tnm-alcohol-stopped-optional",
@@ -178,6 +196,15 @@ const ARTICLES: RecoveryContentItem[] = [
     durationMin: 9,
   },
   {
+    id: "temper-kids-mom-who-lives",
+    kind: "article",
+    show: "The Temper",
+    title: "My Kids Will Never Know a Mom Who Drinks",
+    blurb: "A mom who quit wine at 30, then learned how to play, camp, and actually be there.",
+    url: "https://www.thetemper.com/my-kids-will-never-know-a-mom-who-drinks-but-theyll-know-one-who-lives/",
+    durationMin: 10,
+  },
+  {
     id: "tnm-not-about-willpower",
     kind: "article",
     show: "This Naked Mind",
@@ -185,6 +212,15 @@ const ARTICLES: RecoveryContentItem[] = [
     blurb: "Rehab, AA, rules, and shame didn’t stick — until she stopped treating herself as the problem.",
     url: "https://thisnakedmind.com/why-quitting-alcohol-wasnt-about-willpower-gracies-naked-life/",
     durationMin: 12,
+  },
+  {
+    id: "re-staying-hopeful",
+    kind: "article",
+    show: "Recovery Elevator",
+    title: "Staying Hopeful Through This Long Journey",
+    blurb: "Two years of almosts, and one Sunday she did something different. A win counted in hours.",
+    url: "https://www.recoveryelevator.com/staying-hopeful-through-this-long-journey/",
+    durationMin: 8,
   },
 ];
 

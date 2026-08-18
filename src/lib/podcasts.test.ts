@@ -54,10 +54,17 @@ describe("pickRecoveryOffers", () => {
     expect(next.filter((i) => i.kind === "article")).toHaveLength(2);
   });
 
-  it("catalog has enough free non-government articles to shuffle", () => {
+  it("catalog has a mixed addiction pool with no government sources", () => {
     const articles = RECOVERY_CONTENT_CATALOG.filter((i) => i.kind === "article");
-    expect(articles.length).toBeGreaterThanOrEqual(4);
+    const shows = new Set(articles.map((i) => i.show));
+    expect(articles.length).toBeGreaterThanOrEqual(8);
+    expect(shows.size).toBeGreaterThanOrEqual(5);
     expect(articles.every((i) => /^https:\/\//.test(i.url))).toBe(true);
     expect(articles.every((i) => !/\.gov(\/|$)/i.test(i.url))).toBe(true);
+    expect(
+      articles.every(
+        (i) => !/nida|niaaa|samhsa|nih/i.test(`${i.show} ${i.id} ${i.url}`),
+      ),
+    ).toBe(true);
   });
 });
