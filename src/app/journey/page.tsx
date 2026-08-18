@@ -15,9 +15,18 @@ import {
   type TrailDay,
 } from "@/lib/trail";
 import {
+  HeadwindPanel,
+  PlaybookPanel,
+  RhythmPanel,
+} from "@/components/JourneyPatterns";
+import {
   CONDITION_METRICS,
+  cravingHeadwindHours,
+  cravingPlaybook,
   cravingPointsLastYear,
   formatTrendDate,
+  lastFourWeeks,
+  supportRhythmLastFourWeeks,
   trendPointsLastYear,
   type ConditionMetric,
   type CravingPointsPoint,
@@ -593,26 +602,63 @@ function ConditionsChart({ points }: { points: TrendPoint[] }) {
 }
 
 function CravingPointsChart({ points }: { points: CravingPointsPoint[] }) {
-  const maxPoints = Math.max(10, ...points.map((p) => p.points), 0);
+  const [active, setActive] = useState({ before: true, remaining: true });
+  const maxPoints = Math.max(
+    10,
+    ...points.map((p) => Math.max(p.points, p.remaining)),
+    0,
+  );
   const top = Math.ceil(maxPoints / 5) * 5 || 10;
   const mid = Math.round(top / 2);
+  const series = [
+    active.before
+      ? {
+          key: "before",
+          color: "#8b9dc3",
+          values: points.map((p) => p.points),
+        }
+      : null,
+    active.remaining
+      ? {
+          key: "remaining",
+          color: "#7fbf9a",
+          values: points.map((p) => p.remaining),
+        }
+      : null,
+  ].filter(Boolean) as {
+    key: string;
+    color: string;
+    values: (number | undefined)[];
+  }[];
 
   return (
     <div className="trends craving-points-chart">
+      <div className="trend-toggles">
+        <button
+          type="button"
+          className={active.before ? "trend-toggle on" : "trend-toggle"}
+          style={{ ["--trend" as string]: "#8b9dc3" }}
+          onClick={() => setActive((p) => ({ ...p, before: !p.before }))}
+        >
+          Before
+        </button>
+        <button
+          type="button"
+          className={active.remaining ? "trend-toggle on" : "trend-toggle"}
+          style={{ ["--trend" as string]: "#7fbf9a" }}
+          onClick={() => setActive((p) => ({ ...p, remaining: !p.remaining }))}
+        >
+          Remaining
+        </button>
+      </div>
       <LineChartFrame
         yMin={0}
         yMax={top}
         yTicks={[0, mid, top].filter((v, i, a) => a.indexOf(v) === i)}
         points={points}
-        series={[
-          {
-            key: "points",
-            color: "#8b9dc3",
-            values: points.map((p) => p.points),
-          },
-        ]}
-        emptyMessage="Craving points appear when you log a craving."
-        footer="Total daily cravings points prior to intervention"
+        series={series}
+        emptyMessage="Craving intensity appears when you log a craving."
+        footer="Before you worked with it · remaining after. Incomplete logs stay at before — they don't fake a drop."
       />
     </div>
   );
@@ -636,6 +682,28 @@ export default function JourneyPage() {
   const cravingPoints = useMemo(() => {
     if (!today) return [];
     return cravingPointsLastYear(state, today);
+  }, [state, today]);
+  const playbook = useMemo(() => {
+    if (!today) return [];
+    return cravingPlaybook(state, today);
+  }, [state, today]);
+  const headwind = useMemo(() => {
+    if (!today) {
+      return {
+        total: 0,
+        byDaypart: [],
+        byWeekday: [],
+      };
+    }
+    return cravingHeadwindHours(state, today);
+  }, [state, today]);
+  const rhythmWeeks = useMemo(
+    () => (today ? lastFourWeeks(today) : []),
+    [today],
+  );
+  const rhythm = useMemo(() => {
+    if (!today) return [];
+    return supportRhythmLastFourWeeks(state, today);
   }, [state, today]);
 
   function supportLabel(type: string) {
@@ -673,8 +741,14 @@ export default function JourneyPage() {
         <p className="eyebrow">Over time</p>
         <h2 style={{ marginBottom: 10 }}>Conditions</h2>
         <ConditionsChart points={trendPoints} />
-        <h2 style={{ margin: "22px 0 10px" }}>Craving points</h2>
+        <h2 style={{ margin: "22px 0 10px" }}>What worked</h2>
+        <PlaybookPanel rows={playbook} />
+        <h2 style={{ margin: "22px 0 10px" }}>Headwind hours</h2>
+        <HeadwindPanel hours={headwind} />
+        <h2 style={{ margin: "22px 0 10px" }}>Did it come down</h2>
         <CravingPointsChart points={cravingPoints} />
+        <h2 style={{ margin: "22px 0 10px" }}>Provision rhythm</h2>
+        <RhythmPanel rows={rhythm} weeks={rhythmWeeks} />
       </section>
 
       <section className="panel">

@@ -29,8 +29,8 @@ Last updated: 2026-08-18
    Each week, show **two selectable** offers (podcasts and/or books) in the recovery content box.
 3. **RB-006 — Fund buckets: Future + Treat @ 30/70**  
    Future = long-horizon park; Treat = short-term. Reward day: Treat Yourself (optional Future pull) or Save for the Future. UXUI review: [`UX_HANDOFF_FUND_BUCKETS.md`](./UX_HANDOFF_FUND_BUCKETS.md).
-4. **RB-009 — Recovery patterns (Journey)**  
-   First P1 after the money/content P0s. Expand Journey’s Over time panel: what worked (mitigation drop), when (time-of-day / day-of-week), provision rhythm vs weekly target. No sixth nav tab. Detail: [`items/recovery-patterns-insights.md`](./items/recovery-patterns-insights.md).
+4. **RB-009 — Recovery patterns (Journey)** — **In Progress**  
+   High v1 slice shipping to **rebuild-dev**: playbook, headwind hours, remaining vs before, 4-week provision rhythm. No sixth nav tab. Detail: [`items/recovery-patterns-insights.md`](./items/recovery-patterns-insights.md).
 
 ### Later
 
