@@ -23,13 +23,11 @@ import {
   CONDITION_METRICS,
   cravingHeadwindHours,
   cravingPlaybook,
-  cravingPointsLastYear,
   formatTrendDate,
   lastFourWeeks,
   supportRhythmLastFourWeeks,
   trendPointsLastYear,
   type ConditionMetric,
-  type CravingPointsPoint,
   type TrendPoint,
 } from "@/lib/trends";
 import { MILESTONE_DEFS } from "@/lib/types";
@@ -601,69 +599,6 @@ function ConditionsChart({ points }: { points: TrendPoint[] }) {
   );
 }
 
-function CravingPointsChart({ points }: { points: CravingPointsPoint[] }) {
-  const [active, setActive] = useState({ before: true, remaining: true });
-  const maxPoints = Math.max(
-    10,
-    ...points.map((p) => Math.max(p.points, p.remaining)),
-    0,
-  );
-  const top = Math.ceil(maxPoints / 5) * 5 || 10;
-  const mid = Math.round(top / 2);
-  const series = [
-    active.before
-      ? {
-          key: "before",
-          color: "#8b9dc3",
-          values: points.map((p) => p.points),
-        }
-      : null,
-    active.remaining
-      ? {
-          key: "remaining",
-          color: "#7fbf9a",
-          values: points.map((p) => p.remaining),
-        }
-      : null,
-  ].filter(Boolean) as {
-    key: string;
-    color: string;
-    values: (number | undefined)[];
-  }[];
-
-  return (
-    <div className="trends craving-points-chart">
-      <div className="trend-toggles">
-        <button
-          type="button"
-          className={active.before ? "trend-toggle on" : "trend-toggle"}
-          style={{ ["--trend" as string]: "#8b9dc3" }}
-          onClick={() => setActive((p) => ({ ...p, before: !p.before }))}
-        >
-          Before
-        </button>
-        <button
-          type="button"
-          className={active.remaining ? "trend-toggle on" : "trend-toggle"}
-          style={{ ["--trend" as string]: "#7fbf9a" }}
-          onClick={() => setActive((p) => ({ ...p, remaining: !p.remaining }))}
-        >
-          Remaining
-        </button>
-      </div>
-      <LineChartFrame
-        yMin={0}
-        yMax={top}
-        yTicks={[0, mid, top].filter((v, i, a) => a.indexOf(v) === i)}
-        points={points}
-        series={series}
-        emptyMessage="Craving intensity appears when you log a craving."
-        footer="Before you worked with it · remaining after. Incomplete logs stay at before — they don't fake a drop."
-      />
-    </div>
-  );
-}
-
 export default function JourneyPage() {
   const { state, dashboard, today } = useApp();
   const clean = dashboard?.cleanDays ?? cleanDaysThisRun(state);
@@ -678,10 +613,6 @@ export default function JourneyPage() {
   const trendPoints = useMemo(() => {
     if (!today) return [];
     return trendPointsLastYear(state, today);
-  }, [state, today]);
-  const cravingPoints = useMemo(() => {
-    if (!today) return [];
-    return cravingPointsLastYear(state, today);
   }, [state, today]);
   const playbook = useMemo(() => {
     if (!today) return [];
@@ -725,8 +656,6 @@ export default function JourneyPage() {
         <PlaybookPanel rows={playbook} />
         <h2 style={{ margin: "22px 0 10px" }}>Headwind hours</h2>
         <HeadwindPanel hours={headwind} />
-        <h2 style={{ margin: "22px 0 10px" }}>Did it come down</h2>
-        <CravingPointsChart points={cravingPoints} />
         <h2 style={{ margin: "22px 0 10px" }}>Provision rhythm</h2>
         <RhythmPanel rows={rhythm} weeks={rhythmWeeks} />
       </section>
