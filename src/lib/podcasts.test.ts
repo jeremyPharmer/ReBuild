@@ -54,9 +54,10 @@ describe("pickRecoveryOffers", () => {
     expect(next.filter((i) => i.kind === "article")).toHaveLength(2);
   });
 
-  it("catalog has enough free articles to shuffle", () => {
+  it("catalog has enough free non-government articles to shuffle", () => {
     const articles = RECOVERY_CONTENT_CATALOG.filter((i) => i.kind === "article");
     expect(articles.length).toBeGreaterThanOrEqual(4);
     expect(articles.every((i) => /^https:\/\//.test(i.url))).toBe(true);
+    expect(articles.every((i) => !/\.gov(\/|$)/i.test(i.url))).toBe(true);
   });
 });
