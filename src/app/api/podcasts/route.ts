@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { PODCAST_CATALOG } from "@/lib/podcasts";
+import { RECOVERY_CONTENT_CATALOG } from "@/lib/podcasts";
 import { updateState } from "@/lib/store";
 import type { SupportCompletion } from "@/lib/types";
 
@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const action = String(body.action || "listened");
     const id = String(body.id || "");
-    if (!id || !PODCAST_CATALOG.some((e) => e.id === id)) {
+    if (!id || !RECOVERY_CONTENT_CATALOG.some((e) => e.id === id)) {
       return NextResponse.json({ error: "Unknown episode" }, { status: 400 });
     }
 

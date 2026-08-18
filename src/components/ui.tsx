@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 export function ScaleInput({
   label,
@@ -96,6 +96,48 @@ export function ProgressBar({ done, target }: { done: number; target: number }) 
   return (
     <div className="progress-track" aria-hidden>
       <div className="progress-fill" style={{ width: `${pct}%` }} />
+    </div>
+  );
+}
+
+export function Sheet({
+  label,
+  busy,
+  onClose,
+  children,
+}: {
+  label: string;
+  busy?: boolean;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  useEffect(() => {
+    const html = document.documentElement;
+    const prev = document.body.style.overflow;
+    html.classList.add("sheet-open");
+    document.body.style.overflow = "hidden";
+    return () => {
+      html.classList.remove("sheet-open");
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
+  return (
+    <div
+      className="modal-backdrop"
+      role="presentation"
+      onClick={() => !busy && onClose()}
+    >
+      <div
+        className="modal-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-label={label}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-sheet-handle" aria-hidden />
+        {children}
+      </div>
     </div>
   );
 }
