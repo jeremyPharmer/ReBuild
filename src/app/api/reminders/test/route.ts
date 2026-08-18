@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const result = await sendReminderEmail({
       to: email,
       kind,
-      displayName: state.profile.displayName,
+      state,
     });
     if (!result.ok) {
       return NextResponse.json(
@@ -38,7 +38,9 @@ export async function POST(req: Request) {
     }
 
     const prefs = normalizeReminders(state.profile.reminders);
-    if (prefs.enabled) {
+    const kindOn =
+      kind === "morning" ? prefs.morningEnabled : prefs.eveningEnabled;
+    if (kindOn) {
       const { date } = localClock(state.profile.timezone);
       await updateState((prev) => markReminderSent(prev, kind, date));
     }

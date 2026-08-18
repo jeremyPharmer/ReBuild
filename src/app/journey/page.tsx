@@ -15,12 +15,19 @@ import {
   type TrailDay,
 } from "@/lib/trail";
 import {
+  HeadwindPanel,
+  PlaybookPanel,
+  RhythmPanel,
+} from "@/components/JourneyPatterns";
+import {
   CONDITION_METRICS,
-  cravingPointsLastYear,
+  cravingHeadwindHours,
+  cravingPlaybook,
   formatTrendDate,
+  lastFourWeeks,
+  supportRhythmLastFourWeeks,
   trendPointsLastYear,
   type ConditionMetric,
-  type CravingPointsPoint,
   type TrendPoint,
 } from "@/lib/trends";
 import { MILESTONE_DEFS } from "@/lib/types";
@@ -592,32 +599,6 @@ function ConditionsChart({ points }: { points: TrendPoint[] }) {
   );
 }
 
-function CravingPointsChart({ points }: { points: CravingPointsPoint[] }) {
-  const maxPoints = Math.max(10, ...points.map((p) => p.points), 0);
-  const top = Math.ceil(maxPoints / 5) * 5 || 10;
-  const mid = Math.round(top / 2);
-
-  return (
-    <div className="trends craving-points-chart">
-      <LineChartFrame
-        yMin={0}
-        yMax={top}
-        yTicks={[0, mid, top].filter((v, i, a) => a.indexOf(v) === i)}
-        points={points}
-        series={[
-          {
-            key: "points",
-            color: "#8b9dc3",
-            values: points.map((p) => p.points),
-          },
-        ]}
-        emptyMessage="Craving points appear when you log a craving."
-        footer="Total daily cravings points prior to intervention"
-      />
-    </div>
-  );
-}
-
 export default function JourneyPage() {
   const { state, dashboard, today } = useApp();
   const clean = dashboard?.cleanDays ?? cleanDaysThisRun(state);
@@ -633,9 +614,27 @@ export default function JourneyPage() {
     if (!today) return [];
     return trendPointsLastYear(state, today);
   }, [state, today]);
-  const cravingPoints = useMemo(() => {
+  const playbook = useMemo(() => {
     if (!today) return [];
-    return cravingPointsLastYear(state, today);
+    return cravingPlaybook(state, today);
+  }, [state, today]);
+  const headwind = useMemo(() => {
+    if (!today) {
+      return {
+        total: 0,
+        byDaypart: [],
+        byWeekday: [],
+      };
+    }
+    return cravingHeadwindHours(state, today);
+  }, [state, today]);
+  const rhythmWeeks = useMemo(
+    () => (today ? lastFourWeeks(today) : []),
+    [today],
+  );
+  const rhythm = useMemo(() => {
+    if (!today) return [];
+    return supportRhythmLastFourWeeks(state, today);
   }, [state, today]);
 
   function supportLabel(type: string) {
@@ -648,6 +647,18 @@ export default function JourneyPage() {
         <p className="eyebrow">Journey</p>
         <h1>{dashboard?.label ?? "Journey"}</h1>
       </header>
+
+      <section className="panel">
+        <p className="eyebrow">Over time</p>
+        <h2 style={{ marginBottom: 10 }}>Conditions</h2>
+        <ConditionsChart points={trendPoints} />
+        <h2 style={{ margin: "22px 0 10px" }}>What worked</h2>
+        <PlaybookPanel rows={playbook} />
+        <h2 style={{ margin: "22px 0 10px" }}>Headwind hours</h2>
+        <HeadwindPanel hours={headwind} />
+        <h2 style={{ margin: "22px 0 10px" }}>Provision rhythm</h2>
+        <RhythmPanel rows={rhythm} weeks={rhythmWeeks} />
+      </section>
 
       <section className="panel">
         <p className="eyebrow">Trail log</p>
@@ -667,14 +678,6 @@ export default function JourneyPage() {
             />
           ))}
         </div>
-      </section>
-
-      <section className="panel">
-        <p className="eyebrow">Over time</p>
-        <h2 style={{ marginBottom: 10 }}>Conditions</h2>
-        <ConditionsChart points={trendPoints} />
-        <h2 style={{ margin: "22px 0 10px" }}>Craving points</h2>
-        <CravingPointsChart points={cravingPoints} />
       </section>
 
       <section className="panel">
