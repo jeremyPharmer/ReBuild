@@ -12,6 +12,8 @@ describe("reminders", () => {
   it("normalizes hours into 0–23", () => {
     expect(normalizeReminders({ enabled: true, morningHour: -1, eveningHour: 99 })).toEqual({
       enabled: true,
+      morningEnabled: true,
+      eveningEnabled: true,
       morningHour: 0,
       eveningHour: 23,
     });
@@ -49,5 +51,35 @@ describe("reminders", () => {
 
     const evening = dueReminderKinds(after, new Date("2026-08-11T20:01:00.000Z"));
     expect(evening).toEqual(["evening"]);
+  });
+
+  it("can enable close without start", () => {
+    const state = emptyState();
+    state.profile = {
+      id: "u",
+      createdAt: "",
+      onboarded: true,
+      displayName: "J",
+      historicalDailySpend: 10,
+      startDate: "2026-08-10",
+      currentRunId: "run_1",
+      currentRunStartedOn: "2026-08-10",
+      supports: DEFAULT_SUPPORTS,
+      timezone: "UTC",
+      email: "j@example.com",
+      reminders: {
+        enabled: true,
+        morningEnabled: false,
+        eveningEnabled: true,
+        morningHour: 7,
+        eveningHour: 20,
+      },
+    };
+    expect(dueReminderKinds(state, new Date("2026-08-11T07:05:00.000Z"))).toEqual(
+      [],
+    );
+    expect(
+      dueReminderKinds(state, new Date("2026-08-11T20:01:00.000Z")),
+    ).toEqual(["evening"]);
   });
 });

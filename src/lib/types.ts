@@ -203,7 +203,10 @@ export type JournalEntry = {
 };
 
 export type ReminderPrefs = {
+  /** Either Start or Close is on (derived). */
   enabled: boolean;
+  morningEnabled: boolean;
+  eveningEnabled: boolean;
   /** Local hour 0–23 in profile.timezone */
   morningHour: number;
   /** Local hour 0–23 in profile.timezone */

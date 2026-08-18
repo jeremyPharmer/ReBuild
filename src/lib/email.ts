@@ -1,5 +1,6 @@
 import type { ReminderKind } from "./reminders";
-import { reminderLink } from "./reminders";
+import { buildReminderDigest } from "./digest-email";
+import type { RebuildState } from "./types";
 
 export type SendEmailResult =
   | { ok: true; id?: string }
@@ -64,36 +65,13 @@ export async function sendEmail(opts: {
 export async function sendReminderEmail(opts: {
   to: string;
   kind: ReminderKind;
-  displayName?: string;
+  state: RebuildState;
 }): Promise<SendEmailResult> {
-  const link = reminderLink(opts.kind);
-  const isMorning = opts.kind === "morning";
-  const subject = isMorning
-    ? "REBUILD — Start the day"
-    : "REBUILD — Close the day";
-  const greeting = opts.displayName?.trim()
-    ? `Hey ${opts.displayName.trim()},`
-    : "Hey,";
-  const bodyLine = isMorning
-    ? "Open Start the day and set your intention. Don’t skip the loop."
-    : "Open Close the day and check in. Finish today’s Rebuild.";
-  const cta = isMorning ? "Start the day →" : "Close the day →";
-
-  const html = `
-    <div style="font-family:Georgia,serif;line-height:1.5;color:#0f1c18;max-width:520px">
-      <p style="letter-spacing:0.12em;text-transform:uppercase;font-size:12px;color:#5a6b63;margin:0 0 12px">REBUILD</p>
-      <h1 style="font-size:28px;margin:0 0 12px">${isMorning ? "Start the day" : "Close the day"}</h1>
-      <p style="margin:0 0 16px">${greeting}</p>
-      <p style="margin:0 0 20px">${bodyLine}</p>
-      <p style="margin:0 0 28px">
-        <a href="${link}" style="display:inline-block;background:#1f6b4a;color:#fff;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:600">${cta}</a>
-      </p>
-      <p style="margin:0;font-size:13px;color:#5a6b63">
-        Or open <a href="${link}" style="color:#1f6b4a">${link}</a>
-      </p>
-    </div>
-  `;
-
-  const text = `${greeting}\n\n${bodyLine}\n\n${link}\n`;
-  return sendEmail({ to: opts.to, subject, html, text });
+  const digest = buildReminderDigest(opts.kind, opts.state);
+  return sendEmail({
+    to: opts.to,
+    subject: digest.subject,
+    html: digest.html,
+    text: digest.text,
+  });
 }

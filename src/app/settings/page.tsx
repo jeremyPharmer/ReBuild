@@ -44,8 +44,12 @@ export default function SettingsPage() {
     String(state.profile?.historicalDailySpend ?? 40),
   );
   const [email, setEmail] = useState(state.profile?.email ?? "");
-  const [remindersOn, setRemindersOn] = useState(
-    Boolean(state.profile?.reminders?.enabled),
+  const reminders = state.profile?.reminders;
+  const [morningOn, setMorningOn] = useState(
+    reminders?.morningEnabled ?? Boolean(reminders?.enabled),
+  );
+  const [eveningOn, setEveningOn] = useState(
+    reminders?.eveningEnabled ?? Boolean(reminders?.enabled),
   );
   const [morningHour, setMorningHour] = useState(
     String(state.profile?.reminders?.morningHour ?? 7),
@@ -102,7 +106,8 @@ export default function SettingsPage() {
         historicalDailySpend: Number(spend),
         email,
         reminders: {
-          enabled: remindersOn,
+          morningEnabled: morningOn,
+          eveningEnabled: eveningOn,
           morningHour: Number(morningHour),
           eveningHour: Number(eveningHour),
         },
@@ -282,8 +287,8 @@ export default function SettingsPage() {
       <section className="panel">
         <p className="eyebrow">Email nudges</p>
         <p className="muted" style={{ marginTop: 0 }}>
-          Morning and evening emails with a one-tap link into Rebuild (
-          {state.profile?.timezone || "America/New_York"}).
+          Start-of-day and end-of-day emails, separately, in{" "}
+          {state.profile?.timezone || "America/New_York"}.
         </p>
         <label className="field">
           <span className="field-label">Email</span>
@@ -298,11 +303,20 @@ export default function SettingsPage() {
         <label className="check-item check-item-row" style={{ marginTop: 8 }}>
           <input
             type="checkbox"
-            checked={remindersOn}
-            onChange={(e) => setRemindersOn(e.target.checked)}
+            checked={morningOn}
+            onChange={(e) => setMorningOn(e.target.checked)}
             style={{ width: 18, height: 18 }}
           />
-          <span className="check-label">Send daily Start / Close emails</span>
+          <span className="check-label">Start-of-day email</span>
+        </label>
+        <label className="check-item check-item-row" style={{ marginTop: 8 }}>
+          <input
+            type="checkbox"
+            checked={eveningOn}
+            onChange={(e) => setEveningOn(e.target.checked)}
+            style={{ width: 18, height: 18 }}
+          />
+          <span className="check-label">End-of-day email</span>
         </label>
         <div className="grid-2" style={{ marginTop: 10 }}>
           <label className="field">
