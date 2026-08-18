@@ -10,16 +10,17 @@ Index of all product items. Canonical detail lives in `product/items/`.
 | 2 | RB-001 | Auto-pull funds: checking → Venmo | P0 | Backlog | L | TBD | v1 | [items/auto-pull-funds-venmo.md](./items/auto-pull-funds-venmo.md) |
 | 3 | RB-005 | Recovery content: weekly podcast & book offers | P0 | Backlog | M | TBD | v1 | [items/recovery-content-offers.md](./items/recovery-content-offers.md) |
 | 4 | RB-006 | Fund buckets: Future + Treat @ 30/70 | P0 | Backlog | M | TBD | v1 | [items/fund-two-buckets.md](./items/fund-two-buckets.md) |
-| 5 | RB-002 | Email integration | P1 | Backlog | M | TBD | later | [items/email-integration.md](./items/email-integration.md) |
-| 6 | RB-003 | Daily email: open checklist at close of day | P1 | Backlog | S | TBD | later | [items/daily-open-checklist-email.md](./items/daily-open-checklist-email.md) |
-| 7 | RB-004 | SMS integration | P2 | Backlog | M | TBD | later | [items/sms-integration.md](./items/sms-integration.md) |
-| 8 | RB-008 | Segregated ReBuild account (feasibility) | P1 | Backlog | S | TBD | later | [items/segregated-rebuild-account-rails.md](./items/segregated-rebuild-account-rails.md) |
+| 5 | RB-009 | Recovery patterns (Journey) | P1 | Backlog | M | TBD | v1.x | [items/recovery-patterns-insights.md](./items/recovery-patterns-insights.md) |
+| 6 | RB-002 | Email integration | P1 | Backlog | M | TBD | later | [items/email-integration.md](./items/email-integration.md) |
+| 7 | RB-003 | Daily email: open checklist at close of day | P1 | Backlog | S | TBD | later | [items/daily-open-checklist-email.md](./items/daily-open-checklist-email.md) |
+| 8 | RB-004 | SMS integration | P2 | Backlog | M | TBD | later | [items/sms-integration.md](./items/sms-integration.md) |
+| 9 | RB-008 | Segregated ReBuild account (feasibility) | P1 | Backlog | S | TBD | later | [items/segregated-rebuild-account-rails.md](./items/segregated-rebuild-account-rails.md) |
 
 ## Status counts
 
 | Status | Count |
 | --- | --- |
-| Backlog | 7 |
+| Backlog | 8 |
 | Ready | 0 |
 | In Progress | 0 |
 | Blocked | 0 |
