@@ -1321,6 +1321,20 @@ h2 {
   margin-top: 4px;
 }
 
+.podcast-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.podcast-shuffle {
+  width: auto;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+}
+
 .podcast-card-head {
   margin-bottom: 4px;
 }
@@ -1440,6 +1454,7 @@ html.sheet-open .bottom-nav {
 
 .reward-pick-row .check-item-row {
   margin: 0;
+  min-width: 0;
 }
 
 .reward-pick-delete {
