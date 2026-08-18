@@ -718,6 +718,20 @@ export default function JourneyPage() {
       </header>
 
       <section className="panel">
+        <p className="eyebrow">Over time</p>
+        <h2 style={{ marginBottom: 10 }}>Conditions</h2>
+        <ConditionsChart points={trendPoints} />
+        <h2 style={{ margin: "22px 0 10px" }}>What worked</h2>
+        <PlaybookPanel rows={playbook} />
+        <h2 style={{ margin: "22px 0 10px" }}>Headwind hours</h2>
+        <HeadwindPanel hours={headwind} />
+        <h2 style={{ margin: "22px 0 10px" }}>Did it come down</h2>
+        <CravingPointsChart points={cravingPoints} />
+        <h2 style={{ margin: "22px 0 10px" }}>Provision rhythm</h2>
+        <RhythmPanel rows={rhythm} weeks={rhythmWeeks} />
+      </section>
+
+      <section className="panel">
         <p className="eyebrow">Trail log</p>
         <h2 style={{ marginBottom: 12 }}>This climb</h2>
         {trailDays.length === 0 && (
@@ -735,20 +749,6 @@ export default function JourneyPage() {
             />
           ))}
         </div>
-      </section>
-
-      <section className="panel">
-        <p className="eyebrow">Over time</p>
-        <h2 style={{ marginBottom: 10 }}>Conditions</h2>
-        <ConditionsChart points={trendPoints} />
-        <h2 style={{ margin: "22px 0 10px" }}>What worked</h2>
-        <PlaybookPanel rows={playbook} />
-        <h2 style={{ margin: "22px 0 10px" }}>Headwind hours</h2>
-        <HeadwindPanel hours={headwind} />
-        <h2 style={{ margin: "22px 0 10px" }}>Did it come down</h2>
-        <CravingPointsChart points={cravingPoints} />
-        <h2 style={{ margin: "22px 0 10px" }}>Provision rhythm</h2>
-        <RhythmPanel rows={rhythm} weeks={rhythmWeeks} />
       </section>
 
       <section className="panel">
