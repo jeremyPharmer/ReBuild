@@ -218,15 +218,23 @@ function podcastBlock(state: RebuildState): { html: string; text: string } {
   if (offers.length === 0) {
     return { html: "", text: "" };
   }
+  const articleCount = offers.filter((item) => item.kind === "article").length;
+  const podcastCount = offers.length - articleCount;
+  const label =
+    articleCount > 0
+      ? `Recovery content · ${podcastCount} to play · ${articleCount} to read`
+      : `Recovery content · ${offers.length} to play`;
   const links = offers
-    .map(
-      (ep) =>
-        `<a href="${esc(ep.appleUrl)}" style="color:#1f6b4a;text-decoration:none;"><strong>${esc(ep.show)}</strong> — ${esc(ep.title)}</a> · ${esc(formatDuration(ep.durationMin))}`,
-    )
+    .map((ep) => {
+      const verb = ep.kind === "article" ? "Read" : "Play";
+      return `<a href="${esc(ep.url)}" style="color:#1f6b4a;text-decoration:none;"><strong>${esc(ep.show)}</strong> — ${esc(ep.title)}</a> · ${esc(verb)} · ${esc(formatDuration(ep.durationMin))}`;
+    })
     .join("<br />");
-  const text = offers.map((ep) => `${ep.show} — ${ep.title} ${ep.appleUrl}`).join("\n");
+  const text = offers
+    .map((ep) => `${ep.show} — ${ep.title} ${ep.url}`)
+    .join("\n");
   return {
-    html: `${sectionLabel(`Recovery content · ${offers.length} to play`)}${sectionText(links, "22px")}`,
+    html: `${sectionLabel(label)}${sectionText(links, "22px")}`,
     text: `Recovery content\n${text}`,
   };
 }

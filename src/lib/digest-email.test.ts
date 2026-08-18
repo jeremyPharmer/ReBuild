@@ -74,6 +74,8 @@ describe("digest emails", () => {
     expect(digest.html).toContain("2 / 7 this week");
     expect(digest.html).toContain("NFL Bets");
     expect(digest.html).toContain("Start the day — keep Day 8");
+    expect(digest.html).toContain("to play");
+    expect(digest.html).toContain("to read");
     expect(digest.html).not.toContain("Recovery content 1/2 ·");
   });
 
