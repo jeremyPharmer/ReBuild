@@ -37,7 +37,7 @@ Interactive every day:
 
 **Morning** — Start the day (sleep, state, intention) → Today’s Rebuild supports  
 **Day** — Log supports: recovery content (2/wk), meditation (5), medication (7), gym (4)  
-**Evening** — Close the day: **Mood + Stress** (1–10), one-line journal, optional “anything specific stand out today?” → Move to Rebuild → Treat/Save if milestone  
+**Evening** — Close the day: **Mood + Stress** (1–10), one-line journal, optional “anything specific stand out today?” → Move to Rebuild → Treat/Save if milestone. **Missed closes** can be backfilled from Journal (pick a day in the current run without an evening) via the same evening path.
 
 Weekly supports are **targets** (not shame). Counts may go **above** the weekly goal (e.g. 5 of 2). Hitting all four unlocks **$20 treat gift** (out of pocket).  
 Content log asks: “What will you do differently because of this?”

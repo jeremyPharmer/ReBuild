@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-003 |
-| Rank | 7 |
+| Rank | 8 |
 | Priority | P1 |
 | Status | Backlog |
 | Effort | S |
@@ -42,5 +42,5 @@ After the day is closed (or at a configured end-of-day moment), the user receive
 
 - Added 2026-08-10. Product call: keep close-the-day exactly as designed; this is an additive notification of leftover open items.
 - Related surface: daily journal / checklist leftovers.
-- Rank **7** after Venmo, recovery content, fund buckets, recovery patterns (RB-009), and email integration (RB-002). Renumbered 2026-08-18 when RB-009 inserted at rank 5.
+- Rank **8** after Venmo, recovery content, fund buckets, recovery patterns (RB-009), backfill evening close (RB-010), and email integration (RB-002). Renumbered 2026-08-20 when RB-010 inserted at rank 6.
 - RB-009 Sunday recap is a later consumer of this channel — do not block recovery patterns v1 on email.

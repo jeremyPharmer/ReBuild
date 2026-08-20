@@ -3,7 +3,9 @@ import {
   buildDashboard,
   cleanDaysThisRun,
   formatSinceDate,
+  isValidEveningDate,
   lastActiveDay,
+  missingEveningDates,
   nextIncentive,
   nextMilestones,
   projectedReclaimAt,
@@ -385,5 +387,62 @@ describe("resetCurrentRun (Settings)", () => {
     // history + reclaim preserved
     expect(state.reclaimDays).toHaveLength(2);
     expect(state.evenings).toHaveLength(2);
+  });
+});
+
+describe("missingEveningDates", () => {
+  it("lists open days in the current run, newest first", () => {
+    const state = baseState();
+    state.evenings = [
+      {
+        date: "2026-08-01",
+        mood: 7,
+        alignment: "aligned",
+        oneLine: "day 1",
+        completedAt: "2026-08-01T04:00:00.000Z",
+      },
+      {
+        date: "2026-08-03",
+        mood: 7,
+        alignment: "aligned",
+        oneLine: "day 3",
+        completedAt: "2026-08-03T04:00:00.000Z",
+      },
+    ];
+    expect(missingEveningDates(state, "2026-08-04")).toEqual([
+      "2026-08-04",
+      "2026-08-02",
+    ]);
+  });
+
+  it("returns empty when every day in range is closed", () => {
+    const state = baseState();
+    state.profile!.currentRunStartedOn = "2026-08-02";
+    state.evenings = [
+      {
+        date: "2026-08-02",
+        mood: 6,
+        alignment: "aligned",
+        oneLine: "ok",
+        completedAt: "",
+      },
+      {
+        date: "2026-08-03",
+        mood: 6,
+        alignment: "aligned",
+        oneLine: "ok",
+        completedAt: "",
+      },
+    ];
+    expect(missingEveningDates(state, "2026-08-03")).toEqual([]);
+  });
+
+  it("validates evening dates inside the current run", () => {
+    const state = baseState();
+    expect(isValidEveningDate(state, "2026-08-01", "2026-08-05")).toBe(true);
+    expect(isValidEveningDate(state, "2026-08-05", "2026-08-05")).toBe(true);
+    expect(isValidEveningDate(state, "2026-08-06", "2026-08-05")).toBe(false);
+    expect(isValidEveningDate(state, "2026-07-31", "2026-08-05")).toBe(false);
+    expect(isValidEveningDate(state, "08-01", "2026-08-05")).toBe(false);
   });
 });

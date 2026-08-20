@@ -231,6 +231,37 @@ export function getEvening(state: RebuildState, date: string) {
   return state.evenings.find((e) => e.date === date);
 }
 
+/**
+ * Calendar days in the current run (start → asOf) with no evening close yet.
+ * Newest first. Used to backfill a missed Close the day / journal line.
+ */
+export function missingEveningDates(
+  state: RebuildState,
+  asOfDate?: string,
+): string[] {
+  if (!state.profile) return [];
+  const start = state.profile.currentRunStartedOn;
+  const asOf = asOfDate ?? todayInTz(state.profile.timezone);
+  if (asOf < start) return [];
+  const closed = new Set(state.evenings.map((e) => e.date));
+  return datesInRange(start, asOf)
+    .filter((d) => !closed.has(d))
+    .reverse();
+}
+
+/** YYYY-MM-DD calendar date suitable for evening close / backfill. */
+export function isValidEveningDate(
+  state: RebuildState,
+  date: string,
+  asOfDate?: string,
+): boolean {
+  if (!state.profile) return false;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const asOf = asOfDate ?? todayInTz(state.profile.timezone);
+  const start = state.profile.currentRunStartedOn;
+  return date >= start && date <= asOf;
+}
+
 export function getMorning(state: RebuildState, date: string) {
   return state.mornings.find((m) => m.date === date);
 }

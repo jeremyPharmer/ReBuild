@@ -5,7 +5,7 @@ Living roadmap for **ReBuild** — a recovery app with incentives.
 Maintained by the **Head of Product** agent (`.cursor/agents/head-of-product.md`).  
 **Priority ranking is the primary planning signal.** Due dates, effort, and timeline support rank — they do not override it.
 
-Last updated: 2026-08-18
+Last updated: 2026-08-20
 
 ## Current focus
 
@@ -21,6 +21,8 @@ Last updated: 2026-08-18
 
 **Shipped to prod:** RB-007 (accounts + trail onboarding). Next open P0s: RB-001 (Venmo), RB-005 (weekly recovery content), RB-006 (two-bucket fund).
 
+**In Progress (P1 daily-loop):** RB-009 (recovery patterns) and **RB-010** (backfill missed evening / journal close + Journal nav scroll fix).
+
 ### Next
 
 1. **RB-001 — Auto-pull funds: checking → Venmo (v1)**  
@@ -31,6 +33,8 @@ Last updated: 2026-08-18
    Future = long-horizon park; Treat = short-term. Reward day: Treat Yourself (optional Future pull) or Save for the Future. UXUI review: [`UX_HANDOFF_FUND_BUCKETS.md`](./UX_HANDOFF_FUND_BUCKETS.md).
 4. **RB-009 — Recovery patterns (Journey)** — **In Progress**  
    High v1 slice shipping to **rebuild-dev**: playbook, headwind hours, 4-week provision rhythm. No sixth nav tab. Detail: [`items/recovery-patterns-insights.md`](./items/recovery-patterns-insights.md).
+5. **RB-010 — Backfill missed evening / journal close** — **In Progress**  
+   Select a missing day in the current run and complete evening close via the existing path. Companion: Journal bottom-nav scroll overlap fix. Detail: [`items/backfill-missed-evening-journal-close.md`](./items/backfill-missed-evening-journal-close.md).
 
 ### Later
 
@@ -50,6 +54,7 @@ Last updated: 2026-08-18
 | Unscheduled | RB-005 weekly 2-offer rotation (podcasts + books) | Effort **M**; backlog/consider |
 | With fund/Money work | RB-006 two-bucket + reward Treat/Save UX | Effort **M**; UXUI review requested |
 | After open P0s (v1.x) | RB-009 recovery patterns on Journey | Effort **M**; daily-loop payoff; does not need Venmo; first P1 |
+| Shipping with daily-loop polish (v1.x) | RB-010 backfill missed evening close | Effort **S**; P1 after RB-009; does not displace P0s |
 | After RB-001 v1 / with accounts | RB-002 → forgot-password live + RB-003 | Email platform first, then daily digest |
 | After email path (or parallel if capacity) | RB-004 SMS | P2 |
 | Parallel discovery (does not block Venmo v1) | RB-008 segregated hold feasibility | Effort **S**; Acorns email + rails shortlist; production rails would be **XL** follow-on |

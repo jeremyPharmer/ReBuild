@@ -1,13 +1,39 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { PrimaryButton, ScaleInput, SecondaryButton } from "@/components/ui";
+import {
+  formatDisplayDate,
+  isValidEveningDate,
+  missingEveningDates,
+} from "@/lib/journey";
 
-export default function EveningPage() {
+function EveningPageInner() {
   const { post, state, today, refresh } = useApp();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const requested = searchParams.get("date") ?? "";
+
+  const missing = useMemo(
+    () => missingEveningDates(state, today || undefined),
+    [state, today],
+  );
+
+  const preferredDate = useMemo(() => {
+    if (
+      requested &&
+      isValidEveningDate(state, requested, today || undefined) &&
+      missing.includes(requested)
+    ) {
+      return requested;
+    }
+    if (today && missing.includes(today)) return today;
+    return missing[0] ?? "";
+  }, [requested, state, today, missing]);
+
+  const [closeDate, setCloseDate] = useState(preferredDate);
   const [mood, setMood] = useState(6);
   const [stress, setStress] = useState(5);
   const [oneLine, setOneLine] = useState("");
@@ -16,13 +42,27 @@ export default function EveningPage() {
   const [result, setResult] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (!closeDate || !missing.includes(closeDate)) {
+      setCloseDate(preferredDate);
+    }
+  }, [preferredDate, missing, closeDate]);
+
+  const effectiveDate =
+    closeDate && missing.includes(closeDate) ? closeDate : preferredDate;
+
+  const alreadyClosedToday =
+    Boolean(today) && state.evenings.some((e) => e.date === today);
+  const requestedAlreadyClosed =
+    Boolean(requested) && state.evenings.some((e) => e.date === requested);
+
   async function submit() {
-    if (!oneLine.trim()) return;
+    if (!oneLine.trim() || !effectiveDate) return;
     setBusy(true);
     setError("");
     try {
       await post("/api/evening", {
-        date: today,
+        date: effectiveDate,
         mood,
         stress,
         oneLine,
@@ -37,7 +77,28 @@ export default function EveningPage() {
     }
   }
 
-  if (state.evenings.some((e) => e.date === today) && !result) {
+  if (requestedAlreadyClosed && !result) {
+    return (
+      <main className="stack">
+        <p className="eyebrow">Close the day</p>
+        <h1>Already complete</h1>
+        <p className="muted">
+          {formatDisplayDate(requested)} already has a close.
+        </p>
+        {missing.length > 0 && (
+          <SecondaryButton onClick={() => router.push("/journal")}>
+            Pick a missed day
+          </SecondaryButton>
+        )}
+        <PrimaryButton onClick={() => router.push("/money")}>
+          Move money to Rebuild
+        </PrimaryButton>
+        <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
+      </main>
+    );
+  }
+
+  if (alreadyClosedToday && missing.length === 0 && !result) {
     return (
       <main className="stack">
         <p className="eyebrow">Close the day</p>
@@ -55,6 +116,9 @@ export default function EveningPage() {
       <main className="stack success-pop">
         <p className="eyebrow">Remember</p>
         <h1>Day closed.</h1>
+        {effectiveDate && effectiveDate !== today && (
+          <p className="muted">Backfilled {formatDisplayDate(effectiveDate)}</p>
+        )}
         <div className="panel">
           <p style={{ margin: 0, fontSize: "1.15rem" }}>&ldquo;{oneLine}&rdquo;</p>
         </div>
@@ -63,18 +127,60 @@ export default function EveningPage() {
           Move money to Rebuild
         </PrimaryButton>
 
+        <SecondaryButton onClick={() => router.push("/journal")}>
+          Journal
+        </SecondaryButton>
         <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
       </main>
     );
   }
 
+  if (!effectiveDate) {
+    return (
+      <main className="stack">
+        <p className="eyebrow">Close the day</p>
+        <h1>Nothing to close</h1>
+        <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
+      </main>
+    );
+  }
+
+  const isBackfill = effectiveDate !== today;
+  const showDayPicker =
+    missing.length > 1 || (alreadyClosedToday && missing.length > 0);
+
   return (
     <main className="stack fade-in">
-      <p className="eyebrow">Confirm + reflect</p>
-      <h1>Close the day</h1>
+      <p className="eyebrow">{isBackfill ? "Catch up" : "Confirm + reflect"}</p>
+      <h1>{isBackfill ? "Add a missed close" : "Close the day"}</h1>
+      {isBackfill && (
+        <p className="muted">
+          Closing {formatDisplayDate(effectiveDate)} — same mood, stress, and
+          one line as tonight.
+        </p>
+      )}
+
+      {showDayPicker && (
+        <section className="panel">
+          <label className="field">
+            <span className="field-label">Which day?</span>
+            <select
+              value={effectiveDate}
+              onChange={(e) => setCloseDate(e.target.value)}
+            >
+              {missing.map((d) => (
+                <option key={d} value={d}>
+                  {formatDisplayDate(d)}
+                  {d === today ? " (today)" : ""}
+                </option>
+              ))}
+            </select>
+          </label>
+        </section>
+      )}
 
       <section className="panel">
-        <p className="eyebrow">How did today go?</p>
+        <p className="eyebrow">How did {isBackfill ? "that day" : "today"} go?</p>
         <ScaleInput label="Mood" value={mood} onChange={setMood} />
         <ScaleInput label="Stress" value={stress} onChange={setStress} />
       </section>
@@ -83,7 +189,8 @@ export default function EveningPage() {
         <p className="eyebrow">One line</p>
         <label className="field">
           <span className="field-label">
-            What do you want to remember about today?
+            What do you want to remember about{" "}
+            {isBackfill ? formatDisplayDate(effectiveDate) : "today"}?
           </span>
           <input
             type="text"
@@ -97,7 +204,8 @@ export default function EveningPage() {
       <section className="panel">
         <label className="field">
           <span className="field-label">
-            Anything specific stand out today?
+            Anything specific stand out{" "}
+            {isBackfill ? "that day" : "today"}?
           </span>
           <textarea
             rows={2}
@@ -113,8 +221,22 @@ export default function EveningPage() {
         onClick={submit}
         disabled={busy || !oneLine.trim()}
       >
-        {busy ? "Saving…" : "Close the day"}
+        {busy ? "Saving…" : isBackfill ? "Add journal entry" : "Close the day"}
       </PrimaryButton>
     </main>
+  );
+}
+
+export default function EveningPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="stack">
+          <p className="muted">Loading…</p>
+        </main>
+      }
+    >
+      <EveningPageInner />
+    </Suspense>
   );
 }
