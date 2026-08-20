@@ -2,8 +2,8 @@ name: Daily Rebuild reminders
 
 on:
   schedule:
-    # Top of every hour — app decides if local morning/evening hour matches
-    - cron: "5 * * * *"
+    # Every 15 minutes — app decides due morning/evening (with same-day catch-up)
+    - cron: "5,20,35,50 * * * *"
   workflow_dispatch:
     inputs:
       target:

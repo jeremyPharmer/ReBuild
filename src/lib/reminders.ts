@@ -83,6 +83,11 @@ export function reminderLink(kind: ReminderKind): string {
   return kind === "morning" ? `${base}/morning` : `${base}/evening`;
 }
 
+/**
+ * GitHub Actions hourly cron often drifts past the exact target hour.
+ * Catch up same local day after the chosen hour so a late tick still sends.
+ * Morning stops once the evening window starts (or mid-afternoon if evening is off).
+ */
 export function dueReminderKinds(
   state: RebuildState,
   now = new Date(),
@@ -94,17 +99,22 @@ export function dueReminderKinds(
   const log = state.reminderLog ?? {};
   const due: ReminderKind[] = [];
 
+  const morningDeadline = prefs.eveningEnabled
+    ? prefs.eveningHour
+    : Math.min(23, prefs.morningHour + 6);
+
   if (
     prefs.morningEnabled &&
-    hour === prefs.morningHour &&
-    log.morning !== date
+    log.morning !== date &&
+    hour >= prefs.morningHour &&
+    hour < morningDeadline
   ) {
     due.push("morning");
   }
   if (
     prefs.eveningEnabled &&
-    hour === prefs.eveningHour &&
-    log.evening !== date
+    log.evening !== date &&
+    hour >= prefs.eveningHour
   ) {
     due.push("evening");
   }
