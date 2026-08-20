@@ -1,7 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import {
+  formatDisplayDate,
+  missingEveningDates,
+} from "@/lib/journey";
 
 type DayRow = {
   date: string;
@@ -63,7 +68,7 @@ function JournalDayRow({ day }: { day: DayRow }) {
 }
 
 export default function JournalPage() {
-  const { state } = useApp();
+  const { state, today } = useApp();
 
   const days = useMemo(() => {
     const byDate = new Map<string, DayRow>();
@@ -84,13 +89,46 @@ export default function JournalPage() {
     return [...byDate.values()].sort((a, b) => b.date.localeCompare(a.date));
   }, [state.journals]);
 
+  const missed = useMemo(
+    () => missingEveningDates(state, today || undefined),
+    [state, today],
+  );
+
   return (
-    <main className="stack fade-in">
+    <main className="stack fade-in journal-page">
       <header>
         <p className="eyebrow">Remember</p>
         <h1>Journal</h1>
         <p className="muted">One line a day · building toward 365 Lines</p>
       </header>
+
+      {missed.length > 0 && (
+        <section className="panel">
+          <p className="eyebrow">Missed closes</p>
+          <p className="muted" style={{ marginBottom: 8 }}>
+            Pick a day you didn&apos;t close and add your line.
+          </p>
+          {missed.map((d) => (
+            <div key={d} className="support-row journal-missed-row">
+              <div className="row">
+                <div>
+                  <p className="tiny">{formatMd(d)}</p>
+                  <p className="journal-day-headline" style={{ margin: 0 }}>
+                    {formatDisplayDate(d)}
+                    {d === today ? " · today" : ""}
+                  </p>
+                </div>
+                <Link
+                  href={`/evening?date=${d}`}
+                  className="btn ghost journal-missed-cta"
+                >
+                  Add entry
+                </Link>
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
 
       <section className="panel">
         <p className="eyebrow">365 lines</p>

@@ -59,7 +59,8 @@ select {
   width: min(480px, 100%);
   margin: 0 auto;
   min-height: 100dvh;
-  padding: 20px 18px 96px;
+  /* Clear fixed bottom nav so last Journal/Journey rows stay readable */
+  padding: 20px 18px calc(120px + env(safe-area-inset-bottom, 0px));
   position: relative;
 }
 
@@ -289,7 +290,7 @@ h2 {
 .bottom-nav {
   position: fixed;
   left: 50%;
-  bottom: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
   width: min(440px, calc(100% - 24px));
   display: grid;
@@ -1110,6 +1111,23 @@ h2 {
 
 .journal-day-row {
   padding-bottom: 10px;
+}
+
+.journal-missed-row .row {
+  align-items: center;
+}
+
+.journal-missed-cta {
+  flex-shrink: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.journal-page {
+  /* Extra clearance under fixed bottom nav when the list is long */
+  padding-bottom: 8px;
 }
 
 .journal-day-toggle {

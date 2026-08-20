@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { getEvening, newId, todayInTz } from "@/lib/journey";
+import {
+  getEvening,
+  isValidEveningDate,
+  newId,
+  todayInTz,
+} from "@/lib/journey";
 import { pendingCashableMoments } from "@/lib/fund";
 import { applyEveningSideEffects } from "@/lib/mutations";
 import { updateState } from "@/lib/store";
@@ -14,7 +19,15 @@ export async function POST(req: Request) {
         (err as Error & { status: number }).status = 400;
         throw err;
       }
-      const date = String(body.date ?? todayInTz(prev.profile.timezone));
+      const today = todayInTz(prev.profile.timezone);
+      const date = String(body.date ?? today);
+      if (!isValidEveningDate(prev, date, today)) {
+        const err = new Error(
+          "Date must be a calendar day in the current run (not in the future)",
+        );
+        (err as Error & { status: number }).status = 400;
+        throw err;
+      }
       if (getEvening(prev, date)) {
         const err = new Error("Evening already completed");
         (err as Error & { status: number }).status = 409;
@@ -44,6 +57,14 @@ export async function POST(req: Request) {
       };
 
       let next = applyEveningSideEffects(prev, evening);
+
+      // Clearing a prior “skip evening” so Home can reflect the close.
+      next = {
+        ...next,
+        skips: (next.skips ?? []).filter(
+          (s) => !(s.date === date && s.itemKey === "evening"),
+        ),
+      };
 
       if (evening.oneLine) {
         const entry: JournalEntry = {
