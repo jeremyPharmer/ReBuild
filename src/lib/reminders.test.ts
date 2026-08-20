@@ -86,4 +86,37 @@ describe("reminders", () => {
       dueReminderKinds(state, new Date("2026-08-11T20:01:00.000Z")),
     ).toEqual(["evening"]);
   });
+
+  it("catches up evening after the target hour same day", () => {
+    const state = emptyState();
+    state.profile = {
+      id: "u",
+      createdAt: "",
+      onboarded: true,
+      displayName: "J",
+      historicalDailySpend: 10,
+      startDate: "2026-08-10",
+      currentRunId: "run_1",
+      currentRunStartedOn: "2026-08-10",
+      supports: DEFAULT_SUPPORTS,
+      timezone: "UTC",
+      email: "j@example.com",
+      reminders: normalizeReminders({
+        morningEnabled: true,
+        eveningEnabled: true,
+        morningHour: 7,
+        eveningHour: 20,
+      }),
+    };
+
+    // Cron drifted to 23:13 local — still send evening, not morning again
+    expect(
+      dueReminderKinds(state, new Date("2026-08-11T23:13:00.000Z")),
+    ).toEqual(["evening"]);
+
+    // Before evening hour, only morning catch-up
+    expect(
+      dueReminderKinds(state, new Date("2026-08-11T09:30:00.000Z")),
+    ).toEqual(["morning"]);
+  });
 });
