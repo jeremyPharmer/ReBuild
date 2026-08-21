@@ -89,10 +89,11 @@ export default function JournalPage() {
     return [...byDate.values()].sort((a, b) => b.date.localeCompare(a.date));
   }, [state.journals]);
 
-  const missed = useMemo(
-    () => missingEveningDates(state, today || undefined),
-    [state, today],
-  );
+  /** Past days only — today is still open for Close the day, not a “missed” task. */
+  const missed = useMemo(() => {
+    if (!today) return [];
+    return missingEveningDates(state, today).filter((d) => d < today);
+  }, [state, today]);
 
   return (
     <main className="stack fade-in journal-page">
@@ -103,30 +104,38 @@ export default function JournalPage() {
       </header>
 
       {missed.length > 0 && (
-        <section className="panel">
-          <p className="eyebrow">Missed closes</p>
-          <p className="muted" style={{ marginBottom: 8 }}>
-            Pick a day you didn&apos;t close and add your line.
+        <section className="panel journal-tasks">
+          <div className="journal-tasks-head">
+            <div>
+              <p className="eyebrow">To do</p>
+              <h2 className="journal-tasks-title">Missed journal entries</h2>
+            </div>
+            <span className="journal-tasks-count">{missed.length}</span>
+          </div>
+          <p className="tiny journal-tasks-hint">
+            Open days still waiting for a line — tap to catch up.
           </p>
-          {missed.map((d) => (
-            <div key={d} className="support-row journal-missed-row">
-              <div className="row">
-                <div>
-                  <p className="tiny">{formatMd(d)}</p>
-                  <p className="journal-day-headline" style={{ margin: 0 }}>
-                    {formatDisplayDate(d)}
-                    {d === today ? " · today" : ""}
-                  </p>
-                </div>
+          <ul className="journal-task-list">
+            {missed.map((d) => (
+              <li key={d}>
                 <Link
                   href={`/evening?date=${d}`}
-                  className="btn ghost journal-missed-cta"
+                  className="journal-task-item"
                 >
-                  Add entry
+                  <span className="journal-task-box" aria-hidden />
+                  <span className="journal-task-copy">
+                    <span className="journal-task-date">
+                      {formatDisplayDate(d)}
+                    </span>
+                    <span className="tiny">Write your line</span>
+                  </span>
+                  <span className="journal-task-go" aria-hidden>
+                    →
+                  </span>
                 </Link>
-              </div>
-            </div>
-          ))}
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
