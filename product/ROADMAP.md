@@ -13,7 +13,7 @@ Last updated: 2026-08-21
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | RB-011 | Auto-credit daily savings when the day ends | P0 | In Progress | S | TBD |
 | 2 | RB-001 | Auto-pull funds: checking → Venmo | P0 | Backlog | L | TBD |
-| 3 | RB-005 | Recovery content: weekly podcast & book offers | P0 | Backlog | M | TBD |
+| 3 | RB-005 | Recovery content: deeper catalog + no-repeat | P0 | In Progress | M | TBD |
 | 4 | RB-006 | Fund buckets: Future + Treat @ 30/70 | P0 | Backlog | M | TBD |
 
 ## Now / Next / Later
@@ -24,7 +24,9 @@ Last updated: 2026-08-21
 
 **Next open P0 (do first):** **RB-011** — end-of-day auto-credit of `historicalDailySpend` → waiting reclaim (close optional; no double credit). Incentive integrity / fund honesty. **In Progress** (Reese: ensure-on-read catch-up + evening ensure).
 
-Then open P0s: RB-001 (Venmo), RB-005 (weekly recovery content), RB-006 (two-bucket fund).
+Then open P0s: RB-001 (Venmo), RB-005 (recovery content polish), RB-006 (two-bucket fund).
+
+**In Progress (recovery content polish):** **RB-005** — deepen the already-shipped Recovery Content card (larger catalog, never re-offer heard/read ids). Weekly 2-offer model stays consider; rank/P0 unchanged vs Venmo.
 
 **In Progress (P1 daily-loop):** RB-009 (recovery patterns) and **RB-010** (backfill missed evening / journal close + Journal nav scroll fix). RB-010 is **journal** backfill only — funds accrual is RB-011.
 
@@ -34,8 +36,8 @@ Then open P0s: RB-001 (Venmo), RB-005 (weekly recovery content), RB-006 (two-buc
    When a day ends, credit waiting-to-reclaim whether or not evening was closed. Evening close uses the same idempotent ensure. Detail: [`items/auto-credit-daily-savings-end-of-day.md`](./items/auto-credit-daily-savings-end-of-day.md).
 2. **RB-001 — Auto-pull funds: checking → Venmo (v1)**  
    Auto-pull from linked checking into Venmo for incentive flows (needs per-user identity from RB-007).
-3. **RB-005 — Recovery content: weekly podcast & book offers**  
-   Each week, show **two selectable** offers (podcasts and/or books) in the recovery content box.
+3. **RB-005 — Recovery content: deeper catalog + no-repeat** — **In Progress**  
+   Expand sources / deeper picks on the shipped multi-offer card; **never re-offer** heard/read ids. Weekly two-offer model remains consider (see item).
 4. **RB-006 — Fund buckets: Future + Treat @ 30/70**  
    Future = long-horizon park; Treat = short-term. Reward day: Treat Yourself (optional Future pull) or Save for the Future. UXUI review: [`UX_HANDOFF_FUND_BUCKETS.md`](./UX_HANDOFF_FUND_BUCKETS.md).
 5. **RB-009 — Recovery patterns (Journey)** — **In Progress**  
@@ -59,7 +61,7 @@ Then open P0s: RB-001 (Venmo), RB-005 (weekly recovery content), RB-006 (two-buc
 | Done (prod) | RB-007 accounts + onboarding trail + admin + prod migrate | Effort **XL**; platform prerequisite |
 | Next (fund honesty) | RB-011 end-of-day reclaim auto-credit | Effort **S**; P0; idempotency with evening close; does not need Venmo |
 | Unscheduled | RB-001 discovery + build | Effort **L**; after/with identity |
-| Unscheduled | RB-005 weekly 2-offer rotation (podcasts + books) | Effort **M**; backlog/consider |
+| In progress (content polish) | RB-005 deeper catalog + no-repeat on shipped card | Effort **M**; weekly 2-offer still consider; rank #4 unchanged |
 | With fund/Money work | RB-006 two-bucket + reward Treat/Save UX | Effort **M**; UXUI review requested |
 | After open P0s (v1.x) | RB-009 recovery patterns on Journey | Effort **M**; daily-loop payoff; does not need Venmo |
 | Shipping with daily-loop polish (v1.x) | RB-010 backfill missed evening close | Effort **S**; journal only; coordinate reclaim idempotency with RB-011 |
