@@ -7,15 +7,16 @@ Index of all product items. Canonical detail lives in `product/items/`.
 | Rank | ID | Item | Priority | Status | Effort | Target due | Milestone | File |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | RB-007 | Accounts + trail onboarding (multi-user) | P0 | Done | XL | TBD | v1 | [items/account-creation-onboarding.md](./items/account-creation-onboarding.md) |
-| 2 | RB-001 | Auto-pull funds: checking → Venmo | P0 | Backlog | L | TBD | v1 | [items/auto-pull-funds-venmo.md](./items/auto-pull-funds-venmo.md) |
-| 3 | RB-005 | Recovery content: weekly podcast & book offers | P0 | Backlog | M | TBD | v1 | [items/recovery-content-offers.md](./items/recovery-content-offers.md) |
-| 4 | RB-006 | Fund buckets: Future + Treat @ 30/70 | P0 | Backlog | M | TBD | v1 | [items/fund-two-buckets.md](./items/fund-two-buckets.md) |
-| 5 | RB-009 | Recovery patterns (Journey) | P1 | In Progress | M | TBD | v1.x | [items/recovery-patterns-insights.md](./items/recovery-patterns-insights.md) |
-| 6 | RB-010 | Backfill missed evening / journal close | P1 | In Progress | S | TBD | v1.x | [items/backfill-missed-evening-journal-close.md](./items/backfill-missed-evening-journal-close.md) |
-| 7 | RB-002 | Email integration | P1 | Backlog | M | TBD | later | [items/email-integration.md](./items/email-integration.md) |
-| 8 | RB-003 | Daily email: open checklist at close of day | P1 | Backlog | S | TBD | later | [items/daily-open-checklist-email.md](./items/daily-open-checklist-email.md) |
-| 9 | RB-004 | SMS integration | P2 | Backlog | M | TBD | later | [items/sms-integration.md](./items/sms-integration.md) |
-| 10 | RB-008 | Segregated ReBuild account (feasibility) | P1 | Backlog | S | TBD | later | [items/segregated-rebuild-account-rails.md](./items/segregated-rebuild-account-rails.md) |
+| 2 | RB-011 | Auto-credit daily savings when the day ends | P0 | In Progress | S | TBD | v1 | [items/auto-credit-daily-savings-end-of-day.md](./items/auto-credit-daily-savings-end-of-day.md) |
+| 3 | RB-001 | Auto-pull funds: checking → Venmo | P0 | Backlog | L | TBD | v1 | [items/auto-pull-funds-venmo.md](./items/auto-pull-funds-venmo.md) |
+| 4 | RB-005 | Recovery content: weekly podcast & book offers | P0 | Backlog | M | TBD | v1 | [items/recovery-content-offers.md](./items/recovery-content-offers.md) |
+| 5 | RB-006 | Fund buckets: Future + Treat @ 30/70 | P0 | Backlog | M | TBD | v1 | [items/fund-two-buckets.md](./items/fund-two-buckets.md) |
+| 6 | RB-009 | Recovery patterns (Journey) | P1 | In Progress | M | TBD | v1.x | [items/recovery-patterns-insights.md](./items/recovery-patterns-insights.md) |
+| 7 | RB-010 | Backfill missed evening / journal close | P1 | In Progress | S | TBD | v1.x | [items/backfill-missed-evening-journal-close.md](./items/backfill-missed-evening-journal-close.md) |
+| 8 | RB-002 | Email integration | P1 | Backlog | M | TBD | later | [items/email-integration.md](./items/email-integration.md) |
+| 9 | RB-003 | Daily email: open checklist at close of day | P1 | Backlog | S | TBD | later | [items/daily-open-checklist-email.md](./items/daily-open-checklist-email.md) |
+| 10 | RB-004 | SMS integration | P2 | Backlog | M | TBD | later | [items/sms-integration.md](./items/sms-integration.md) |
+| 11 | RB-008 | Segregated ReBuild account (feasibility) | P1 | Backlog | S | TBD | later | [items/segregated-rebuild-account-rails.md](./items/segregated-rebuild-account-rails.md) |
 
 ## Status counts
 
@@ -23,7 +24,7 @@ Index of all product items. Canonical detail lives in `product/items/`.
 | --- | --- |
 | Backlog | 7 |
 | Ready | 0 |
-| In Progress | 2 |
+| In Progress | 3 |
 | Blocked | 0 |
 | Done | 1 |
 | Won't Do | 0 |

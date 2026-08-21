@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-002 |
-| Rank | 7 |
+| Rank | 8 |
 | Priority | P1 |
 | Status | Backlog |
 | Effort | M |
@@ -40,6 +40,6 @@ The product can send transactional and product emails to the user (authenticated
 
 ## Notes
 
-- Added 2026-08-10 as future backlog; renumbered when RB-005 / RB-007 shifted ranks; **2026-08-18** shifted to rank **6** when RB-009 (recovery patterns) inserted as first P1 after open P0s.
+- Added 2026-08-10 as future backlog; renumbered when RB-005 / RB-007 shifted ranks; **2026-08-18** shifted when RB-009 inserted; **2026-08-21** rank **8** when RB-011 took rank 2.
 - Platform enabler for daily end-of-day checklist email (RB-003) and **forgot-password delivery** for RB-007.
 - Still behind accounts (RB-007), Venmo (RB-001), recovery content (RB-005), fund buckets (RB-006), and recovery patterns (RB-009).
