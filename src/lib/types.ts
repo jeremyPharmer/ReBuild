@@ -258,7 +258,7 @@ export type RebuildState = {
   milestoneDecisions: MilestoneDecision[];
   /** Last local dates a reminder email was sent (YYYY-MM-DD) */
   reminderLog?: { morning?: string; evening?: string };
-  /** Podcast episode ids marked listened — never offered again */
+  /** Podcast/article ids marked heard or read — never offered again */
   listenedPodcasts?: string[];
   /** One-off provisions added for a calendar day */
   dayProvisions?: DayProvision[];

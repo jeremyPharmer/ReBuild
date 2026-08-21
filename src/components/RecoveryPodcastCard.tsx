@@ -6,6 +6,7 @@ import {
   CONTENT_OFFER_COUNT,
   formatDuration,
   pickRecoveryOffers,
+  unheardRecoveryCount,
   type RecoveryContentItem,
 } from "@/lib/podcasts";
 
@@ -13,13 +14,17 @@ export function RecoveryPodcastCard() {
   const { state, today, post } = useApp();
   const listened = state.listenedPodcasts;
   const heard = new Set(listened ?? []);
+  const remaining = unheardRecoveryCount(listened);
   const [open, setOpen] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [hand, setHand] = useState<RecoveryContentItem[] | null>(null);
   const [shuffleTick, setShuffleTick] = useState(0);
 
-  const offers = hand ?? pickRecoveryOffers(listened);
+  // Current hand may still show items just marked heard/read; shuffle drops them.
+  const shown = hand ?? pickRecoveryOffers(listened);
+  const unheardOnHand = shown.filter((i) => !heard.has(i.id)).length;
+  const canShuffle = remaining.total > unheardOnHand;
 
   function expand() {
     setOpen((wasOpen) => !wasOpen);
@@ -72,67 +77,77 @@ export function RecoveryPodcastCard() {
         <div className="podcast-body fade-in">
           <div className="podcast-toolbar">
             <p className="tiny" style={{ margin: 0 }}>
-              {CONTENT_OFFER_COUNT} offers · shuffle for a new set
+              {remaining.total === 0
+                ? "Library caught up — nothing left unmarked"
+                : `${Math.min(CONTENT_OFFER_COUNT, Math.max(shown.length, 1))} offers · heard/read won’t repeat`}
             </p>
             <button
               type="button"
               className="btn ghost podcast-shuffle"
               onClick={shuffle}
-              aria-label="Shuffle five new recovery items"
+              disabled={remaining.total === 0 || !canShuffle}
+              aria-label="Shuffle new recovery items"
             >
               Shuffle
             </button>
           </div>
 
-          <ul className="podcast-list fade-in" key={shuffleTick}>
-            {offers.map((item) => {
-              const isArticle = item.kind === "article";
-              const done = heard.has(item.id);
-              return (
-                <li
-                  key={item.id}
-                  className={`podcast-row${done ? " heard" : ""}`}
-                >
-                  <div className="podcast-row-main">
-                    <p className="podcast-show">
-                      {isArticle ? "Article" : "Podcast"} · {item.show}
-                    </p>
-                    <p className="podcast-title">{item.title}</p>
-                    <p className="tiny podcast-blurb">
-                      {item.blurb} · {formatDuration(item.durationMin)}
-                      {isArticle ? " read" : ""}
-                    </p>
-                  </div>
-                  <div className="podcast-row-actions">
-                    <a
-                      className="btn ghost"
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {isArticle ? "Read" : "Play"}
-                    </a>
-                    <button
-                      type="button"
-                      className="btn ghost"
-                      disabled={done || busyId === item.id}
-                      onClick={() => markDone(item)}
-                    >
-                      {done
-                        ? isArticle
-                          ? "Done"
-                          : "Heard"
-                        : busyId === item.id
-                          ? "…"
-                          : isArticle
-                            ? "Done"
-                            : "Heard"}
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          {shown.length === 0 ? (
+            <p className="muted" style={{ marginTop: 12 }}>
+              You’ve marked everything in the current library as heard or read.
+              New sources will show up here when we add them.
+            </p>
+          ) : (
+            <ul className="podcast-list fade-in" key={shuffleTick}>
+              {shown.map((item) => {
+                const isArticle = item.kind === "article";
+                const done = heard.has(item.id);
+                return (
+                  <li
+                    key={item.id}
+                    className={`podcast-row${done ? " heard" : ""}`}
+                  >
+                    <div className="podcast-row-main">
+                      <p className="podcast-show">
+                        {isArticle ? "Article" : "Podcast"} · {item.show}
+                      </p>
+                      <p className="podcast-title">{item.title}</p>
+                      <p className="tiny podcast-blurb">
+                        {item.blurb} · {formatDuration(item.durationMin)}
+                        {isArticle ? " read" : ""}
+                      </p>
+                    </div>
+                    <div className="podcast-row-actions">
+                      <a
+                        className="btn ghost"
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {isArticle ? "Read" : "Play"}
+                      </a>
+                      <button
+                        type="button"
+                        className="btn ghost"
+                        disabled={done || busyId === item.id}
+                        onClick={() => markDone(item)}
+                      >
+                        {done
+                          ? isArticle
+                            ? "Read"
+                            : "Heard"
+                          : busyId === item.id
+                            ? "…"
+                            : isArticle
+                              ? "Mark read"
+                              : "Mark heard"}
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
 
           {error && (
             <p
