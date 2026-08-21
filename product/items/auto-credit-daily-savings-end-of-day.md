@@ -5,7 +5,7 @@
 | ID | RB-011 |
 | Rank | 2 |
 | Priority | P0 |
-| Status | Ready |
+| Status | In Progress |
 | Effort | S |
 | Target due | TBD |
 | Milestone | v1 |

@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { getSessionUser, sessionPublic } from "@/lib/auth";
 import { buildDashboard, emptyState, todayInTz } from "@/lib/journey";
 import { pendingCashableMoments } from "@/lib/fund";
-import { ensureMilestonesReached } from "@/lib/mutations";
+import {
+  ensureElapsedReclaimDays,
+  ensureMilestonesReached,
+} from "@/lib/mutations";
 import { updateState } from "@/lib/store";
 
 export async function GET() {
@@ -24,7 +27,10 @@ export async function GET() {
   const state = await updateState((prev) => {
     if (!prev.profile) return prev;
     const today = todayInTz(prev.profile.timezone);
-    return ensureMilestonesReached(prev, today);
+    // RB-011: catch up daily savings for ended days even without evening close.
+    let next = ensureElapsedReclaimDays(prev, today);
+    next = ensureMilestonesReached(next, today);
+    return next;
   });
   const today = state.profile
     ? todayInTz(state.profile.timezone)

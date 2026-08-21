@@ -11,7 +11,7 @@ Last updated: 2026-08-21
 
 | Rank | ID | Item | Priority | Status | Effort | Target due |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | RB-011 | Auto-credit daily savings when the day ends | P0 | Ready | S | TBD |
+| 1 | RB-011 | Auto-credit daily savings when the day ends | P0 | In Progress | S | TBD |
 | 2 | RB-001 | Auto-pull funds: checking → Venmo | P0 | Backlog | L | TBD |
 | 3 | RB-005 | Recovery content: weekly podcast & book offers | P0 | Backlog | M | TBD |
 | 4 | RB-006 | Fund buckets: Future + Treat @ 30/70 | P0 | Backlog | M | TBD |
@@ -22,7 +22,7 @@ Last updated: 2026-08-21
 
 **Shipped to prod:** RB-007 (accounts + trail onboarding).  
 
-**Next open P0 (do first):** **RB-011** — end-of-day auto-credit of `historicalDailySpend` → waiting reclaim (close optional; no double credit). Incentive integrity / fund honesty.
+**Next open P0 (do first):** **RB-011** — end-of-day auto-credit of `historicalDailySpend` → waiting reclaim (close optional; no double credit). Incentive integrity / fund honesty. **In Progress** (Reese: ensure-on-read catch-up + evening ensure).
 
 Then open P0s: RB-001 (Venmo), RB-005 (weekly recovery content), RB-006 (two-bucket fund).
 

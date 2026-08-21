@@ -1,6 +1,8 @@
 import {
+  addDays,
   calendarDaysBetween,
   cleanDaysThisRun,
+  datesInRange,
   milestoneAt,
   newId,
   todayInTz,
@@ -21,7 +23,7 @@ const WEEKLY_BONUS_AMOUNT = 20;
 
 /**
  * After an evening check-in is saved, apply journey side effects:
- * - aligned → create reclaim day if missing; award newly crossed milestones
+ * - aligned → create reclaim day if missing (same ensure as end-of-day catch-up)
  * - return_to_use → record return, reset run counter (history kept)
  * - check weekly 100% bonus eligibility
  */
@@ -54,7 +56,14 @@ export function applyEveningSideEffects(
   return next;
 }
 
-function ensureReclaimDay(state: RebuildState, date: string): RebuildState {
+/**
+ * Idempotent by date: one reclaim row per calendar day at historicalDailySpend.
+ * Used by evening close and end-of-day catch-up (RB-011).
+ */
+export function ensureReclaimDay(
+  state: RebuildState,
+  date: string,
+): RebuildState {
   if (!state.profile) return state;
   if (state.reclaimDays.some((d) => d.date === date)) return state;
   return {
@@ -68,6 +77,29 @@ function ensureReclaimDay(state: RebuildState, date: string): RebuildState {
       },
     ],
   };
+}
+
+/**
+ * Credit waiting reclaim for every ended calendar day in the current run
+ * that still lacks a reclaim row (missed / skipped evening close).
+ * Does not credit `asOfDate` itself — that day has not ended yet unless
+ * evening close already ran (which uses ensureReclaimDay directly).
+ */
+export function ensureElapsedReclaimDays(
+  state: RebuildState,
+  asOfDate?: string,
+): RebuildState {
+  if (!state.profile) return state;
+  const asOf = asOfDate ?? todayInTz(state.profile.timezone);
+  const start = state.profile.currentRunStartedOn;
+  const lastEnded = addDays(asOf, -1);
+  if (lastEnded < start) return state;
+
+  let next = state;
+  for (const date of datesInRange(start, lastEnded)) {
+    next = ensureReclaimDay(next, date);
+  }
+  return next;
 }
 
 function handleReturnToUse(

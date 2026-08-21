@@ -15,7 +15,7 @@ import {
   weekFullyComplete,
   weeklySupportProgress,
 } from "./journey";
-import { applyEveningSideEffects, confirmTransfer, ensureMilestonesReached, resetCurrentRun } from "./mutations";
+import { applyEveningSideEffects, confirmTransfer, ensureElapsedReclaimDays, ensureMilestonesReached, resetCurrentRun } from "./mutations";
 import { DEFAULT_SUPPORTS, type RebuildState } from "./types";
 import { emptyState } from "./journey";
 
@@ -204,6 +204,92 @@ describe("clean days and return reset", () => {
     const day1Achieves = state.milestones.filter((m) => m.dayNumber === 1);
     expect(day1Achieves.length).toBe(2);
     expect(new Set(day1Achieves.map((m) => m.runId)).size).toBe(2);
+  });
+});
+
+describe("ensureElapsedReclaimDays (RB-011)", () => {
+  it("credits ended days without evening close", () => {
+    const state = baseState();
+    // Run started Aug 1; as of Aug 4, Aug 1–3 have ended
+    const next = ensureElapsedReclaimDays(state, "2026-08-04");
+    expect(next.reclaimDays.map((d) => d.date).sort()).toEqual([
+      "2026-08-01",
+      "2026-08-02",
+      "2026-08-03",
+    ]);
+    expect(waitingReclaimTotal(next)).toBe(120);
+    // Today (asOf) is not credited until close or the following day
+    expect(next.reclaimDays.some((d) => d.date === "2026-08-04")).toBe(false);
+  });
+
+  it("does not credit today on the run start day", () => {
+    const state = baseState();
+    const next = ensureElapsedReclaimDays(state, "2026-08-01");
+    expect(next.reclaimDays).toHaveLength(0);
+  });
+
+  it("does not double-credit after evening close then catch-up", () => {
+    let state = baseState();
+    state = applyEveningSideEffects(state, {
+      date: "2026-08-01",
+      mood: 7,
+      stress: 2,
+      alignment: "aligned",
+      oneLine: "closed",
+      completedAt: "",
+    });
+    expect(state.reclaimDays).toHaveLength(1);
+    state = ensureElapsedReclaimDays(state, "2026-08-02");
+    expect(state.reclaimDays).toHaveLength(1);
+    expect(state.reclaimDays[0].estimatedAmount).toBe(40);
+  });
+
+  it("does not double-credit after catch-up then evening close", () => {
+    let state = baseState();
+    state = ensureElapsedReclaimDays(state, "2026-08-02");
+    expect(state.reclaimDays).toHaveLength(1);
+    expect(state.reclaimDays[0].date).toBe("2026-08-01");
+
+    state = applyEveningSideEffects(state, {
+      date: "2026-08-01",
+      mood: 7,
+      stress: 2,
+      alignment: "aligned",
+      oneLine: "backfill",
+      completedAt: "",
+    });
+    expect(state.reclaimDays.filter((d) => d.date === "2026-08-01")).toHaveLength(
+      1,
+    );
+    expect(waitingReclaimTotal(state)).toBe(40);
+  });
+
+  it("catches up multiple missed days at once", () => {
+    const state = baseState();
+    const next = ensureElapsedReclaimDays(state, "2026-08-05");
+    expect(next.reclaimDays).toHaveLength(4);
+    expect(waitingReclaimTotal(next)).toBe(160);
+  });
+
+  it("only credits the current run after a reset", () => {
+    let state = baseState();
+    state = applyEveningSideEffects(state, {
+      date: "2026-08-01",
+      mood: 7,
+      stress: 2,
+      alignment: "aligned",
+      oneLine: "1",
+      completedAt: "",
+    });
+    state = resetCurrentRun(state, "2026-08-03");
+    expect(state.profile?.currentRunStartedOn).toBe("2026-08-04");
+
+    state = ensureElapsedReclaimDays(state, "2026-08-06");
+    // Prior run reclaim kept; new run credits Aug 4–5 only
+    const dates = state.reclaimDays.map((d) => d.date).sort();
+    expect(dates).toEqual(["2026-08-01", "2026-08-04", "2026-08-05"]);
+    expect(state.reclaimDays.some((d) => d.date === "2026-08-02")).toBe(false);
+    expect(state.reclaimDays.some((d) => d.date === "2026-08-03")).toBe(false);
   });
 });
 
