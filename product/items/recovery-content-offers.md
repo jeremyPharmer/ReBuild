@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-005 |
-| Rank | 3 |
+| Rank | 4 |
 | Priority | P0 |
 | Status | Backlog |
 | Effort | M |
@@ -86,6 +86,6 @@ Next week might be Recovery Elevator + *This Naked Mind* — no Rich Roll requir
 
 ## Notes
 
-- Rank **#2**; Venmo (RB-001) stays **#1**.
+- Rank **#4** as of 2026-08-21 (shifted when RB-011 took open rank 2; Venmo is **#3**).
 - Updated 2026-08-10: expand beyond podcasts-only; weekly **two selectable** offers; books included; Rich Roll is optional excellence in the pool, not a permanent slot.
 - Do not build yet — backlog + consider.

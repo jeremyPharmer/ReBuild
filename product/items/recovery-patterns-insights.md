@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-009 |
-| Rank | 5 |
+| Rank | 6 |
 | Priority | P1 |
 | Status | In Progress |
 | Effort | M |
@@ -56,7 +56,7 @@ Expand Journey `/journey` “Over time.” Do **not** add a nav item.
 
 ## Notes
 
-- Intake: **2026-08-18** from founder (Jeremy, prod user). Rank **5** — first P1 after open P0s (RB-001, RB-005, RB-006). P0s not reordered. Target due **TBD**.
+- Intake: **2026-08-18** from founder (Jeremy, prod user). Rank **6** as of 2026-08-21 (was 5; shifted when RB-011 inserted at rank 2). First P1 after open P0s. P0s not reordered except RB-011 intake. Target due **TBD**.
 - **2026-08-18:** Founder asked to ship the **high** v1 slice to **dev**. Status **In Progress**. Runtime: Journey Over time — playbook, headwind hours, 4-week provision rhythm (+ gym-vs-rest caveat when n is enough). **Did it come down** chart cut from v1 on founder request.
 - Daily-loop payoff and an in-app promise already shipped; still behind money OS and weekly content.
 - **Placement:** Insights live on **Journey** (already trail + trends). Five tabs is enough (Home / Journey / Rewards / Journal / Settings). No sixth tab. Optional later: a *single* rotating insight line on Home. Money/fund stays on Rewards. Journal stays prose.

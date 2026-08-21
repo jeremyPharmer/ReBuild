@@ -1,6 +1,6 @@
 # Fund model (locked)
 
-Last updated: 2026-08-11  
+Last updated: 2026-08-21  
 Status: **Decision locked** — supersedes three-bucket 50/25/25 and the old “Save into Treat” direction.
 
 ## Mental model
@@ -12,6 +12,19 @@ Status: **Decision locked** — supersedes three-bucket 50/25/25 and the old “
 
 **Venmo-matching Total** = Future + Treat Yourself  
 **What I Rebuilt** (spent / left Venmo) sits outside Total.
+
+## Waiting to reclaim (before Move)
+
+Daily savings enter **waiting reclaim** so Move to Rebuild has something to confirm:
+
+| Rule | Detail |
+| --- | --- |
+| Amount | One day’s `historicalDailySpend` per eligible calendar day |
+| When | When the **day ends**, or when the user **closes that evening** — first wins; **no double credit** |
+| Gate | Evening / journal close is **not** required for funds to show |
+| Scope | Current abstinence run only; do not invent a second ledger path |
+
+Canonical backlog item: **RB-011**. Journal backfill of missed evenings is **RB-010** (separate).
 
 ## Split on each Move
 
@@ -49,6 +62,7 @@ When the journey hits a **Reward** or **Destination** day, present two choices:
 - Split of 50 / 25 / 25
 - “Save & compound” that moved Future → Treat
 - Rule that Treat spend required Treat ≥ full cost with no Future pull
+- Reclaim credit **only** via evening close (replaced by end-of-day accrual + optional close; RB-011)
 
 ## UX review ask (UXUI)
 
@@ -64,3 +78,5 @@ Handoff detail: `product/UX_HANDOFF_FUND_BUCKETS.md`
 ## Implementation note
 
 App code may still use `future / rebuild / treat` and 50/25/25. Migrate ledger + Money UI + milestone reward screen to this model.
+
+Waiting reclaim: keep a single idempotent ensure-by-date path (`ensureReclaimDay`); call it from end-of-day catch-up **and** evening close.

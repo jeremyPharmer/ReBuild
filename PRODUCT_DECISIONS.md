@@ -1,6 +1,6 @@
 # REBUILD — Product decisions (locked)
 
-Last updated: 2026-08-12  
+Last updated: 2026-08-21  
 Status: **Ready to implement** — schedule, Treat/Save, fund ledger, daily/weekly loop, Fly envs.
 
 ---
@@ -23,7 +23,7 @@ Venmo reconcile / link = later (UI totals first).
 - Combined historical daily spend
 - Home: **ReBuilding for N days** = calendar days on the current abstinence run (**Day 1 = start date** / `currentRunStartedOn`, including the start day before any evening)
 - **Milestones unlock when that day is reached** (clean-day count ≥ milestone day), not only after evening close — Home reward card can appear on the morning of Day 3, etc.
-- Reclaim / Move to Rebuild from **every closed evening** (close always aligns for reclaim)
+- **Waiting-to-reclaim accrual (locked 2026-08-21):** each completed calendar day in the current run credits **one** day’s `historicalDailySpend` into waiting reclaim when that **day ends**, whether or not the user closed the evening. Closing the evening also ensures the same credit (idempotent by date — **no double credit**). Evening close is **not** a gate for funds showing. Move to Rebuild still pulls from waiting reclaim as today. See RB-011.
 - **Reset my journey** (Settings) → run resets next calendar day; history kept; re-climb / re-achieve
 - Return to use via evening alignment UI is **retired** (legacy `return_to_use` evenings still in history)
 - Auth (RB-007): email/password accounts required; synced optional PIN; remember-this-device; admin allowlist; honor-system reclaim remains until verification exists
@@ -37,12 +37,12 @@ Interactive every day:
 
 **Morning** — Start the day (sleep, state, intention) → Today’s Rebuild supports  
 **Day** — Log supports: recovery content (2/wk), meditation (5), medication (7), gym (4)  
-**Evening** — Close the day: **Mood + Stress** (1–10), one-line journal, optional “anything specific stand out today?” → Move to Rebuild → Treat/Save if milestone. **Missed closes** can be backfilled from Journal (pick a day in the current run without an evening) via the same evening path.
+**Evening** — Close the day: **Mood + Stress** (1–10), one-line journal, optional “anything specific stand out today?” → Move to Rebuild → Treat/Save if milestone. **Missed closes** can be backfilled from Journal (pick a day in the current run without an evening) via the same evening path (**RB-010** — journal only; funds for that day may already be in waiting reclaim via end-of-day accrual).
 
 Weekly supports are **targets** (not shame). Counts may go **above** the weekly goal (e.g. 5 of 2). Hitting all four unlocks **$20 treat gift** (out of pocket).  
 Content log asks: “What will you do differently because of this?”
 
-Closing the day **always counts as aligned** for reclaim / milestones. There is no evening “did you stay aligned?” card.
+Closing the day **always counts as aligned** for reclaim / milestones. There is no evening “did you stay aligned?” card. Missing close does **not** skip daily savings accrual (RB-011).
 
 **Reset my journey** lives in **Settings** (bottom): confirm → same run reset as legacy return-to-use (history kept; clean-day counter restarts next calendar day).
 
@@ -70,6 +70,13 @@ First cashable: **Day 3**. Micro every-14: paused.
 = sum of user-confirmed Move to Rebuild amounts still set aside.
 
 **What I Rebuilt / reinvested** = spent (left Venmo) → shown separately, **not** in Total.
+
+### Waiting to reclaim (daily savings)
+
+- Source amount per day: `profile.historicalDailySpend`
+- **Credit when:** the calendar day has ended **or** the user closes that evening — whichever happens first; never twice for the same date
+- **Do not** require evening / journal close for the day’s savings to appear in waiting reclaim
+- Move to Rebuild accounts waiting days into Future / Treat per split below
 
 ### On each confirmed Move $X
 

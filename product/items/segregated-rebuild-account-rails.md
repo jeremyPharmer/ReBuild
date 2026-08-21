@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-008 |
-| Rank | 10 |
+| Rank | 11 |
 | Priority | P1 |
 | Status | Backlog |
 | Effort | S |
@@ -44,7 +44,7 @@ A written feasibility decision: whether (and how) ReBuild can fund a segregated 
 
 ## Notes
 
-- Intake: 2026-08-13 from founder discovery (Jeremy). Originally drafted as RB-007; renumbered to **RB-008** on 2026-08-13 when accounts onboarding claimed RB-007. Rank **10** as of 2026-08-20 (Later; shifted when RB-010 inserted at rank 6) — does not displace RB-001.
+- Intake: 2026-08-13 from founder discovery (Jeremy). Originally drafted as RB-007; renumbered to **RB-008** on 2026-08-13 when accounts onboarding claimed RB-007. Rank **11** as of 2026-08-21 (Later; shifted when RB-011 inserted at rank 2) — does not displace RB-001.
 - Priority **P1**: strategic money-rail discovery, but after v1 P0s and email path; before/alongside other Later channel work by rank order.
 - Effort **S** = discovery + outreach + shortlist memo only. Production segregated account = separate **XL** item if approved.
 - Draft outreach: Dwolla me-to-me (primary) + Acorns (optional) — emails in research doc.
