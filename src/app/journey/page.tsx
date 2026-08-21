@@ -16,6 +16,7 @@ import {
 } from "@/lib/trail";
 import {
   HeadwindPanel,
+  PatternCollapse,
   PlaybookPanel,
   RhythmPanel,
 } from "@/components/JourneyPatterns";
@@ -652,12 +653,15 @@ export default function JourneyPage() {
         <p className="eyebrow">Over time</p>
         <h2 style={{ marginBottom: 10 }}>Conditions</h2>
         <ConditionsChart points={trendPoints} />
-        <h2 style={{ margin: "22px 0 10px" }}>What worked</h2>
-        <PlaybookPanel rows={playbook} />
-        <h2 style={{ margin: "22px 0 10px" }}>Headwind hours</h2>
-        <HeadwindPanel hours={headwind} />
-        <h2 style={{ margin: "22px 0 10px" }}>Provision rhythm</h2>
-        <RhythmPanel rows={rhythm} weeks={rhythmWeeks} />
+        <PatternCollapse title="What worked">
+          <PlaybookPanel rows={playbook} />
+        </PatternCollapse>
+        <PatternCollapse title="Headwind hours">
+          <HeadwindPanel hours={headwind} />
+        </PatternCollapse>
+        <PatternCollapse title="Provision rhythm">
+          <RhythmPanel rows={rhythm} weeks={rhythmWeeks} />
+        </PatternCollapse>
       </section>
 
       <section className="panel">
