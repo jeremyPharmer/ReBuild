@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, type ReactNode } from "react";
 import type {
   HeadwindHours,
   PlaybookRow,
@@ -7,6 +8,42 @@ import type {
   SupportRhythm,
 } from "@/lib/trends";
 import { formatDrop } from "@/lib/trends";
+
+/** Collapsed-by-default section for Journey pattern panels. */
+export function PatternCollapse({
+  title,
+  children,
+  defaultOpen = false,
+}: {
+  title: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  const panelId = `pattern-${title.toLowerCase().replace(/\s+/g, "-")}`;
+
+  return (
+    <div className="pattern-collapse">
+      <button
+        type="button"
+        className="pattern-collapse-toggle"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <h2 className="pattern-collapse-title">{title}</h2>
+        <span className={open ? "caret open" : "caret"} aria-hidden>
+          ▾
+        </span>
+      </button>
+      {open && (
+        <div id={panelId} className="pattern-collapse-body fade-in">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function PlaybookPanel({ rows }: { rows: PlaybookRow[] }) {
   if (rows.length === 0) {
