@@ -1113,16 +1113,98 @@ h2 {
   padding-bottom: 10px;
 }
 
-.journal-missed-row .row {
-  align-items: center;
+.journal-tasks-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.journal-missed-cta {
-  flex-shrink: 0;
-  text-decoration: none;
+.journal-tasks-title {
+  margin: 4px 0 0;
+  font-size: 1.2rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.journal-tasks-count {
+  flex: none;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  font-weight: 650;
+  color: var(--accent);
+}
+
+.journal-tasks-hint {
+  margin: 8px 0 0;
+  line-height: 1.4;
+}
+
+.journal-task-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.journal-task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.journal-task-item:hover,
+.journal-task-item:focus-visible {
+  border-color: rgba(127, 191, 154, 0.45);
+  background: rgba(127, 191, 154, 0.08);
+  outline: none;
+}
+
+.journal-task-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid var(--line);
+  flex: none;
+  background: transparent;
+}
+
+.journal-task-copy {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.journal-task-date {
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.journal-task-go {
+  flex: none;
+  color: var(--muted);
+  font-size: 1rem;
 }
 
 .journal-page {
