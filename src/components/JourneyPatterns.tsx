@@ -103,25 +103,36 @@ export function HeadwindPanel({ hours }: { hours: HeadwindHours }) {
           When cravings showed up. Not a diagnosis.
         </p>
       )}
-      <div className="pattern-bars">
-        {hours.byDaypart.map((p) => (
-          <div
-            key={p.key}
-            className={
-              hours.peak?.key === p.key ? "pattern-bar peak" : "pattern-bar"
-            }
-          >
-            <span className="tiny">{p.count}</span>
-            <div className="pattern-bar-track">
-              <div
-                className="pattern-bar-fill"
-                style={{ height: `${(p.count / maxPart) * 100}%` }}
-              />
+      <div className="pattern-bars pattern-bars-daypart">
+        {hours.byDaypart.flatMap((p, index) => {
+          const bar = (
+            <div
+              key={p.key}
+              className={
+                hours.peak?.key === p.key ? "pattern-bar peak" : "pattern-bar"
+              }
+            >
+              <span className="pattern-bar-count">{p.count}</span>
+              <div className="pattern-bar-track">
+                <div
+                  className="pattern-bar-fill"
+                  style={{ height: `${(p.count / maxPart) * 100}%` }}
+                />
+              </div>
+              <span className="pattern-bar-label">{p.label}</span>
+              <span className="pattern-bar-hours">{p.hoursLabel}</span>
             </div>
-            <span className="pattern-bar-label">{p.label}</span>
-            <span className="tiny">{p.hoursLabel}</span>
-          </div>
-        ))}
+          );
+          if (index === 0) return [bar];
+          return [
+            <div
+              key={`gap-${p.key}`}
+              className="pattern-bar-gap"
+              aria-hidden
+            />,
+            bar,
+          ];
+        })}
       </div>
       <div className="pattern-bars weekday">
         {hours.byWeekday.map((d) => (

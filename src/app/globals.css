@@ -2181,6 +2181,17 @@ html.sheet-open .bottom-nav {
   min-height: 108px;
 }
 
+.pattern-bars-daypart {
+  display: grid;
+  grid-template-columns: 1fr 5px 1fr 5px 1fr 5px 1fr;
+  gap: 0;
+  align-items: stretch;
+}
+
+.pattern-bar-gap {
+  align-self: stretch;
+}
+
 .pattern-bars.weekday {
   min-height: 96px;
 }
@@ -2192,6 +2203,12 @@ html.sheet-open .bottom-nav {
   flex-direction: column;
   align-items: center;
   gap: 4px;
+}
+
+.pattern-bar-count {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1;
 }
 
 .pattern-bar-track {
@@ -2223,6 +2240,16 @@ html.sheet-open .bottom-nav {
   color: var(--text);
   text-align: center;
   line-height: 1.2;
+  width: 100%;
+}
+
+.pattern-bar-hours {
+  font-size: 0.58rem;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.15;
+  width: 100%;
+  white-space: nowrap;
 }
 
 .rhythm-row {
