@@ -1410,20 +1410,24 @@ h2 {
 
 .trend-toggles {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex-wrap: nowrap;
+  gap: 4px;
 }
 
 .trend-toggle {
+  flex: 1 1 0;
+  min-width: 0;
   border: 1px solid var(--line);
   background: transparent;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
-  padding: 5px 9px;
+  letter-spacing: 0.02em;
+  padding: 5px 4px;
   border-radius: 999px;
   cursor: pointer;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .trend-toggle.on {

@@ -546,7 +546,7 @@ export const CONDITION_METRICS: {
   axis: ConditionAxis;
 }[] = [
   { key: "sleepHours", label: "Sleep hrs", color: "#5a9a78", axis: "hours" },
-  { key: "sleepQuality", label: "Sleep quality", color: "#7fbf9a", axis: "scale" },
+  { key: "sleepQuality", label: "Quality", color: "#7fbf9a", axis: "scale" },
   { key: "mood", label: "Mood", color: "#d4844a", axis: "scale" },
   { key: "energy", label: "Energy", color: "#d4a24a", axis: "scale" },
   { key: "stress", label: "Stress", color: "#c97060", axis: "scale" },
