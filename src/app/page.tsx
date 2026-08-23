@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
+import { WeekPlanPanel } from "@/components/WeekPlanPanel";
 import { FundSegmentBar, HomeRewardCard } from "@/components/MilestoneReward";
 import { Money, PrimaryButton, SecondaryButton, Sheet } from "@/components/ui";
 import {
@@ -521,6 +522,8 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      <WeekPlanPanel state={state} today={today} week={dashboard.week} />
 
       <RecoveryPodcastCard />
 

@@ -1,14 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
-import { PrimaryButton, ProgressBar, SecondaryButton } from "@/components/ui";
-import {
-  formatDisplayDate,
-  weekBounds,
-  weeklySupportProgress,
-} from "@/lib/journey";
+import { PrimaryButton, SecondaryButton } from "@/components/ui";
 import { SUPPORT_LABEL_MAX } from "@/lib/auth-constants";
 import {
   DEFAULT_CRAVING_INTERVENTIONS,
@@ -70,12 +65,6 @@ export default function SettingsPage() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [testMsg, setTestMsg] = useState("");
-
-  const week = useMemo(
-    () => weeklySupportProgress(state, today),
-    [state, today],
-  );
-  const { start, end } = weekBounds(today || "2026-01-01");
 
   function updateSupport(type: string, patch: Partial<SupportConfig>) {
     setSupports((prev) =>
@@ -168,22 +157,6 @@ export default function SettingsPage() {
     }
   }
 
-  async function toggleToday(type: string, currentlyDone: boolean) {
-    setBusy(true);
-    setMsg("");
-    try {
-      await post("/api/support", {
-        date: today,
-        supportType: type,
-        completed: !currentlyDone,
-      });
-    } catch (e) {
-      setMsg(e instanceof Error ? e.message : "Failed");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function resetAll() {
     if (env === "prod") return;
     if (!window.confirm("Reset all Rebuild data on DEV?")) {
@@ -258,7 +231,7 @@ export default function SettingsPage() {
           {env === "prod"
             ? " · history retained across updates"
             : " · safe to reset for testing"}
-          . Spend, supports, and this week&apos;s plan — edit anytime.
+          . Spend and supports — edit anytime.
         </p>
       </header>
 
@@ -520,46 +493,6 @@ export default function SettingsPage() {
       <PrimaryButton onClick={save} disabled={busy}>
         Save settings
       </PrimaryButton>
-
-      <section className="panel">
-        <p className="eyebrow">This week&apos;s plan</p>
-        <p className="tiny" style={{ marginBottom: 10 }}>
-          {formatDisplayDate(start)} – {formatDisplayDate(end)} · targets, not
-          judgments
-        </p>
-        {week.map((w) => {
-          const doneToday = state.supports.some(
-            (s) =>
-              s.date === today && s.supportType === w.type && s.completed,
-          );
-          return (
-            <div key={w.type} className="support-row">
-              <div className="row">
-                <div>
-                  <strong>{w.label}</strong>
-                  <p className="tiny">
-                    {w.done} / {w.target} this week
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className="btn ghost"
-                  disabled={busy}
-                  onClick={() => toggleToday(w.type, doneToday)}
-                >
-                  {doneToday ? "Undo today" : "Done today"}
-                </button>
-              </div>
-              <ProgressBar done={w.done} target={w.target} />
-            </div>
-          );
-        })}
-        {week.length > 0 && week.every((w) => w.done >= w.target) && (
-          <p className="chip good" style={{ marginTop: 12 }}>
-            Strong week — all supports hit. $20 treat gift unlocks.
-          </p>
-        )}
-      </section>
 
       {env !== "prod" && (
         <SecondaryButton onClick={resetAll}>Reset all data (dev)</SecondaryButton>
