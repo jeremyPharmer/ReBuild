@@ -2183,13 +2183,9 @@ html.sheet-open .bottom-nav {
 
 .pattern-bars-daypart {
   display: grid;
-  grid-template-columns: 1fr 5px 1fr 5px 1fr 5px 1fr;
-  gap: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
   align-items: stretch;
-}
-
-.pattern-bar-gap {
-  align-self: stretch;
 }
 
 .pattern-bars.weekday {

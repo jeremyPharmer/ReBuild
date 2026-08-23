@@ -312,7 +312,7 @@ describe("cravingHeadwindHours", () => {
   it("buckets by local daypart and weekday", () => {
     const state = baseState();
     // NY in August is EDT (UTC-4).
-    // 14:00Z → 10:00 morning Mon; 21:00Z → 17:00 evening Mon;
+    // 14:00Z → 10:00 morning Mon; 21:00Z → 17:00 afternoon Mon;
     // 02:00Z next day → 22:00 night Mon.
     state.cravings = [
       craving({
@@ -334,10 +334,10 @@ describe("cravingHeadwindHours", () => {
     const hours = cravingHeadwindHours(state, "2026-08-11");
     expect(hours.total).toBe(3);
     const morning = hours.byDaypart.find((p) => p.key === "morning");
-    const evening = hours.byDaypart.find((p) => p.key === "evening");
+    const afternoon = hours.byDaypart.find((p) => p.key === "afternoon");
     const night = hours.byDaypart.find((p) => p.key === "night");
     expect(morning?.count).toBe(1);
-    expect(evening?.count).toBe(1);
+    expect(afternoon?.count).toBe(1);
     expect(night?.count).toBe(1);
     expect(hours.peak).toBeUndefined();
     const monday = hours.byWeekday.find((d) => d.label === "Mon");
@@ -349,12 +349,12 @@ describe("cravingHeadwindHours", () => {
     state.cravings = [
       craving({
         id: "c1",
-        at: "2026-08-10T21:00:00.000Z",
+        at: "2026-08-10T22:00:00.000Z",
         intensityBefore: 7,
       }),
       craving({
         id: "c2",
-        at: "2026-08-11T21:30:00.000Z",
+        at: "2026-08-11T22:30:00.000Z",
         intensityBefore: 6,
       }),
       craving({
@@ -365,7 +365,7 @@ describe("cravingHeadwindHours", () => {
     ];
     const hours = cravingHeadwindHours(state, "2026-08-11");
     expect(hours.peak?.key).toBe("evening");
-    expect(hours.peak?.hoursLabel).toBe("5–8pm");
+    expect(hours.peak?.hoursLabel).toBe("6–9pm");
   });
 });
 

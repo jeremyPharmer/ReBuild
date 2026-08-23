@@ -102,26 +102,26 @@ const DAYPARTS: {
   {
     key: "morning",
     label: "Morning",
-    hoursLabel: "5–11am",
-    hours: [5, 6, 7, 8, 9, 10, 11],
+    hoursLabel: "5am–12pm",
+    hours: [5, 6, 7, 8, 9, 10, 11, 12],
   },
   {
     key: "afternoon",
     label: "Afternoon",
-    hoursLabel: "12–4pm",
-    hours: [12, 13, 14, 15, 16],
+    hoursLabel: "1–5pm",
+    hours: [13, 14, 15, 16, 17],
   },
   {
     key: "evening",
     label: "Evening",
-    hoursLabel: "5–8pm",
-    hours: [17, 18, 19, 20],
+    hoursLabel: "6–9pm",
+    hours: [18, 19, 20, 21],
   },
   {
     key: "night",
     label: "Night",
-    hoursLabel: "9pm–4am",
-    hours: [21, 22, 23, 0, 1, 2, 3, 4],
+    hoursLabel: "10pm–4am",
+    hours: [22, 23, 0, 1, 2, 3, 4],
   },
 ];
 
