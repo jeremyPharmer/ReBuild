@@ -160,15 +160,35 @@ function daypartForHour(hour: number): (typeof DAYPARTS)[number] {
   );
 }
 
-function mitigationLabel(c: {
+function mitigationLabels(c: {
+  outcomes?: string[];
   outcome?: string;
   intervention: string;
-}): string | null {
+}): string[] {
+  if (c.outcomes?.length) {
+    return c.outcomes.map((o) => o.trim()).filter(Boolean);
+  }
   const outcome = String(c.outcome ?? "").trim();
-  if (outcome && outcome.toLowerCase() !== "delay") return outcome;
+  if (outcome && outcome.toLowerCase() !== "delay") {
+    if (outcome.includes(",")) {
+      return outcome
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+    return [outcome];
+  }
   const intervention = String(c.intervention ?? "").trim();
-  if (intervention && intervention.toLowerCase() !== "delay") return intervention;
-  return null;
+  if (intervention && intervention.toLowerCase() !== "delay") {
+    if (intervention.includes(",")) {
+      return intervention
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+    return [intervention];
+  }
+  return [];
 }
 
 /** Morning state metrics (1–10). Mood can fall back to evening. No morning craving. */
@@ -258,12 +278,14 @@ export function cravingPlaybook(
     const before = Number(c.intensityBefore);
     const after = Number(c.intensityAfter);
     if (!Number.isFinite(before) || !Number.isFinite(after)) continue;
-    const label = mitigationLabel(c);
-    if (!label) continue;
+    const labels = mitigationLabels(c);
+    if (labels.length === 0) continue;
     completed += 1;
     const drop = Math.max(0, before - after);
-    const prev = groups.get(label) ?? { n: 0, dropSum: 0 };
-    groups.set(label, { n: prev.n + 1, dropSum: prev.dropSum + drop });
+    for (const label of labels) {
+      const prev = groups.get(label) ?? { n: 0, dropSum: 0 };
+      groups.set(label, { n: prev.n + 1, dropSum: prev.dropSum + drop });
+    }
   }
 
   if (completed < minN) return [];

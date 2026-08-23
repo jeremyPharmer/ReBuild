@@ -3,6 +3,20 @@ import { newId } from "@/lib/journey";
 import { updateState } from "@/lib/store";
 import type { CravingEvent } from "@/lib/types";
 
+function normalizeOutcomes(body: Record<string, unknown>): string[] | undefined {
+  if (Array.isArray(body.outcomes)) {
+    const list = body.outcomes
+      .map((o) => String(o).trim())
+      .filter(Boolean);
+    return list.length > 0 ? list : undefined;
+  }
+  if (body.outcome) {
+    const one = String(body.outcome).trim();
+    return one ? [one] : undefined;
+  }
+  return undefined;
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -10,6 +24,7 @@ export async function POST(req: Request) {
 
     if (action === "complete") {
       const id = String(body.id);
+      const outcomes = normalizeOutcomes(body);
       const state = await updateState((prev) => ({
         ...prev,
         cravings: prev.cravings.map((c) => {
@@ -21,7 +36,8 @@ export async function POST(req: Request) {
           return {
             ...c,
             intensityAfter: Math.max(0, capped),
-            outcome: body.outcome ? String(body.outcome) : undefined,
+            outcomes,
+            outcome: outcomes?.join(", "),
           };
         }),
       }));

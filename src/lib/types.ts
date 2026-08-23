@@ -182,7 +182,10 @@ export type CravingEvent = {
   intensityAfter?: number;
   situation: string;
   intervention: string;
+  /** @deprecated use outcomes — kept for legacy rows */
   outcome?: string;
+  /** One or more interventions the user tried */
+  outcomes?: string[];
 };
 
 export type WeeklyBonus = {
@@ -234,6 +237,8 @@ export type RebuildProfile = {
   /** Where morning/evening reminder emails go */
   email?: string;
   reminders?: ReminderPrefs;
+  /** User-added craving intervention labels (merged with defaults in the craving flow) */
+  cravingInterventions?: string[];
 };
 
 export type RebuildState = {

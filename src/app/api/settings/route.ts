@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { normalizeReminders } from "@/lib/reminders";
+import { INTERVENTION_LABEL_MAX } from "@/lib/craving-interventions";
 import { updateState } from "@/lib/store";
 import { DEFAULT_SUPPORTS, type SupportConfig } from "@/lib/types";
 
@@ -15,6 +16,11 @@ export async function POST(req: Request) {
       const supports: SupportConfig[] = Array.isArray(body.supports)
         ? body.supports
         : prev.profile.supports ?? DEFAULT_SUPPORTS;
+      const cravingInterventions = Array.isArray(body.cravingInterventions)
+        ? body.cravingInterventions
+            .map((s: unknown) => String(s).trim().slice(0, INTERVENTION_LABEL_MAX))
+            .filter(Boolean)
+        : prev.profile.cravingInterventions;
       const historicalDailySpend =
         body.historicalDailySpend !== undefined
           ? Number(body.historicalDailySpend)
@@ -59,6 +65,7 @@ export async function POST(req: Request) {
         profile: {
           ...prev.profile,
           supports,
+          cravingInterventions,
           historicalDailySpend,
           displayName: body.displayName
             ? String(body.displayName)
