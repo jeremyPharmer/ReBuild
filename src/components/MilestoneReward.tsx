@@ -85,9 +85,6 @@ function SubtlePhotoPicker({
           >
             Choose from library
           </button>
-          <p className="tiny photo-subtle-hint">
-            Phone shots are shrunk automatically so they upload cleanly.
-          </p>
         </div>
       )}
       {localError && <p className="error">{localError}</p>}
