@@ -595,10 +595,10 @@ function LineChartFrame({
 }
 
 const CONDITION_RANGE_OPTIONS: { key: ConditionRangePreset; label: string }[] = [
-  { key: "30", label: "30 days" },
-  { key: "60", label: "60 days" },
-  { key: "90", label: "90 days" },
-  { key: "all", label: "All time" },
+  { key: "30", label: "30d" },
+  { key: "60", label: "60d" },
+  { key: "90", label: "90d" },
+  { key: "all", label: "All" },
   { key: "custom", label: "Custom" },
 ];
 
