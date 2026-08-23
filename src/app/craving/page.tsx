@@ -154,7 +154,7 @@ export default function CravingPage() {
         <section className="panel">
           <h2>What do you want to try?</h2>
           <p className="muted">
-            Wait ten minutes, or pick something to do now — not both.
+            Wait ten minutes, or pick something to do now.
           </p>
           <div className="choice-row">
             <button
@@ -164,9 +164,6 @@ export default function CravingPage() {
               onClick={startTimer}
             >
               <strong>Start 10-minute timer</strong>
-              <p className="tiny" style={{ margin: "6px 0 0" }}>
-                Delay the decision. No intervention required.
-              </p>
             </button>
             <button
               type="button"
@@ -175,9 +172,6 @@ export default function CravingPage() {
               onClick={beginInterventionPath}
             >
               <strong>Choose intervention</strong>
-              <p className="tiny" style={{ margin: "6px 0 0" }}>
-                Pick what you&apos;ll try — you can select more than one.
-              </p>
             </button>
           </div>
           <div style={{ marginTop: 8 }}>
