@@ -1446,6 +1446,11 @@ h2 {
   font-family: var(--font-body);
 }
 
+.trend-axis-line {
+  stroke: rgba(232, 224, 212, 0.22);
+  stroke-width: 1;
+}
+
 .podcast-card h2 {
   margin: 0;
   font-size: 1.35rem;
