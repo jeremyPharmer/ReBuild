@@ -1,6 +1,7 @@
 import {
   addDays,
   calendarDaysBetween,
+  datesInRange,
   formatDisplayDate,
   weekBounds,
 } from "./journey";
@@ -220,6 +221,20 @@ export function trendPointsInRange(
   }
 
   return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/** One point per calendar day in range (empty days included) for chart x-axis scaling. */
+export function filledTrendPointsInRange(
+  state: RebuildState,
+  startBound: string,
+  endBound: string,
+): TrendPoint[] {
+  const logged = new Map(
+    trendPointsInRange(state, startBound, endBound).map((p) => [p.date, p]),
+  );
+  return datesInRange(startBound, endBound).map(
+    (date) => logged.get(date) ?? { date },
+  );
 }
 
 /** @deprecated prefer trendPointsInRange with an explicit window */

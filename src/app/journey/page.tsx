@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import {
   cleanDaysThisRun,
-  calendarDaysBetween,
   isCashableMilestoneDay,
   rewardOutcomeForTrailDay,
 } from "@/lib/journey";
@@ -25,6 +24,7 @@ import {
   CONDITION_METRICS,
   cravingHeadwindHours,
   cravingPlaybook,
+  filledTrendPointsInRange,
   formatTrendDate,
   lastFourWeeks,
   resolveConditionRange,
@@ -464,29 +464,40 @@ function LineChartFrame({
   const innerW = width - pad.left - pad.right;
   const innerH = height - pad.top - pad.bottom;
   const range = Math.max(yMax - yMin, 1);
-  const xSpan = Math.max(calendarDaysBetween(rangeStart, rangeEnd), 1);
+  const xSpan = Math.max(points.length - 1, 1);
 
-  function xForDate(date: string): number {
-    const offset = calendarDaysBetween(rangeStart, date);
-    if (xSpan <= 0) return pad.left + innerW / 2;
-    return pad.left + (offset / xSpan) * innerW;
-  }
-
-  const xs = points.map((p) => xForDate(p.date));
+  const xs = points.map((_, i) =>
+    points.length === 1
+      ? pad.left + innerW / 2
+      : pad.left + (i / xSpan) * innerW,
+  );
 
   const paths = series
     .map((s) => {
-      const coords = s.values
-        .map((v, i) => {
-          if (v === undefined) return null;
-          const y = pad.top + innerH - ((v - yMin) / range) * innerH;
-          return { x: xs[i], y };
-        })
-        .filter(Boolean) as { x: number; y: number }[];
-      if (coords.length === 0) return null;
-      const d = coords
-        .map((c, i) => `${i === 0 ? "M" : "L"} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`)
+      const segments: { x: number; y: number }[][] = [];
+      let current: { x: number; y: number }[] = [];
+      for (let i = 0; i < s.values.length; i++) {
+        const v = s.values[i];
+        if (v === undefined) {
+          if (current.length > 0) {
+            segments.push(current);
+            current = [];
+          }
+          continue;
+        }
+        const y = pad.top + innerH - ((v - yMin) / range) * innerH;
+        current.push({ x: xs[i], y });
+      }
+      if (current.length > 0) segments.push(current);
+      if (segments.length === 0) return null;
+      const d = segments
+        .map((coords) =>
+          coords
+            .map((c, i) => `${i === 0 ? "M" : "L"} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`)
+            .join(" "),
+        )
         .join(" ");
+      const coords = segments.flat();
       return { ...s, d, coords };
     })
     .filter(Boolean) as {
@@ -507,9 +518,14 @@ function LineChartFrame({
     );
   }
 
+  const axisLeft = pad.left;
+  const axisRight = width - pad.right;
+  const axisY = height - 10;
+
   return (
     <>
       <svg
+        key={`${rangeStart}-${rangeEnd}-${points.length}`}
         className="trend-svg"
         viewBox={`0 0 ${width} ${height}`}
         role="img"
@@ -532,6 +548,13 @@ function LineChartFrame({
             </g>
           );
         })}
+        <line
+          x1={axisLeft}
+          x2={axisRight}
+          y1={axisY}
+          y2={axisY}
+          className="trend-axis-line"
+        />
         {paths.map((p) => (
           <g key={p.key}>
             <path d={p.d} fill="none" stroke={p.color} strokeWidth="2.25" />
@@ -547,13 +570,13 @@ function LineChartFrame({
           </g>
         ))}
         {first && (
-          <text x={pad.left} y={height - 8} className="trend-axis">
+          <text x={axisLeft} y={height - 8} className="trend-axis">
             {formatTrendDate(first)}
           </text>
         )}
         {last && last !== first && (
           <text
-            x={width - pad.right}
+            x={axisRight}
             y={height - 8}
             textAnchor="end"
             className="trend-axis"
@@ -626,7 +649,7 @@ function ConditionsChart({
   );
 
   const points = useMemo(
-    () => trendPointsInRange(state, range.start, range.end),
+    () => filledTrendPointsInRange(state, range.start, range.end),
     [state, range.start, range.end],
   );
 

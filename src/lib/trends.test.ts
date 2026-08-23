@@ -4,6 +4,7 @@ import {
   cravingHeadwindHours,
   cravingPlaybook,
   cravingPointsLastYear,
+  filledTrendPointsInRange,
   lastFourWeeks,
   PLAYBOOK_MIN_N,
   resolveConditionRange,
@@ -86,6 +87,46 @@ describe("trendPointsInRange", () => {
     expect(points[0].date).toBe("2026-08-10");
     expect(points[0].sleepQuality).toBe(6);
     expect(points[0]).not.toHaveProperty("craving");
+  });
+});
+
+describe("filledTrendPointsInRange", () => {
+  it("returns one slot per calendar day in the selected window", () => {
+    const state = baseState();
+    state.mornings = [
+      {
+        date: "2026-08-10",
+        sleepHours: 7.5,
+        sleepQuality: 6,
+        mood: 5,
+        energy: 4,
+        stress: 7,
+        craving: 3,
+        intention: "x",
+        completedAt: "",
+      },
+      {
+        date: "2026-08-12",
+        sleepHours: 8,
+        sleepQuality: 8,
+        mood: 8,
+        energy: 8,
+        stress: 2,
+        craving: 1,
+        intention: "mid",
+        completedAt: "",
+      },
+    ];
+    const points = filledTrendPointsInRange(state, "2026-08-10", "2026-08-12");
+    expect(points).toHaveLength(3);
+    expect(points.map((p) => p.date)).toEqual([
+      "2026-08-10",
+      "2026-08-11",
+      "2026-08-12",
+    ]);
+    expect(points[0].sleepQuality).toBe(6);
+    expect(points[1].sleepQuality).toBeUndefined();
+    expect(points[2].sleepQuality).toBe(8);
   });
 });
 
