@@ -125,8 +125,11 @@ describe("filledTrendPointsInRange", () => {
       "2026-08-12",
     ]);
     expect(points[0].sleepQuality).toBe(6);
+    expect(points[0].sleepHours).toBe(7.5);
     expect(points[1].sleepQuality).toBeUndefined();
+    expect(points[1].sleepHours).toBeUndefined();
     expect(points[2].sleepQuality).toBe(8);
+    expect(points[2].sleepHours).toBe(8);
   });
 });
 
