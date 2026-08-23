@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import {
   cleanDaysThisRun,
+  calendarDaysBetween,
   isCashableMilestoneDay,
   rewardOutcomeForTrailDay,
 } from "@/lib/journey";
@@ -438,6 +439,8 @@ function LineChartFrame({
   yTicks,
   points,
   series,
+  rangeStart,
+  rangeEnd,
   emptyMessage,
   footer,
 }: {
@@ -452,6 +455,8 @@ function LineChartFrame({
     color: string;
     values: (number | undefined)[];
   }[];
+  rangeStart: string;
+  rangeEnd: string;
   emptyMessage: string;
   footer?: string;
 }) {
@@ -459,12 +464,15 @@ function LineChartFrame({
   const innerW = width - pad.left - pad.right;
   const innerH = height - pad.top - pad.bottom;
   const range = Math.max(yMax - yMin, 1);
+  const xSpan = Math.max(calendarDaysBetween(rangeStart, rangeEnd), 1);
 
-  const xs = points.map((_, i) =>
-    points.length === 1
-      ? pad.left + innerW / 2
-      : pad.left + (i / (points.length - 1)) * innerW,
-  );
+  function xForDate(date: string): number {
+    const offset = calendarDaysBetween(rangeStart, date);
+    if (xSpan <= 0) return pad.left + innerW / 2;
+    return pad.left + (offset / xSpan) * innerW;
+  }
+
+  const xs = points.map((p) => xForDate(p.date));
 
   const paths = series
     .map((s) => {
@@ -488,8 +496,8 @@ function LineChartFrame({
     coords: { x: number; y: number }[];
   }[];
 
-  const first = points[0]?.date;
-  const last = points[points.length - 1]?.date;
+  const first = rangeStart;
+  const last = rangeEnd;
 
   if (points.length === 0) {
     return (
@@ -564,8 +572,8 @@ function LineChartFrame({
 }
 
 const CONDITION_RANGE_OPTIONS: { key: ConditionRangePreset; label: string }[] = [
-  { key: "14", label: "14 days" },
   { key: "30", label: "30 days" },
+  { key: "60", label: "60 days" },
   { key: "90", label: "90 days" },
   { key: "all", label: "All time" },
   { key: "custom", label: "Custom" },
@@ -687,6 +695,8 @@ function ConditionsChart({
         yTicks={[1, 4, 7, 10]}
         points={points}
         series={series}
+        rangeStart={range.start}
+        rangeEnd={range.end}
         emptyMessage="Trends appear as you log mornings."
         footer="Sleep quality · mood · energy · stress (1–10). Tap to show or hide."
       />
