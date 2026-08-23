@@ -191,16 +191,18 @@ function mitigationLabels(c: {
   return [];
 }
 
+export type ConditionRangePreset = "14" | "30" | "90" | "all" | "custom";
+
 /** Morning state metrics (1–10). Mood can fall back to evening. No morning craving. */
-export function trendPointsLastYear(
+export function trendPointsInRange(
   state: RebuildState,
-  asOfDate: string,
+  startBound: string,
+  endBound: string,
 ): TrendPoint[] {
-  const startBound = addDays(asOfDate, -364);
   const byDate = new Map<string, TrendPoint>();
 
   for (const m of state.mornings) {
-    if (m.date < startBound || m.date > asOfDate) continue;
+    if (m.date < startBound || m.date > endBound) continue;
     byDate.set(m.date, {
       date: m.date,
       sleepQuality: m.sleepQuality,
@@ -211,13 +213,55 @@ export function trendPointsLastYear(
   }
 
   for (const e of state.evenings) {
-    if (e.date < startBound || e.date > asOfDate) continue;
+    if (e.date < startBound || e.date > endBound) continue;
     const existing = byDate.get(e.date) ?? { date: e.date };
     if (existing.mood === undefined) existing.mood = e.mood;
     byDate.set(e.date, existing);
   }
 
   return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/** @deprecated prefer trendPointsInRange with an explicit window */
+export function trendPointsLastYear(
+  state: RebuildState,
+  asOfDate: string,
+): TrendPoint[] {
+  return trendPointsInRange(state, addDays(asOfDate, -364), asOfDate);
+}
+
+function clampDate(date: string, min: string, max: string): string {
+  if (date < min) return min;
+  if (date > max) return max;
+  return date;
+}
+
+/** Resolve preset/custom bounds for the Conditions chart (clamped to current journey). */
+export function resolveConditionRange(
+  preset: ConditionRangePreset,
+  journeyStart: string,
+  asOfDate: string,
+  custom?: { start: string; end: string },
+): { start: string; end: string } {
+  const end = asOfDate;
+  const minStart = journeyStart;
+
+  if (preset === "all") {
+    return { start: minStart, end };
+  }
+
+  if (preset === "custom" && custom) {
+    const start = clampDate(custom.start, minStart, end);
+    const customEnd = clampDate(custom.end, minStart, end);
+    return start <= customEnd
+      ? { start, end: customEnd }
+      : { start: customEnd, end: start };
+  }
+
+  const daysBack = preset === "14" ? 13 : preset === "30" ? 29 : 89;
+  const rollingStart = addDays(end, -daysBack);
+  const start = rollingStart < minStart ? minStart : rollingStart;
+  return { start, end };
 }
 
 /**
