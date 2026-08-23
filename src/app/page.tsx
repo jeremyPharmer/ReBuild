@@ -523,8 +523,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <WeekPlanPanel state={state} today={today} week={dashboard.week} />
-
       <RecoveryPodcastCard />
 
       <section className="panel">
@@ -698,6 +696,8 @@ export default function HomePage() {
           )}
         </section>
       )}
+
+      <WeekPlanPanel today={today} week={dashboard.week} />
 
       {rewardPickerOpen && incentive && (
         <Sheet
