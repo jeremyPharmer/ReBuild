@@ -191,7 +191,7 @@ function mitigationLabels(c: {
   return [];
 }
 
-export type ConditionRangePreset = "14" | "30" | "90" | "all" | "custom";
+export type ConditionRangePreset = "30" | "60" | "90" | "all" | "custom";
 
 /** Morning state metrics (1–10). Mood can fall back to evening. No morning craving. */
 export function trendPointsInRange(
@@ -258,7 +258,11 @@ export function resolveConditionRange(
       : { start: customEnd, end: start };
   }
 
-  const daysBack = preset === "14" ? 13 : preset === "30" ? 29 : 89;
+  const daysBack =
+    preset === "30" ? 29 : preset === "60" ? 59 : preset === "90" ? 89 : 0;
+  if (daysBack === 0) {
+    return { start: minStart, end };
+  }
   const rollingStart = addDays(end, -daysBack);
   const start = rollingStart < minStart ? minStart : rollingStart;
   return { start, end };

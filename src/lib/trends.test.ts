@@ -98,8 +98,16 @@ describe("resolveConditionRange", () => {
   });
 
   it("clamps rolling windows to journey start", () => {
-    expect(resolveConditionRange("14", "2026-08-15", "2026-08-20")).toEqual({
+    expect(resolveConditionRange("30", "2026-08-15", "2026-08-20")).toEqual({
       start: "2026-08-15",
+      end: "2026-08-20",
+    });
+    expect(resolveConditionRange("60", "2026-07-01", "2026-08-20")).toEqual({
+      start: "2026-07-01",
+      end: "2026-08-20",
+    });
+    expect(resolveConditionRange("60", "2026-01-01", "2026-08-20")).toEqual({
+      start: "2026-06-22",
       end: "2026-08-20",
     });
     expect(resolveConditionRange("30", "2026-07-01", "2026-08-20")).toEqual({
