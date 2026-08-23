@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 export function ScaleInput({
   label,
@@ -111,10 +111,11 @@ export function Sheet({
   onClose: () => void;
   children: ReactNode;
 }) {
+  const sheetRef = useRef<HTMLDivElement>(null);
   const dragStartY = useRef<number | null>(null);
   const [dragOffset, setDragOffset] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const html = document.documentElement;
     const scrollY = window.scrollY;
     html.classList.add("sheet-open");
@@ -123,6 +124,17 @@ export function Sheet({
     document.body.style.left = "0";
     document.body.style.right = "0";
     document.body.style.width = "100%";
+
+    const syncHeight = () => {
+      const viewport =
+        window.visualViewport?.height ?? window.innerHeight ?? 0;
+      const h = Math.round(Math.max(320, Math.min(viewport * 0.94, 720)));
+      sheetRef.current?.style.setProperty("--sheet-h", `${h}px`);
+    };
+    syncHeight();
+    window.visualViewport?.addEventListener("resize", syncHeight);
+    window.addEventListener("resize", syncHeight);
+
     return () => {
       html.classList.remove("sheet-open");
       document.body.style.position = "";
@@ -131,6 +143,8 @@ export function Sheet({
       document.body.style.right = "";
       document.body.style.width = "";
       window.scrollTo(0, scrollY);
+      window.visualViewport?.removeEventListener("resize", syncHeight);
+      window.removeEventListener("resize", syncHeight);
     };
   }, []);
 
@@ -149,6 +163,7 @@ export function Sheet({
       onClick={() => !busy && onClose()}
     >
       <div
+        ref={sheetRef}
         className="modal-sheet"
         role="dialog"
         aria-modal="true"
