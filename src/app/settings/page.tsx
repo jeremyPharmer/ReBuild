@@ -10,6 +10,10 @@ import {
   weeklySupportProgress,
 } from "@/lib/journey";
 import { SUPPORT_LABEL_MAX } from "@/lib/auth-constants";
+import {
+  DEFAULT_CRAVING_INTERVENTIONS,
+  INTERVENTION_LABEL_MAX,
+} from "@/lib/craving-interventions";
 import { DEFAULT_SUPPORTS, type SupportConfig } from "@/lib/types";
 
 function slugify(label: string) {
@@ -59,6 +63,10 @@ export default function SettingsPage() {
   );
   const [newLabel, setNewLabel] = useState("");
   const [newTarget, setNewTarget] = useState("3");
+  const [cravingInterventions, setCravingInterventions] = useState<string[]>(
+    state.profile?.cravingInterventions ?? [],
+  );
+  const [newIntervention, setNewIntervention] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [testMsg, setTestMsg] = useState("");
@@ -97,12 +105,35 @@ export default function SettingsPage() {
     setNewTarget("3");
   }
 
+  function addCravingIntervention() {
+    const label = newIntervention.trim().slice(0, INTERVENTION_LABEL_MAX);
+    if (!label) return;
+    const key = label.toLowerCase();
+    const taken = new Set(
+      [
+        ...DEFAULT_CRAVING_INTERVENTIONS.map((d) => d.toLowerCase()),
+        ...cravingInterventions.map((d) => d.toLowerCase()),
+      ],
+    );
+    if (taken.has(key)) {
+      setNewIntervention("");
+      return;
+    }
+    setCravingInterventions((prev) => [...prev, label]);
+    setNewIntervention("");
+  }
+
+  function removeCravingIntervention(label: string) {
+    setCravingInterventions((prev) => prev.filter((x) => x !== label));
+  }
+
   async function save() {
     setBusy(true);
     setMsg("");
     try {
       await post("/api/settings", {
         supports,
+        cravingInterventions,
         historicalDailySpend: Number(spend),
         email,
         reminders: {
@@ -437,6 +468,48 @@ export default function SettingsPage() {
               style={{ width: 64 }}
             />
             <button type="button" className="btn ghost" onClick={addSupport}>
+              Add
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="panel">
+        <p className="eyebrow">Craving interventions</p>
+        <p className="tiny" style={{ marginBottom: 10 }}>
+          Defaults always show in the craving flow. Add your own below.
+        </p>
+        <p className="tiny" style={{ marginBottom: 8 }}>
+          Built-in: {DEFAULT_CRAVING_INTERVENTIONS.join(", ")}
+        </p>
+        {cravingInterventions.map((label) => (
+          <div key={label} className="support-edit">
+            <div className="row">
+              <span>{label}</span>
+              <button
+                type="button"
+                className="btn ghost"
+                onClick={() => removeCravingIntervention(label)}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        ))}
+        <div className="add-support">
+          <p className="eyebrow">Add an intervention</p>
+          <div className="add-support-row">
+            <input
+              value={newIntervention}
+              maxLength={INTERVENTION_LABEL_MAX}
+              onChange={(e) => setNewIntervention(e.target.value)}
+              placeholder="e.g. Call sponsor, Cold shower"
+            />
+            <button
+              type="button"
+              className="btn ghost"
+              onClick={addCravingIntervention}
+            >
               Add
             </button>
           </div>

@@ -31,6 +31,7 @@ import {
   type ConditionMetric,
   type TrendPoint,
 } from "@/lib/trends";
+import { formatCravingOutcomes } from "@/lib/craving-interventions";
 import { MILESTONE_DEFS } from "@/lib/types";
 
 function WeatherDots({
@@ -295,16 +296,20 @@ function TrailDayCard({
 
           <div className="trail-block">
             <p className="tiny trail-block-label">Headwind</p>
-            {day.cravings.map((c) => (
+            {day.cravings.map((c) => {
+              const outcomes = formatCravingOutcomes(c);
+              return (
               <div key={c.id} className="trail-craving">
                 <p className="tiny">
                   Intensity {c.intensityBefore}
                   {c.intensityAfter !== undefined
                     ? ` → ${c.intensityAfter}`
                     : ""}
-                  {c.outcome || c.intervention
-                    ? ` · ${c.outcome || c.intervention}`
-                    : ""}
+                  {outcomes
+                    ? ` · ${outcomes}`
+                    : c.intervention === "delay"
+                      ? " · waited"
+                      : ""}
                 </p>
                 {c.situation && (
                   <PrivateReveal label="Reveal situation">
@@ -312,7 +317,8 @@ function TrailDayCard({
                   </PrivateReveal>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {rewardDay && (
