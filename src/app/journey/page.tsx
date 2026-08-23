@@ -434,9 +434,6 @@ function TrailDayCard({
 function LineChartFrame({
   width = 320,
   height = 180,
-  yMin,
-  yMax,
-  yTicks,
   points,
   series,
   rangeStart,
@@ -446,13 +443,11 @@ function LineChartFrame({
 }: {
   width?: number;
   height?: number;
-  yMin: number;
-  yMax: number;
-  yTicks: number[];
   points: { date: string }[];
   series: {
     key: string;
     color: string;
+    axis: "scale" | "hours";
     values: (number | undefined)[];
   }[];
   rangeStart: string;
@@ -460,11 +455,25 @@ function LineChartFrame({
   emptyMessage: string;
   footer?: string;
 }) {
-  const pad = { top: 16, right: 12, bottom: 28, left: 28 };
+  const scaleAxis = { min: 1, max: 10, ticks: [1, 4, 7, 10] };
+  const hoursAxis = { min: 0, max: 14, ticks: [0, 7, 14] };
+  const hasScale = series.some((s) => s.axis === "scale");
+  const hasHours = series.some((s) => s.axis === "hours");
+  const pad = {
+    top: 16,
+    right: hasScale && hasHours ? 28 : 12,
+    bottom: 28,
+    left: 28,
+  };
   const innerW = width - pad.left - pad.right;
   const innerH = height - pad.top - pad.bottom;
-  const range = Math.max(yMax - yMin, 1);
   const xSpan = Math.max(points.length - 1, 1);
+
+  function yCoord(value: number, axis: "scale" | "hours"): number {
+    const spec = axis === "hours" ? hoursAxis : scaleAxis;
+    const span = Math.max(spec.max - spec.min, 1);
+    return pad.top + innerH - ((value - spec.min) / span) * innerH;
+  }
 
   const xs = points.map((_, i) =>
     points.length === 1
@@ -485,8 +494,7 @@ function LineChartFrame({
           }
           continue;
         }
-        const y = pad.top + innerH - ((v - yMin) / range) * innerH;
-        current.push({ x: xs[i], y });
+        current.push({ x: xs[i], y: yCoord(v, s.axis) });
       }
       if (current.length > 0) segments.push(current);
       if (segments.length === 0) return null;
@@ -521,6 +529,8 @@ function LineChartFrame({
   const axisLeft = pad.left;
   const axisRight = width - pad.right;
   const axisY = height - 10;
+  const leftTicks = hasScale ? scaleAxis.ticks : hoursAxis.ticks;
+  const rightTicks = hasScale && hasHours ? hoursAxis.ticks : [];
 
   return (
     <>
@@ -531,10 +541,10 @@ function LineChartFrame({
         role="img"
         aria-label="Trend chart"
       >
-        {yTicks.map((v) => {
-          const y = pad.top + innerH - ((v - yMin) / range) * innerH;
+        {leftTicks.map((v) => {
+          const y = yCoord(v, hasScale ? "scale" : "hours");
           return (
-            <g key={v}>
+            <g key={`left-${v}`}>
               <line
                 x1={pad.left}
                 x2={width - pad.right}
@@ -546,6 +556,20 @@ function LineChartFrame({
                 {v}
               </text>
             </g>
+          );
+        })}
+        {rightTicks.map((v) => {
+          const y = yCoord(v, "hours");
+          return (
+            <text
+              key={`right-${v}`}
+              x={width - 4}
+              y={y + 3}
+              textAnchor="end"
+              className="trend-axis"
+            >
+              {v}
+            </text>
           );
         })}
         <line
@@ -595,9 +619,9 @@ function LineChartFrame({
 }
 
 const CONDITION_RANGE_OPTIONS: { key: ConditionRangePreset; label: string }[] = [
-  { key: "30", label: "30d" },
-  { key: "60", label: "60d" },
-  { key: "90", label: "90d" },
+  { key: "30", label: "30 days" },
+  { key: "60", label: "60 days" },
+  { key: "90", label: "90 days" },
   { key: "all", label: "All" },
   { key: "custom", label: "Custom" },
 ];
@@ -615,6 +639,7 @@ function ConditionsChart({
   const [customStart, setCustomStart] = useState(journeyStart);
   const [customEnd, setCustomEnd] = useState(today);
   const [active, setActive] = useState<Record<ConditionMetric, boolean>>({
+    sleepHours: true,
     sleepQuality: true,
     mood: true,
     energy: true,
@@ -656,6 +681,7 @@ function ConditionsChart({
   const series = CONDITION_METRICS.filter((m) => active[m.key]).map((m) => ({
     key: m.key,
     color: m.color,
+    axis: m.axis,
     values: points.map((p) => p[m.key]),
   }));
 
@@ -713,15 +739,12 @@ function ConditionsChart({
         ))}
       </div>
       <LineChartFrame
-        yMin={1}
-        yMax={10}
-        yTicks={[1, 4, 7, 10]}
         points={points}
         series={series}
         rangeStart={range.start}
         rangeEnd={range.end}
         emptyMessage="Trends appear as you log mornings."
-        footer="Sleep quality · mood · energy · stress (1–10). Tap to show or hide."
+        footer="Sleep hours (0–14) · sleep quality, mood, energy, stress (1–10). Tap to show or hide."
       />
     </div>
   );

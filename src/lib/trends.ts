@@ -7,10 +7,18 @@ import {
 } from "./journey";
 import type { RebuildState, SupportType } from "./types";
 
-export type ConditionMetric = "sleepQuality" | "mood" | "energy" | "stress";
+export type ConditionMetric =
+  | "sleepHours"
+  | "sleepQuality"
+  | "mood"
+  | "energy"
+  | "stress";
+
+export type ConditionAxis = "scale" | "hours";
 
 export type TrendPoint = {
   date: string;
+  sleepHours?: number;
   sleepQuality?: number;
   mood?: number;
   energy?: number;
@@ -206,6 +214,7 @@ export function trendPointsInRange(
     if (m.date < startBound || m.date > endBound) continue;
     byDate.set(m.date, {
       date: m.date,
+      sleepHours: m.sleepHours,
       sleepQuality: m.sleepQuality,
       mood: m.mood,
       energy: m.energy,
@@ -534,11 +543,13 @@ export const CONDITION_METRICS: {
   key: ConditionMetric;
   label: string;
   color: string;
+  axis: ConditionAxis;
 }[] = [
-  { key: "sleepQuality", label: "Sleep", color: "#7fbf9a" },
-  { key: "mood", label: "Mood", color: "#d4844a" },
-  { key: "energy", label: "Energy", color: "#d4a24a" },
-  { key: "stress", label: "Stress", color: "#c97060" },
+  { key: "sleepHours", label: "Sleep hrs", color: "#5a9a78", axis: "hours" },
+  { key: "sleepQuality", label: "Sleep quality", color: "#7fbf9a", axis: "scale" },
+  { key: "mood", label: "Mood", color: "#d4844a", axis: "scale" },
+  { key: "energy", label: "Energy", color: "#d4a24a", axis: "scale" },
+  { key: "stress", label: "Stress", color: "#c97060", axis: "scale" },
 ];
 
 /** @deprecated use CONDITION_METRICS */
