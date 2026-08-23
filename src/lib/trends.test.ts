@@ -6,8 +6,10 @@ import {
   cravingPointsLastYear,
   lastFourWeeks,
   PLAYBOOK_MIN_N,
+  resolveConditionRange,
   roundSleepHours,
   supportRhythmLastFourWeeks,
+  trendPointsInRange,
   trendPointsLastYear,
 } from "./trends";
 import { DEFAULT_SUPPORTS } from "./types";
@@ -40,6 +42,84 @@ function craving(
     ...partial,
   };
 }
+
+describe("trendPointsInRange", () => {
+  it("builds points from mornings within the window without craving", () => {
+    const state = baseState();
+    state.mornings = [
+      {
+        date: "2026-08-10",
+        sleepHours: 7.5,
+        sleepQuality: 6,
+        mood: 5,
+        energy: 4,
+        stress: 7,
+        craving: 3,
+        intention: "x",
+        completedAt: "",
+      },
+      {
+        date: "2026-08-12",
+        sleepHours: 8,
+        sleepQuality: 8,
+        mood: 8,
+        energy: 8,
+        stress: 2,
+        craving: 1,
+        intention: "mid",
+        completedAt: "",
+      },
+      {
+        date: "2025-01-01",
+        sleepHours: 8,
+        sleepQuality: 8,
+        mood: 8,
+        energy: 8,
+        stress: 2,
+        craving: 1,
+        intention: "old",
+        completedAt: "",
+      },
+    ];
+    const points = trendPointsInRange(state, "2026-08-10", "2026-08-11");
+    expect(points).toHaveLength(1);
+    expect(points[0].date).toBe("2026-08-10");
+    expect(points[0].sleepQuality).toBe(6);
+    expect(points[0]).not.toHaveProperty("craving");
+  });
+});
+
+describe("resolveConditionRange", () => {
+  it("defaults all time to the current journey start", () => {
+    expect(resolveConditionRange("all", "2026-08-01", "2026-08-20")).toEqual({
+      start: "2026-08-01",
+      end: "2026-08-20",
+    });
+  });
+
+  it("clamps rolling windows to journey start", () => {
+    expect(resolveConditionRange("14", "2026-08-15", "2026-08-20")).toEqual({
+      start: "2026-08-15",
+      end: "2026-08-20",
+    });
+    expect(resolveConditionRange("30", "2026-07-01", "2026-08-20")).toEqual({
+      start: "2026-07-22",
+      end: "2026-08-20",
+    });
+  });
+
+  it("clamps custom dates to journey bounds", () => {
+    expect(
+      resolveConditionRange("custom", "2026-08-10", "2026-08-20", {
+        start: "2026-08-01",
+        end: "2026-08-25",
+      }),
+    ).toEqual({
+      start: "2026-08-10",
+      end: "2026-08-20",
+    });
+  });
+});
 
 describe("trendPointsLastYear", () => {
   it("builds points from mornings within the window without craving", () => {

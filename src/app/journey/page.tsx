@@ -26,11 +26,14 @@ import {
   cravingPlaybook,
   formatTrendDate,
   lastFourWeeks,
+  resolveConditionRange,
   supportRhythmLastFourWeeks,
-  trendPointsLastYear,
+  trendPointsInRange,
   type ConditionMetric,
+  type ConditionRangePreset,
   type TrendPoint,
 } from "@/lib/trends";
+import type { RebuildState } from "@/lib/types";
 import { formatCravingOutcomes } from "@/lib/craving-interventions";
 import { MILESTONE_DEFS } from "@/lib/types";
 
@@ -560,7 +563,26 @@ function LineChartFrame({
   );
 }
 
-function ConditionsChart({ points }: { points: TrendPoint[] }) {
+const CONDITION_RANGE_OPTIONS: { key: ConditionRangePreset; label: string }[] = [
+  { key: "14", label: "14 days" },
+  { key: "30", label: "30 days" },
+  { key: "90", label: "90 days" },
+  { key: "all", label: "All time" },
+  { key: "custom", label: "Custom" },
+];
+
+function ConditionsChart({
+  state,
+  today,
+  journeyStart,
+}: {
+  state: RebuildState;
+  today: string;
+  journeyStart: string;
+}) {
+  const [preset, setPreset] = useState<ConditionRangePreset>("all");
+  const [customStart, setCustomStart] = useState(journeyStart);
+  const [customEnd, setCustomEnd] = useState(today);
   const [active, setActive] = useState<Record<ConditionMetric, boolean>>({
     sleepQuality: true,
     mood: true,
@@ -572,6 +594,34 @@ function ConditionsChart({ points }: { points: TrendPoint[] }) {
     setActive((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
+  function selectPreset(next: ConditionRangePreset) {
+    setPreset(next);
+    if (next === "custom") {
+      const bounds = resolveConditionRange(preset, journeyStart, today, {
+        start: customStart,
+        end: customEnd,
+      });
+      setCustomStart(bounds.start);
+      setCustomEnd(bounds.end);
+    }
+  }
+
+  const range = useMemo(
+    () =>
+      resolveConditionRange(
+        preset,
+        journeyStart,
+        today,
+        preset === "custom" ? { start: customStart, end: customEnd } : undefined,
+      ),
+    [preset, journeyStart, today, customStart, customEnd],
+  );
+
+  const points = useMemo(
+    () => trendPointsInRange(state, range.start, range.end),
+    [state, range.start, range.end],
+  );
+
   const series = CONDITION_METRICS.filter((m) => active[m.key]).map((m) => ({
     key: m.key,
     color: m.color,
@@ -580,6 +630,44 @@ function ConditionsChart({ points }: { points: TrendPoint[] }) {
 
   return (
     <div className="trends">
+      <div className="trend-range-toggles" role="group" aria-label="Date range">
+        {CONDITION_RANGE_OPTIONS.map((option) => (
+          <button
+            key={option.key}
+            type="button"
+            className={
+              preset === option.key ? "trend-range-toggle on" : "trend-range-toggle"
+            }
+            onClick={() => selectPreset(option.key)}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+      {preset === "custom" && (
+        <div className="trend-custom-range">
+          <label className="trend-custom-field">
+            <span className="field-label">From</span>
+            <input
+              type="date"
+              value={customStart}
+              min={journeyStart}
+              max={customEnd}
+              onChange={(e) => setCustomStart(e.target.value)}
+            />
+          </label>
+          <label className="trend-custom-field">
+            <span className="field-label">To</span>
+            <input
+              type="date"
+              value={customEnd}
+              min={customStart}
+              max={today}
+              onChange={(e) => setCustomEnd(e.target.value)}
+            />
+          </label>
+        </div>
+      )}
       <div className="trend-toggles">
         {CONDITION_METRICS.map((m) => (
           <button
@@ -617,10 +705,11 @@ export default function JourneyPage() {
     if (!today) return [];
     return trailDaysThisRun(state, today);
   }, [state, today]);
-  const trendPoints = useMemo(() => {
-    if (!today) return [];
-    return trendPointsLastYear(state, today);
-  }, [state, today]);
+  const journeyStart =
+    state.profile?.currentRunStartedOn ??
+    state.profile?.startDate ??
+    today ??
+    "";
   const playbook = useMemo(() => {
     if (!today) return [];
     return cravingPlaybook(state, today);
@@ -658,7 +747,13 @@ export default function JourneyPage() {
       <section className="panel">
         <p className="eyebrow">Over time</p>
         <h2 style={{ marginBottom: 10 }}>Conditions</h2>
-        <ConditionsChart points={trendPoints} />
+        {today && journeyStart && (
+          <ConditionsChart
+            state={state}
+            today={today}
+            journeyStart={journeyStart}
+          />
+        )}
         <PatternCollapse title="What worked">
           <PlaybookPanel rows={playbook} />
         </PatternCollapse>
