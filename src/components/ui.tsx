@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 export function ScaleInput({
   label,
@@ -111,16 +111,36 @@ export function Sheet({
   onClose: () => void;
   children: ReactNode;
 }) {
+  const dragStartY = useRef<number | null>(null);
+  const [dragOffset, setDragOffset] = useState(0);
+
   useEffect(() => {
     const html = document.documentElement;
-    const prev = document.body.style.overflow;
+    const scrollY = window.scrollY;
     html.classList.add("sheet-open");
-    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
     return () => {
       html.classList.remove("sheet-open");
-      document.body.style.overflow = prev;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      window.scrollTo(0, scrollY);
     };
   }, []);
+
+  function endDrag(clientY: number) {
+    if (dragStartY.current == null) return;
+    const delta = clientY - dragStartY.current;
+    dragStartY.current = null;
+    setDragOffset(0);
+    if (!busy && delta > 80) onClose();
+  }
 
   return (
     <div
@@ -133,10 +153,34 @@ export function Sheet({
         role="dialog"
         aria-modal="true"
         aria-label={label}
+        style={
+          dragOffset > 0
+            ? { transform: `translateY(${dragOffset}px)` }
+            : undefined
+        }
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="modal-sheet-handle" aria-hidden />
-        {children}
+        <div
+          className="modal-sheet-chrome"
+          onTouchStart={(e) => {
+            dragStartY.current = e.touches[0]?.clientY ?? null;
+          }}
+          onTouchMove={(e) => {
+            if (dragStartY.current == null) return;
+            const y = e.touches[0]?.clientY ?? dragStartY.current;
+            setDragOffset(Math.max(0, y - dragStartY.current));
+          }}
+          onTouchEnd={(e) => {
+            endDrag(e.changedTouches[0]?.clientY ?? 0);
+          }}
+          onTouchCancel={() => {
+            dragStartY.current = null;
+            setDragOffset(0);
+          }}
+        >
+          <div className="modal-sheet-handle" aria-hidden />
+        </div>
+        <div className="modal-sheet-body">{children}</div>
       </div>
     </div>
   );
