@@ -31,6 +31,35 @@ function formatMd(iso: string): string {
 
 type SkipKey = SupportType | "morning" | "evening";
 
+function SkippedTaskRow({
+  label,
+  meta,
+  animating,
+}: {
+  label: string;
+  meta?: string;
+  animating?: boolean;
+}) {
+  return (
+    <div
+      className={
+        animating
+          ? "check-item check-item-row skipping"
+          : "check-item check-item-row skipped"
+      }
+      aria-label={`${label} — not today`}
+    >
+      <div className="check-item-main" aria-hidden>
+        <span className="check-box skipped-mark" />
+        <span className="check-label">
+          <span className="check-label-name">{label}</span>
+          {meta ? <span className="check-label-meta">{meta}</span> : null}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 type ExitingSupport = {
   type: SupportType;
   label: string;
@@ -46,6 +75,7 @@ export default function HomePage() {
   const [undoOpen, setUndoOpen] = useState(false);
   const [undoBusy, setUndoBusy] = useState<string | null>(null);
   const [exiting, setExiting] = useState<ExitingSupport[]>([]);
+  const [skipping, setSkipping] = useState<Set<SkipKey>>(() => new Set());
   const [reclaimStep, setReclaimStep] = useState<"idle" | "choose" | "partial">(
     "idle",
   );
@@ -144,11 +174,20 @@ export default function HomePage() {
   }
 
   async function dismissItem(itemKey: SkipKey) {
+    setSkipping((prev) => new Set(prev).add(itemKey));
     setSkipBusy(itemKey);
     try {
-      await post("/api/skip", { date: today, itemKey });
+      await Promise.all([
+        post("/api/skip", { date: today, itemKey }),
+        new Promise((r) => setTimeout(r, 450)),
+      ]);
     } finally {
       setSkipBusy(null);
+      setSkipping((prev) => {
+        const next = new Set(prev);
+        next.delete(itemKey);
+        return next;
+      });
     }
   }
 
@@ -411,15 +450,34 @@ export default function HomePage() {
             </div>
           )}
 
+          {morningSkipped && (
+            <SkippedTaskRow
+              label="Start the day"
+              animating={skipping.has("morning")}
+            />
+          )}
+
           {enabledSupports.map((s) => {
-            if (skips.has(s.type)) return null;
+            const weekDone =
+              dashboard.week.find((w) => w.type === s.type)?.done ?? 0;
+            const weekMeta = ` · ${weekDone}/${s.weeklyTarget}`;
+
+            if (skips.has(s.type)) {
+              return (
+                <SkippedTaskRow
+                  key={s.type}
+                  label={truncateSupportLabel(s.label)}
+                  meta={weekMeta}
+                  animating={skipping.has(s.type)}
+                />
+              );
+            }
+
             const isExiting = exitingTypes.has(s.type);
             const isDone =
               completedSupportTypes.has(s.type) && !isExiting;
             if (isDone) return null;
 
-            const weekDone =
-              dashboard.week.find((w) => w.type === s.type)?.done ?? 0;
             const exitingItem = exiting.find((e) => e.type === s.type);
 
             if (isExiting && exitingItem) {
@@ -515,7 +573,14 @@ export default function HomePage() {
             </div>
           )}
 
-          {openCount === 0 && (
+          {eveningSkipped && (
+            <SkippedTaskRow
+              label="Close the day"
+              animating={skipping.has("evening")}
+            />
+          )}
+
+          {openCount === 0 && skippedToday.length === 0 && (
             <p className="muted" style={{ marginTop: 4 }}>
               Today&apos;s list is clear. Nice work.
             </p>
