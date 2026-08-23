@@ -31,26 +31,21 @@ function formatMd(iso: string): string {
 
 type SkipKey = SupportType | "morning" | "evening";
 
-function SkippedTaskRow({
-  label,
-  meta,
-  animating,
-}: {
+type DismissingItem = {
+  key: SkipKey;
   label: string;
   meta?: string;
-  animating?: boolean;
-}) {
+};
+
+function DismissingTaskRow({ label, meta }: { label: string; meta?: string }) {
   return (
     <div
-      className={
-        animating
-          ? "check-item check-item-row skipping"
-          : "check-item check-item-row skipped"
-      }
+      className="check-item check-item-row dismissing"
+      aria-live="polite"
       aria-label={`${label} — not today`}
     >
       <div className="check-item-main" aria-hidden>
-        <span className="check-box skipped-mark" />
+        <span className="check-box" />
         <span className="check-label">
           <span className="check-label-name">{label}</span>
           {meta ? <span className="check-label-meta">{meta}</span> : null}
@@ -75,7 +70,7 @@ export default function HomePage() {
   const [undoOpen, setUndoOpen] = useState(false);
   const [undoBusy, setUndoBusy] = useState<string | null>(null);
   const [exiting, setExiting] = useState<ExitingSupport[]>([]);
-  const [skipping, setSkipping] = useState<Set<SkipKey>>(() => new Set());
+  const [dismissing, setDismissing] = useState<DismissingItem[]>([]);
   const [reclaimStep, setReclaimStep] = useState<"idle" | "choose" | "partial">(
     "idle",
   );
@@ -120,11 +115,13 @@ export default function HomePage() {
     dashboard.todaySupports.map((t) => t.supportType),
   );
   const exitingTypes = new Set(exiting.map((e) => e.type));
+  const dismissingKeys = new Set(dismissing.map((d) => d.key));
   const openSupports = enabledSupports.filter(
     (s) =>
       !skips.has(s.type) &&
       !completedSupportTypes.has(s.type) &&
-      !exitingTypes.has(s.type),
+      !exitingTypes.has(s.type) &&
+      !dismissingKeys.has(s.type),
   );
   const todayProvisions = (state.dayProvisions ?? []).filter(
     (p) => p.date === today,
@@ -135,13 +132,16 @@ export default function HomePage() {
   const eveningSkipped = skips.has("evening");
   const morningDone = Boolean(dashboard.todayMorning);
   const eveningDone = Boolean(dashboard.todayEvening);
-  const showMorningOpen = !morningDone && !morningSkipped;
-  const showEveningOpen = !eveningDone && !eveningSkipped;
+  const showMorningOpen =
+    !morningDone && !morningSkipped && !dismissingKeys.has("morning");
+  const showEveningOpen =
+    !eveningDone && !eveningSkipped && !dismissingKeys.has("evening");
   const openCount =
     (showMorningOpen ? 1 : 0) +
     openSupports.length +
     openProvisions.length +
     exiting.length +
+    dismissing.length +
     (showEveningOpen ? 1 : 0);
 
   const completedSupports = dashboard.todaySupports;
@@ -173,21 +173,19 @@ export default function HomePage() {
     }
   }
 
-  async function dismissItem(itemKey: SkipKey) {
-    setSkipping((prev) => new Set(prev).add(itemKey));
-    setSkipBusy(itemKey);
+  async function dismissItem(item: DismissingItem) {
+    setDismissing((prev) =>
+      prev.some((d) => d.key === item.key) ? prev : [...prev, item],
+    );
+    setSkipBusy(item.key);
     try {
       await Promise.all([
-        post("/api/skip", { date: today, itemKey }),
-        new Promise((r) => setTimeout(r, 450)),
+        post("/api/skip", { date: today, itemKey: item.key }),
+        new Promise((r) => setTimeout(r, 700)),
       ]);
     } finally {
+      setDismissing((prev) => prev.filter((d) => d.key !== item.key));
       setSkipBusy(null);
-      setSkipping((prev) => {
-        const next = new Set(prev);
-        next.delete(itemKey);
-        return next;
-      });
     }
   }
 
@@ -443,35 +441,38 @@ export default function HomePage() {
                 type="button"
                 className="dismiss-btn"
                 disabled={skipBusy === "morning"}
-                onClick={() => dismissItem("morning")}
+                onClick={() =>
+                  dismissItem({ key: "morning", label: "Start the day" })
+                }
               >
                 Not today
               </button>
             </div>
           )}
 
-          {morningSkipped && (
-            <SkippedTaskRow
-              label="Start the day"
-              animating={skipping.has("morning")}
-            />
-          )}
+          {dismissing
+            .filter((d) => d.key === "morning")
+            .map((d) => (
+              <DismissingTaskRow key={d.key} label={d.label} />
+            ))}
 
           {enabledSupports.map((s) => {
             const weekDone =
               dashboard.week.find((w) => w.type === s.type)?.done ?? 0;
             const weekMeta = ` · ${weekDone}/${s.weeklyTarget}`;
+            const dismissingItem = dismissing.find((d) => d.key === s.type);
 
-            if (skips.has(s.type)) {
+            if (dismissingItem) {
               return (
-                <SkippedTaskRow
+                <DismissingTaskRow
                   key={s.type}
-                  label={truncateSupportLabel(s.label)}
-                  meta={weekMeta}
-                  animating={skipping.has(s.type)}
+                  label={dismissingItem.label}
+                  meta={dismissingItem.meta}
                 />
               );
             }
+
+            if (skips.has(s.type)) return null;
 
             const isExiting = exitingTypes.has(s.type);
             const isDone =
@@ -534,7 +535,13 @@ export default function HomePage() {
                   type="button"
                   className="dismiss-btn"
                   disabled={skipBusy === s.type}
-                  onClick={() => dismissItem(s.type)}
+                  onClick={() =>
+                    dismissItem({
+                      key: s.type,
+                      label: truncateSupportLabel(s.label),
+                      meta: weekMeta,
+                    })
+                  }
                 >
                   Not today
                 </button>
@@ -566,21 +573,22 @@ export default function HomePage() {
                 type="button"
                 className="dismiss-btn"
                 disabled={skipBusy === "evening"}
-                onClick={() => dismissItem("evening")}
+                onClick={() =>
+                  dismissItem({ key: "evening", label: "Close the day" })
+                }
               >
                 Not today
               </button>
             </div>
           )}
 
-          {eveningSkipped && (
-            <SkippedTaskRow
-              label="Close the day"
-              animating={skipping.has("evening")}
-            />
-          )}
+          {dismissing
+            .filter((d) => d.key === "evening")
+            .map((d) => (
+              <DismissingTaskRow key={d.key} label={d.label} />
+            ))}
 
-          {openCount === 0 && skippedToday.length === 0 && (
+          {openCount === 0 && (
             <p className="muted" style={{ marginTop: 4 }}>
               Today&apos;s list is clear. Nice work.
             </p>
