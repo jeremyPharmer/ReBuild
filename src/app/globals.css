@@ -424,49 +424,22 @@ h2 {
   color: var(--muted);
 }
 
-.check-item-row.skipped,
-.check-item-row.skipping {
-  border-color: rgba(180, 100, 40, 0.45);
+.check-item-row.dismissing {
+  border-color: rgba(180, 100, 40, 0.55);
   background: rgba(180, 100, 40, 0.1);
   pointer-events: none;
+  animation: clear-row 0.7s ease forwards;
 }
 
-.check-item-row.skipped .check-label,
-.check-item-row.skipping .check-label {
+.check-item-row.dismissing .check-label {
   text-decoration: line-through;
-  text-decoration-color: rgba(180, 100, 40, 0.92);
+  text-decoration-color: rgba(180, 100, 40, 0.9);
   color: var(--muted);
 }
 
-.check-item-row.skipped .check-label-meta,
-.check-item-row.skipping .check-label-meta {
+.check-item-row.dismissing .check-label-meta {
   text-decoration: line-through;
   text-decoration-color: rgba(180, 100, 40, 0.75);
-}
-
-.check-item-row.skipped .check-box.skipped-mark,
-.check-item-row.skipping .check-box.skipped-mark {
-  border-color: rgba(180, 100, 40, 0.7);
-  background: rgba(180, 100, 40, 0.16);
-}
-
-.check-item-row.skipping {
-  animation: skip-strike 0.45s ease forwards;
-}
-
-@keyframes skip-strike {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  40% {
-    opacity: 1;
-    transform: scale(0.995);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 .clear-burst {
