@@ -1829,11 +1829,6 @@ html.sheet-open .bottom-nav {
   border-color: var(--accent);
 }
 
-.photo-subtle-hint {
-  margin: 0;
-  color: var(--muted);
-}
-
 .photo-subtle-preview {
   display: flex;
   align-items: center;
