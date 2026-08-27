@@ -6,25 +6,9 @@ import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
 import { WeekPlanPanel } from "@/components/WeekPlanPanel";
-import { HomeRewardCard } from "@/components/MilestoneReward";
-import { Money, PrimaryButton, SecondaryButton, Sheet } from "@/components/ui";
-import {
-  eligibleWishlistForIncentive,
-  pendingCashableMoments,
-  projectedTreatYourselfAt,
-} from "@/lib/fund";
-import {
-  addDays,
-  assignedRewardForMilestone,
-  nextIncentive,
-} from "@/lib/journey";
+import { SecondaryButton } from "@/components/ui";
 import type { SupportType } from "@/lib/types";
 import { truncateSupportLabel } from "@/lib/auth-constants";
-
-function formatMd(iso: string): string {
-  const [, m, d] = iso.split("-");
-  return `${m}/${d}`;
-}
 
 type SkipKey = SupportType | "morning" | "evening";
 
@@ -68,9 +52,6 @@ export default function HomePage() {
   const [undoBusy, setUndoBusy] = useState<string | null>(null);
   const [exiting, setExiting] = useState<ExitingSupport[]>([]);
   const [dismissing, setDismissing] = useState<DismissingItem[]>([]);
-  const [rewardPickerOpen, setRewardPickerOpen] = useState(false);
-  const [assignBusy, setAssignBusy] = useState(false);
-  const [assignError, setAssignError] = useState("");
 
   useEffect(() => {
     if (!state.profile?.onboarded) router.replace("/onboarding");
@@ -81,17 +62,6 @@ export default function HomePage() {
   }
 
   const skips = new Set(dashboard.todaySkips ?? []);
-  const incentive = nextIncentive(dashboard.cleanDays);
-  const assigned = incentive
-    ? assignedRewardForMilestone(state, incentive.dayNumber)
-    : undefined;
-  const treatAvailable = incentive
-    ? projectedTreatYourselfAt(state, incentive.dayNumber, today)
-    : 0;
-  const eligibleRewards = incentive
-    ? eligibleWishlistForIncentive(state, incentive.dayNumber, today)
-    : [];
-  const pendingRewards = pendingCashableMoments(state);
   const enabledSupports = state.profile.supports.filter((s) => s.enabled);
   const completedSupportTypes = new Set(
     dashboard.todaySupports.map((t) => t.supportType),
@@ -228,39 +198,6 @@ export default function HomePage() {
     }
   }
 
-  async function assignReward(rewardId: string) {
-    if (!incentive) return;
-    setAssignBusy(true);
-    setAssignError("");
-    const clearing = assigned?.id === rewardId;
-    try {
-      await post("/api/rewards", {
-        action: "assign",
-        id: rewardId,
-        milestoneDay: incentive.dayNumber,
-        ...(clearing ? { clear: true } : {}),
-      });
-      setRewardPickerOpen(false);
-    } catch (e) {
-      setAssignError(e instanceof Error ? e.message : "Could not assign");
-    } finally {
-      setAssignBusy(false);
-    }
-  }
-
-  async function deletePickerReward(rewardId: string) {
-    if (!window.confirm("Remove this reward from your list?")) return;
-    setAssignBusy(true);
-    setAssignError("");
-    try {
-      await post("/api/rewards", { action: "delete", id: rewardId });
-    } catch (e) {
-      setAssignError(e instanceof Error ? e.message : "Could not delete");
-    } finally {
-      setAssignBusy(false);
-    }
-  }
-
   function supportLabel(type: string) {
     return (
       state.profile?.supports.find((s) => s.type === type)?.label ?? type
@@ -273,14 +210,6 @@ export default function HomePage() {
     return supportLabel(key);
   }
 
-  const daysToIncentive = incentive
-    ? incentive.dayNumber - dashboard.cleanDays
-    : 0;
-  const incentiveDate =
-    incentive && daysToIncentive >= 0
-      ? formatMd(addDays(today, daysToIncentive))
-      : null;
-
   return (
     <main className="fade-in stack">
       <header className="hero-day">
@@ -288,10 +217,6 @@ export default function HomePage() {
         <h1>{dashboard.label}</h1>
         <p className="muted">{dashboard.sinceLabel}</p>
       </header>
-
-      {pendingRewards.map((m) => (
-        <HomeRewardCard key={m.id} moment={m} onDone={() => undefined} />
-      ))}
 
       <section className="panel">
         <div className="row">
@@ -550,149 +475,7 @@ export default function HomePage() {
 
       <RecoveryPodcastCard />
 
-      {incentive && (
-        <section className="panel">
-          <div className="incentive-head">
-            <div className="incentive-head-main">
-              <p className="eyebrow">Next incentive</p>
-              <h2>
-                Day {incentive.dayNumber} · {incentive.title}
-              </h2>
-              <p className="muted" style={{ marginTop: 6 }}>
-                {daysToIncentive} day{daysToIncentive === 1 ? "" : "s"} away
-                {incentiveDate ? ` · ${incentiveDate}` : ""}
-              </p>
-            </div>
-            <div className="incentive-treat">
-              <p className="incentive-treat-amount">
-                <Money value={treatAvailable} />
-              </p>
-              <p className="incentive-treat-label">to treat yourself</p>
-            </div>
-          </div>
-
-          {assigned ? (
-            <div className="incentive-reward" style={{ marginTop: 14 }}>
-              <p className="tiny">Working toward</p>
-              <p style={{ margin: "4px 0 0", fontWeight: 650, fontSize: "1.1rem" }}>
-                {assigned.name}
-              </p>
-              <p className="tiny" style={{ marginTop: 4 }}>
-                {assigned.category} · <Money value={assigned.estimatedCost} />
-              </p>
-              <div style={{ marginTop: 12 }}>
-                <SecondaryButton
-                  onClick={() => {
-                    setAssignError("");
-                    setRewardPickerOpen(true);
-                  }}
-                >
-                  Change reward
-                </SecondaryButton>
-              </div>
-            </div>
-          ) : (
-            <div style={{ marginTop: 14 }}>
-              <p className="muted" style={{ marginBottom: 12, lineHeight: 1.45 }}>
-                Choose what {incentive.title} is for — something you can reach
-                with this incentive.
-              </p>
-              <PrimaryButton
-                onClick={() => {
-                  setAssignError("");
-                  setRewardPickerOpen(true);
-                }}
-              >
-                Choose reward
-              </PrimaryButton>
-            </div>
-          )}
-        </section>
-      )}
-
       <WeekPlanPanel today={today} week={dashboard.week} />
-
-      {rewardPickerOpen && incentive && (
-        <Sheet
-          label="Choose reward"
-          busy={assignBusy}
-          onClose={() => setRewardPickerOpen(false)}
-        >
-            <p className="eyebrow">Day {incentive.dayNumber}</p>
-            <h2>Choose reward</h2>
-            <p className="tiny" style={{ marginTop: 6, marginBottom: 12 }}>
-              Showing wishlist items up to{" "}
-              <Money value={treatAvailable} /> you&apos;ll have by this date.
-            </p>
-
-            {eligibleRewards.length === 0 ? (
-              <p className="muted" style={{ lineHeight: 1.45 }}>
-                No matching rewards yet. Add one on the Rewards tab at or under{" "}
-                <Money value={treatAvailable} />.
-              </p>
-            ) : (
-              <div className="reward-pick-list">
-                {eligibleRewards.map((r) => {
-                  const selected = assigned?.id === r.id;
-                  return (
-                    <div key={r.id} className="reward-pick-row">
-                      <button
-                        type="button"
-                        className={
-                          selected
-                            ? "check-item check-item-row done"
-                            : "check-item check-item-row"
-                        }
-                        disabled={assignBusy}
-                        onClick={() => assignReward(r.id)}
-                      >
-                        <span className="check-box">
-                          {selected ? "✓" : ""}
-                        </span>
-                        <span className="check-label">
-                          {r.name}
-                          {r.assignedMilestoneDay &&
-                          r.assignedMilestoneDay !== incentive.dayNumber
-                            ? ` · Day ${r.assignedMilestoneDay}`
-                            : ""}
-                        </span>
-                        <span className="tiny">
-                          <Money value={r.estimatedCost} />
-                        </span>
-                      </button>
-                      <button
-                        type="button"
-                        className="reward-pick-delete"
-                        disabled={assignBusy}
-                        onClick={() => deletePickerReward(r.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {assignError && (
-              <p style={{ color: "var(--danger)", marginTop: 10 }}>
-                {assignError}
-              </p>
-            )}
-
-            <div className="grid-2" style={{ marginTop: 14 }}>
-              <Link href="/money" onClick={() => setRewardPickerOpen(false)}>
-                <SecondaryButton>Open Rewards</SecondaryButton>
-              </Link>
-              <SecondaryButton
-                onClick={() => setRewardPickerOpen(false)}
-                disabled={assignBusy}
-              >
-                Close
-              </SecondaryButton>
-            </div>
-        </Sheet>
-      )}
 
       <Link href="/craving">
         <SecondaryButton>I&apos;m having a craving</SecondaryButton>
