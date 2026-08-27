@@ -6,20 +6,17 @@ import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
 import { WeekPlanPanel } from "@/components/WeekPlanPanel";
-import { FundSegmentBar, HomeRewardCard } from "@/components/MilestoneReward";
+import { HomeRewardCard } from "@/components/MilestoneReward";
 import { Money, PrimaryButton, SecondaryButton, Sheet } from "@/components/ui";
 import {
   eligibleWishlistForIncentive,
-  fundTotal,
   pendingCashableMoments,
   projectedTreatYourselfAt,
-  splitTransfer,
 } from "@/lib/fund";
 import {
   addDays,
   assignedRewardForMilestone,
   nextIncentive,
-  waitingReclaimDays,
 } from "@/lib/journey";
 import type { SupportType } from "@/lib/types";
 import { truncateSupportLabel } from "@/lib/auth-constants";
@@ -71,12 +68,6 @@ export default function HomePage() {
   const [undoBusy, setUndoBusy] = useState<string | null>(null);
   const [exiting, setExiting] = useState<ExitingSupport[]>([]);
   const [dismissing, setDismissing] = useState<DismissingItem[]>([]);
-  const [reclaimStep, setReclaimStep] = useState<"idle" | "choose" | "partial">(
-    "idle",
-  );
-  const [partialAmount, setPartialAmount] = useState("");
-  const [reclaimBusy, setReclaimBusy] = useState(false);
-  const [reclaimError, setReclaimError] = useState("");
   const [rewardPickerOpen, setRewardPickerOpen] = useState(false);
   const [assignBusy, setAssignBusy] = useState(false);
   const [assignError, setAssignError] = useState("");
@@ -100,16 +91,7 @@ export default function HomePage() {
   const eligibleRewards = incentive
     ? eligibleWishlistForIncentive(state, incentive.dayNumber, today)
     : [];
-  const waiting = waitingReclaimDays(state);
   const pendingRewards = pendingCashableMoments(state);
-  const total = fundTotal(state.fund);
-  const treatSplit = state.profile.treatSplit;
-  const waitingSplit = splitTransfer(dashboard.waiting, treatSplit);
-  const partialNum = Number(partialAmount);
-  const partialSplit = splitTransfer(
-    Number.isFinite(partialNum) && partialNum > 0 ? partialNum : 0,
-    treatSplit,
-  );
   const enabledSupports = state.profile.supports.filter((s) => s.enabled);
   const completedSupportTypes = new Set(
     dashboard.todaySupports.map((t) => t.supportType),
@@ -244,36 +226,6 @@ export default function HomePage() {
     } finally {
       setUndoBusy(null);
     }
-  }
-
-  async function confirmReclaim(amount: number) {
-    if (!Number.isFinite(amount) || amount < 0 || waiting.length === 0) return;
-    setReclaimBusy(true);
-    setReclaimError("");
-    try {
-      await post("/api/reclaim", {
-        dayDates: waiting.map((d) => d.date),
-        amount,
-      });
-      setReclaimStep("idle");
-      setPartialAmount("");
-    } catch (e) {
-      setReclaimError(e instanceof Error ? e.message : "Could not move");
-    } finally {
-      setReclaimBusy(false);
-    }
-  }
-
-  function openReclaim() {
-    setReclaimError("");
-    setPartialAmount(String(dashboard?.waiting ?? ""));
-    setReclaimStep("choose");
-  }
-
-  function cancelReclaim() {
-    setReclaimStep("idle");
-    setPartialAmount("");
-    setReclaimError("");
   }
 
   async function assignReward(rewardId: string) {
@@ -597,118 +549,6 @@ export default function HomePage() {
       </section>
 
       <RecoveryPodcastCard />
-
-      <section className="panel">
-        <div className="row">
-          <div>
-            <p className="eyebrow">Total</p>
-            <p className="money money-xl">
-              <Money value={total} />
-            </p>
-            <p className="tiny">Future · Treat Yourself</p>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <p className="tiny">Waiting to reclaim</p>
-            <p className="money" style={{ fontSize: "1.4rem" }}>
-              <Money value={dashboard.waiting} />
-            </p>
-            <p className="tiny">{dashboard.waitingDays} days</p>
-          </div>
-        </div>
-        <FundSegmentBar fund={state.fund} />
-
-        {waiting.length > 0 && reclaimStep === "idle" && (
-          <div style={{ marginTop: 14 }}>
-            <PrimaryButton onClick={openReclaim}>
-              Move waiting money
-            </PrimaryButton>
-          </div>
-        )}
-
-        {waiting.length > 0 && reclaimStep === "choose" && (
-          <div className="reclaim-chooser" style={{ marginTop: 14 }}>
-            <p className="tiny" style={{ marginBottom: 10 }}>
-              Move <Money value={dashboard.waiting} /> from waiting — 30% Future
-              · 70% Treat Yourself (
-              <Money value={waitingSplit.future} /> ·{" "}
-              <Money value={waitingSplit.treat} />)
-            </p>
-            <div className="choice-row">
-              <button
-                type="button"
-                className="choice"
-                disabled={reclaimBusy}
-                onClick={() => confirmReclaim(dashboard.waiting)}
-              >
-                All · ${dashboard.waiting}
-              </button>
-              <button
-                type="button"
-                className="choice"
-                disabled={reclaimBusy}
-                onClick={() => setReclaimStep("partial")}
-              >
-                Partial
-              </button>
-            </div>
-            <div style={{ marginTop: 8 }}>
-              <SecondaryButton onClick={cancelReclaim}>Cancel</SecondaryButton>
-            </div>
-          </div>
-        )}
-
-        {waiting.length > 0 && reclaimStep === "partial" && (
-          <div className="reclaim-chooser" style={{ marginTop: 14 }}>
-            <p className="tiny" style={{ marginBottom: 8 }}>
-              How much of the ${dashboard.waiting} waiting? Splits 30% Future ·
-              70% Treat Yourself.
-            </p>
-            <label className="field">
-              <span className="field-label">Amount</span>
-              <input
-                type="number"
-                min={0}
-                max={dashboard.waiting}
-                step="1"
-                value={partialAmount}
-                onChange={(e) => setPartialAmount(e.target.value)}
-              />
-            </label>
-            {Number.isFinite(partialNum) && partialNum > 0 && (
-              <p className="tiny" style={{ marginBottom: 8 }}>
-                <Money value={partialSplit.future} /> Future ·{" "}
-                <Money value={partialSplit.treat} /> Treat Yourself
-              </p>
-            )}
-            <PrimaryButton
-              disabled={
-                reclaimBusy ||
-                !Number.isFinite(partialNum) ||
-                partialNum < 0
-              }
-              onClick={() => confirmReclaim(partialNum)}
-            >
-              {reclaimBusy
-                ? "Moving…"
-                : `Move $${partialNum || 0}`}
-            </PrimaryButton>
-            <div style={{ marginTop: 8 }}>
-              <SecondaryButton
-                onClick={() => {
-                  setReclaimStep("choose");
-                  setReclaimError("");
-                }}
-              >
-                Back
-              </SecondaryButton>
-            </div>
-          </div>
-        )}
-
-        {reclaimError && (
-          <p style={{ color: "var(--danger)", marginTop: 8 }}>{reclaimError}</p>
-        )}
-      </section>
 
       {incentive && (
         <section className="panel">

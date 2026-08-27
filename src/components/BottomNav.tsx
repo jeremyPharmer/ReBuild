@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const LINKS = [
   { href: "/", label: "Home" },
   { href: "/journey", label: "Journey" },
-  { href: "/money", label: "Rewards" },
+  // Rewards (/money) hidden for now — restore when fund/shop UI returns
   { href: "/journal", label: "Journal" },
   { href: "/settings", label: "Settings" },
 ];
