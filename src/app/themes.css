@@ -1,0 +1,198 @@
+/* Theme tokens — switch via data-theme on <html> */
+
+:root,
+[data-theme="forest"] {
+  --bg0: #0f1c18;
+  --bg1: #162822;
+  --bg2: #1e342c;
+  --bg-end: #12201b;
+  --surface: rgba(232, 224, 212, 0.06);
+  --surface-strong: rgba(232, 224, 212, 0.1);
+  --line: rgba(232, 224, 212, 0.14);
+  --text: #f3ece2;
+  --muted: #a79f93;
+  --accent: #d4844a;
+  --accent-2: #e09358;
+  --accent-soft: rgba(212, 132, 74, 0.18);
+  --good: #7fbf9a;
+  --warn: #d4a24a;
+  --danger: #c97060;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  --radius: 18px;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Figtree", system-ui, sans-serif;
+  --page-bg:
+    radial-gradient(1200px 700px at 10% -10%, rgba(212, 132, 74, 0.18), transparent 55%),
+    radial-gradient(900px 600px at 100% 0%, rgba(127, 191, 154, 0.12), transparent 50%),
+    linear-gradient(165deg, var(--bg0), var(--bg1) 45%, var(--bg-end) 100%);
+  --nav-bg: rgba(15, 28, 24, 0.88);
+  --btn-primary-from: #e09358;
+  --btn-primary-to: var(--accent);
+  --btn-primary-text: #1a120c;
+  --btn-primary-shadow: 0 8px 24px rgba(212, 132, 74, 0.28);
+  --good-soft: rgba(127, 191, 154, 0.08);
+  --good-border: rgba(127, 191, 154, 0.45);
+  --good-check-text: #0f1c18;
+  --good-strike: rgba(127, 191, 154, 0.85);
+  --dismiss-border: rgba(180, 100, 40, 0.55);
+  --dismiss-bg: rgba(180, 100, 40, 0.1);
+  --dismiss-strike: rgba(180, 100, 40, 0.9);
+  --progress-track: rgba(255, 255, 255, 0.08);
+  --progress-from: var(--good);
+  --chip-good-bg: rgba(127, 191, 154, 0.12);
+  --chip-warn-bg: rgba(212, 162, 74, 0.14);
+  --accent-glow: rgba(212, 132, 74, 0.2);
+  --map-bg:
+    linear-gradient(180deg, rgba(20, 40, 34, 0.2), rgba(10, 18, 15, 0.55)),
+    radial-gradient(circle at 30% 20%, rgba(212, 132, 74, 0.25), transparent 40%),
+    linear-gradient(160deg, #243f35, #15261f 60%, #0e1814);
+  --panel-shadow: none;
+  --panel-blur: 10px;
+}
+
+[data-theme="morning-mist"] {
+  --bg0: #eef4f8;
+  --bg1: #e3edf5;
+  --bg2: #d8e6f0;
+  --bg-end: #dde8f0;
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-strong: rgba(255, 255, 255, 0.96);
+  --line: rgba(107, 155, 209, 0.16);
+  --text: #2c3e50;
+  --muted: #6b7f92;
+  --accent: #6b9bd1;
+  --accent-2: #8bb4de;
+  --accent-soft: rgba(107, 155, 209, 0.14);
+  --good: #8bb8a8;
+  --warn: #d4b06a;
+  --danger: #c97a6a;
+  --shadow: 0 10px 28px rgba(60, 90, 120, 0.1);
+  --radius: 22px;
+  --font-display: "DM Serif Display", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --page-bg:
+    radial-gradient(900px 500px at 0% 0%, rgba(107, 155, 209, 0.16), transparent 55%),
+    radial-gradient(700px 480px at 100% 10%, rgba(139, 184, 168, 0.14), transparent 50%),
+    linear-gradient(165deg, var(--bg0), var(--bg1) 50%, var(--bg-end) 100%);
+  --nav-bg: rgba(255, 255, 255, 0.92);
+  --btn-primary-from: #7aa8d8;
+  --btn-primary-to: var(--accent);
+  --btn-primary-text: #ffffff;
+  --btn-primary-shadow: 0 8px 22px rgba(107, 155, 209, 0.28);
+  --good-soft: rgba(139, 184, 168, 0.14);
+  --good-border: rgba(139, 184, 168, 0.45);
+  --good-check-text: #ffffff;
+  --good-strike: rgba(107, 140, 120, 0.75);
+  --dismiss-border: rgba(107, 155, 209, 0.35);
+  --dismiss-bg: rgba(107, 155, 209, 0.08);
+  --dismiss-strike: rgba(107, 155, 209, 0.65);
+  --progress-track: rgba(44, 62, 80, 0.08);
+  --progress-from: var(--good);
+  --chip-good-bg: rgba(139, 184, 168, 0.16);
+  --chip-warn-bg: rgba(212, 176, 106, 0.16);
+  --accent-glow: rgba(107, 155, 209, 0.22);
+  --map-bg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(227, 237, 245, 0.75)),
+    radial-gradient(circle at 28% 18%, rgba(107, 155, 209, 0.22), transparent 42%),
+    linear-gradient(160deg, #dce9f2, #c8dced 55%, #b8cfe4);
+  --panel-shadow: 0 8px 24px rgba(60, 90, 120, 0.08);
+  --panel-blur: 6px;
+}
+
+[data-theme="sage-clay"] {
+  --bg0: #f4f1ec;
+  --bg1: #faf8f5;
+  --bg2: #efeae3;
+  --bg-end: #ebe6de;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-strong: rgba(255, 255, 255, 0.94);
+  --line: rgba(122, 158, 135, 0.18);
+  --text: #3a3530;
+  --muted: #8a8278;
+  --accent: #d4956a;
+  --accent-2: #e0a87a;
+  --accent-soft: rgba(212, 149, 106, 0.14);
+  --good: #7a9e87;
+  --warn: #c9a05a;
+  --danger: #c07868;
+  --shadow: 0 10px 28px rgba(58, 53, 48, 0.08);
+  --radius: 20px;
+  --font-display: "Source Serif 4", Georgia, serif;
+  --font-body: "Nunito Sans", system-ui, sans-serif;
+  --page-bg:
+    radial-gradient(900px 520px at 8% -5%, rgba(212, 149, 106, 0.12), transparent 52%),
+    radial-gradient(760px 480px at 100% 0%, rgba(122, 158, 135, 0.14), transparent 48%),
+    linear-gradient(165deg, var(--bg0), var(--bg1) 48%, var(--bg-end) 100%);
+  --nav-bg: rgba(255, 255, 255, 0.9);
+  --btn-primary-from: #dea070;
+  --btn-primary-to: var(--accent);
+  --btn-primary-text: #ffffff;
+  --btn-primary-shadow: 0 8px 22px rgba(212, 149, 106, 0.26);
+  --good-soft: rgba(122, 158, 135, 0.12);
+  --good-border: rgba(122, 158, 135, 0.42);
+  --good-check-text: #ffffff;
+  --good-strike: rgba(122, 158, 135, 0.72);
+  --dismiss-border: rgba(212, 149, 106, 0.4);
+  --dismiss-bg: rgba(212, 149, 106, 0.1);
+  --dismiss-strike: rgba(212, 149, 106, 0.72);
+  --progress-track: rgba(58, 53, 48, 0.08);
+  --progress-from: var(--good);
+  --chip-good-bg: rgba(122, 158, 135, 0.14);
+  --chip-warn-bg: rgba(201, 160, 90, 0.14);
+  --accent-glow: rgba(212, 149, 106, 0.2);
+  --map-bg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(244, 241, 236, 0.72)),
+    radial-gradient(circle at 24% 16%, rgba(122, 158, 135, 0.2), transparent 40%),
+    linear-gradient(160deg, #e8e2d8, #ddd5c8 58%, #d4ccc0);
+  --panel-shadow: 0 8px 22px rgba(58, 53, 48, 0.07);
+  --panel-blur: 4px;
+}
+
+[data-theme="ember-glow"] {
+  --bg0: #1a2433;
+  --bg1: #1f2a3a;
+  --bg2: #243041;
+  --bg-end: #151e2b;
+  --surface: rgba(245, 240, 234, 0.06);
+  --surface-strong: rgba(245, 240, 234, 0.1);
+  --line: rgba(245, 240, 234, 0.12);
+  --text: #f5f0ea;
+  --muted: #8a9bb0;
+  --accent: #e8a574;
+  --accent-2: #efb888;
+  --accent-soft: rgba(232, 165, 116, 0.16);
+  --good: #7a9e9a;
+  --warn: #d4b06a;
+  --danger: #c97a6a;
+  --shadow: 0 16px 44px rgba(0, 0, 0, 0.32);
+  --radius: 22px;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Figtree", system-ui, sans-serif;
+  --page-bg:
+    radial-gradient(1000px 620px at 12% -8%, rgba(232, 165, 116, 0.16), transparent 54%),
+    radial-gradient(820px 520px at 100% 0%, rgba(107, 181, 196, 0.12), transparent 48%),
+    linear-gradient(165deg, var(--bg0), var(--bg1) 46%, var(--bg-end) 100%);
+  --nav-bg: rgba(26, 36, 51, 0.9);
+  --btn-primary-from: #efb888;
+  --btn-primary-to: var(--accent);
+  --btn-primary-text: #1a120c;
+  --btn-primary-shadow: 0 8px 24px rgba(232, 165, 116, 0.24);
+  --good-soft: rgba(122, 158, 154, 0.1);
+  --good-border: rgba(122, 158, 154, 0.42);
+  --good-check-text: #1a2433;
+  --good-strike: rgba(122, 158, 154, 0.82);
+  --dismiss-border: rgba(232, 165, 116, 0.45);
+  --dismiss-bg: rgba(232, 165, 116, 0.1);
+  --dismiss-strike: rgba(232, 165, 116, 0.85);
+  --progress-track: rgba(255, 255, 255, 0.07);
+  --progress-from: #6bb5c4;
+  --chip-good-bg: rgba(122, 158, 154, 0.14);
+  --chip-warn-bg: rgba(232, 165, 116, 0.14);
+  --accent-glow: rgba(232, 165, 116, 0.22);
+  --map-bg:
+    linear-gradient(180deg, rgba(36, 48, 65, 0.25), rgba(21, 30, 43, 0.62)),
+    radial-gradient(circle at 30% 18%, rgba(232, 165, 116, 0.22), transparent 40%),
+    linear-gradient(160deg, #2a3a4f, #1f2a3a 58%, #151e2b);
+  --panel-shadow: none;
+  --panel-blur: 12px;
+}
