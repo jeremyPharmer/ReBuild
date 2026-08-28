@@ -4,8 +4,6 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { PrimaryButton, ScaleInput, SecondaryButton } from "@/components/ui";
-import { Money } from "@/components/ui";
-import { waitingReclaimTotal } from "@/lib/journey";
 import { quoteById } from "@/lib/quotes";
 
 export default function MorningPage() {
@@ -89,7 +87,6 @@ export default function MorningPage() {
   }
 
   if (done) {
-    const waiting = waitingReclaimTotal(state);
     return (
       <main className="stack fade-in">
         {quote && (
@@ -122,15 +119,6 @@ export default function MorningPage() {
               </div>
             </div>
           ))}
-          <div className="check-item" style={{ marginTop: 4 }}>
-            <span className="check-box" />
-            <div>
-              <strong>Money</strong>
-              <p className="tiny">
-                <Money value={waiting} /> ready to reclaim this evening
-              </p>
-            </div>
-          </div>
           {!provisionOpen ? (
             <button
               type="button"

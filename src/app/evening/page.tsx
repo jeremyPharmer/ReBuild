@@ -90,10 +90,7 @@ function EveningPageInner() {
             Pick a missed day
           </SecondaryButton>
         )}
-        <PrimaryButton onClick={() => router.push("/money")}>
-          Move money to Rebuild
-        </PrimaryButton>
-        <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
+        <PrimaryButton onClick={() => router.push("/")}>Home</PrimaryButton>
       </main>
     );
   }
@@ -103,10 +100,7 @@ function EveningPageInner() {
       <main className="stack">
         <p className="eyebrow">Close the day</p>
         <h1>Already complete</h1>
-        <PrimaryButton onClick={() => router.push("/money")}>
-          Move money to Rebuild
-        </PrimaryButton>
-        <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
+        <PrimaryButton onClick={() => router.push("/")}>Home</PrimaryButton>
       </main>
     );
   }
@@ -123,14 +117,11 @@ function EveningPageInner() {
           <p style={{ margin: 0, fontSize: "1.15rem" }}>&ldquo;{oneLine}&rdquo;</p>
         </div>
 
-        <PrimaryButton onClick={() => router.push("/money")}>
-          Move money to Rebuild
-        </PrimaryButton>
+        <PrimaryButton onClick={() => router.push("/")}>Home</PrimaryButton>
 
         <SecondaryButton onClick={() => router.push("/journal")}>
           Journal
         </SecondaryButton>
-        <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
       </main>
     );
   }
