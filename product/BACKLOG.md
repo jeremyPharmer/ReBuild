@@ -33,7 +33,7 @@ Last updated: 2026-08-29
 | --- | --- |
 | Backlog | 9 |
 | Ready | 2 |
-| In Progress | 3 |
+| In Progress | 4 |
 | Blocked | 0 |
 | Done | 1 |
 | Won't Do | 0 |
