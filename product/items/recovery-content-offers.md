@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-005 |
-| Rank | 4 |
+| Rank | 5 |
 | Priority | P0 |
 | Status | In Progress |
 | Effort | M |
@@ -13,39 +13,38 @@
 
 ## Problem
 
-ReBuild’s **recovery content** surface needs curated offers users can actually take — not an empty content slot, and not the same episodes/articles recycled once the user has already heard or read them. Offers should mix **podcasts and recovery articles/books**, from any strong recovery voice — not locked to one host.
+JeremyOS’s content surface should serve **podcast integration Jeremy likes** — not endless generic recovery-catalog polish for a multi-user product. Offers still mix podcasts and articles/books; avoid repeating heard/read ids. Do not expand into a media platform for its own sake.
 
 ## Outcome
 
-**Shipped surface (active polish):** Recovery Content card offers a mix of podcasts + articles; once something is heard or read, it is **never re-offered**. Catalog is large and deep enough that the unheard/unread pool stays healthy.
+**Primary (JeremyOS):** Podcast integration stays useful — Jeremy can pick / open episodes he cares about; heard ids are not re-offered.
 
-**Original weekly model (still consider):** Each week, the recovery content box shows **exactly two selectable offers**. The user picks one (or explores both). The pool rotates so it stays fresh. Rich Roll episodes are strong candidates in the pool, not a permanent requirement every week.
+**Secondary (keep thin):** Articles/books may remain in the pool if Jeremy uses them; do not grow catalog depth as a “daily love” KPI.
+
+**Original weekly model (Later / consider only):** Exactly two selectable offers per week — park unless Jeremy asks for it.
 
 ## Scope
 
-### In progress — deepen the already-shipped card (do not wait on weekly-2)
+### In progress — podcast-first on the shipped card
 
-Runtime already ships a thinner Recovery Content surface (~5 offers: 3 podcasts + 2 articles) with `listenedPodcasts` (and read) tracking. Founder feedback (2026-08-21): content **repeats too often**; add **more sources**, go **deeper**, and if something was heard or read, **don’t repeat it**.
+Runtime already ships a thinner Recovery Content surface (~5 offers: 3 podcasts + 2 articles) with `listenedPodcasts` (and read) tracking. Founder feedback (2026-08-21): content **repeats too often**. **2026-08-29:** founder likes **podcast integration** under JeremyOS — prioritize that over generic catalog expansion.
 
 Polish / expand (this slice):
 
-- Grow curated catalog well beyond ~10 podcasts / ~10 articles — more sources, deeper episode/article picks
-- **Never re-offer** ids the user has already heard or read (no fallback into the consumed pool when the fresh pool is thin)
-- Keep the shipped multi-offer card shape; this is not a Venmo/fund blocker and does **not** replace rank/P0 relative to RB-001
+- **Never re-offer** ids already heard or read (no fallback into the consumed pool)
+- Prefer podcast sources Jeremy actually listens to; grow catalog only enough to avoid repeats — not a completeness race
+- Keep the shipped multi-offer card shape; thin article/book pool OK
 
-### v1 consider — weekly two-offer model (do not elevate yet)
+### Later / consider — weekly two-offer model (do not elevate)
 
-- Content types: **podcasts** and **recovery books**
-- UX rule: **two offers per week**, user can select from those two
-- Weekly rotation from a curated pool of high-quality recovery media
-- Source-agnostic: anyone excellent at recovery content (podcast hosts, authors); not always Rich Roll
-- Light “listen” / “read” outbound affordance — exact UX TBD at build time
+- Two offers per week, books mix, Rich Roll optional excellence — park unless Jeremy asks
 
 ## Out of scope / later
 
 - Full in-app podcast player or ebook reader
 - Personalized ML recommendation engine
-- Building the weekly-two UX before the no-repeat / deeper-catalog polish on the shipped card
+- Deep catalog expansion as generic product polish (fails RB-013 build filter)
+- Building the weekly-two UX before podcast-first no-repeat is solid
 
 ## Weekly offer model
 
@@ -101,7 +100,6 @@ Next week might be Recovery Elevator + *This Naked Mind* — no Rich Roll requir
 
 ## Notes
 
-- Rank **#4** / **P0** unchanged (2026-08-21). Deepening the shipped Recovery Content card; does **not** jump ahead of Venmo (RB-001) or auto-credit (RB-011).
-- **2026-08-21 founder feedback:** recovery content repeats too often → expand sources, go deeper, never re-offer heard/read. Status → **In Progress** for that polish; weekly 2-offer model remains backlog/consider.
-- Updated 2026-08-10: expand beyond podcasts-only; weekly **two selectable** offers; books included; Rich Roll is optional excellence in the pool, not a permanent slot.
-- Shipped thinner surface (podcasts + articles, multi-offer card) already live; this item now tracks catalog depth + strict no-repeat on that surface, plus the still-deferred weekly-2 design.
+- **2026-08-29 JeremyOS:** rank **5** / **P0**. Reframed podcast-first; demote deep catalog / weekly-2 as generic polish. Still behind rebrand, north star, todos, email.
+- **2026-08-21 founder feedback:** recovery content repeats too often → never re-offer heard/read. Status **In Progress**; weekly 2-offer remains consider.
+- Updated 2026-08-10: expand beyond podcasts-only; weekly **two selectable** offers; books included; Rich Roll optional. Shipped thinner surface already live.

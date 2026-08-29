@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-010 |
-| Rank | 7 |
+| Rank | 9 |
 | Priority | P1 |
 | Status | In Progress |
 | Effort | S |
@@ -42,7 +42,7 @@ User can pick a missing calendar day in the current run (no evening close yet) a
 
 ## Notes
 
-- Ranked as first daily-loop polish after RB-009; does **not** displace Venmo / fund / content P0s (RB-001, RB-005, RB-006) — nor **RB-011** (auto-credit daily savings)
-- **Not the same as RB-011:** this item is journal / evening backfill UX. Funds waiting-to-reclaim for a missed close are owned by [RB-011](./auto-credit-daily-savings-end-of-day.md) (end-of-day auto-credit). After RB-011, backfilling an evening must not double-credit reclaim (existing `ensureReclaimDay` idempotency).
+- **2026-08-29 JeremyOS:** rank **9**. Still useful as a personal journal tool; not “make the generic daily loop lovable.” Finish thin In Progress slice; no scope expand.
+- **Not the same as RB-011:** journal / evening backfill UX. Funds waiting-to-reclaim owned by [RB-011](./auto-credit-daily-savings-end-of-day.md).
 - Shipping in the same PR as Journal bottom-nav scroll padding fix
-- Rank assigned 2026-08-20 (intake); renumbered to **7** on 2026-08-21 when RB-011 took rank 2
+- Rank assigned 2026-08-20 (intake); renumbered to **7** on 2026-08-21 when RB-011 took rank 2; **9** on 2026-08-29 JeremyOS pivot.

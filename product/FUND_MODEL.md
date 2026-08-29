@@ -1,7 +1,9 @@
 # Fund model (locked)
 
-Last updated: 2026-08-21  
+Last updated: 2026-08-29  
 Status: **Decision locked** — supersedes three-bucket 50/25/25 and the old “Save into Treat” direction.
+
+**JeremyOS context (2026-08-29):** This ledger remains the locked model for Jeremy’s **personal** incentive / recovery money tools. Under the JeremyOS pivot it is **secondary** to the personal-OS north star (todos, email, podcasts, hub) — not deleted. Implementation polish (RB-006) and Venmo rails (RB-001) are demoted in ranking; do not invent a kill without founder confirmation.
 
 ## Mental model
 

@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-007 |
-| Rank | 1 |
+| Rank | 15 |
 | Priority | P0 |
 | Status | Done |
 | Effort | XL |
@@ -78,11 +78,9 @@ Progress UI consistent with trail / journey language. Suggested steps:
 
 ## Notes
 
-- Intake dialog 2026-08-13 (cloud agent / Head of Product). Rank **1** — platform prerequisite for multi-user; renumbers prior P0s down.
+- Intake dialog 2026-08-13 (cloud agent / Head of Product). Shipped **Done**. Historical platform prerequisite for multi-user; founder allowlist remains.
+- **2026-08-29 JeremyOS:** product north star shifts to personal OS for Jeremy — accounts remain useful plumbing; do not expand multi-user SaaS features for their own sake (RB-013). Rank **15** (Done; after open items).
 - Canned support inspiration (examples, not final copy): walk, gym, meditate, recovery content, meetings, medication — plus custom.
-- **Gender (required, fixed):** Woman · Man · Non-binary · Prefer not to say
-- **State (required, fixed):** US states + DC (dropdown)
 - Admin confirm 2026-08-13: allowlist = founder email only for now (`jeremyrschrader@gmail.com`).
 - Money stays as today: daily spend drives reclaim; Future/Treat split defaults 30/70 per `FUND_MODEL.md`.
 - Walkthrough explicitly deferred past v1 of this item.
-- Prod Hx migration: snapshot/attach existing prod `db.json` to admin account when RB-007 ships (backup-only is available before build).
