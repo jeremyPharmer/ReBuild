@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { RecoveryPodcastCard } from "@/components/RecoveryPodcastCard";
 import { WeekPlanPanel } from "@/components/WeekPlanPanel";
-import { SecondaryButton } from "@/components/ui";
 import type { SupportType } from "@/lib/types";
 import { truncateSupportLabel } from "@/lib/auth-constants";
 
@@ -476,10 +475,6 @@ export default function HomePage() {
       <RecoveryPodcastCard />
 
       <WeekPlanPanel today={today} week={dashboard.week} />
-
-      <Link href="/craving">
-        <SecondaryButton>I&apos;m having a craving</SecondaryButton>
-      </Link>
     </main>
   );
 }

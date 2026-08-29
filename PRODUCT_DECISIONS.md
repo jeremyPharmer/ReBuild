@@ -20,7 +20,7 @@ Status: **JeremyOS pivot recorded** — executive assistant / personal OS north 
 | **Journey nav** | **Keep “Journey”** as nav label / surface name (locked 2026-08-29; was open on RB-012) |
 | **Daily mood / feeling** | **Keep and elevate** morning start + evening mood/stress/feelings as personal EA ritual |
 | **Craving stats** | **Drop / Won't Do** — Journey/Home craving charts, pattern panels, craving analytics (RB-009 Won't Do) |
-| **Home craving CTA** | **Remove** “I’m having a craving” (or equivalent) from Home — ship via RB-017 |
+| **Home craving CTA** | **Removed** “I’m having a craving” from Home — **RB-017 Done** (2026-08-29) |
 
 Canonical backlog: RB-012 (rebrand + drop trail), RB-013 (north star), RB-017 (drop craving stats + Home CTA), RB-014 (todos), RB-016 (five-year journal UX), RB-015 (hub); elevated RB-002 / RB-005. Journal backfill integrity remains RB-010 (distinct from RB-016 paper UI). RB-009 craving patterns = Won't Do.
 
@@ -58,7 +58,7 @@ Still available as Jeremy’s personal recovery tools under JeremyOS (executive 
 
 **Elevated (2026-08-29):** morning + evening **mood / feeling** that starts and ends the day — founder loves this; treat as personal EA ritual, not optional chrome.
 
-**Dropped (2026-08-29):** craving **stats / analytics** and Home **“I’m having a craving”** CTA — see RB-017 (ship cut) and RB-009 (Won't Do for pattern insights).
+**Dropped (2026-08-29):** craving **stats / analytics** and Home **“I’m having a craving”** CTA — **RB-017 Done**; RB-009 Won't Do for pattern insights.
 
 Interactive every day:
 
@@ -166,4 +166,4 @@ Founder follow-up: drop trailer/trail theming — product is an executive assist
 
 ## Journey label + craving cut (locked 2026-08-29)
 
-Founder follow-up: keep Journey (nav/surface); keep daily mood/feeling start+end; drop craving stats; drop Home “I’m having a craving.” Product: RB-012 Journey label locked; RB-017 thin UXUI cut; RB-009 craving patterns → Won't Do.
+Founder follow-up: keep Journey (nav/surface); keep daily mood/feeling start+end; drop craving stats; drop Home “I’m having a craving.” Product: RB-012 Journey label locked; **RB-017 Done** (UI cut shipped); RB-009 craving patterns → Won't Do.

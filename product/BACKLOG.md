@@ -12,7 +12,7 @@ Last updated: 2026-08-29
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | RB-012 | Rebrand to JeremyOS (EA + drop trail) | P0 | Ready | M | TBD | v1 | [items/rebrand-jeremyos.md](./items/rebrand-jeremyos.md) |
 | 2 | RB-013 | Personal OS north star (cut bloat) | P0 | Ready | S | TBD | v1 | [items/personal-os-north-star.md](./items/personal-os-north-star.md) |
-| 3 | RB-017 | Drop craving stats + Home craving CTA | P0 | Ready | XS | TBD | v1 | [items/drop-craving-stats-home-cta.md](./items/drop-craving-stats-home-cta.md) |
+| 3 | RB-017 | Drop craving stats + Home craving CTA | P0 | Done | XS | TBD | v1 | [items/drop-craving-stats-home-cta.md](./items/drop-craving-stats-home-cta.md) |
 | 4 | RB-014 | To-do lists (first-class) | P0 | Backlog | M | TBD | v1 | [items/todo-lists.md](./items/todo-lists.md) |
 | 5 | RB-016 | Five-year / paper journal UX | P0 | Backlog | M | TBD | v1 | [items/five-year-journal-ux.md](./items/five-year-journal-ux.md) |
 | 6 | RB-002 | Email integration | P0 | Backlog | M | TBD | v1 | [items/email-integration.md](./items/email-integration.md) |
@@ -33,10 +33,10 @@ Last updated: 2026-08-29
 | Status | Count |
 | --- | --- |
 | Backlog | 7 |
-| Ready | 3 |
+| Ready | 2 |
 | In Progress | 3 |
 | Blocked | 0 |
-| Done | 1 |
+| Done | 2 |
 | Won't Do | 1 |
 
 ## Intake

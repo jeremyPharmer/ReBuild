@@ -15,15 +15,11 @@ import {
   type TrailDay,
 } from "@/lib/trail";
 import {
-  HeadwindPanel,
   PatternCollapse,
-  PlaybookPanel,
   RhythmPanel,
 } from "@/components/JourneyPatterns";
 import {
   CONDITION_METRICS,
-  cravingHeadwindHours,
-  cravingPlaybook,
   filledTrendPointsInRange,
   formatTrendDate,
   lastFourWeeks,
@@ -35,7 +31,6 @@ import {
   type TrendPoint,
 } from "@/lib/trends";
 import type { RebuildState } from "@/lib/types";
-import { formatCravingOutcomes } from "@/lib/craving-interventions";
 import { MILESTONE_DEFS } from "@/lib/types";
 
 function WeatherDots({
@@ -296,33 +291,6 @@ function TrailDayCard({
                   Content note: {s.actionNote}
                 </p>
               ))}
-          </div>
-
-          <div className="trail-block">
-            <p className="tiny trail-block-label">Headwind</p>
-            {day.cravings.map((c) => {
-              const outcomes = formatCravingOutcomes(c);
-              return (
-              <div key={c.id} className="trail-craving">
-                <p className="tiny">
-                  Intensity {c.intensityBefore}
-                  {c.intensityAfter !== undefined
-                    ? ` → ${c.intensityAfter}`
-                    : ""}
-                  {outcomes
-                    ? ` · ${outcomes}`
-                    : c.intervention === "delay"
-                      ? " · waited"
-                      : ""}
-                </p>
-                {c.situation && (
-                  <PrivateReveal label="Reveal situation">
-                    <p className="trail-private-text">{c.situation}</p>
-                  </PrivateReveal>
-                )}
-              </div>
-              );
-            })}
           </div>
 
           {rewardDay && (
@@ -766,20 +734,6 @@ export default function JourneyPage() {
     state.profile?.startDate ??
     today ??
     "";
-  const playbook = useMemo(() => {
-    if (!today) return [];
-    return cravingPlaybook(state, today);
-  }, [state, today]);
-  const headwind = useMemo(() => {
-    if (!today) {
-      return {
-        total: 0,
-        byDaypart: [],
-        byWeekday: [],
-      };
-    }
-    return cravingHeadwindHours(state, today);
-  }, [state, today]);
   const rhythmWeeks = useMemo(
     () => (today ? lastFourWeeks(today) : []),
     [today],
@@ -810,12 +764,6 @@ export default function JourneyPage() {
             journeyStart={journeyStart}
           />
         )}
-        <PatternCollapse title="What worked">
-          <PlaybookPanel rows={playbook} />
-        </PatternCollapse>
-        <PatternCollapse title="Headwind hours">
-          <HeadwindPanel hours={headwind} />
-        </PatternCollapse>
         <PatternCollapse title="Provision rhythm">
           <RhythmPanel rows={rhythm} weeks={rhythmWeeks} />
         </PatternCollapse>

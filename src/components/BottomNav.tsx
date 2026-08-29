@@ -19,8 +19,7 @@ export function BottomNav() {
     path.startsWith("/forgot-password") ||
     path.startsWith("/reset-password") ||
     path.startsWith("/morning") ||
-    path.startsWith("/evening") ||
-    path.startsWith("/craving")
+    path.startsWith("/evening")
   ) {
     return null;
   }

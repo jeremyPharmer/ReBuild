@@ -28,7 +28,7 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | RB-012 | Rebrand to JeremyOS (EA + drop trail) | P0 | Ready | M | TBD |
 | 2 | RB-013 | Personal OS north star (cut bloat) | P0 | Ready | S | TBD |
-| 3 | RB-017 | Drop craving stats + Home craving CTA | P0 | Ready | XS | TBD |
+| 3 | RB-017 | Drop craving stats + Home craving CTA | P0 | Done | XS | TBD |
 | 4 | RB-014 | To-do lists (first-class) | P0 | Backlog | M | TBD |
 | 5 | RB-016 | Five-year / paper journal UX | P0 | Backlog | M | TBD |
 | 6 | RB-002 | Email integration | P0 | Backlog | M | TBD |
@@ -40,7 +40,7 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 
 1. **RB-012 — Rebrand to JeremyOS (EA + drop trail)** — naming + executive-assistant framing + retire trail metaphor (copy/IA); **Journey nav label kept**; thin chrome pass after docs; **not** a rewrite. Detail: [`items/rebrand-jeremyos.md`](./items/rebrand-jeremyos.md).
 2. **RB-013 — Personal OS north star** — enforce EA / personal-use build filter; ranking already reflects pivot. Detail: [`items/personal-os-north-star.md`](./items/personal-os-north-star.md).
-3. **RB-017 — Drop craving stats + Home craving CTA** — founder ask; thin UXUI cut; keep morning/evening mood ritual. Detail: [`items/drop-craving-stats-home-cta.md`](./items/drop-craving-stats-home-cta.md).
+3. **RB-017 — Drop craving stats + Home craving CTA** — **Done** (Home CTA + Journey craving stats / Settings interventions UI cut; mood ritual kept). Detail: [`items/drop-craving-stats-home-cta.md`](./items/drop-craving-stats-home-cta.md).
 4. **RB-014 — To-do lists** — founder loves these; first-class personal surface. Detail: [`items/todo-lists.md`](./items/todo-lists.md).
 5. **RB-016 — Five-year / paper journal UX** — same calendar day across years; headline + short summary; journal vibes (not stacked cards). Detail: [`items/five-year-journal-ux.md`](./items/five-year-journal-ux.md). Distinct from RB-010 backfill integrity.
 6. **RB-002 — Email integration** — elevated; founder likes email skills. Detail: [`items/email-integration.md`](./items/email-integration.md).

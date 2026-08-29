@@ -5,7 +5,7 @@
 | ID | RB-017 |
 | Rank | 3 |
 | Priority | P0 |
-| Status | Ready |
+| Status | Done |
 | Effort | XS |
 | Target due | TBD |
 | Milestone | v1 |
@@ -44,5 +44,6 @@ Thin UXUI cut only:
 ## Notes
 
 - Intake **2026-08-29** founder follow-up (typos interpreted): keep Journey naked/label; love daily mood/feeling start+end; drop craving stats; drop Home “I’m having a craving.”
-- Rank **3** / **P0** / **Ready** — founder asked → elevate under personal-use filter; sits right after framing (RB-012) + north star (RB-013).
+- Rank **3** / **P0** — founder asked → elevate under personal-use filter; sits right after framing (RB-012) + north star (RB-013).
 - Effort **XS** — remove CTA + craving stats surfaces only; no other recovery polish.
+- **Done 2026-08-29:** Home craving CTA removed; Journey playbook / headwind / trail craving blocks / rhythm craving contrast removed; Settings craving interventions UI removed. APIs + stored craving data kept (hide surfaces first).
