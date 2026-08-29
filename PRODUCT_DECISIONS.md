@@ -13,10 +13,10 @@ Status: **JeremyOS pivot recorded** — personal OS north star; recovery/fund re
 | **Former framing** | ReBuild — recovery app with incentives (docs/history may still say ReBuild; IDs stay `RB-*`) |
 | **North star** | Personal OS for Jeremy — things he wants and will use |
 | **Anti-goal** | Do not invent a generic product to “love daily”; do not add features for their own sake |
-| **Elevate** | Email skills, podcast integration, to-do lists, five-year journal, connections to other apps/sites Jeremy creates |
+| **Elevate** | Email/Gmail skills, podcast + regular recovery content, to-do lists, five-year journal, home cameras (Reolink), workout tracker, favorite recipes, connections to other apps/sites Jeremy creates |
 | **Recovery / fund** | Still valid as **personal tools**; secondary to personal OS in ranking — not killed without evidence |
 
-Canonical backlog: RB-012 (rebrand), RB-013 (north star), RB-014 (todos), RB-016 (five-year journal UX), RB-015 (hub); elevated RB-002 / RB-005. Journal backfill integrity remains RB-010 (distinct from RB-016 paper UI).
+Canonical backlog: RB-012 (rebrand), RB-013 (north star), RB-014 (todos), RB-016 (five-year journal UX), RB-002 (Gmail/email), RB-005 (podcast + recovery content), RB-017 (cameras), RB-018 (workout), RB-019 (recipes), RB-015 (hub). Journal backfill integrity remains RB-010 (distinct from RB-016 paper UI).
 
 ---
 
@@ -149,4 +149,6 @@ projected = alreadyReclaimed + waitingReclaim + daysToGo × historicalDailySpend
 
 ## JeremyOS ranking note (2026-08-29)
 
-Money integrity items already In Progress (e.g. end-of-day reclaim auto-credit) may finish as thin personal-tool fixes. New money-OS expansion does not outrank todos, email, podcasts, or Jeremy’s app hub. See `product/ROADMAP.md`.
+Money integrity items already In Progress (e.g. end-of-day reclaim auto-credit) may finish as thin personal-tool fixes. New money-OS expansion does not outrank todos, email/Gmail, podcasts, cameras, workout/recipes, or Jeremy’s app hub. See `product/ROADMAP.md`.
+
+**Personal tools intake (same day):** RB-017 home cameras (Reolink, ~founder priority 5), RB-018 workout tracker, RB-019 favorite recipes. Gmail folds into RB-002; regular recovery content stays on RB-005.

@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-011 |
-| Rank | 9 |
+| Rank | 12 |
 | Priority | P1 |
 | Status | In Progress |
 | Effort | S |
@@ -55,7 +55,7 @@ RB-010 must **not** be required for funds to appear. After RB-011, a backfilled 
 ## Notes
 
 - **Product decision locked 2026-08-21:** daily savings accrue at end of day regardless of evening close; close is not a reclaim gate.
-- **2026-08-29 JeremyOS:** demoted to rank **9** / **P1**. Fund honesty remains a personal-tool integrity fix (RB-013 build filter #2) — finish the thin In Progress slice; do not expand money OS. No longer highest open P0 vs rebrand / todos / journal / email.
+- **2026-08-29 JeremyOS:** demoted to rank **9** / **P1**; **2026-08-29** → rank **12** after personal-tools intake (RB-017–019). Fund honesty remains a personal-tool integrity fix (RB-013 build filter #2) — finish the thin In Progress slice; do not expand money OS. No longer highest open P0 vs rebrand / todos / journal / email.
 - Supersedes the old decision wording “Reclaim from every **closed** evening” as the *only* credit path; close remains a valid credit path, not the sole one.
 - Implementation notes for Reese: prefer ensure-on-read catch-up + keep evening ensure; tests for miss-close, close-then-end, end-then-close, multi-day catch-up.
 

@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-009 |
-| Rank | 13 |
+| Rank | 16 |
 | Priority | P2 |
 | Status | Backlog |
 | Effort | M |
@@ -57,7 +57,7 @@ Expand Journey `/journey` “Over time.” Do **not** add a nav item.
 ## Notes
 
 - Intake: **2026-08-18** from founder (Jeremy, prod user). Was rank **6** / In Progress for daily-loop payoff.
-- **2026-08-29 JeremyOS:** demoted to rank **13** / **P2** / **Backlog** / **later**. Pattern insights were aimed at making a generic recovery product worth opening daily — conflicts with “don’t polish a generic product.” Pause expansion; keep any already-shipped Journey bits. Pull forward only if Jeremy says he still wants this personal tool. Renumbered when RB-016 entered.
+- **2026-08-29 JeremyOS:** demoted to rank **13** / **P2** / **Backlog** / **later**; **2026-08-29** → rank **16** after RB-017–019. Pattern insights were aimed at making a generic recovery product worth opening daily — conflicts with “don’t polish a generic product.” Pause expansion; keep any already-shipped Journey bits. Pull forward only if Jeremy says he still wants this personal tool. Renumbered when RB-016 entered.
 - **2026-08-18:** High v1 slice was shipping to **dev** (playbook, headwind hours, 4-week provision rhythm). Do not expand scope while paused.
 - **Placement:** Insights on **Journey** if resumed. No sixth tab.
 

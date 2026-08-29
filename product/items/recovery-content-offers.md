@@ -101,5 +101,6 @@ Next week might be Recovery Elevator + *This Naked Mind* — no Rich Roll requir
 ## Notes
 
 - **2026-08-29 JeremyOS:** rank **6** / **P0** (was 5; bumped when RB-016 entered). Reframed podcast-first; demote deep catalog / weekly-2 as generic polish. Still behind rebrand, north star, todos, five-year journal, email.
+- **2026-08-29 personal tools intake:** founder still wants **some regular recovery content** — keep that need on this item (no conflicting duplicate). Podcast-first remains primary; thin articles/books OK if Jeremy uses them. Do not expand into generic catalog KPI polish (RB-013).
 - **2026-08-21 founder feedback:** recovery content repeats too often → never re-offer heard/read. Status **In Progress**; weekly 2-offer remains consider.
 - Updated 2026-08-10: expand beyond podcasts-only; weekly **two selectable** offers; books included; Rich Roll optional. Shipped thinner surface already live.
