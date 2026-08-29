@@ -14,11 +14,11 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0f1c18",
+  themeColor: "#e8eef8",
   viewportFit: "cover",
 };
 
-const themeBootScript = `(function(){try{var k=${JSON.stringify(THEME_STORAGE_KEY)};var t=localStorage.getItem(k);if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}})();`;
+const themeBootScript = `(function(){try{var k=${JSON.stringify(THEME_STORAGE_KEY)};var t=localStorage.getItem(k);document.documentElement.setAttribute("data-theme",t||"mets-classic");}catch(e){document.documentElement.setAttribute("data-theme","mets-classic");}})();`;
 
 export default function RootLayout({
   children,

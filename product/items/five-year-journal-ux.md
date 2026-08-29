@@ -3,9 +3,9 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-016 |
-| Rank | 5 |
+| Rank | 4 |
 | Priority | P0 |
-| Status | Backlog |
+| Status | In Progress |
 | Effort | M |
 | Target due | TBD |
 | Milestone | v1 |
@@ -43,6 +43,7 @@ JeremyOS Journal feels like a classic five-year diary: same calendar day, years 
 ## Notes
 
 - Intake **2026-08-29** founder (JeremyOS): wants paper five-year journal look — same day every prior year on one page; headline + short summary (~5 sentences); journal vibes; **not stacked**.
-- Rank **5** / **P0** (was 4; bumped when RB-017 entered) — founder-loved personal tool, after todos (RB-014) and framing (RB-012/013/017); ahead of email/podcast polish.
+- **2026-08-29 ship slice:** `/journal` is a five-year day page (year gutter + headline/summary, not stacked feed); evening capture labels → Headline + Short summary with soft 5-sentence hint; existing `one_line` / `journal` storage unchanged. Deployed to prod with history retained.
+- Rank **4** / **P0** — founder-loved personal tool, immediately after todos (RB-014) and framing (RB-012/013); ahead of email/podcast polish.
 - Related: [RB-010](./backfill-missed-evening-journal-close.md) (backfill integrity only); [RB-013](./personal-os-north-star.md) build filter (Jeremy said he wants it).
-- Open: hard vs soft 5-sentence limit; whether years are vertical columns, page turns, or another non-card layout; how many years in v1 (e.g. up to 5 empty slots even before history exists).
+- Open: hard vs soft 5-sentence limit (v1 = soft); year layout settled as vertical page composition (not cards); evening one-liners map to headline, standout → summary.

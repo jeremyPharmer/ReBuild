@@ -38,7 +38,7 @@ Every open backlog item is judged against: **Will Jeremy actually use this?** Fe
 
 Ship only if **at least one** is true:
 
-1. Jeremy said he wants / loves it (e.g. to-dos, email, podcasts, links to his other apps)
+1. Jeremy said he wants / loves it (e.g. to-dos, Gmail, podcasts, cameras, workout, recipes, links to his other apps)
 2. It keeps an existing personal tool honest (e.g. fund ledger accuracy) without expanding scope
 3. It is required plumbing for (1) or (2)
 
@@ -47,12 +47,13 @@ Otherwise: **Later** or **Won't Do**, with a note — do not invent justificatio
 ## Dependencies & risks
 
 - Teams may still have In Progress work on demoted items — finish thin slices already mid-flight if cheaper than aborting; do not expand
-- Partial answer (2026-08-29): Jeremy **loves** morning/evening mood & feeling; wants craving **stats** and Home craving CTA **gone** ([RB-017](./drop-craving-stats-home-cta.md), [RB-009](./recovery-patterns-insights.md) Won't Do). Fund rails (RB-001 / RB-006) still demoted pending further ask.
+- Partial answer (2026-08-29): Jeremy **loves** morning/evening mood & feeling; wants craving **stats** and Home craving CTA **gone** ([RB-020](./drop-craving-stats-home-cta.md), [RB-009](./recovery-patterns-insights.md) Won't Do). Fund rails (RB-001 / RB-006) still demoted pending further ask.
 
 ## Notes
 
 - Intake **2026-08-29** with JeremyOS rebrand. Founder: stop trying to create a generic product to love daily; don’t add features for the sake of adding them.
 - Follow-up **2026-08-29**: drop trail theming; EA framing — product recommendation is **rebrand, not start over** (see RB-012).
-- Follow-up **2026-08-29**: elevate daily mood/feeling start+end as personal EA ritual; drop craving analytics; remove Home “I’m having a craving” (RB-017). Journey label kept (RB-012).
+- Follow-up **2026-08-29**: elevate daily mood/feeling start+end as personal EA ritual; drop craving analytics; remove Home “I’m having a craving” (RB-020). Journey label kept (RB-012).
 - Effort **S** = product/docs + ranking pass (this pivot). Ongoing enforcement is process, not a megaproject.
-- Companion items: [RB-012](./rebrand-jeremyos.md), [RB-017](./drop-craving-stats-home-cta.md), [RB-014](./todo-lists.md), [RB-016](./five-year-journal-ux.md), [RB-015](./jeremy-apps-hub.md), elevated [RB-002](./email-integration.md) / [RB-005](./recovery-content-offers.md).
+- Companion items: [RB-012](./rebrand-jeremyos.md), [RB-014](./todo-lists.md), [RB-016](./five-year-journal-ux.md), [RB-015](./jeremy-apps-hub.md), elevated [RB-002](./email-integration.md) / [RB-005](./recovery-content-offers.md); personal tools [RB-017](./home-cameras-reolink.md), [RB-018](./workout-tracker.md), [RB-019](./favorite-recipes.md); craving cut [RB-020](./drop-craving-stats-home-cta.md).
+- **2026-08-29 follow-up:** cameras / workout / recipes added — still passes build filter (Jeremy asked).

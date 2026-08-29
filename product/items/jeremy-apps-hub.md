@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-015 |
-| Rank | 8 |
+| Rank | 10 |
 | Priority | P1 |
 | Status | Backlog |
 | Effort | S |
@@ -43,4 +43,4 @@ A thin **hub** in JeremyOS lists and opens Jeremy’s other apps/sites (links + 
 
 - Intake **2026-08-29** founder: wants connections to other apps or sites he creates.
 - Effort **S** for link hub v1; any real data integration = separate items per app after he picks priorities.
-- Rank **7** — after rebrand, north star, todos, five-year journal, email, and podcast elevation.
+- Rank **7** at intake; **2026-08-29** → rank **10** when RB-017/018/019 (cameras, workout, recipes) entered the personal-tools cluster ahead of hub.

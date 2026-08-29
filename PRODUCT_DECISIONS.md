@@ -1,7 +1,7 @@
 # JeremyOS — Product decisions (locked)
 
 Last updated: 2026-08-29  
-Status: **JeremyOS pivot recorded** — executive assistant / personal OS north star; trail metaphor retiring; recovery/fund remain personal tools. **2026-08-29 follow-up:** keep Journey label + morning/evening mood ritual; drop craving stats and Home craving CTA (RB-017; RB-009 Won't Do). Prior V1 behaviors (schedule, Treat/Save, fund ledger, daily/weekly loop, Fly envs) stay locked unless explicitly superseded below.
+Status: **JeremyOS pivot recorded** — executive assistant / personal OS north star; trail metaphor retiring; recovery/fund remain personal tools. **2026-08-29 follow-up:** keep Journey label + morning/evening mood ritual; drop craving stats and Home craving CTA (**RB-020**; RB-009 Won't Do). Personal tools intake: cameras / workout / recipes (RB-017–019). Prior V1 behaviors (schedule, Treat/Save, fund ledger, daily/weekly loop, Fly envs) stay locked unless explicitly superseded below.
 
 ---
 
@@ -15,14 +15,14 @@ Status: **JeremyOS pivot recorded** — executive assistant / personal OS north 
 | **North star** | EA + personal OS for Jeremy — things he wants and will use |
 | **Anti-goal** | Do not invent a generic product to “love daily”; do not add features for their own sake; do not sell trail/hiking narrative |
 | **Rebrand vs rewrite** | **Rebrand / reframe** (RB-012) — keep working tools (journal, fund honesty, auth, APIs, data); retire trail via copy + IA; no greenfield stack |
-| **Elevate** | Email skills, podcast integration, to-do lists, five-year journal, connections to other apps/sites Jeremy creates |
+| **Elevate** | Email/Gmail skills, podcast + regular recovery content, to-do lists, five-year journal, home cameras (Reolink), workout tracker, favorite recipes, connections to other apps/sites Jeremy creates |
 | **Recovery / fund** | Still valid as **personal tools** without trail language; secondary to EA / personal OS in ranking — not killed without evidence |
 | **Journey nav** | **Keep “Journey”** as nav label / surface name (locked 2026-08-29; was open on RB-012) |
 | **Daily mood / feeling** | **Keep and elevate** morning start + evening mood/stress/feelings as personal EA ritual |
 | **Craving stats** | **Drop / Won't Do** — Journey/Home craving charts, pattern panels, craving analytics (RB-009 Won't Do) |
-| **Home craving CTA** | **Removed** “I’m having a craving” from Home — **RB-017 Done** (2026-08-29) |
+| **Home craving CTA** | **Removed** “I’m having a craving” from Home — **RB-020 Done** (2026-08-29; ID remapped from branch-local RB-017) |
 
-Canonical backlog: RB-012 (rebrand + drop trail), RB-013 (north star), RB-017 (drop craving stats + Home CTA), RB-014 (todos), RB-016 (five-year journal UX), RB-015 (hub); elevated RB-002 / RB-005. Journal backfill integrity remains RB-010 (distinct from RB-016 paper UI). RB-009 craving patterns = Won't Do.
+Canonical backlog: RB-012 (rebrand + drop trail), RB-013 (north star), RB-014 (todos), RB-016 (five-year journal UX), RB-002 (Gmail/email), RB-005 (podcast + recovery content), RB-017 (cameras), RB-018 (workout), RB-019 (recipes), RB-015 (hub); **RB-020** (drop craving CTA/stats — Done). Journal backfill integrity remains RB-010 (distinct from RB-016 paper UI). RB-009 craving patterns = Won't Do.
 
 ---
 
@@ -58,13 +58,15 @@ Still available as Jeremy’s personal recovery tools under JeremyOS (executive 
 
 **Elevated (2026-08-29):** morning + evening **mood / feeling** that starts and ends the day — founder loves this; treat as personal EA ritual, not optional chrome.
 
-**Dropped (2026-08-29):** craving **stats / analytics** and Home **“I’m having a craving”** CTA — **RB-017 Done**; RB-009 Won't Do for pattern insights.
+**Dropped (2026-08-29):** craving **stats / analytics** and Home **“I’m having a craving”** CTA — **RB-020 Done**; RB-009 Won't Do for pattern insights.
 
 Interactive every day:
 
 **Morning** — Start the day (sleep, mood/state, intention) → Today’s Rebuild supports  
-**Day** — Log supports: recovery content (2/wk), meditation (5), medication (7), gym (4). **No** Home craving-timer CTA (RB-017).  
-**Evening** — Close the day: **Mood + Stress** (1–10), one-line journal, optional “anything specific stand out today?” → Move to Rebuild → Treat/Save if milestone. **Missed closes** can be backfilled from Journal (pick a day in the current run without an evening) via the same evening path (**RB-010** — journal only; funds for that day may already be in waiting reclaim via end-of-day accrual).
+**Day** — Log supports: recovery content (2/wk), meditation (5), medication (7), gym (4). **No** Home craving-timer CTA (RB-020).  
+**Evening** — Close the day: **Mood + Stress** (1–10), journal **headline** + optional **short summary** (~5 sentences soft limit; maps to stored `oneLine` / `expandedJournal`) → Move to Rebuild → Treat/Save if milestone. **Missed closes** can be backfilled from Journal (pick a day in the current run without an evening) via the same evening path (**RB-010** — journal only; funds for that day may already be in waiting reclaim via end-of-day accrual).
+
+**Journal UI (RB-016)** — Paper **five-year** layout: one calendar day (month-day) shows that day across up to five years (headline + summary). Not a stacked feed. Catch-up for missed evenings stays a thin link; integrity rules remain RB-010.
 
 Weekly supports are **targets** (not shame). Counts may go **above** the weekly goal (e.g. 5 of 2). Hitting all four unlocks **$20 treat gift** (out of pocket).  
 Content log asks: “What will you do differently because of this?”
@@ -151,14 +153,16 @@ projected = alreadyReclaimed + waitingReclaim + daysToGo × historicalDailySpend
 - Venmo API / bank verify / reconcile flow  
 - Editable segment amounts  
 - AI, travel polish, community  
-- Craving stats / pattern analytics (RB-009) — **Won't Do**; thin UI removal is RB-017  
+- Craving stats / pattern analytics (RB-009) — **Won't Do**; thin UI removal is RB-020  
 - Generic daily-loop “lovability” polish (deep content catalog as KPI) — paused under JeremyOS unless Jeremy asks  
 - SMS channel (email elevated instead)  
 - Multi-destination payment rails / segregated hold production — Later; Venmo auto-pull demoted from open P0  
 
 ## JeremyOS ranking note (2026-08-29)
 
-Money integrity items already In Progress (e.g. end-of-day reclaim auto-credit) may finish as thin personal-tool fixes. New money-OS expansion does not outrank todos, email, podcasts, or Jeremy’s app hub. See `product/ROADMAP.md`.
+Money integrity items already In Progress (e.g. end-of-day reclaim auto-credit) may finish as thin personal-tool fixes. New money-OS expansion does not outrank todos, email/Gmail, podcasts, cameras, workout/recipes, or Jeremy’s app hub. See `product/ROADMAP.md`.
+
+**Personal tools intake (same day):** RB-017 home cameras (Reolink, ~founder priority 5), RB-018 workout tracker, RB-019 favorite recipes. Gmail folds into RB-002; regular recovery content stays on RB-005.
 
 ## Trail metaphor retirement (locked 2026-08-29)
 
@@ -166,4 +170,4 @@ Founder follow-up: drop trailer/trail theming — product is an executive assist
 
 ## Journey label + craving cut (locked 2026-08-29)
 
-Founder follow-up: keep Journey (nav/surface); keep daily mood/feeling start+end; drop craving stats; drop Home “I’m having a craving.” Product: RB-012 Journey label locked; **RB-017 Done** (UI cut shipped); RB-009 craving patterns → Won't Do.
+Founder follow-up: keep Journey (nav/surface); keep daily mood/feeling start+end; drop craving stats; drop Home “I’m having a craving.” Product: RB-012 Journey label locked; **RB-020 Done** (UI cut shipped; ID remapped from branch-local RB-017 after main assigned RB-017–019); RB-009 craving patterns → Won't Do.

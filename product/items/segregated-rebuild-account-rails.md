@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-008 |
-| Rank | 14 |
+| Rank | 17 |
 | Priority | P2 |
 | Status | Backlog |
 | Effort | S |
@@ -44,7 +44,7 @@ A written feasibility decision: whether (and how) ReBuild can fund a segregated 
 
 ## Notes
 
-- Intake: 2026-08-13 from founder discovery (Jeremy). Rank **14** / **P2** as of **2026-08-29** JeremyOS pivot (was 11 / P1) — money-rail discovery stays Later; personal OS outranks. Renumbered to **14** when RB-016 entered.
+- Intake: 2026-08-13 from founder discovery (Jeremy). Rank **14** / **P2** as of **2026-08-29** JeremyOS pivot (was 11 / P1) — money-rail discovery stays Later; personal OS outranks. Renumbered to **14** when RB-016 entered; **2026-08-29** → rank **17** after RB-017–019.
 - Priority demoted: strategic but not near-term under JeremyOS. Preserve research; do not expand.
 - Effort **S** = discovery + outreach + shortlist memo only. Production segregated account = separate **XL** item if approved.
 - Related Venmo item RB-001 also demoted under JeremyOS.

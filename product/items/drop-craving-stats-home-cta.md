@@ -2,8 +2,8 @@
 
 | Field | Value |
 | --- | --- |
-| ID | RB-017 |
-| Rank | 3 |
+| ID | RB-020 |
+| Rank | 19 |
 | Priority | P0 |
 | Status | Done |
 | Effort | XS |
@@ -44,6 +44,7 @@ Thin UXUI cut only:
 ## Notes
 
 - Intake **2026-08-29** founder follow-up (typos interpreted): keep Journey naked/label; love daily mood/feeling start+end; drop craving stats; drop Home “I’m having a craving.”
-- Rank **3** / **P0** — founder asked → elevate under personal-use filter; sits right after framing (RB-012) + north star (RB-013).
+- Originally tracked as **RB-017** on the EA/trail branch; **remapped to RB-020** on merge with `main` because `main` had already assigned RB-017–019 to cameras / workout / recipes.
 - Effort **XS** — remove CTA + craving stats surfaces only; no other recovery polish.
 - **Done 2026-08-29:** Home craving CTA removed; Journey playbook / headwind / trail craving blocks / rhythm craving contrast removed; Settings craving interventions UI removed. APIs + stored craving data kept (hide surfaces first).
+- Rank **19** / **Done** — terminal after open work; cameras keep RB-017.

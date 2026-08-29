@@ -59,6 +59,6 @@ Product docs, user-facing naming, chrome, and copy consistently present **Jeremy
 
 - Intake **2026-08-29** from founder: first lean “Jeremy PS” → corrected to **JeremyOS**.
 - Follow-up **2026-08-29**: drop trailer/trail theming; product is an executive assistant — **rebrand, not start over** (interpretation: “trailer” = trail hiking metaphor unless contradicted).
-- Follow-up **2026-08-29**: founder confirmed keep **Journey** nav label; elevate morning/evening mood loop; craving stats + Home craving CTA cut via [RB-017](./drop-craving-stats-home-cta.md).
+- Follow-up **2026-08-29**: founder confirmed keep **Journey** nav label; elevate morning/evening mood loop; craving stats + Home craving CTA cut via [RB-020](./drop-craving-stats-home-cta.md).
 - Rank **1** / **P0** — naming, EA framing, and trail retirement must lead before feature work is re-sold as ReBuild/trail polish.
 - Related: [RB-013 Personal OS north star](./personal-os-north-star.md).

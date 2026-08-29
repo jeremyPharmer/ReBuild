@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-006 |
-| Rank | 12 |
+| Rank | 14 |
 | Priority | P1 |
 | Status | Backlog |
 | Effort | M |
@@ -37,4 +37,4 @@ Canonical rules: [`../FUND_MODEL.md`](../FUND_MODEL.md)
 
 - Locked 2026-08-11 at 50/50; updated same day to **Future 30% / Treat 70%** so ~$1,095 parks by Day 365 at $10/day while Treat stays the dominant short-term incentive.
 - Handed to UXUI for review on PR #3.
-- **2026-08-29 JeremyOS:** demoted to rank **11** / **P1** / milestone **v1.x**. Fund model stays **locked** as a personal incentive tool (`FUND_MODEL.md`); not killed. Secondary to personal OS (todos, five-year journal, email, podcasts, hub). Do not expand money UX for generic-product polish.
+- **2026-08-29 JeremyOS:** demoted to rank **11** / **P1** / milestone **v1.x**; **2026-08-29** → rank **14** after RB-017–019. Fund model stays **locked** as a personal incentive tool (`FUND_MODEL.md`); not killed. Secondary to personal OS (todos, five-year journal, email, podcasts, hub). Do not expand money UX for generic-product polish.
