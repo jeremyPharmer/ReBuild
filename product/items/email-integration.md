@@ -45,4 +45,4 @@ JeremyOS can send transactional and product emails to Jeremy’s authenticated a
 - Added 2026-08-10 as future backlog; renumbered when RB-005 / RB-007 shifted ranks; **2026-08-18** shifted when RB-009 inserted; **2026-08-21** rank **8** when RB-011 took rank 2.
 - Platform enabler for daily end-of-day checklist email (RB-003) and **forgot-password delivery** for RB-007.
 - **2026-08-29 JeremyOS pivot:** elevated to rank **5** / **P0** (was 4; bumped when RB-016 entered). Founder likes email skills; personal OS ships what Jeremy will use — ahead of money-rail and generic recovery polish.
-- **2026-08-29 personal tools intake:** founder “My Gmail obviously” — fold into this item (no duplicate Gmail ID). Rank stays **5**.
+- **2026-08-29 personal tools intake:** founder “My Gmail obviously” — fold into this item (no duplicate Gmail ID). Rank **5**.
