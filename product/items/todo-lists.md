@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-014 |
-| Rank | 3 |
+| Rank | 4 |
 | Priority | P0 |
 | Status | Backlog |
 | Effort | M |
@@ -41,6 +41,6 @@ JeremyOS has a simple, durable **to-do list** Jeremy will use daily: capture, ch
 
 ## Notes
 
-- Intake **2026-08-29** founder: loves to-do lists. Rank **3** / **P0** under JeremyOS — ahead of recovery-catalog polish and money-rail expansion.
+- Intake **2026-08-29** founder: loves to-do lists. Rank **4** / **P0** under JeremyOS (was 3; bumped when RB-017 entered) — ahead of recovery-catalog polish and money-rail expansion.
 - Related: [RB-003](./daily-open-checklist-email.md) becomes a consumer of this list once email exists; update RB-003 when todo model lands.
 - Open: does “to-do” replace or sit beside today’s support checklist language? Default: **beside** — supports stay recovery provisions; todos are personal wants/tasks.

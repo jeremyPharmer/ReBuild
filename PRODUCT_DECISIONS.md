@@ -1,7 +1,7 @@
 # JeremyOS — Product decisions (locked)
 
 Last updated: 2026-08-29  
-Status: **JeremyOS pivot recorded** — executive assistant / personal OS north star; trail metaphor retiring; recovery/fund remain personal tools. Prior V1 behaviors (schedule, Treat/Save, fund ledger, daily/weekly loop, Fly envs) stay locked unless explicitly superseded below.
+Status: **JeremyOS pivot recorded** — executive assistant / personal OS north star; trail metaphor retiring; recovery/fund remain personal tools. **2026-08-29 follow-up:** keep Journey label + morning/evening mood ritual; drop craving stats and Home craving CTA (RB-017; RB-009 Won't Do). Prior V1 behaviors (schedule, Treat/Save, fund ledger, daily/weekly loop, Fly envs) stay locked unless explicitly superseded below.
 
 ---
 
@@ -17,8 +17,12 @@ Status: **JeremyOS pivot recorded** — executive assistant / personal OS north 
 | **Rebrand vs rewrite** | **Rebrand / reframe** (RB-012) — keep working tools (journal, fund honesty, auth, APIs, data); retire trail via copy + IA; no greenfield stack |
 | **Elevate** | Email skills, podcast integration, to-do lists, five-year journal, connections to other apps/sites Jeremy creates |
 | **Recovery / fund** | Still valid as **personal tools** without trail language; secondary to EA / personal OS in ranking — not killed without evidence |
+| **Journey nav** | **Keep “Journey”** as nav label / surface name (locked 2026-08-29; was open on RB-012) |
+| **Daily mood / feeling** | **Keep and elevate** morning start + evening mood/stress/feelings as personal EA ritual |
+| **Craving stats** | **Drop / Won't Do** — Journey/Home craving charts, pattern panels, craving analytics (RB-009 Won't Do) |
+| **Home craving CTA** | **Remove** “I’m having a craving” (or equivalent) from Home — ship via RB-017 |
 
-Canonical backlog: RB-012 (rebrand + drop trail), RB-013 (north star), RB-014 (todos), RB-016 (five-year journal UX), RB-015 (hub); elevated RB-002 / RB-005. Journal backfill integrity remains RB-010 (distinct from RB-016 paper UI).
+Canonical backlog: RB-012 (rebrand + drop trail), RB-013 (north star), RB-017 (drop craving stats + Home CTA), RB-014 (todos), RB-016 (five-year journal UX), RB-015 (hub); elevated RB-002 / RB-005. Journal backfill integrity remains RB-010 (distinct from RB-016 paper UI). RB-009 craving patterns = Won't Do.
 
 ---
 
@@ -52,10 +56,14 @@ Venmo reconcile / link = later (UI totals first).
 
 Still available as Jeremy’s personal recovery tools under JeremyOS (executive assistant / personal OS) — not the product north star. No trail metaphor in UX copy (RB-012). Do not expand this loop for “generic daily love” (see RB-013).
 
+**Elevated (2026-08-29):** morning + evening **mood / feeling** that starts and ends the day — founder loves this; treat as personal EA ritual, not optional chrome.
+
+**Dropped (2026-08-29):** craving **stats / analytics** and Home **“I’m having a craving”** CTA — see RB-017 (ship cut) and RB-009 (Won't Do for pattern insights).
+
 Interactive every day:
 
-**Morning** — Start the day (sleep, state, intention) → Today’s Rebuild supports  
-**Day** — Log supports: recovery content (2/wk), meditation (5), medication (7), gym (4)  
+**Morning** — Start the day (sleep, mood/state, intention) → Today’s Rebuild supports  
+**Day** — Log supports: recovery content (2/wk), meditation (5), medication (7), gym (4). **No** Home craving-timer CTA (RB-017).  
 **Evening** — Close the day: **Mood + Stress** (1–10), one-line journal, optional “anything specific stand out today?” → Move to Rebuild → Treat/Save if milestone. **Missed closes** can be backfilled from Journal (pick a day in the current run without an evening) via the same evening path (**RB-010** — journal only; funds for that day may already be in waiting reclaim via end-of-day accrual).
 
 Weekly supports are **targets** (not shame). Counts may go **above** the weekly goal (e.g. 5 of 2). Hitting all four unlocks **$20 treat gift** (out of pocket).  
@@ -143,7 +151,8 @@ projected = alreadyReclaimed + waitingReclaim + daysToGo × historicalDailySpend
 - Venmo API / bank verify / reconcile flow  
 - Editable segment amounts  
 - AI, travel polish, community  
-- Generic daily-loop “lovability” polish (recovery patterns expansion, deep content catalog as KPI) — paused under JeremyOS unless Jeremy asks  
+- Craving stats / pattern analytics (RB-009) — **Won't Do**; thin UI removal is RB-017  
+- Generic daily-loop “lovability” polish (deep content catalog as KPI) — paused under JeremyOS unless Jeremy asks  
 - SMS channel (email elevated instead)  
 - Multi-destination payment rails / segregated hold production — Later; Venmo auto-pull demoted from open P0  
 
@@ -154,3 +163,7 @@ Money integrity items already In Progress (e.g. end-of-day reclaim auto-credit) 
 ## Trail metaphor retirement (locked 2026-08-29)
 
 Founder follow-up: drop trailer/trail theming — product is an executive assistant. Interpretation: **“trailer” = trail** (hiking/recovery trail copy). **RB-012** owns thin chrome/copy/IA retirement. Do not start over from a blank codebase for metaphor alone.
+
+## Journey label + craving cut (locked 2026-08-29)
+
+Founder follow-up: keep Journey (nav/surface); keep daily mood/feeling start+end; drop craving stats; drop Home “I’m having a craving.” Product: RB-012 Journey label locked; RB-017 thin UXUI cut; RB-009 craving patterns → Won't Do.

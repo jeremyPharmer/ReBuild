@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-016 |
-| Rank | 4 |
+| Rank | 5 |
 | Priority | P0 |
 | Status | Backlog |
 | Effort | M |
@@ -43,6 +43,6 @@ JeremyOS Journal feels like a classic five-year diary: same calendar day, years 
 ## Notes
 
 - Intake **2026-08-29** founder (JeremyOS): wants paper five-year journal look — same day every prior year on one page; headline + short summary (~5 sentences); journal vibes; **not stacked**.
-- Rank **4** / **P0** — founder-loved personal tool, immediately after todos (RB-014) and framing (RB-012/013); ahead of email/podcast polish.
+- Rank **5** / **P0** (was 4; bumped when RB-017 entered) — founder-loved personal tool, after todos (RB-014) and framing (RB-012/013/017); ahead of email/podcast polish.
 - Related: [RB-010](./backfill-missed-evening-journal-close.md) (backfill integrity only); [RB-013](./personal-os-north-star.md) build filter (Jeremy said he wants it).
 - Open: hard vs soft 5-sentence limit; whether years are vertical columns, page turns, or another non-card layout; how many years in v1 (e.g. up to 5 empty slots even before history exists).

@@ -17,9 +17,9 @@ Last updated: 2026-08-29
 | **Role** | **Executive assistant / personal OS for Jeremy** |
 | **Focus** | All about Jeremy and things he wants |
 | **Anti-goal** | Stop inventing a generic product “to love daily”; don’t add features for their own sake; drop trail/hiking metaphor |
-| **Elevate** | Email skills, podcast integration, **to-do lists**, **five-year journal**, links to **other apps/sites Jeremy creates** |
-| **Recovery / fund** | Keep documented as personal tools (no trail copy); ship honesty fixes if mid-flight; demote expansion vs EA / personal OS |
-| **Delivery** | Rebrand / reframing over greenfield (RB-012) |
+| **Elevate** | Email skills, podcast integration, **to-do lists**, **five-year journal**, links to **other apps/sites Jeremy creates**; **morning/evening mood & feeling** ritual |
+| **Recovery / fund** | Keep documented as personal tools (no trail language); ship honesty fixes if mid-flight; demote expansion vs EA / personal OS; **drop craving stats** + Home craving CTA ([RB-017](./items/drop-craving-stats-home-cta.md)) |
+| **Delivery** | Rebrand / reframing over greenfield (RB-012); keep **Journey** nav label |
 
 Build filter: see [RB-013](./items/personal-os-north-star.md).
 ## Current focus
@@ -28,23 +28,25 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | RB-012 | Rebrand to JeremyOS (EA + drop trail) | P0 | Ready | M | TBD |
 | 2 | RB-013 | Personal OS north star (cut bloat) | P0 | Ready | S | TBD |
-| 3 | RB-014 | To-do lists (first-class) | P0 | Backlog | M | TBD |
-| 4 | RB-016 | Five-year / paper journal UX | P0 | Backlog | M | TBD |
-| 5 | RB-002 | Email integration | P0 | Backlog | M | TBD |
-| 6 | RB-005 | Podcast-first content (shipped card) | P0 | In Progress | M | TBD |
+| 3 | RB-017 | Drop craving stats + Home craving CTA | P0 | Ready | XS | TBD |
+| 4 | RB-014 | To-do lists (first-class) | P0 | Backlog | M | TBD |
+| 5 | RB-016 | Five-year / paper journal UX | P0 | Backlog | M | TBD |
+| 6 | RB-002 | Email integration | P0 | Backlog | M | TBD |
+| 7 | RB-005 | Podcast-first content (shipped card) | P0 | In Progress | M | TBD |
 
 ## Now / Next / Later
 
 ### Now
 
-1. **RB-012 — Rebrand to JeremyOS (EA + drop trail)** — naming + executive-assistant framing + retire trail metaphor (copy/IA); thin chrome pass after docs; **not** a rewrite. Detail: [`items/rebrand-jeremyos.md`](./items/rebrand-jeremyos.md).
+1. **RB-012 — Rebrand to JeremyOS (EA + drop trail)** — naming + executive-assistant framing + retire trail metaphor (copy/IA); **Journey nav label kept**; thin chrome pass after docs; **not** a rewrite. Detail: [`items/rebrand-jeremyos.md`](./items/rebrand-jeremyos.md).
 2. **RB-013 — Personal OS north star** — enforce EA / personal-use build filter; ranking already reflects pivot. Detail: [`items/personal-os-north-star.md`](./items/personal-os-north-star.md).
-3. **RB-014 — To-do lists** — founder loves these; first-class personal surface. Detail: [`items/todo-lists.md`](./items/todo-lists.md).
-4. **RB-016 — Five-year / paper journal UX** — same calendar day across years; headline + short summary; journal vibes (not stacked cards). Detail: [`items/five-year-journal-ux.md`](./items/five-year-journal-ux.md). Distinct from RB-010 backfill integrity.
-5. **RB-002 — Email integration** — elevated; founder likes email skills. Detail: [`items/email-integration.md`](./items/email-integration.md).
-6. **RB-005 — Podcast-first** — **In Progress**; keep podcast integration useful + no-repeat; stop deep generic catalog polish. Detail: [`items/recovery-content-offers.md`](./items/recovery-content-offers.md).
+3. **RB-017 — Drop craving stats + Home craving CTA** — founder ask; thin UXUI cut; keep morning/evening mood ritual. Detail: [`items/drop-craving-stats-home-cta.md`](./items/drop-craving-stats-home-cta.md).
+4. **RB-014 — To-do lists** — founder loves these; first-class personal surface. Detail: [`items/todo-lists.md`](./items/todo-lists.md).
+5. **RB-016 — Five-year / paper journal UX** — same calendar day across years; headline + short summary; journal vibes (not stacked cards). Detail: [`items/five-year-journal-ux.md`](./items/five-year-journal-ux.md). Distinct from RB-010 backfill integrity.
+6. **RB-002 — Email integration** — elevated; founder likes email skills. Detail: [`items/email-integration.md`](./items/email-integration.md).
+7. **RB-005 — Podcast-first** — **In Progress**; keep podcast integration useful + no-repeat; stop deep generic catalog polish. Detail: [`items/recovery-content-offers.md`](./items/recovery-content-offers.md).
 
-**Mid-flight (finish thin; do not expand):** RB-011 (fund auto-credit), RB-010 (journal backfill) — personal-tool integrity, ranks 9–10.
+**Mid-flight (finish thin; do not expand):** RB-011 (fund auto-credit), RB-010 (journal backfill) — personal-tool integrity, ranks 10–11.
 
 ### Next
 
@@ -57,24 +59,26 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 
 1. **RB-006 — Fund buckets Future + Treat @ 30/70** — model still **locked** (`FUND_MODEL.md`); implementation polish secondary under JeremyOS.
 2. **RB-001 — Auto-pull funds: checking → Venmo** — demoted from P0; personal rail when Jeremy asks; API feasibility still hard.
-3. **RB-009 — Recovery patterns (Journey)** — paused (was daily-loop “lovable product”); pull forward only on ask.
-4. **RB-008 — Segregated account feasibility** — research preserved; not near-term.
-5. **RB-004 — SMS integration** — Later; email elevated, not SMS.
-6. Alternate payment destination: soccer / bank — still deferred.
-7. In-app how-to walkthrough — still deferred.
+3. **RB-008 — Segregated account feasibility** — research preserved; not near-term.
+4. **RB-004 — SMS integration** — Later; email elevated, not SMS.
+5. Alternate payment destination: soccer / bank — still deferred.
+6. In-app how-to walkthrough — still deferred.
 
+**Won't Do:** RB-009 recovery patterns / craving analytics (founder: drop craving stats; removal ship = RB-017).  
 **Done:** RB-007 accounts + trail onboarding.
 
 ## Timeline (effort view)
 
 | Focus | Planned | Notes |
 | --- | --- | --- |
-| Now (framing) | RB-012 rebrand (EA + drop trail) + RB-013 north star | Effort **M** + **S**; docs first, then chrome/copy; trail drop stays inside RB-012 **M** |
+| Now (framing) | RB-012 rebrand (EA + drop trail) + RB-013 north star | Effort **M** + **S**; docs first, then chrome/copy; Journey label locked keep |
+| Now (cut) | RB-017 drop craving stats + Home craving CTA | Effort **XS**; UXUI; keep mood loop |
 | Now (personal tools) | RB-014 todos → RB-016 five-year journal → RB-002 email → RB-005 podcast-first | Founder-loved / liked skills |
 | Next | RB-015 hub; RB-003 digest | Hub needs Jeremy’s app list |
 | Finish thin | RB-011, RB-010 | Do not expand money/daily-loop polish; journal UI redesign = RB-016 |
 | Later (personal fund) | RB-006, RB-001 | Locked model; rails demoted |
-| Later / paused | RB-009, RB-008, RB-004 | Generic polish or unrequested channels |
+| Later / paused | RB-008, RB-004 | Unrequested channels |
+| Won't Do | RB-009 | Craving pattern analytics |
 
 ## Ranking principles
 
@@ -83,7 +87,7 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 3. Ship a thin v1 over boiling the ocean
 4. Personal-tool honesty (e.g. fund ledger) can finish mid-flight without re-elevating money OS
 5. No silent reordering — document why rank changed in the item Notes
-6. Do not kill recovery/fund history without evidence — demote and note instead
+6. Do not kill recovery/fund history without evidence — demote and note instead; **exception:** founder-explicit cuts (e.g. craving stats) → Won't Do + thin removal item
 
 ## How to update
 

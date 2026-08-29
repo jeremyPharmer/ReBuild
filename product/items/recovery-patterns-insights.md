@@ -1,103 +1,63 @@
-# Recovery patterns (Journey)
+# Recovery patterns (Journey) — Won't Do (craving analytics)
 
 | Field | Value |
 | --- | --- |
 | ID | RB-009 |
-| Rank | 13 |
+| Rank | 17 |
 | Priority | P2 |
-| Status | Backlog |
+| Status | Won't Do |
 | Effort | M |
 | Target due | TBD |
 | Milestone | later |
-| Owner | Product (build later: Reese aggregations, UXUI Journey) |
+| Owner | Product (was: Reese aggregations, UXUI Journey) |
 
 ## Problem
 
-The founder (Jeremy, prod user) is already tapping a lot of daily-loop data — craving intensity before/after, situation, mitigation outcome, and how often supports/provisions actually happen (gym, meditation, etc.). Journey already stores a trail and two over-time charts, and the craving complete screen promises: “Your data will help you notice patterns later — not diagnose them.” That promise is unpaid. He wants a *meaningful* view of this data, not a dump of every field, and is unsure where it belongs and which signals matter.
+Was: unpaid promise that craving/support data would surface as Journey “Over time” patterns (playbook, headwind hours, provision rhythm). Aimed at making a generic recovery daily loop lovable.
 
-Raw craving counts (“you had 47 cravings”) can shame. Skip lists are especially easy to make punitive. Recovery integrity: show **what worked** and **when / with what**, not volume leaderboards.
+## Outcome (superseded 2026-08-29)
 
-## Outcome
+**Won't Do** under JeremyOS north star + founder ask. Craving **stats / analytics / pattern panels** are dropped — not paused for later polish. Removal of shipped craving-stats surfaces and the Home craving CTA is owned by **[RB-017](./drop-craving-stats-home-cta.md)**. Morning/evening mood & feeling stay; Journey nav label stays.
 
-Journey’s existing **Over time** panel becomes the place the daily loop pays off: a companion view of patterns (what brought intensity down, when headwinds land, whether supports keep their weekly rhythm). Empty until there is enough data. No sixth nav tab. Home stays the daily loop (optional later: one rotating sentence). Money stays on Rewards. Journal stays prose.
+## Scope (v1) — archived intent (do not build)
 
-## Scope (v1)
+~~Expand Journey `/journey` “Over time.”~~ Do **not** ship craving playbook, headwind hours, craving-points charts, or Home craving-insight whispers.
 
-Expand Journey `/journey` “Over time.” Do **not** add a nav item.
+Former v1 ideas (reference only):
 
-- **What works (playbook):** rank mitigation `outcome` chips by average intensity drop (`intensityBefore` − `intensityAfter`) and sample size. Hide until a minimum n (e.g. **3** completed events with `intensityAfter`). Example: “Walk −4.1 · n=12”, not a craving count.
-- **When (headwind hours):** time-of-day buckets and/or day-of-week from `CravingEvent.at`, honoring profile timezone. Example: “Most headwinds land 5–8pm.”
-- **Provision rhythm:** last **4 weeks** of each enabled support vs weekly target (simple bars or X/target per week). Home already shows *this week*; Journey shows *over time*. Optional: craving-points on days with vs without a chosen support, with a plain-language caveat (curiosity, not medical diagnosis).
-- **Tone:** companion, not diagnosis. Empty states until enough data. Free-text `situation` stays private on the trail (already PrivateReveal). No skip counts.
+- What works (playbook) from intensity before/after × outcome
+- When (headwind hours) from `CravingEvent.at`
+- Provision rhythm / craving-load comparisons
+- Companion tone, minimum-n gates, no skip leaderboards
 
 ## Out of scope / later
 
-- Home rotating insight card (“This week, Walk brought cravings down the most”) — one sentence only, not a dashboard
-- Sleep / stress / mood vs same-day craving load (correlation engine)
-- Morning `trigger` vs later craving that day
-- Sleep *hours* on the conditions chart (today the chart uses quality)
-- **Did it come down** chart (before vs remaining) — cut from v1 2026-08-18; playbook already shows drop
-- Situation clustering / chips harvested from repeated free-text
-- Recovery-content `actionNote` themes
-- Sunday recap email (can later feed RB-003; do not block on RB-002/003)
-- Export
-- New nav tab
-- Raw skip lists, quote IDs, reminder logs, podcast listen IDs, journal/intention as analytics, fund/reclaim (Rewards), deprecated morning/evening craving sliders
+- Any craving analytics revival requires a **new** founder ask and a new backlog item — do not reopen this file as In Progress
+- Non-craving provision-only charts: only if Jeremy explicitly asks (not implied by this Won't Do)
+- Morning/evening mood loop is **kept** (personal EA ritual) — not part of this Won't Do
 
 ## Dependencies & risks
 
-- Data already in state: `state.cravings` (`CravingEvent`), `state.supports` / day provisions, morning + evening check-ins. No new capture required for v1.
-- Aggregations: Reese on `src/lib/trends.ts` (hook already exists) + Journey UI: UXUI.
-- **Shame / diagnosis risk:** volume scores and skip counts feel punitive. Minimum-n gates and companion copy are load-bearing, not polish.
-- **Sparse `intensityAfter`:** playbook is empty until users complete the delay loop. Do not invent drop from before-only events.
-- **Small-n “gym vs rest” comparisons** can look like medical claims. Caveat copy required if included.
-- Does **not** need Venmo (RB-001) or fund buckets (RB-006). Must not jump those P0s or weekly content (RB-005).
-- Timezone: use the same day-key / profile timezone already used in trends.
+- UXUI ships cuts via RB-017; do not expand “while we’re in Journey”
+- Data may remain in store; UI must not advertise unpaid pattern promises
 
 ## Notes
 
 - Intake: **2026-08-18** from founder (Jeremy, prod user). Was rank **6** / In Progress for daily-loop payoff.
-- **2026-08-29 JeremyOS:** demoted to rank **13** / **P2** / **Backlog** / **later**. Pattern insights were aimed at making a generic recovery product worth opening daily — conflicts with “don’t polish a generic product.” Pause expansion; keep any already-shipped Journey bits. Pull forward only if Jeremy says he still wants this personal tool. Renumbered when RB-016 entered.
-- **2026-08-18:** High v1 slice was shipping to **dev** (playbook, headwind hours, 4-week provision rhythm). Do not expand scope while paused.
-- **Placement:** Insights on **Journey** if resumed. No sixth tab.
+- **2026-08-29 JeremyOS:** demoted to rank **13** / **P2** / **Backlog** / **later** (pause).
+- **2026-08-29 founder follow-up:** status → **Won't Do**; rank **17**. Explicit: drop craving stats; keep mood/feeling start+end; keep Journey label. Thin removal work = RB-017 (rank 3).
+- Historical signal inventory and creative uses below are retained for archaeology only.
 
-### Signal inventory
+### Signal inventory (archived)
 
-**High — close the unpaid promise, actionable (v1):**
+**Was High (v1) — now Won't Do:**
 
-1. **What worked** — `outcome` × (`intensityBefore` − `intensityAfter`). Rank interventions by average drop and sample size. Founder’s “reasons why cravings were mitigated.”
-2. **When** — `at` → time-of-day buckets and day-of-week (already anticipated in `trends.ts`).
-3. **Provision rhythm** — completions vs weekly target over recent weeks. Optional: craving load on days with gym vs without, with a caveat.
+1. What worked — outcome × intensity drop
+2. When — time-of-day / day-of-week
+3. Provision rhythm / optional craving load comparisons
 
-**Medium — later; needs structure or is noisy:**
+**Was Medium / Low:** correlation engines, situation NLP, skip lists, etc. — still do not build.
 
-5. Morning conditions (stress/sleep/mood) vs same-day craving load — correlation, not causation; “watch this weather.”
-6. Free-text `situation` — powerful but messy; do not NLP-cluster in v1. Later: chips from the user’s own repeated phrases.
-7. Morning `trigger` vs later craving that day.
-8. Sleep *hours* (captured; conditions chart uses quality today).
-9. Recovery-content `actionNote` themes.
+### Already captured / already shown (audit at pause)
 
-**Low / keep buried or private:**
-
-- Raw skip lists, quote IDs, reminder logs, podcast listen IDs
-- Journal / intention as “analytics”
-- Fund / reclaim (Rewards)
-- Deprecated morning/evening craving sliders
-
-### Creative uses (full picture; not all in v1)
-
-1. **Your playbook** — ranked “Walk −4.1 · n=12” (v1).
-2. **Headwind hours** — time-of-day / day-of-week (v1; `at` already captured).
-3. **One Home whisper** — a single sentence when n is enough (later). Daily loop must stay worth opening.
-4. **Rhythm vs weather** — provision calendar/heatmap next to craving-points; “gym days vs rest days” as curiosity, not a verdict (optional thin slice in v1; richer heatmap later).
-5. **Craving drop, not craving pile** — intensity remaining or average drop over time (later; cut from v1). Playbook already ranks drop.
-6. **Sunday recap** — later, can feed RB-003 daily/weekly email; don’t block on email (RB-002/003).
-7. **Situation chips** — later, harvest repeated free-text into faster logging. Out of v1.
-
-### Already captured / already shown (audit)
-
-- Cravings: `at`, `intensityBefore`, `intensityAfter`, `situation`, `intervention` (`"delay"`), `outcome` (Walk, Shower, Eat, Exercise, Leave environment, Contact someone, Journal, Breathing, Other).
-- Supports: weekly targets, completions (date, type, notes, `actionNote`, `completedAt`); one-off day provisions.
-- Morning: sleep hours + quality, mood, energy, stress, intention, optional trigger. Evening: mood, stress, one-line / standout journal.
-- Journey trail already shows per-day morning, provision chips, craving “Headwind” (before→after + outcome; situation behind PrivateReveal), evening one-line; conditions line chart; craving-points = sum of `intensityBefore`; milestone trail.
-- Home: today’s supports with week X/target, craving CTA. Journal: evening prose. Settings: support targets.
+- Cravings events, supports, morning/evening check-ins; Journey conditions + craving-points; Home craving CTA — CTA + craving stats surfaces removed under RB-017; mood loop kept.
