@@ -1,7 +1,7 @@
 # JeremyOS — Product decisions (locked)
 
 Last updated: 2026-08-29  
-Status: **JeremyOS pivot recorded** — personal OS north star; recovery/fund remain personal tools. Prior V1 behaviors (schedule, Treat/Save, fund ledger, daily/weekly loop, Fly envs) stay locked unless explicitly superseded below.
+Status: **JeremyOS pivot recorded** — executive assistant / personal OS north star; trail metaphor retiring; recovery/fund remain personal tools. Prior V1 behaviors (schedule, Treat/Save, fund ledger, daily/weekly loop, Fly envs) stay locked unless explicitly superseded below.
 
 ---
 
@@ -10,14 +10,15 @@ Status: **JeremyOS pivot recorded** — personal OS north star; recovery/fund re
 | Decision | Detail |
 | --- | --- |
 | **Name** | **JeremyOS** (founder corrected from early “Jeremy PS” lean) |
-| **Former framing** | ReBuild — recovery app with incentives (docs/history may still say ReBuild; IDs stay `RB-*`) |
-| **North star** | Personal OS for Jeremy — things he wants and will use |
-| **Anti-goal** | Do not invent a generic product to “love daily”; do not add features for their own sake |
+| **Role** | **Executive assistant / personal OS for Jeremy** — not a recovery-trail product |
+| **Former framing** | ReBuild — recovery app with incentives + hiking/trail metaphor (docs/history may still say ReBuild/trail; IDs stay `RB-*`) |
+| **North star** | EA + personal OS for Jeremy — things he wants and will use |
+| **Anti-goal** | Do not invent a generic product to “love daily”; do not add features for their own sake; do not sell trail/hiking narrative |
+| **Rebrand vs rewrite** | **Rebrand / reframe** (RB-012) — keep working tools (journal, fund honesty, auth, APIs, data); retire trail via copy + IA; no greenfield stack |
 | **Elevate** | Email skills, podcast integration, to-do lists, five-year journal, connections to other apps/sites Jeremy creates |
-| **Recovery / fund** | Still valid as **personal tools**; secondary to personal OS in ranking — not killed without evidence |
+| **Recovery / fund** | Still valid as **personal tools** without trail language; secondary to EA / personal OS in ranking — not killed without evidence |
 
-Canonical backlog: RB-012 (rebrand), RB-013 (north star), RB-014 (todos), RB-016 (five-year journal UX), RB-015 (hub); elevated RB-002 / RB-005. Journal backfill integrity remains RB-010 (distinct from RB-016 paper UI).
-
+Canonical backlog: RB-012 (rebrand + drop trail), RB-013 (north star), RB-014 (todos), RB-016 (five-year journal UX), RB-015 (hub); elevated RB-002 / RB-005. Journal backfill integrity remains RB-010 (distinct from RB-016 paper UI).
 ---
 
 ## Environments
@@ -39,7 +40,7 @@ Venmo reconcile / link = later (UI totals first).
 - Home: **ReBuilding for N days** = calendar days on the current abstinence run (**Day 1 = start date** / `currentRunStartedOn`, including the start day before any evening)
 - **Milestones unlock when that day is reached** (clean-day count ≥ milestone day), not only after evening close — Home reward card can appear on the morning of Day 3, etc.
 - **Waiting-to-reclaim accrual (locked 2026-08-21):** each completed calendar day in the current run credits **one** day’s `historicalDailySpend` into waiting reclaim when that **day ends**, whether or not the user closed the evening. Closing the evening also ensures the same credit (idempotent by date — **no double credit**). Evening close is **not** a gate for funds showing. Move to Rebuild still pulls from waiting reclaim as today. See RB-011.
-- **Reset my journey** (Settings) → run resets next calendar day; history kept; re-climb / re-achieve
+- **Reset my journey** (Settings) → run resets next calendar day; history kept; restart / re-achieve (trail “re-climb” copy retired under RB-012)
 - Return to use via evening alignment UI is **retired** (legacy `return_to_use` evenings still in history)
 - Auth (RB-007): email/password accounts required; synced optional PIN; remember-this-device; admin allowlist; honor-system reclaim remains until verification exists
 - Weekly support 100% gift: **$20** out-of-pocket; **not** in Save-delay rule
@@ -148,3 +149,7 @@ projected = alreadyReclaimed + waitingReclaim + daysToGo × historicalDailySpend
 ## JeremyOS ranking note (2026-08-29)
 
 Money integrity items already In Progress (e.g. end-of-day reclaim auto-credit) may finish as thin personal-tool fixes. New money-OS expansion does not outrank todos, email, podcasts, or Jeremy’s app hub. See `product/ROADMAP.md`.
+
+## Trail metaphor retirement (locked 2026-08-29)
+
+Founder follow-up: drop trailer/trail theming — product is an executive assistant. Interpretation: **“trailer” = trail** (hiking/recovery trail copy). **RB-012** owns thin chrome/copy/IA retirement. Do not start over from a blank codebase for metaphor alone.

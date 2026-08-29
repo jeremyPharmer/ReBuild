@@ -2,7 +2,7 @@
 
 Index of all product items. Canonical detail lives in `product/items/`.
 
-Product: **JeremyOS** (personal OS for Jeremy; formerly framed as ReBuild). Historical IDs keep `RB-*`.
+Product: **JeremyOS** (executive assistant / personal OS for Jeremy; formerly framed as ReBuild + trail). Historical IDs keep `RB-*`. **Rebrand, not rewrite** (RB-012).
 
 **Ranking rule:** lower rank number = higher priority. Rank is the source of truth.
 
@@ -10,7 +10,7 @@ Last updated: 2026-08-29
 
 | Rank | ID | Item | Priority | Status | Effort | Target due | Milestone | File |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | RB-012 | Rebrand to JeremyOS | P0 | Ready | M | TBD | v1 | [items/rebrand-jeremyos.md](./items/rebrand-jeremyos.md) |
+| 1 | RB-012 | Rebrand to JeremyOS (EA + drop trail) | P0 | Ready | M | TBD | v1 | [items/rebrand-jeremyos.md](./items/rebrand-jeremyos.md) |
 | 2 | RB-013 | Personal OS north star (cut bloat) | P0 | Ready | S | TBD | v1 | [items/personal-os-north-star.md](./items/personal-os-north-star.md) |
 | 3 | RB-014 | To-do lists (first-class) | P0 | Backlog | M | TBD | v1 | [items/todo-lists.md](./items/todo-lists.md) |
 | 4 | RB-016 | Five-year / paper journal UX | P0 | Backlog | M | TBD | v1 | [items/five-year-journal-ux.md](./items/five-year-journal-ux.md) |

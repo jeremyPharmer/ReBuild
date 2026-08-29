@@ -13,17 +13,18 @@
 
 ## Problem
 
-Roadmap energy has been spent making a **generic** recovery + incentives product “lovable for daily use” — more features, deeper catalogs, polish loops. The founder does not want that. JeremyOS should be **all about Jeremy and things he wants**, not a product we invent features into.
+Roadmap energy has been spent making a **generic** recovery + incentives product “lovable for daily use” — more features, deeper catalogs, polish loops, plus a **trail** metaphor that sells hiking/recovery narrative. The founder does not want that. JeremyOS should feel like an **executive assistant / personal OS for Jeremy** — **all about Jeremy and things he wants** — not a product we invent features (or trail themes) into.
 
 ## Outcome
 
-Every open backlog item is judged against: **Will Jeremy actually use this?** Feature-for-feature’s-sake work is cut, paused, or parked Later. Recovery/fund pieces remain only as **personal tools** he still uses — secondary to the personal-OS focus, not killed without evidence.
+Every open backlog item is judged against: **Will Jeremy actually use this?** Feature-for-feature’s-sake work is cut, paused, or parked Later. Recovery/fund pieces remain only as **personal tools** he still uses — secondary to the EA / personal-OS focus, not killed without evidence. Trail metaphor is retired via [RB-012](./rebrand-jeremyos.md) (rebrand, not rewrite).
 
 ## Scope (v1)
 
-- Document north star in `ROADMAP.md` + `PRODUCT_DECISIONS.md`
+- Document north star in `ROADMAP.md` + `PRODUCT_DECISIONS.md` as **executive assistant + personal OS for Jeremy**
 - Re-rank backlog: elevate email, podcasts, to-dos, hub to Jeremy’s other apps; demote generic daily-loop / recovery-catalog polish
 - Add a short “build filter” to ranking principles: personal use > generic product completeness
+- Align with RB-012: rebrand/reframe over greenfield; trail copy is framing debt, not a rewrite trigger
 - Leave fund model locked and documented; demote money-rail expansion unless Jeremy still needs it soon
 
 ## Out of scope / later
@@ -31,6 +32,7 @@ Every open backlog item is judged against: **Will Jeremy actually use this?** Fe
 - Deleting historical item files or rewriting past decisions
 - A full kill of recovery/fund without founder confirmation
 - Building new “delight” features that fail the personal-use filter
+- Greenfield rewrite “to match the new identity”
 
 ## Build filter (locked default)
 
@@ -50,5 +52,6 @@ Otherwise: **Later** or **Won't Do**, with a note — do not invent justificatio
 ## Notes
 
 - Intake **2026-08-29** with JeremyOS rebrand. Founder: stop trying to create a generic product to love daily; don’t add features for the sake of adding them.
+- Follow-up **2026-08-29**: drop trail theming; EA framing — product recommendation is **rebrand, not start over** (see RB-012).
 - Effort **S** = product/docs + ranking pass (this pivot). Ongoing enforcement is process, not a megaproject.
 - Companion items: [RB-012](./rebrand-jeremyos.md), [RB-014](./todo-lists.md), [RB-016](./five-year-journal-ux.md), [RB-015](./jeremy-apps-hub.md), elevated [RB-002](./email-integration.md) / [RB-005](./recovery-content-offers.md).
