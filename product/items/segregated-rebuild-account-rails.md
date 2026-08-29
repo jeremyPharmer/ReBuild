@@ -3,8 +3,8 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-008 |
-| Rank | 11 |
-| Priority | P1 |
+| Rank | 14 |
+| Priority | P2 |
 | Status | Backlog |
 | Effort | S |
 | Target due | TBD |
@@ -44,9 +44,7 @@ A written feasibility decision: whether (and how) ReBuild can fund a segregated 
 
 ## Notes
 
-- Intake: 2026-08-13 from founder discovery (Jeremy). Originally drafted as RB-007; renumbered to **RB-008** on 2026-08-13 when accounts onboarding claimed RB-007. Rank **11** as of 2026-08-21 (Later; shifted when RB-011 inserted at rank 2) — does not displace RB-001.
-- Priority **P1**: strategic money-rail discovery, but after v1 P0s and email path; before/alongside other Later channel work by rank order.
+- Intake: 2026-08-13 from founder discovery (Jeremy). Rank **14** / **P2** as of **2026-08-29** JeremyOS pivot (was 11 / P1) — money-rail discovery stays Later; personal OS outranks. Renumbered to **14** when RB-016 entered.
+- Priority demoted: strategic but not near-term under JeremyOS. Preserve research; do not expand.
 - Effort **S** = discovery + outreach + shortlist memo only. Production segregated account = separate **XL** item if approved.
-- Draft outreach: Dwolla me-to-me (primary) + Acorns (optional) — emails in research doc.
-- 2026-08-13: Founder ChatGPT share points to Dwolla me-to-me MVP (checking → user’s own HYSA); reconciled into research — prefer orchestrate A→B over BaaS for first 1-tap.
-- SoberSave is a third-party recovery app with affiliate investment links, not proof that Acorns Partner API moves money for partners.
+- Related Venmo item RB-001 also demoted under JeremyOS.

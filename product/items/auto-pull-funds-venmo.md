@@ -3,21 +3,21 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-001 |
-| Rank | 3 |
-| Priority | P0 |
+| Rank | 12 |
+| Priority | P1 |
 | Status | Backlog |
 | Effort | L |
 | Target due | TBD |
-| Milestone | v1 |
+| Milestone | later |
 | Owner | Product |
 
 ## Problem
 
-Users need funds moved automatically from a linked checking account into a destination used by ReBuild’s incentive / recovery flows. Manual transfers create friction and drop-off.
+Jeremy may still want funds moved from checking into a destination used by personal incentive / recovery tools. Manual transfers create friction. Under JeremyOS this is a **personal money rail**, not the product’s north-star feature.
 
 ## Outcome
 
-ReBuild can initiate an automatic pull from a user’s checking account and deposit into **Venmo** (v1), so incentive-related money movement is reliable without manual steps.
+JeremyOS can initiate an automatic pull from a linked checking account and deposit into **Venmo** (v1 destination still locked for this item), so incentive-related money movement is reliable without manual steps — when Jeremy still prioritizes it.
 
 ## Scope (v1)
 
@@ -42,8 +42,8 @@ ReBuild can initiate an automatic pull from a user’s checking account and depo
 
 ## Notes
 
-- Product decision (2026-08-10): **Venmo is the v1 destination.** Soccer / alternate bank account is explicitly later — do not block v1 on it.
-- Added to product backlog as highest rank (1); renumbered to rank **2** on 2026-08-13 when RB-007 (accounts + onboarding) took rank 1 — Venmo needs per-user identity; renumbered to rank **3** on 2026-08-21 when RB-011 (end-of-day reclaim auto-credit) took rank 2 for incentive integrity.
-- 2026-08-13: Acorns / segregated ReBuild hold explored as a **later alternate destination** (not replacing Venmo v1) — see [RB-008](./segregated-rebuild-account-rails.md) and research [`acorns-partner-rails-feasibility.md`](../research/acorns-partner-rails-feasibility.md).
-- **2026-08-13 feasibility (Move money → Venmo pull):** There is **no official Venmo/PayPal partner API** that lets ReBuild trigger “Add Money” from the user’s linked checking into their Venmo balance. Auto Reload / Schedule Add Money exist **only inside the Venmo app** and cannot be fired by ReBuild on Move money. Unofficial reverse‑engineered clients exist and are ToS‑risky — not an option. Official PayPal **Payouts to Venmo** sends money *from ReBuild’s business balance* → user Venmo (opposite direction; ReBuild must already hold the cash). **Practical implication for Venmo-as-hold:** user still funds Venmo themselves (manual Add Money, or Venmo’s own Auto Reload/Schedule), while ReBuild ledger stays honor-system / deep-link UX — or we use a non-Venmo rail for true push-to-pull.
-- **2026-08-13 stronger 1-tap candidate (RB-008):** **Me-to-me ACH** (Dwolla/Moov): user’s checking → user’s own free HYSA (Ally/etc). ReBuild orchestrates; does not hold funds. May supersede Venmo as the *technical* destination for auto-pull even if Venmo remains a product/UI metaphor — decide after Dwolla eligibility call.
+- Product decision (2026-08-10): **Venmo is the v1 destination** for this item. Soccer / alternate bank account is explicitly later — do not block a thin pull on it.
+- **2026-08-29 JeremyOS:** demoted to rank **12** / **P1** / **later**. Still documented; not Won't Do. Secondary to personal OS. Feasibility blockers (no official Venmo Add Money API) remain — see notes below.
+- Added as highest rank (1); renumbered over time (RB-007, RB-011). Was open P0 before personal-OS pivot.
+- 2026-08-13: Acorns / segregated hold explored as later alternate — see [RB-008](./segregated-rebuild-account-rails.md).
+- **2026-08-13 feasibility:** No official Venmo/PayPal partner API for “Add Money” from checking into Venmo balance. Practical implication: honor-system / deep-link UX or non-Venmo rail (Dwolla me-to-me) — decide when this item is pulled forward again.
