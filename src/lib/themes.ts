@@ -12,12 +12,16 @@ export type ThemeId =
   | "sunlit-grove"
   | "twilight-teal"
   | "paper-ink"
-  | "shea-night"
-  | "citi-day"
-  | "orange-crush"
-  | "lime-line"
-  | "flushing-dusk"
-  | "mets-classic";
+  | "coral-bloom"
+  | "harbor-blue"
+  | "honey-wheat"
+  | "lilac-haze"
+  | "rose-clay"
+  | "seafoam"
+  | "butter-lemon"
+  | "plum-mist"
+  | "cedar-cream"
+  | "jade-mist";
 
 export type ThemeOption = {
   id: ThemeId;
@@ -26,7 +30,81 @@ export type ThemeOption = {
   swatches: [string, string, string];
 };
 
+/** Curated light themes for the palette board. */
+export const FEATURED_THEME_IDS: ThemeId[] = [
+  "coral-bloom",
+  "harbor-blue",
+  "honey-wheat",
+  "lilac-haze",
+  "rose-clay",
+  "seafoam",
+  "butter-lemon",
+  "plum-mist",
+  "cedar-cream",
+  "jade-mist",
+];
+
 export const THEMES: ThemeOption[] = [
+  {
+    id: "coral-bloom",
+    label: "Coral Bloom",
+    description: "Warm coral on soft blush cream",
+    swatches: ["#fff5f1", "#e07a5f", "#f2a391"],
+  },
+  {
+    id: "harbor-blue",
+    label: "Harbor Blue",
+    description: "Calm denim blue on cool mist",
+    swatches: ["#f3f7fb", "#4a7ab5", "#7aa3d4"],
+  },
+  {
+    id: "honey-wheat",
+    label: "Honey Wheat",
+    description: "Golden honey on warm wheat",
+    swatches: ["#fbf6eb", "#c9922e", "#dfb45a"],
+  },
+  {
+    id: "lilac-haze",
+    label: "Lilac Haze",
+    description: "Soft lilac on pale lavender",
+    swatches: ["#f6f3fa", "#8f7bb8", "#b3a3d4"],
+  },
+  {
+    id: "rose-clay",
+    label: "Rose Clay",
+    description: "Dusty rose on powder blush",
+    swatches: ["#fbf4f6", "#c47a8a", "#d9a0ab"],
+  },
+  {
+    id: "seafoam",
+    label: "Seafoam",
+    description: "Fresh teal on mint ice",
+    swatches: ["#f1faf7", "#3d9b8f", "#6dbfb3"],
+  },
+  {
+    id: "butter-lemon",
+    label: "Butter Lemon",
+    description: "Soft lemon with warm cocoa text",
+    swatches: ["#fffbed", "#d4b43a", "#e6c96a"],
+  },
+  {
+    id: "plum-mist",
+    label: "Plum Mist",
+    description: "Muted plum on cool gray-lilac",
+    swatches: ["#f5f3f7", "#8a6b8f", "#b091b5"],
+  },
+  {
+    id: "cedar-cream",
+    label: "Cedar Cream",
+    description: "Warm cedar rust on cream",
+    swatches: ["#faf6f0", "#b86b45", "#d4926e"],
+  },
+  {
+    id: "jade-mist",
+    label: "Jade Mist",
+    description: "Soft jade on pale celadon",
+    swatches: ["#f3f8f4", "#4f9a78", "#7aba98"],
+  },
   {
     id: "forest",
     label: "Forest",
@@ -92,42 +170,6 @@ export const THEMES: ThemeOption[] = [
     label: "Paper & Ink",
     description: "Newsprint neutral with blue pop",
     swatches: ["#fafaf8", "#5b8fc7", "#2a2a28"],
-  },
-  {
-    id: "shea-night",
-    label: "Shea Night",
-    description: "Dark Mets navy + orange + lime",
-    swatches: ["#071533", "#ff5910", "#c5e063"],
-  },
-  {
-    id: "citi-day",
-    label: "Citi Day",
-    description: "Bright field blue with orange pop",
-    swatches: ["#f2f6fc", "#002d72", "#ff5910"],
-  },
-  {
-    id: "orange-crush",
-    label: "Orange Crush",
-    description: "Warm orange lead, blue + lime",
-    swatches: ["#fff7f2", "#ff5910", "#002d72"],
-  },
-  {
-    id: "lime-line",
-    label: "Lime Line",
-    description: "Fresh lime accent on cool blue",
-    swatches: ["#f5faf0", "#9bc53d", "#002d72"],
-  },
-  {
-    id: "flushing-dusk",
-    label: "Flushing Dusk",
-    description: "Soft dusk blue, orange glow, lime",
-    swatches: ["#121a2e", "#ff7a3d", "#b8d94a"],
-  },
-  {
-    id: "mets-classic",
-    label: "Mets Classic",
-    description: "True royal blue + orange + lime",
-    swatches: ["#e8eef8", "#002d72", "#ff5910"],
   },
 ];
 

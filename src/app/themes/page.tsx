@@ -1,150 +1,166 @@
 "use client";
 
 import Link from "next/link";
-import { THEMES, type ThemeId } from "@/lib/themes";
+import { FEATURED_THEME_IDS, THEMES, type ThemeId } from "@/lib/themes";
 import { useTheme } from "@/components/ThemeProvider";
 
-const METS_THEME_IDS: ThemeId[] = [
-  "shea-night",
-  "citi-day",
-  "orange-crush",
-  "lime-line",
-  "flushing-dusk",
-  "mets-classic",
-];
-
-type RoleKey = "bg" | "accent" | "accent2" | "lime" | "text";
+type RoleKey = "bg" | "accent" | "accent2" | "good" | "text";
 
 const PALETTE_ROLES: { key: RoleKey; label: string }[] = [
   { key: "bg", label: "Background" },
   { key: "accent", label: "Accent" },
   { key: "accent2", label: "Accent 2" },
-  { key: "lime", label: "Lime / Good" },
+  { key: "good", label: "Good" },
   { key: "text", label: "Text" },
 ];
 
-const ROLE_COLORS: Record<
-  ThemeId,
-  Record<RoleKey, string>
-> = {
+const ROLE_COLORS: Record<ThemeId, Record<RoleKey, string>> = {
+  "coral-bloom": {
+    bg: "#fff5f1",
+    accent: "#e07a5f",
+    accent2: "#f2a391",
+    good: "#7eb89a",
+    text: "#3d241c",
+  },
+  "harbor-blue": {
+    bg: "#f3f7fb",
+    accent: "#4a7ab5",
+    accent2: "#7aa3d4",
+    good: "#6fafa0",
+    text: "#1e334d",
+  },
+  "honey-wheat": {
+    bg: "#fbf6eb",
+    accent: "#c9922e",
+    accent2: "#dfb45a",
+    good: "#7fa86a",
+    text: "#3d3218",
+  },
+  "lilac-haze": {
+    bg: "#f6f3fa",
+    accent: "#8f7bb8",
+    accent2: "#b3a3d4",
+    good: "#8fafa0",
+    text: "#3a3250",
+  },
+  "rose-clay": {
+    bg: "#fbf4f6",
+    accent: "#c47a8a",
+    accent2: "#d9a0ab",
+    good: "#8fafa0",
+    text: "#3d2a30",
+  },
+  seafoam: {
+    bg: "#f1faf7",
+    accent: "#3d9b8f",
+    accent2: "#6dbfb3",
+    good: "#3d9b8f",
+    text: "#1e3d38",
+  },
+  "butter-lemon": {
+    bg: "#fffbed",
+    accent: "#d4b43a",
+    accent2: "#e6c96a",
+    good: "#7aa86a",
+    text: "#3a3018",
+  },
+  "plum-mist": {
+    bg: "#f5f3f7",
+    accent: "#8a6b8f",
+    accent2: "#b091b5",
+    good: "#7fa89a",
+    text: "#382e3a",
+  },
+  "cedar-cream": {
+    bg: "#faf6f0",
+    accent: "#b86b45",
+    accent2: "#d4926e",
+    good: "#7a9e7a",
+    text: "#3a281c",
+  },
+  "jade-mist": {
+    bg: "#f3f8f4",
+    accent: "#4f9a78",
+    accent2: "#7aba98",
+    good: "#4f9a78",
+    text: "#24382c",
+  },
   forest: {
     bg: "#0f1c18",
     accent: "#d4844a",
     accent2: "#e09358",
-    lime: "#7fbf9a",
+    good: "#7fbf9a",
     text: "#f3ece2",
   },
   "morning-mist": {
     bg: "#eef4f8",
     accent: "#6b9bd1",
     accent2: "#8bb4de",
-    lime: "#8bb8a8",
+    good: "#8bb8a8",
     text: "#2c3e50",
   },
   "sage-clay": {
     bg: "#f4f1ec",
     accent: "#d4956a",
     accent2: "#e0a87a",
-    lime: "#7a9e87",
+    good: "#7a9e87",
     text: "#3a3530",
   },
   "ember-glow": {
     bg: "#1a2433",
     accent: "#e8a574",
     accent2: "#efb888",
-    lime: "#7a9e9a",
+    good: "#7a9e9a",
     text: "#f5f0ea",
   },
   "ocean-glass": {
     bg: "#f0f7fa",
     accent: "#4a9bb5",
     accent2: "#6bb5cc",
-    lime: "#7ec4b8",
+    good: "#7ec4b8",
     text: "#1e3a4a",
   },
   "terracotta-dawn": {
     bg: "#fbf6f1",
     accent: "#e0986a",
     accent2: "#ecb080",
-    lime: "#a8b890",
+    good: "#a8b890",
     text: "#3d3229",
   },
   "forest-bath": {
     bg: "#f2f6f3",
     accent: "#6b9e8a",
     accent2: "#84b49e",
-    lime: "#6b9e8a",
+    good: "#6b9e8a",
     text: "#2a3d34",
   },
   "periwinkle-pause": {
     bg: "#f3f2f8",
     accent: "#8b9fd4",
     accent2: "#a4b4de",
-    lime: "#9eb8c4",
+    good: "#9eb8c4",
     text: "#3d3a50",
   },
   "sunlit-grove": {
     bg: "#f7faf5",
     accent: "#5f9e7a",
     accent2: "#78b090",
-    lime: "#5f9e7a",
+    good: "#5f9e7a",
     text: "#2d4035",
   },
   "twilight-teal": {
     bg: "#152428",
     accent: "#6bb5c4",
     accent2: "#88c8d4",
-    lime: "#7a9e9a",
+    good: "#7a9e9a",
     text: "#e8f0f2",
   },
   "paper-ink": {
     bg: "#fafaf8",
     accent: "#5b8fc7",
     accent2: "#78a4d4",
-    lime: "#6a9e7b",
+    good: "#6a9e7b",
     text: "#2a2a28",
-  },
-  "shea-night": {
-    bg: "#071533",
-    accent: "#ff5910",
-    accent2: "#ff7a3d",
-    lime: "#c5e063",
-    text: "#eef2fa",
-  },
-  "citi-day": {
-    bg: "#f2f6fc",
-    accent: "#002d72",
-    accent2: "#ff5910",
-    lime: "#9bc53d",
-    text: "#0e1f3d",
-  },
-  "orange-crush": {
-    bg: "#fff7f2",
-    accent: "#ff5910",
-    accent2: "#002d72",
-    lime: "#9bc53d",
-    text: "#2a160c",
-  },
-  "lime-line": {
-    bg: "#f5faf0",
-    accent: "#9bc53d",
-    accent2: "#002d72",
-    lime: "#b0d65a",
-    text: "#1a2a18",
-  },
-  "flushing-dusk": {
-    bg: "#121a2e",
-    accent: "#ff7a3d",
-    accent2: "#ff9566",
-    lime: "#b8d94a",
-    text: "#e8ecf4",
-  },
-  "mets-classic": {
-    bg: "#e8eef8",
-    accent: "#002d72",
-    accent2: "#ff5910",
-    lime: "#c5e063",
-    text: "#002d72",
   },
 };
 
@@ -206,17 +222,16 @@ function PaletteCard({
 
 export default function ThemesPage() {
   const { theme, setTheme } = useTheme();
-  const mets = THEMES.filter((t) => METS_THEME_IDS.includes(t.id));
-  const rest = THEMES.filter((t) => !METS_THEME_IDS.includes(t.id));
+  const featured = THEMES.filter((t) => FEATURED_THEME_IDS.includes(t.id));
 
   return (
     <main className="page themes-board">
       <header className="themes-board-header">
         <p className="eyebrow">Color board</p>
-        <h1>Themes & palettes</h1>
+        <h1>10 light themes</h1>
         <p className="muted">
-          Mets-inspired blue + orange + lime first. Tap a card to preview it
-          live across the app.
+          Distinct palettes on soft backgrounds — no black / navy dark modes.
+          Tap a card to preview it live.
         </p>
         <Link href="/settings" className="themes-board-link">
           ← Back to settings
@@ -224,29 +239,8 @@ export default function ThemesPage() {
       </header>
 
       <section className="themes-board-section">
-        <h2>Mets family</h2>
-        <p className="muted themes-board-core">
-          Core: <code>#002D72</code> blue · <code>#FF5910</code> orange ·{" "}
-          <code>#C5E063</code> / <code>#9BC53D</code> lime
-        </p>
         <div className="palette-grid">
-          {mets.map((option) => (
-            <PaletteCard
-              key={option.id}
-              id={option.id}
-              label={option.label}
-              description={option.description}
-              selected={theme === option.id}
-              onSelect={() => setTheme(option.id)}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="themes-board-section">
-        <h2>Existing themes</h2>
-        <div className="palette-grid">
-          {rest.map((option) => (
+          {featured.map((option) => (
             <PaletteCard
               key={option.id}
               id={option.id}
