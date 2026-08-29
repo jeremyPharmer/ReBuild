@@ -49,7 +49,7 @@ Venmo reconcile / link = later (UI totals first).
 
 ## Daily + weekly loop (personal recovery tools)
 
-Still available as Jeremy’s personal recovery tools under JeremyOS — not the product north star. Do not expand this loop for “generic daily love” (see RB-013).
+Still available as Jeremy’s personal recovery tools under JeremyOS (executive assistant / personal OS) — not the product north star. No trail metaphor in UX copy (RB-012). Do not expand this loop for “generic daily love” (see RB-013).
 
 Interactive every day:
 
@@ -121,7 +121,7 @@ Venmo drift / force-reconcile: later.
 - Max **2 Saves for the Future in a row**; 3rd **must Claim** (Save hidden)
 - Claim with **assigned** wishlist item → show cost, debit Treat (+ optional Future pull), optional photo
 - Claim with **nothing assigned** → “How did you treat yourself?” + optional note/photo (no fund debit)
-- Photos optional; stored on Fly volume under `.data/photos`; shown on that Journey trail day
+- Photos optional; stored on Fly volume under `.data/photos`; shown on that Journey / journal day (trail-day copy retired under RB-012)
 - Treat resets delay counter  
 - Wishlist claimable if **Treat + optional Future pull** covers cost  
 - Forced Treat: must Claim (Save hidden) 
