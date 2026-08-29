@@ -54,7 +54,9 @@ Interactive every day:
 
 **Morning** — Start the day (sleep, state, intention) → Today’s Rebuild supports  
 **Day** — Log supports: recovery content (2/wk), meditation (5), medication (7), gym (4)  
-**Evening** — Close the day: **Mood + Stress** (1–10), one-line journal, optional “anything specific stand out today?” → Move to Rebuild → Treat/Save if milestone. **Missed closes** can be backfilled from Journal (pick a day in the current run without an evening) via the same evening path (**RB-010** — journal only; funds for that day may already be in waiting reclaim via end-of-day accrual).
+**Evening** — Close the day: **Mood + Stress** (1–10), journal **headline** + optional **short summary** (~5 sentences soft limit; maps to stored `oneLine` / `expandedJournal`) → Move to Rebuild → Treat/Save if milestone. **Missed closes** can be backfilled from Journal (pick a day in the current run without an evening) via the same evening path (**RB-010** — journal only; funds for that day may already be in waiting reclaim via end-of-day accrual).
+
+**Journal UI (RB-016)** — Paper **five-year** layout: one calendar day (month-day) shows that day across up to five years (headline + summary). Not a stacked feed. Catch-up for missed evenings stays a thin link; integrity rules remain RB-010.
 
 Weekly supports are **targets** (not shame). Counts may go **above** the weekly goal (e.g. 5 of 2). Hitting all four unlocks **$20 treat gift** (out of pocket).  
 Content log asks: “What will you do differently because of this?”

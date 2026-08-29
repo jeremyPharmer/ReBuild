@@ -1103,156 +1103,231 @@ h2 {
   margin-left: 2px;
 }
 
-.journal-day-row {
-  padding-bottom: 10px;
-}
-
-.journal-tasks-head {
+/* —— Five-year paper journal (RB-016) —— */
+.fy-journal {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.journal-tasks-title {
-  margin: 4px 0 0;
-  font-size: 1.2rem;
-  font-weight: 650;
-  line-height: 1.25;
-}
-
-.journal-tasks-count {
-  flex: none;
-  min-width: 1.75rem;
-  height: 1.75rem;
-  padding: 0 8px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-variant-numeric: tabular-nums;
-  font-size: 0.85rem;
-  font-weight: 650;
-  color: var(--accent);
-}
-
-.journal-tasks-hint {
-  margin: 8px 0 0;
-  line-height: 1.4;
-}
-
-.journal-task-list {
-  list-style: none;
-  margin: 12px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 8px;
-}
-
-.journal-task-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: inherit;
-  text-decoration: none;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease;
-}
-
-.journal-task-item:hover,
-.journal-task-item:focus-visible {
-  border-color: rgba(127, 191, 154, 0.45);
-  background: rgba(127, 191, 154, 0.08);
-  outline: none;
-}
-
-.journal-task-box {
-  width: 18px;
-  height: 18px;
-  border-radius: 5px;
-  border: 1.5px solid var(--line);
-  flex: none;
-  background: transparent;
-}
-
-.journal-task-copy {
-  flex: 1;
-  min-width: 0;
-  display: grid;
-  gap: 2px;
-}
-
-.journal-task-date {
-  font-size: 1.02rem;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.journal-task-go {
-  flex: none;
-  color: var(--muted);
-  font-size: 1rem;
-}
-
-.journal-page {
-  /* Extra clearance under fixed bottom nav when the list is long */
+  flex-direction: column;
+  gap: 18px;
   padding-bottom: 8px;
 }
 
-.journal-day-toggle {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  width: 100%;
-  background: transparent;
-  border: none;
-  padding: 0;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
+.fy-journal-head {
+  text-align: center;
+  padding: 4px 0 2px;
 }
 
-.journal-day-toggle:disabled {
-  cursor: default;
-}
-
-.journal-day-toggle-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.journal-day-headline {
-  margin: 4px 0 0;
-  font-size: 1.05rem;
-  line-height: 1.35;
-}
-
-.journal-day-notes {
-  margin-top: 8px;
-  display: grid;
-  gap: 8px;
-}
-
-.journal-day-note {
+.fy-journal-mark {
   margin: 0;
-  color: var(--muted);
-  line-height: 1.45;
-  font-size: 0.92rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--accent);
 }
 
-.journal-day-note .tiny {
-  display: block;
-  margin-bottom: 2px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+.fy-journal-nav {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.fy-journal-title {
+  margin: 0;
+  font-size: clamp(2.1rem, 8vw, 2.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.fy-journal-nav-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.fy-journal-nav-btn:hover,
+.fy-journal-nav-btn:focus-visible {
+  background: var(--surface-strong);
+  border-color: var(--accent);
+  outline: none;
+}
+
+.fy-journal-nav-btn:active {
+  transform: scale(0.96);
+}
+
+.fy-journal-sub {
+  margin: 10px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.fy-page {
+  position: relative;
+  margin-top: 4px;
+  padding: 18px 16px 14px 8px;
+  border-radius: 4px 18px 18px 4px;
+  background:
+    linear-gradient(90deg, rgba(212, 132, 74, 0.06), transparent 14px),
+    var(--surface-strong);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: fy-page-in 0.38s ease both;
+}
+
+.fy-page-rule {
+  position: absolute;
+  left: 58px;
+  top: 14px;
+  bottom: 14px;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--accent) 12%,
+    color-mix(in srgb, var(--accent) 35%, var(--line)) 50%,
+    var(--accent) 88%,
+    transparent
+  );
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.fy-year {
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  gap: 14px;
+  padding: 18px 4px 20px 0;
+  border-bottom: 1px dashed color-mix(in srgb, var(--line) 80%, transparent);
+  animation: fy-year-in 0.4s ease both;
+}
+
+.fy-year:last-child {
+  border-bottom: none;
+}
+
+.fy-year.is-empty .fy-blank {
+  color: var(--muted);
+  opacity: 0.55;
+  font-style: italic;
+}
+
+.fy-year.is-today .fy-year-num {
+  color: var(--accent);
+}
+
+.fy-year-gutter {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 2px;
+}
+
+.fy-year-num {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.fy-year-body {
+  min-width: 0;
+  padding-right: 4px;
+}
+
+.fy-headline {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.22rem;
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.fy-summary {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.fy-blank {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 0.98rem;
+}
+
+.fy-write,
+.fy-catchup {
+  margin: 0;
+  text-align: center;
+}
+
+.fy-write-link,
+.fy-catchup-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.fy-write-link:hover,
+.fy-write-link:focus-visible,
+.fy-catchup-link:hover,
+.fy-catchup-link:focus-visible {
+  border-bottom-color: var(--accent);
+  outline: none;
+}
+
+.fy-catchup-link {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+@keyframes fy-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fy-year-in {
+  from {
+    opacity: 0;
+    transform: translateX(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fy-page,
+  .fy-year {
+    animation: none;
+  }
 }
 
 .trail-quote {
