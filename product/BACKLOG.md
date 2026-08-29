@@ -14,24 +14,27 @@ Last updated: 2026-08-29
 | 2 | RB-013 | Personal OS north star (cut bloat) | P0 | Ready | S | TBD | v1 | [items/personal-os-north-star.md](./items/personal-os-north-star.md) |
 | 3 | RB-014 | To-do lists (first-class) | P0 | Backlog | M | TBD | v1 | [items/todo-lists.md](./items/todo-lists.md) |
 | 4 | RB-016 | Five-year / paper journal UX | P0 | In Progress | M | TBD | v1 | [items/five-year-journal-ux.md](./items/five-year-journal-ux.md) |
-| 5 | RB-002 | Email integration | P0 | Backlog | M | TBD | v1 | [items/email-integration.md](./items/email-integration.md) |
-| 6 | RB-005 | Podcast-first content (shipped card) | P0 | In Progress | M | TBD | v1 | [items/recovery-content-offers.md](./items/recovery-content-offers.md) |
-| 7 | RB-015 | Hub: Jeremy’s other apps & sites | P1 | Backlog | S | TBD | v1.x | [items/jeremy-apps-hub.md](./items/jeremy-apps-hub.md) |
-| 8 | RB-003 | Daily email: open checklist / todos | P1 | Backlog | S | TBD | v1.x | [items/daily-open-checklist-email.md](./items/daily-open-checklist-email.md) |
-| 9 | RB-011 | Auto-credit daily savings when the day ends | P1 | In Progress | S | TBD | v1 | [items/auto-credit-daily-savings-end-of-day.md](./items/auto-credit-daily-savings-end-of-day.md) |
-| 10 | RB-010 | Backfill missed evening / journal close | P1 | In Progress | S | TBD | v1.x | [items/backfill-missed-evening-journal-close.md](./items/backfill-missed-evening-journal-close.md) |
-| 11 | RB-006 | Fund buckets: Future + Treat @ 30/70 | P1 | Backlog | M | TBD | v1.x | [items/fund-two-buckets.md](./items/fund-two-buckets.md) |
-| 12 | RB-001 | Auto-pull funds: checking → Venmo | P1 | Backlog | L | TBD | later | [items/auto-pull-funds-venmo.md](./items/auto-pull-funds-venmo.md) |
-| 13 | RB-009 | Recovery patterns (Journey) | P2 | Backlog | M | TBD | later | [items/recovery-patterns-insights.md](./items/recovery-patterns-insights.md) |
-| 14 | RB-008 | Segregated ReBuild account (feasibility) | P2 | Backlog | S | TBD | later | [items/segregated-rebuild-account-rails.md](./items/segregated-rebuild-account-rails.md) |
-| 15 | RB-004 | SMS integration | P2 | Backlog | M | TBD | later | [items/sms-integration.md](./items/sms-integration.md) |
-| 16 | RB-007 | Accounts + trail onboarding (multi-user) | P0 | Done | XL | TBD | v1 | [items/account-creation-onboarding.md](./items/account-creation-onboarding.md) |
+| 5 | RB-002 | Email integration (Gmail) | P0 | Backlog | M | TBD | v1 | [items/email-integration.md](./items/email-integration.md) |
+| 6 | RB-005 | Podcast-first + regular recovery content | P0 | In Progress | M | TBD | v1 | [items/recovery-content-offers.md](./items/recovery-content-offers.md) |
+| 7 | RB-017 | Home cameras via Reolink | P1 | Backlog | M | TBD | v1.x | [items/home-cameras-reolink.md](./items/home-cameras-reolink.md) |
+| 8 | RB-018 | Workout tracker | P1 | Backlog | M | TBD | v1.x | [items/workout-tracker.md](./items/workout-tracker.md) |
+| 9 | RB-019 | Favorite recipes section | P1 | Backlog | S | TBD | v1.x | [items/favorite-recipes.md](./items/favorite-recipes.md) |
+| 10 | RB-015 | Hub: Jeremy’s other apps & sites | P1 | Backlog | S | TBD | v1.x | [items/jeremy-apps-hub.md](./items/jeremy-apps-hub.md) |
+| 11 | RB-003 | Daily email: open checklist / todos | P1 | Backlog | S | TBD | v1.x | [items/daily-open-checklist-email.md](./items/daily-open-checklist-email.md) |
+| 12 | RB-011 | Auto-credit daily savings when the day ends | P1 | In Progress | S | TBD | v1 | [items/auto-credit-daily-savings-end-of-day.md](./items/auto-credit-daily-savings-end-of-day.md) |
+| 13 | RB-010 | Backfill missed evening / journal close | P1 | In Progress | S | TBD | v1.x | [items/backfill-missed-evening-journal-close.md](./items/backfill-missed-evening-journal-close.md) |
+| 14 | RB-006 | Fund buckets: Future + Treat @ 30/70 | P1 | Backlog | M | TBD | v1.x | [items/fund-two-buckets.md](./items/fund-two-buckets.md) |
+| 15 | RB-001 | Auto-pull funds: checking → Venmo | P1 | Backlog | L | TBD | later | [items/auto-pull-funds-venmo.md](./items/auto-pull-funds-venmo.md) |
+| 16 | RB-009 | Recovery patterns (Journey) | P2 | Backlog | M | TBD | later | [items/recovery-patterns-insights.md](./items/recovery-patterns-insights.md) |
+| 17 | RB-008 | Segregated ReBuild account (feasibility) | P2 | Backlog | S | TBD | later | [items/segregated-rebuild-account-rails.md](./items/segregated-rebuild-account-rails.md) |
+| 18 | RB-004 | SMS integration | P2 | Backlog | M | TBD | later | [items/sms-integration.md](./items/sms-integration.md) |
+| 19 | RB-007 | Accounts + trail onboarding (multi-user) | P0 | Done | XL | TBD | v1 | [items/account-creation-onboarding.md](./items/account-creation-onboarding.md) |
 
 ## Status counts
 
 | Status | Count |
 | --- | --- |
-| Backlog | 9 |
+| Backlog | 12 |
 | Ready | 2 |
 | In Progress | 4 |
 | Blocked | 0 |

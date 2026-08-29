@@ -36,7 +36,7 @@ Every open backlog item is judged against: **Will Jeremy actually use this?** Fe
 
 Ship only if **at least one** is true:
 
-1. Jeremy said he wants / loves it (e.g. to-dos, email, podcasts, links to his other apps)
+1. Jeremy said he wants / loves it (e.g. to-dos, Gmail, podcasts, cameras, workout, recipes, links to his other apps)
 2. It keeps an existing personal tool honest (e.g. fund ledger accuracy) without expanding scope
 3. It is required plumbing for (1) or (2)
 
@@ -51,4 +51,5 @@ Otherwise: **Later** or **Won't Do**, with a note — do not invent justificatio
 
 - Intake **2026-08-29** with JeremyOS rebrand. Founder: stop trying to create a generic product to love daily; don’t add features for the sake of adding them.
 - Effort **S** = product/docs + ranking pass (this pivot). Ongoing enforcement is process, not a megaproject.
-- Companion items: [RB-012](./rebrand-jeremyos.md), [RB-014](./todo-lists.md), [RB-016](./five-year-journal-ux.md), [RB-015](./jeremy-apps-hub.md), elevated [RB-002](./email-integration.md) / [RB-005](./recovery-content-offers.md).
+- Companion items: [RB-012](./rebrand-jeremyos.md), [RB-014](./todo-lists.md), [RB-016](./five-year-journal-ux.md), [RB-015](./jeremy-apps-hub.md), elevated [RB-002](./email-integration.md) / [RB-005](./recovery-content-offers.md); personal tools [RB-017](./home-cameras-reolink.md), [RB-018](./workout-tracker.md), [RB-019](./favorite-recipes.md).
+- **2026-08-29 follow-up:** cameras / workout / recipes added — still passes build filter (Jeremy asked).

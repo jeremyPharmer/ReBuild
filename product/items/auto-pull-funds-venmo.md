@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-001 |
-| Rank | 12 |
+| Rank | 15 |
 | Priority | P1 |
 | Status | Backlog |
 | Effort | L |
@@ -43,7 +43,7 @@ JeremyOS can initiate an automatic pull from a linked checking account and depos
 ## Notes
 
 - Product decision (2026-08-10): **Venmo is the v1 destination** for this item. Soccer / alternate bank account is explicitly later — do not block a thin pull on it.
-- **2026-08-29 JeremyOS:** demoted to rank **12** / **P1** / **later**. Still documented; not Won't Do. Secondary to personal OS. Feasibility blockers (no official Venmo Add Money API) remain — see notes below.
+- **2026-08-29 JeremyOS:** demoted to rank **12** / **P1** / **later**; **2026-08-29** → rank **15** after RB-017–019. Still documented; not Won't Do. Secondary to personal OS. Feasibility blockers (no official Venmo Add Money API) remain — see notes below.
 - Added as highest rank (1); renumbered over time (RB-007, RB-011). Was open P0 before personal-OS pivot.
 - 2026-08-13: Acorns / segregated hold explored as later alternate — see [RB-008](./segregated-rebuild-account-rails.md).
 - **2026-08-13 feasibility:** No official Venmo/PayPal partner API for “Add Money” from checking into Venmo balance. Practical implication: honor-system / deep-link UX or non-Venmo rail (Dwolla me-to-me) — decide when this item is pulled forward again.
