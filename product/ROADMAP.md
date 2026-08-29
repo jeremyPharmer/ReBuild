@@ -28,7 +28,7 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 | 1 | RB-012 | Rebrand to JeremyOS | P0 | Ready | M | TBD |
 | 2 | RB-013 | Personal OS north star (cut bloat) | P0 | Ready | S | TBD |
 | 3 | RB-014 | To-do lists (first-class) | P0 | Backlog | M | TBD |
-| 4 | RB-016 | Five-year / paper journal UX | P0 | Backlog | M | TBD |
+| 4 | RB-016 | Five-year / paper journal UX | P0 | In Progress | M | TBD |
 | 5 | RB-002 | Email integration | P0 | Backlog | M | TBD |
 | 6 | RB-005 | Podcast-first content (shipped card) | P0 | In Progress | M | TBD |
 

@@ -4,150 +4,133 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import {
-  formatDisplayDate,
-  missingEveningDates,
-} from "@/lib/journey";
-
-type DayRow = {
-  date: string;
-  oneLine?: string;
-  standOut?: string;
-  other: { id: string; type: string; text: string }[];
-};
-
-function formatMd(iso: string): string {
-  const [, m, d] = iso.split("-");
-  return `${m}/${d}`;
-}
-
-function JournalDayRow({ day }: { day: DayRow }) {
-  const extras = [
-    ...(day.standOut
-      ? [{ id: "standout", label: "Note", text: day.standOut }]
-      : []),
-    ...day.other.map((o) => ({
-      id: o.id,
-      label: o.type,
-      text: o.text,
-    })),
-  ];
-  const [open, setOpen] = useState(false);
-  const headline = day.oneLine?.trim() || extras[0]?.text || "—";
-
-  return (
-    <div className="support-row journal-day-row">
-      <button
-        type="button"
-        className="journal-day-toggle"
-        aria-expanded={extras.length > 0 ? open : undefined}
-        onClick={() => extras.length > 0 && setOpen((v) => !v)}
-        disabled={extras.length === 0}
-      >
-        <div className="journal-day-toggle-main">
-          <p className="tiny">{formatMd(day.date)}</p>
-          <p className="journal-day-headline">{headline}</p>
-        </div>
-        {extras.length > 0 && (
-          <span className={open ? "caret open" : "caret"} aria-hidden>
-            ▾
-          </span>
-        )}
-      </button>
-      {open && extras.length > 0 && (
-        <div className="journal-day-notes fade-in">
-          {extras.map((e) => (
-            <p key={e.id} className="journal-day-note">
-              <span className="tiny">{e.label}</span>
-              {e.text}
-            </p>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+  bundleJournalsByDate,
+  fiveYearSlots,
+  formatMonthDayLong,
+  monthDayKey,
+  shiftMonthDay,
+  type DayKey,
+} from "@/lib/journal";
+import { missingEveningDates } from "@/lib/journey";
 
 export default function JournalPage() {
   const { state, today } = useApp();
+  const anchorYear = today ? Number(today.slice(0, 4)) : new Date().getFullYear();
+  const [dayKey, setDayKey] = useState<DayKey | null>(null);
 
-  const days = useMemo(() => {
-    const byDate = new Map<string, DayRow>();
-    for (const j of state.journals) {
-      const row = byDate.get(j.date) ?? {
-        date: j.date,
-        other: [],
-      };
-      if (j.type === "one_line") {
-        row.oneLine = j.text;
-      } else if (j.type === "journal") {
-        row.standOut = j.text;
-      } else {
-        row.other.push({ id: j.id, type: j.type, text: j.text });
-      }
-      byDate.set(j.date, row);
-    }
-    return [...byDate.values()].sort((a, b) => b.date.localeCompare(a.date));
-  }, [state.journals]);
+  const activeDay: DayKey =
+    dayKey ?? (today ? monthDayKey(today) : "01-01");
 
-  /** Past days only — today is still open for Close the day, not a “missed” task. */
+  const byDate = useMemo(
+    () => bundleJournalsByDate(state.journals),
+    [state.journals],
+  );
+
+  const slots = useMemo(
+    () => fiveYearSlots(activeDay, byDate, anchorYear, 5),
+    [activeDay, byDate, anchorYear],
+  );
+
+  const filledCount = slots.filter((s) => s.headline || s.summary).length;
+
   const missed = useMemo(() => {
     if (!today) return [];
     return missingEveningDates(state, today).filter((d) => d < today);
   }, [state, today]);
 
+  const todaySlot = today ? slots.find((s) => s.date === today) : undefined;
+  const canWriteToday =
+    Boolean(today) &&
+    monthDayKey(today!) === activeDay &&
+    !state.evenings.some((e) => e.date === today);
+
+  function go(delta: number) {
+    setDayKey(shiftMonthDay(activeDay, delta, anchorYear));
+  }
+
   return (
-    <main className="stack fade-in journal-page">
-      <header>
-        <p className="eyebrow">Remember</p>
-        <h1>Journal</h1>
-        <p className="muted">One line a day · building toward 365 Lines</p>
+    <main className="fy-journal fade-in">
+      <header className="fy-journal-head">
+        <p className="fy-journal-mark">Five years</p>
+        <div className="fy-journal-nav">
+          <button
+            type="button"
+            className="fy-journal-nav-btn"
+            onClick={() => go(-1)}
+            aria-label="Previous day"
+          >
+            ‹
+          </button>
+          <h1 className="fy-journal-title">{formatMonthDayLong(activeDay)}</h1>
+          <button
+            type="button"
+            className="fy-journal-nav-btn"
+            onClick={() => go(1)}
+            aria-label="Next day"
+          >
+            ›
+          </button>
+        </div>
+        <p className="fy-journal-sub muted">
+          Same day, every year — headline and a short note.
+          {filledCount > 0 ? ` · ${filledCount} written` : ""}
+        </p>
       </header>
 
-      {missed.length > 0 && (
-        <section className="panel journal-tasks">
-          <div className="journal-tasks-head">
-            <div>
-              <p className="eyebrow">To do</p>
-              <h2 className="journal-tasks-title">Missed journal entries</h2>
-            </div>
-            <span className="journal-tasks-count">{missed.length}</span>
-          </div>
-          <p className="tiny journal-tasks-hint">
-            Open days still waiting for a line — tap to catch up.
-          </p>
-          <ul className="journal-task-list">
-            {missed.map((d) => (
-              <li key={d}>
-                <Link
-                  href={`/evening?date=${d}`}
-                  className="journal-task-item"
-                >
-                  <span className="journal-task-box" aria-hidden />
-                  <span className="journal-task-copy">
-                    <span className="journal-task-date">
-                      {formatDisplayDate(d)}
-                    </span>
-                    <span className="tiny">Write your line</span>
-                  </span>
-                  <span className="journal-task-go" aria-hidden>
-                    →
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+      <article className="fy-page" key={activeDay}>
+        <div className="fy-page-rule" aria-hidden />
+        {slots.map((slot, i) => {
+          const empty = !slot.headline && !slot.summary;
+          const isToday = today === slot.date;
+          return (
+            <section
+              key={slot.year}
+              className={`fy-year${empty ? " is-empty" : ""}${isToday ? " is-today" : ""}`}
+              style={{ animationDelay: `${i * 45}ms` }}
+            >
+              <div className="fy-year-gutter">
+                <span className="fy-year-num">{slot.year}</span>
+              </div>
+              <div className="fy-year-body">
+                {empty ? (
+                  <p className="fy-blank">
+                    {isToday && canWriteToday
+                      ? "Waiting for today’s page…"
+                      : "—"}
+                  </p>
+                ) : (
+                  <>
+                    {slot.headline && (
+                      <h2 className="fy-headline">{slot.headline}</h2>
+                    )}
+                    {slot.summary && (
+                      <p className="fy-summary">{slot.summary}</p>
+                    )}
+                  </>
+                )}
+              </div>
+            </section>
+          );
+        })}
+      </article>
+
+      {canWriteToday && todaySlot && (
+        <p className="fy-write">
+          <Link href="/evening" className="fy-write-link">
+            Write today’s headline →
+          </Link>
+        </p>
       )}
 
-      <section className="panel">
-        <p className="eyebrow">365 lines</p>
-        {days.length === 0 && (
-          <p className="muted">Close a day to add your first line.</p>
-        )}
-        {days.map((d) => (
-          <JournalDayRow key={d.date} day={d} />
-        ))}
-      </section>
+      {missed.length > 0 && (
+        <p className="fy-catchup muted">
+          <Link href={`/evening?date=${missed[0]}`} className="fy-catchup-link">
+            {missed.length === 1
+              ? "One day still open to catch up →"
+              : `${missed.length} days still open to catch up →`}
+          </Link>
+        </p>
+      )}
     </main>
   );
 }
