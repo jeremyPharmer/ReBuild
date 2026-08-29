@@ -11,7 +11,13 @@ export type ThemeId =
   | "periwinkle-pause"
   | "sunlit-grove"
   | "twilight-teal"
-  | "paper-ink";
+  | "paper-ink"
+  | "shea-night"
+  | "citi-day"
+  | "orange-crush"
+  | "lime-line"
+  | "flushing-dusk"
+  | "mets-classic";
 
 export type ThemeOption = {
   id: ThemeId;
@@ -86,6 +92,42 @@ export const THEMES: ThemeOption[] = [
     label: "Paper & Ink",
     description: "Newsprint neutral with blue pop",
     swatches: ["#fafaf8", "#5b8fc7", "#2a2a28"],
+  },
+  {
+    id: "shea-night",
+    label: "Shea Night",
+    description: "Dark Mets navy + orange + lime",
+    swatches: ["#071533", "#ff5910", "#c5e063"],
+  },
+  {
+    id: "citi-day",
+    label: "Citi Day",
+    description: "Bright field blue with orange pop",
+    swatches: ["#f2f6fc", "#002d72", "#ff5910"],
+  },
+  {
+    id: "orange-crush",
+    label: "Orange Crush",
+    description: "Warm orange lead, blue + lime",
+    swatches: ["#fff7f2", "#ff5910", "#002d72"],
+  },
+  {
+    id: "lime-line",
+    label: "Lime Line",
+    description: "Fresh lime accent on cool blue",
+    swatches: ["#f5faf0", "#9bc53d", "#002d72"],
+  },
+  {
+    id: "flushing-dusk",
+    label: "Flushing Dusk",
+    description: "Soft dusk blue, orange glow, lime",
+    swatches: ["#121a2e", "#ff7a3d", "#b8d94a"],
+  },
+  {
+    id: "mets-classic",
+    label: "Mets Classic",
+    description: "True royal blue + orange + lime",
+    swatches: ["#e8eef8", "#002d72", "#ff5910"],
   },
 ];
 
