@@ -15,6 +15,13 @@ const PALETTE_ROLES: { key: RoleKey; label: string }[] = [
 ];
 
 const ROLE_COLORS: Record<ThemeId, Record<RoleKey, string>> = {
+  "zion-peak": {
+    bg: "#f7f9fc",
+    accent: "#f0c43a",
+    accent2: "#f5d266",
+    good: "#5a9e8a",
+    text: "#1a2744",
+  },
   "coral-bloom": {
     bg: "#fff5f1",
     accent: "#e07a5f",
@@ -228,10 +235,10 @@ export default function ThemesPage() {
     <main className="page themes-board">
       <header className="themes-board-header">
         <p className="eyebrow">Color board</p>
-        <h1>10 light themes</h1>
+        <h1>Themes & palettes</h1>
         <p className="muted">
-          Distinct palettes on soft backgrounds — no black / navy dark modes.
-          Tap a card to preview it live.
+          Soft light backgrounds. Tap a card to preview it live — Zion Peak
+          leads with navy lettering + sunny yellow.
         </p>
         <Link href="/settings" className="themes-board-link">
           ← Back to settings

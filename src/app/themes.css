@@ -1029,3 +1029,53 @@
   --panel-shadow: 0 8px 24px rgba(36, 56, 44, 0.07);
   --panel-blur: 6px;
 }
+
+/* Zion hat: white + yellow brim, navy lettering, sunset stripes */
+[data-theme="zion-peak"] {
+  --bg0: #f7f9fc;
+  --bg1: #ffffff;
+  --bg2: #e8eef4;
+  --bg-end: #dde6f0;
+  --surface: rgba(255, 255, 255, 0.88);
+  --surface-strong: rgba(255, 255, 255, 0.98);
+  --line: rgba(107, 143, 168, 0.2);
+  --text: #1a2744;
+  --muted: #6b8fa8;
+  --accent: #f0c43a;
+  --accent-2: #f5d266;
+  --accent-soft: rgba(240, 196, 58, 0.18);
+  --good: #5a9e8a;
+  --warn: #f07a2e;
+  --danger: #e23b2e;
+  --shadow: 0 10px 28px rgba(26, 39, 68, 0.08);
+  --radius: 20px;
+  --font-display: "DM Serif Display", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --page-bg:
+    radial-gradient(920px 540px at 6% -5%, rgba(240, 196, 58, 0.18), transparent 52%),
+    radial-gradient(720px 460px at 100% 0%, rgba(126, 184, 212, 0.14), transparent 48%),
+    linear-gradient(165deg, var(--bg0), var(--bg1) 48%, var(--bg-end) 100%);
+  --nav-bg: rgba(255, 255, 255, 0.94);
+  --btn-primary-from: #f5d266;
+  --btn-primary-to: var(--accent);
+  --btn-primary-text: #1a2744;
+  --btn-primary-shadow: 0 8px 22px rgba(240, 196, 58, 0.32);
+  --good-soft: rgba(90, 158, 138, 0.14);
+  --good-border: rgba(90, 158, 138, 0.42);
+  --good-check-text: #ffffff;
+  --good-strike: rgba(70, 130, 110, 0.72);
+  --dismiss-border: rgba(240, 122, 46, 0.4);
+  --dismiss-bg: rgba(240, 122, 46, 0.08);
+  --dismiss-strike: rgba(240, 122, 46, 0.72);
+  --progress-track: rgba(26, 39, 68, 0.08);
+  --progress-from: #f07a2e;
+  --chip-good-bg: rgba(90, 158, 138, 0.14);
+  --chip-warn-bg: rgba(240, 122, 46, 0.12);
+  --accent-glow: rgba(240, 196, 58, 0.24);
+  --map-bg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(232, 238, 244, 0.82)),
+    radial-gradient(circle at 26% 16%, rgba(240, 196, 58, 0.22), transparent 40%),
+    linear-gradient(160deg, #e4ecf4, #d4e0ec 55%, #c4d4e4);
+  --panel-shadow: 0 8px 24px rgba(26, 39, 68, 0.07);
+  --panel-blur: 6px;
+}

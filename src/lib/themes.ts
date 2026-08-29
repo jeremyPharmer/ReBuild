@@ -21,7 +21,8 @@ export type ThemeId =
   | "butter-lemon"
   | "plum-mist"
   | "cedar-cream"
-  | "jade-mist";
+  | "jade-mist"
+  | "zion-peak";
 
 export type ThemeOption = {
   id: ThemeId;
@@ -32,6 +33,7 @@ export type ThemeOption = {
 
 /** Curated light themes for the palette board. */
 export const FEATURED_THEME_IDS: ThemeId[] = [
+  "zion-peak",
   "coral-bloom",
   "harbor-blue",
   "honey-wheat",
@@ -45,6 +47,12 @@ export const FEATURED_THEME_IDS: ThemeId[] = [
 ];
 
 export const THEMES: ThemeOption[] = [
+  {
+    id: "zion-peak",
+    label: "Zion Peak",
+    description: "White + sunny yellow, navy lettering",
+    swatches: ["#f7f9fc", "#f0c43a", "#1a2744"],
+  },
   {
     id: "coral-bloom",
     label: "Coral Bloom",
