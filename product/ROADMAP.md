@@ -64,15 +64,15 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 5. Alternate payment destination: soccer / bank — still deferred.
 6. In-app how-to walkthrough — still deferred.
 
-**Won't Do:** RB-009 recovery patterns / craving analytics (founder: drop craving stats; removal ship = RB-017).  
-**Done:** RB-007 accounts + trail onboarding.
+**Won't Do:** RB-009 recovery patterns / craving analytics (founder: drop craving stats).  
+**Done:** RB-007 accounts + onboarding; **RB-017** drop craving stats + Home craving CTA.
 
 ## Timeline (effort view)
 
 | Focus | Planned | Notes |
 | --- | --- | --- |
 | Now (framing) | RB-012 rebrand (EA + drop trail) + RB-013 north star | Effort **M** + **S**; docs first, then chrome/copy; Journey label locked keep |
-| Now (cut) | RB-017 drop craving stats + Home craving CTA | Effort **XS**; UXUI; keep mood loop |
+| Now (cut) | RB-017 drop craving stats + Home craving CTA | **Done** — surfaces removed; mood loop kept |
 | Now (personal tools) | RB-014 todos → RB-016 five-year journal → RB-002 email → RB-005 podcast-first | Founder-loved / liked skills |
 | Next | RB-015 hub; RB-003 digest | Hub needs Jeremy’s app list |
 | Finish thin | RB-011, RB-010 | Do not expand money/daily-loop polish; journal UI redesign = RB-016 |
