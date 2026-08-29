@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
+import { ThemePicker } from "@/components/ThemePicker";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
 import { SUPPORT_LABEL_MAX } from "@/lib/auth-constants";
 import {
@@ -234,6 +235,8 @@ export default function SettingsPage() {
           . Spend and supports — edit anytime.
         </p>
       </header>
+
+      <ThemePicker />
 
       <section className="panel">
         <p className="eyebrow">Account</p>
