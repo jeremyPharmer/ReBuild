@@ -9,6 +9,10 @@ import {
   isValidEveningDate,
   missingEveningDates,
 } from "@/lib/journey";
+import {
+  SUMMARY_SENTENCE_SOFT_LIMIT,
+  countSentences,
+} from "@/lib/journal";
 
 function EveningPageInner() {
   const { post, state, today, refresh } = useApp();
@@ -42,6 +46,10 @@ function EveningPageInner() {
   const [result, setResult] = useState(false);
   const [error, setError] = useState("");
 
+  const summarySentences = countSentences(standOut);
+  const summaryOver =
+    standOut.trim().length > 0 &&
+    summarySentences > SUMMARY_SENTENCE_SOFT_LIMIT;
   useEffect(() => {
     if (!closeDate || !missing.includes(closeDate)) {
       setCloseDate(preferredDate);
@@ -114,14 +122,22 @@ function EveningPageInner() {
           <p className="muted">Backfilled {formatDisplayDate(effectiveDate)}</p>
         )}
         <div className="panel">
+          <p className="tiny" style={{ margin: "0 0 6px" }}>
+            Headline
+          </p>
           <p style={{ margin: 0, fontSize: "1.15rem" }}>&ldquo;{oneLine}&rdquo;</p>
+          {standOut.trim() && (
+            <p className="muted" style={{ margin: "10px 0 0", lineHeight: 1.45 }}>
+              {standOut.trim()}
+            </p>
+          )}
         </div>
 
-        <PrimaryButton onClick={() => router.push("/")}>Home</PrimaryButton>
+        <PrimaryButton onClick={() => router.push("/journal")}>
+          Open journal
+        </PrimaryButton>
 
-        <SecondaryButton onClick={() => router.push("/journal")}>
-          Journal
-        </SecondaryButton>
+        <SecondaryButton onClick={() => router.push("/")}>Home</SecondaryButton>
       </main>
     );
   }
@@ -146,8 +162,8 @@ function EveningPageInner() {
       <h1>{isBackfill ? "Add a missed close" : "Close the day"}</h1>
       {isBackfill && (
         <p className="muted">
-          Closing {formatDisplayDate(effectiveDate)} — same mood, stress, and
-          one line as tonight.
+          Closing {formatDisplayDate(effectiveDate)} — same mood, stress,
+          headline, and summary as tonight.
         </p>
       )}
 
@@ -177,36 +193,44 @@ function EveningPageInner() {
       </section>
 
       <section className="panel">
-        <p className="eyebrow">One line</p>
+        <p className="eyebrow">Journal page</p>
         <label className="field">
-          <span className="field-label">
-            What do you want to remember about{" "}
-            {isBackfill ? formatDisplayDate(effectiveDate) : "today"}?
-          </span>
+          <span className="field-label">Headline</span>
           <input
             type="text"
             value={oneLine}
             onChange={(e) => setOneLine(e.target.value)}
-            placeholder="One sentence is enough"
+            placeholder="One line for this day"
+            maxLength={120}
           />
         </label>
-      </section>
-
-      <section className="panel">
-        <label className="field">
+        <label className="field" style={{ marginTop: 12 }}>
           <span className="field-label">
-            Anything specific stand out{" "}
-            {isBackfill ? "that day" : "today"}?
+            Short summary
+            <span className="tiny" style={{ marginLeft: 8, fontWeight: 400 }}>
+              ~{SUMMARY_SENTENCE_SOFT_LIMIT} sentences
+            </span>
           </span>
           <textarea
-            rows={2}
+            rows={4}
             value={standOut}
             onChange={(e) => setStandOut(e.target.value)}
-            placeholder="Optional — a little more context"
+            placeholder="A few sentences — what you want to remember"
           />
+          {standOut.trim() && (
+            <span
+              className="tiny"
+              style={{
+                marginTop: 6,
+                color: summaryOver ? "var(--warn)" : undefined,
+              }}
+            >
+              {summarySentences} / {SUMMARY_SENTENCE_SOFT_LIMIT} sentences
+              {summaryOver ? " — trim a little if you can" : ""}
+            </span>
+          )}
         </label>
       </section>
-
       {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
       <PrimaryButton
         onClick={submit}
