@@ -13,10 +13,10 @@ Status: **JeremyOS pivot recorded** — personal OS north star; recovery/fund re
 | **Former framing** | ReBuild — recovery app with incentives (docs/history may still say ReBuild; IDs stay `RB-*`) |
 | **North star** | Personal OS for Jeremy — things he wants and will use |
 | **Anti-goal** | Do not invent a generic product to “love daily”; do not add features for their own sake |
-| **Elevate** | Email skills, podcast integration, to-do lists, connections to other apps/sites Jeremy creates |
+| **Elevate** | Email skills, podcast integration, to-do lists, five-year journal, connections to other apps/sites Jeremy creates |
 | **Recovery / fund** | Still valid as **personal tools**; secondary to personal OS in ranking — not killed without evidence |
 
-Canonical backlog: RB-012 (rebrand), RB-013 (north star), RB-014 (todos), RB-015 (hub); elevated RB-002 / RB-005.
+Canonical backlog: RB-012 (rebrand), RB-013 (north star), RB-014 (todos), RB-016 (five-year journal UX), RB-015 (hub); elevated RB-002 / RB-005. Journal backfill integrity remains RB-010 (distinct from RB-016 paper UI).
 
 ---
 

@@ -51,4 +51,4 @@ Otherwise: **Later** or **Won't Do**, with a note — do not invent justificatio
 
 - Intake **2026-08-29** with JeremyOS rebrand. Founder: stop trying to create a generic product to love daily; don’t add features for the sake of adding them.
 - Effort **S** = product/docs + ranking pass (this pivot). Ongoing enforcement is process, not a megaproject.
-- Companion items: [RB-012](./rebrand-jeremyos.md), [RB-014](./todo-lists.md), [RB-015](./jeremy-apps-hub.md), elevated [RB-002](./email-integration.md) / [RB-005](./recovery-content-offers.md).
+- Companion items: [RB-012](./rebrand-jeremyos.md), [RB-014](./todo-lists.md), [RB-016](./five-year-journal-ux.md), [RB-015](./jeremy-apps-hub.md), elevated [RB-002](./email-integration.md) / [RB-005](./recovery-content-offers.md).

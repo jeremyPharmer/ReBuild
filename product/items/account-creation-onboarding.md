@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-007 |
-| Rank | 15 |
+| Rank | 16 |
 | Priority | P0 |
 | Status | Done |
 | Effort | XL |
@@ -79,7 +79,7 @@ Progress UI consistent with trail / journey language. Suggested steps:
 ## Notes
 
 - Intake dialog 2026-08-13 (cloud agent / Head of Product). Shipped **Done**. Historical platform prerequisite for multi-user; founder allowlist remains.
-- **2026-08-29 JeremyOS:** product north star shifts to personal OS for Jeremy — accounts remain useful plumbing; do not expand multi-user SaaS features for their own sake (RB-013). Rank **15** (Done; after open items).
+- **2026-08-29 JeremyOS:** product north star shifts to personal OS for Jeremy — accounts remain useful plumbing; do not expand multi-user SaaS features for their own sake (RB-013). Rank **16** (Done; after open items).
 - Canned support inspiration (examples, not final copy): walk, gym, meditate, recovery content, meetings, medication — plus custom.
 - Admin confirm 2026-08-13: allowlist = founder email only for now (`jeremyrschrader@gmail.com`).
 - Money stays as today: daily spend drives reclaim; Future/Treat split defaults 30/70 per `FUND_MODEL.md`.

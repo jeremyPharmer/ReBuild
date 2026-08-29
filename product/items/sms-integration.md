@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-004 |
-| Rank | 14 |
+| Rank | 15 |
 | Priority | P2 |
 | Status | Backlog |
 | Effort | M |
@@ -41,5 +41,5 @@ The product can send SMS to a verified phone number for high-signal notification
 ## Notes
 
 - Added 2026-08-10 as future backlog.
-- **2026-08-29 JeremyOS:** rank **14**. SMS stays Later — founder elevated **email**, not SMS. Do not build for generic-product completeness (RB-013).
+- **2026-08-29 JeremyOS:** rank **15**. SMS stays Later — founder elevated **email**, not SMS. Do not build for generic-product completeness (RB-013).
 - Independent of Venmo (RB-001); only pull forward if Jeremy asks for SMS specifically.
