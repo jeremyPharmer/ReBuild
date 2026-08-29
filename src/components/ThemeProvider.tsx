@@ -29,7 +29,7 @@ function applyTheme(id: ThemeId) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeId>("forest");
+  const [theme, setThemeState] = useState<ThemeId>("mets-classic");
 
   useEffect(() => {
     try {
@@ -37,10 +37,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       if (stored && isThemeId(stored)) {
         applyTheme(stored);
         setThemeState(stored);
+        return;
       }
     } catch {
       /* ignore */
     }
+    applyTheme("mets-classic");
   }, []);
 
   const setTheme = useCallback((id: ThemeId) => {

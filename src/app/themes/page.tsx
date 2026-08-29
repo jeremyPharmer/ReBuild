@@ -15,6 +15,13 @@ const PALETTE_ROLES: { key: RoleKey; label: string }[] = [
 ];
 
 const ROLE_COLORS: Record<ThemeId, Record<RoleKey, string>> = {
+  "mets-classic": {
+    bg: "#e8eef8",
+    accent: "#002d72",
+    accent2: "#ff5910",
+    good: "#c5e063",
+    text: "#002d72",
+  },
   "zion-peak": {
     bg: "#f7f9fc",
     accent: "#f0c43a",
@@ -237,8 +244,8 @@ export default function ThemesPage() {
         <p className="eyebrow">Color board</p>
         <h1>Themes & palettes</h1>
         <p className="muted">
-          Soft light backgrounds. Tap a card to preview it live — Zion Peak
-          leads with navy lettering + sunny yellow.
+          Mets Classic is the default — royal blue lettering with orange + lime.
+          Tap any card to preview.
         </p>
         <Link href="/settings" className="themes-board-link">
           ← Back to settings

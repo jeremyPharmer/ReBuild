@@ -22,7 +22,8 @@ export type ThemeId =
   | "plum-mist"
   | "cedar-cream"
   | "jade-mist"
-  | "zion-peak";
+  | "zion-peak"
+  | "mets-classic";
 
 export type ThemeOption = {
   id: ThemeId;
@@ -31,8 +32,9 @@ export type ThemeOption = {
   swatches: [string, string, string];
 };
 
-/** Curated light themes for the palette board. */
+/** Curated themes for the palette board. */
 export const FEATURED_THEME_IDS: ThemeId[] = [
+  "mets-classic",
   "zion-peak",
   "coral-bloom",
   "harbor-blue",
@@ -47,6 +49,12 @@ export const FEATURED_THEME_IDS: ThemeId[] = [
 ];
 
 export const THEMES: ThemeOption[] = [
+  {
+    id: "mets-classic",
+    label: "Mets Classic",
+    description: "Royal blue + orange + lime",
+    swatches: ["#e8eef8", "#002d72", "#ff5910"],
+  },
   {
     id: "zion-peak",
     label: "Zion Peak",
@@ -186,5 +194,5 @@ export function isThemeId(value: string): value is ThemeId {
 }
 
 export function themeMetaColor(id: ThemeId): string {
-  return THEMES.find((t) => t.id === id)?.swatches[0] ?? "#0f1c18";
+  return THEMES.find((t) => t.id === id)?.swatches[0] ?? "#e8eef8";
 }
