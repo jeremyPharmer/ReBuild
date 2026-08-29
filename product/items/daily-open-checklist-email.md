@@ -3,17 +3,17 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-003 |
-| Rank | 9 |
+| Rank | 7 |
 | Priority | P1 |
 | Status | Backlog |
 | Effort | S |
 | Target due | TBD |
-| Milestone | later |
+| Milestone | v1.x |
 | Owner | Product |
 
 ## Problem
 
-At the end of the day, open checklist items (daily journal / day tasks) are easy to forget. Users need a simple nudge of what’s still open without changing how they close the day in-app.
+At the end of the day, open checklist / to-do items are easy to forget. Jeremy wants email skills and loves to-dos — a simple nudge of what’s still open fits JeremyOS without changing how he closes the day in-app.
 
 ## Outcome
 
@@ -41,6 +41,6 @@ After the day is closed (or at a configured end-of-day moment), the user receive
 ## Notes
 
 - Added 2026-08-10. Product call: keep close-the-day exactly as designed; this is an additive notification of leftover open items.
-- Related surface: daily journal / checklist leftovers.
-- Rank **9** after Venmo, recovery content, fund buckets, recovery patterns (RB-009), backfill evening close (RB-010), RB-011, and email integration (RB-002). Renumbered 2026-08-21 when RB-011 inserted at rank 2.
-- RB-009 Sunday recap is a later consumer of this channel — do not block recovery patterns v1 on email.
+- **2026-08-29 JeremyOS:** rank **7**. Ties elevated email (RB-002) + to-dos (RB-014). Prefer RB-014 list model as source of “open items” when that ships; until then, existing checklist leftovers OK.
+- Related surface: daily journal / checklist leftovers + RB-014 todos.
+- RB-009 Sunday recap is a later consumer of this channel — do not block recovery patterns (now demoted) on email.
