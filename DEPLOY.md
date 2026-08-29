@@ -27,6 +27,57 @@ fly deploy -c fly.dev.toml -a rebuild-dev
 fly deploy -c fly.prod.toml -a rebuild-prod
 ```
 
+GitHub Actions: **Actions → Deploy → Run workflow** (`both` / `dev` / `prod`).
+Requires repo secret `FLY_API_TOKEN` (same value as Cursor secret below).
+
+## Cloud agent / CI auth (`FLY_API_TOKEN`)
+
+Cloud agents and the Deploy workflow need a Fly API token in the environment as
+**`FLY_API_TOKEN`**. Interactive `fly auth login` does not work in this VM.
+
+### Diagnose
+
+In the agent shell:
+
+```bash
+# Name is registered but value missing → secret empty or needs agent restart
+echo "names=$CLOUD_AGENT_INJECTED_SECRET_NAMES"
+[ -n "${FLY_API_TOKEN:-}" ] && echo "FLY_API_TOKEN ok" || echo "FLY_API_TOKEN MISSING"
+```
+
+If the name appears in `CLOUD_AGENT_INJECTED_SECRET_NAMES` but `FLY_API_TOKEN`
+is unset, the Cursor secret exists **without a usable value** (or the agent
+started before the value was saved). Fix below, then **start a new Cloud Agent**.
+
+### Mint a token (on your laptop, once)
+
+```bash
+fly auth login
+# Org token can deploy both rebuild-dev and rebuild-prod:
+fly tokens create org -o personal -n "cursor-rebuild-deploy" -x 2160h
+# (use your real org slug from `fly orgs list` if not "personal")
+```
+
+Copy the printed token (starts with `FlyV1` / `fo1_…`). Do **not** commit it.
+
+### Install the token where agents can use it
+
+1. **Cursor Cloud Secrets** (required for this agent):
+   [cursor.com/dashboard/cloud-agents](https://cursor.com/dashboard/cloud-agents)
+   → Secrets → add / update **`FLY_API_TOKEN`** = the token value → save.
+2. **GitHub Actions** (optional, for Actions → Deploy):
+   Repo → Settings → Secrets and variables → Actions →
+   **`FLY_API_TOKEN`** = same value.
+3. **Restart**: start a **new** Cloud Agent after saving. Existing VMs do not
+   pick up secret value changes mid-run.
+
+Then the agent can run:
+
+```bash
+fly deploy -c fly.dev.toml -a rebuild-dev
+fly deploy -c fly.prod.toml -a rebuild-prod
+```
+
 ## One-time setup (already done)
 
 ```bash
