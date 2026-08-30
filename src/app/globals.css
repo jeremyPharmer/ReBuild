@@ -129,8 +129,47 @@ h2 {
 
 .home-card-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+.home-card-entertainment {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 380px) {
+  .home-card-entertainment,
+  .home-card-gym {
+    grid-column: span 1;
+  }
+}
+
+.entertainment-toggle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+.entertainment-toggle-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.entertainment-toggle h2 {
+  font-size: 1.05rem;
+  margin: 2px 0 0;
+}
+
+.entertainment-body {
+  margin-top: 4px;
 }
 
 .home-card {

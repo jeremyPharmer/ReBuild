@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { HomeDateHeader } from "@/components/HomeDateHeader";
-import { TodaysContentCard } from "@/components/TodaysContentCard";
+import { TodaysEntertainmentCard } from "@/components/TodaysEntertainmentCard";
 import { GymTrackingCard } from "@/components/GymTrackingCard";
 import { TodaySegmentsPanel } from "@/components/TodaySegmentsPanel";
 import { WeekPlanPanel } from "@/components/WeekPlanPanel";
@@ -26,7 +26,7 @@ export default function HomePage() {
       <HomeDateHeader date={today} />
 
       <div className="home-card-grid">
-        <TodaysContentCard />
+        <TodaysEntertainmentCard />
         <GymTrackingCard />
       </div>
 
