@@ -66,11 +66,23 @@ export default function WorkoutsPage() {
                   </span>
                   <strong>{w.label}</strong>
                   <p className="tiny muted">
+                    {w.quality != null ? `Q${w.quality}` : ""}
+                    {w.quality != null &&
+                    (w.distanceMiles != null || w.durationMin != null || w.notes)
+                      ? " · "
+                      : ""}
                     {w.distanceMiles != null
-                      ? `${formatMiles(w.distanceMiles)} mi · `
+                      ? `${formatMiles(w.distanceMiles)} mi`
+                      : ""}
+                    {w.distanceMiles != null && w.durationMin != null
+                      ? " · "
                       : ""}
                     {w.durationMin != null ? `${w.durationMin} min` : ""}
-                    {w.notes ? ` · ${w.notes}` : ""}
+                    {(w.distanceMiles != null || w.durationMin != null) &&
+                    w.notes
+                      ? " · "
+                      : ""}
+                    {w.notes ? w.notes : ""}
                   </p>
                 </div>
                 <button

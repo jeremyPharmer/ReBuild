@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildMonthGrid,
   monthWorkoutSummary,
+  normalizeQuality,
   normalizeWorkout,
   summarizeDay,
   weekRunMiles,
@@ -111,7 +112,7 @@ describe("weekRunMiles", () => {
 });
 
 describe("weekWorkoutSummary", () => {
-  it("counts sessions by type", () => {
+  it("counts sessions by type and sums quality points", () => {
     const summary = weekWorkoutSummary(
       [
         {
@@ -121,6 +122,7 @@ describe("weekWorkoutSummary", () => {
           label: "Run",
           distanceMiles: 3,
           durationMin: 30,
+          quality: 4,
           createdAt: "",
         },
         {
@@ -129,6 +131,7 @@ describe("weekWorkoutSummary", () => {
           type: "hiit",
           label: "HIIT",
           durationMin: 20,
+          quality: 5,
           createdAt: "",
         },
       ],
@@ -138,6 +141,7 @@ describe("weekWorkoutSummary", () => {
     expect(summary.counts.hiit).toBe(1);
     expect(summary.runMiles).toBe(3);
     expect(summary.totalMinutes).toBe(50);
+    expect(summary.qualityPoints).toBe(9);
   });
 });
 
@@ -150,6 +154,7 @@ describe("monthWorkoutSummary", () => {
           date: "2026-08-01",
           type: "stretch",
           label: "Yoga",
+          quality: 3,
           createdAt: "",
         },
         {
@@ -157,6 +162,7 @@ describe("monthWorkoutSummary", () => {
           date: "2026-07-31",
           type: "stretch",
           label: "Yoga",
+          quality: 5,
           createdAt: "",
         },
       ],
@@ -164,5 +170,15 @@ describe("monthWorkoutSummary", () => {
       8,
     );
     expect(summary.counts.stretch).toBe(1);
+    expect(summary.qualityPoints).toBe(3);
+  });
+});
+
+describe("normalizeQuality", () => {
+  it("clamps to 1–5", () => {
+    expect(normalizeQuality(3)).toBe(3);
+    expect(normalizeQuality(0)).toBeUndefined();
+    expect(normalizeQuality(6)).toBeUndefined();
+    expect(normalizeQuality("4")).toBe(4);
   });
 });

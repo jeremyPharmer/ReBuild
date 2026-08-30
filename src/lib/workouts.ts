@@ -23,9 +23,20 @@ export const WORKOUT_PRESETS: Record<WorkoutType, string[]> = {
 
 export const WORKOUT_CUSTOM = "__custom__";
 
+export const WORKOUT_QUALITY_MAX = 5;
+
 const WORKOUT_TYPE_SET = new Set<WorkoutType>(
   WORKOUT_TYPES.map((t) => t.id),
 );
+
+/** Clamp quality to 1–5; missing/invalid → undefined */
+export function normalizeQuality(raw: unknown): number | undefined {
+  const n = typeof raw === "number" ? raw : Number(raw);
+  if (!Number.isFinite(n)) return undefined;
+  const rounded = Math.round(n);
+  if (rounded < 1 || rounded > WORKOUT_QUALITY_MAX) return undefined;
+  return rounded;
+}
 
 export function workoutTypeLabel(type: WorkoutType | undefined): string {
   return WORKOUT_TYPES.find((t) => t.id === type)?.label ?? "Workout";
@@ -53,7 +64,8 @@ function resolveWorkoutType(raw: {
 /** Legacy rows without type default to lift; lift+weights → lift */
 export function normalizeWorkout(raw: WorkoutLog): WorkoutLog {
   const type = resolveWorkoutType(raw);
-  return { ...raw, type };
+  const quality = normalizeQuality(raw.quality);
+  return { ...raw, type, quality };
 }
 
 export function normalizeWorkoutPr(raw: WorkoutPr): WorkoutPr {
@@ -96,6 +108,16 @@ export function minutesForDates(
   return normalizeWorkouts(workouts)
     .filter((w) => dates.has(w.date))
     .reduce((sum, w) => sum + (w.durationMin ?? 0), 0);
+}
+
+/** Quality points: each session contributes its 1–5 quality score */
+export function qualityPointsForDates(
+  workouts: WorkoutLog[] | undefined,
+  dates: Set<string>,
+): number {
+  return normalizeWorkouts(workouts)
+    .filter((w) => dates.has(w.date))
+    .reduce((sum, w) => sum + (w.quality ?? 0), 0);
 }
 
 export function recentWorkouts(
@@ -183,6 +205,7 @@ export type PeriodWorkoutSummary = {
   counts: Record<WorkoutType, number>;
   runMiles: number;
   totalMinutes: number;
+  qualityPoints: number;
 };
 
 export function weekWorkoutSummary(
@@ -195,6 +218,7 @@ export function weekWorkoutSummary(
     counts: countsForDates(workouts, dates),
     runMiles: weekRunMiles(workouts, anchorDate),
     totalMinutes: minutesForDates(workouts, dates),
+    qualityPoints: qualityPointsForDates(workouts, dates),
   };
 }
 
@@ -213,6 +237,7 @@ export function monthWorkoutSummary(
     counts: countsForDates(workouts, dates),
     runMiles: monthRunMiles(workouts, year, month),
     totalMinutes: minutesForDates(workouts, dates),
+    qualityPoints: qualityPointsForDates(workouts, dates),
   };
 }
 

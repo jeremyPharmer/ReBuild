@@ -63,6 +63,8 @@ export type WorkoutLog = {
   /** @deprecated use `type` */
   liftType?: LiftType;
   label: string;
+  /** Session quality 1–5; counts as weekly points */
+  quality?: number;
   durationMin?: number;
   /** Run distance in miles — MapMyRun sync later */
   distanceMiles?: number;

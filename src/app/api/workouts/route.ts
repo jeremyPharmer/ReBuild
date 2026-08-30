@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { todayInTz, newId } from "@/lib/journey";
-import { normalizeWorkout, normalizeWorkoutPr } from "@/lib/workouts";
+import {
+  normalizeQuality,
+  normalizeWorkout,
+  normalizeWorkoutPr,
+} from "@/lib/workouts";
 import { updateState } from "@/lib/store";
 import type { WorkoutLog, WorkoutPr, WorkoutType } from "@/lib/types";
 
@@ -77,8 +81,14 @@ export async function POST(req: Request) {
       const date = String(body.date ?? todayInTz(prev.profile.timezone));
       const type = parseWorkoutType(body);
       const label = String(body.label ?? "").trim();
+      const quality = normalizeQuality(body.quality);
       if (!label) {
         const err = new Error("Workout label required");
+        (err as Error & { status: number }).status = 400;
+        throw err;
+      }
+      if (quality == null) {
+        const err = new Error("Quality rating 1–5 required");
         (err as Error & { status: number }).status = 400;
         throw err;
       }
@@ -88,6 +98,7 @@ export async function POST(req: Request) {
         date,
         type,
         label,
+        quality,
         durationMin:
           body.durationMin != null ? Number(body.durationMin) : undefined,
         distanceMiles:

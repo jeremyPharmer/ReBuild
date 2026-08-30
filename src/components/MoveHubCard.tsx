@@ -7,8 +7,7 @@ import { WorkoutCalendar } from "@/components/workouts/WorkoutCalendar";
 import {
   formatMiles,
   monthKey,
-  parseMonthKey,
-  weekRunMiles,
+  weekWorkoutSummary,
 } from "@/lib/workouts";
 import { parseDate } from "@/lib/journey";
 
@@ -19,7 +18,7 @@ export function MoveHubCard() {
     return monthKey(d.getFullYear(), d.getMonth() + 1);
   }, [today]);
   const [month, setMonth] = useState(initialMonth);
-  const weekMiles = weekRunMiles(state.workouts, today);
+  const week = weekWorkoutSummary(state.workouts, today);
 
   return (
     <section className="home-card home-card-move">
@@ -27,7 +26,8 @@ export function MoveHubCard() {
         <p className="home-card-kicker">Move</p>
         <h2>Workouts</h2>
         <p className="tiny home-card-sub">
-          {formatMiles(weekMiles)} mi running this week
+          {week.qualityPoints} pt this week
+          {week.runMiles > 0 ? ` · ${formatMiles(week.runMiles)} mi` : ""}
         </p>
       </div>
 
