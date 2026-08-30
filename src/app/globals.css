@@ -128,7 +128,7 @@ h2 {
 .home-top-banner {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .home-greeting {
@@ -272,7 +272,7 @@ h2 {
 }
 
 .home-date-header {
-  padding: 4px 0 8px;
+  padding: 0 0 4px;
 }
 
 .home-date-header h1 {
