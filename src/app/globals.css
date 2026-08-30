@@ -462,7 +462,7 @@ h2 {
 }
 
 .segment-panel {
-  background: rgba(15, 28, 24, 0.28);
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 12px;
