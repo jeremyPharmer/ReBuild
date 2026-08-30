@@ -10,7 +10,7 @@ import type {
   RebuildState,
   Reward,
 } from "./types";
-import { normalizeWorkout } from "./workouts";
+import { normalizeWorkout, normalizeWorkoutPrs } from "./workouts";
 
 export function emptyFund(): FundLedger {
   return { future: 0, treat: 0 };
@@ -42,7 +42,7 @@ export function normalizeState(state: RebuildState): RebuildState {
     dayProvisions: state.dayProvisions ?? [],
     quoteLog: state.quoteLog ?? [],
     workouts: (state.workouts ?? []).map(normalizeWorkout),
-    workoutPrs: state.workoutPrs ?? [],
+    workoutPrs: normalizeWorkoutPrs(state.workoutPrs),
   };
 }
 

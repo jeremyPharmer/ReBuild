@@ -8,6 +8,7 @@ import {
   summarizeDay,
   workoutsByDate,
   normalizeWorkouts,
+  WORKOUT_TYPES,
 } from "@/lib/workouts";
 import type { WorkoutLog } from "@/lib/types";
 
@@ -92,8 +93,9 @@ export function WorkoutCalendar({
             >
               <span className="workout-cal-daynum">{dayNum}</span>
               <span className="workout-cal-markers" aria-hidden>
-                {summary.hasRun && <span className="workout-marker run" />}
-                {summary.hasLift && <span className="workout-marker lift" />}
+                {summary.types.map((t) => (
+                  <span key={t} className={`workout-marker ${t}`} />
+                ))}
               </span>
             </button>
           );
@@ -101,12 +103,11 @@ export function WorkoutCalendar({
       </div>
 
       <div className="workout-cal-legend">
-        <span>
-          <span className="workout-marker run" /> Run
-        </span>
-        <span>
-          <span className="workout-marker lift" /> Lift
-        </span>
+        {WORKOUT_TYPES.map((t) => (
+          <span key={t.id}>
+            <span className={`workout-marker ${t.id}`} /> {t.label}
+          </span>
+        ))}
       </div>
     </div>
   );

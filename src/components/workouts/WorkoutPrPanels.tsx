@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import type { LiftType, WorkoutCategory, WorkoutPr } from "@/lib/types";
-import { LIFT_TYPES, liftTypeLabel, prsForCategory } from "@/lib/workouts";
+import type { WorkoutPr, WorkoutType } from "@/lib/types";
+import { prsForType, WORKOUT_TYPES } from "@/lib/workouts";
 
 function PrRow({
   pr,
@@ -18,7 +18,6 @@ function PrRow({
         <strong>{pr.name}</strong>
         <p className="tiny muted">
           {pr.value} {pr.unit} · {pr.date.slice(5).replace("-", "/")}
-          {pr.liftType ? ` · ${liftTypeLabel(pr.liftType)}` : ""}
         </p>
       </div>
       <button
@@ -32,19 +31,13 @@ function PrRow({
   );
 }
 
-function PrAddForm({
-  category,
-  liftType,
-  date,
-}: {
-  category: WorkoutCategory;
-  liftType?: LiftType;
-  date: string;
-}) {
+function PrAddForm({ type, date }: { type: WorkoutType; date: string }) {
   const { post } = useApp();
   const [name, setName] = useState("");
   const [value, setValue] = useState("");
-  const [unit, setUnit] = useState(category === "run" ? "min" : "lb");
+  const [unit, setUnit] = useState(
+    type === "run" ? "min" : type === "lift" ? "lb" : "min",
+  );
   const [busy, setBusy] = useState(false);
 
   async function submit(e: React.FormEvent) {
@@ -54,8 +47,7 @@ function PrAddForm({
     try {
       await post("/api/workouts", {
         action: "set_pr",
-        category,
-        liftType,
+        type,
         name: name.trim(),
         value: Number(value),
         unit,
@@ -107,43 +99,31 @@ export function WorkoutPrPanels({ date }: { date: string }) {
     await post("/api/workouts", { action: "delete_pr", id });
   }
 
-  const runPrs = prsForCategory(prs, "run");
-
   return (
     <div className="workout-pr-stack">
-      <section className="panel workout-pr-panel run-panel">
-        <p className="eyebrow">Run PRs</p>
-        <p className="tiny muted">Times, distances, weekly mileage bests</p>
-        {runPrs.map((pr) => (
-          <PrRow key={pr.id} pr={pr} onDelete={deletePr} />
-        ))}
-        {runPrs.length === 0 && (
-          <p className="tiny muted">No run PRs yet.</p>
-        )}
-        <PrAddForm category="run" date={date} />
-        <p className="tiny muted workout-mapmyrun-note">
-          MapMyRun sync coming later — log miles here for now.
-        </p>
-      </section>
-
-      <section className="panel workout-pr-panel lift-panel">
-        <p className="eyebrow">Lift PRs</p>
-        {LIFT_TYPES.map((t) => {
-          const typePrs = prsForCategory(prs, "lift", t.id);
-          return (
-            <div key={t.id} className="workout-pr-lift-group">
-              <h3>{t.label}</h3>
-              {typePrs.map((pr) => (
-                <PrRow key={pr.id} pr={pr} onDelete={deletePr} />
-              ))}
-              {typePrs.length === 0 && (
-                <p className="tiny muted">No {t.label} PRs yet.</p>
-              )}
-              <PrAddForm category="lift" liftType={t.id} date={date} />
-            </div>
-          );
-        })}
-      </section>
+      {WORKOUT_TYPES.map((t) => {
+        const typePrs = prsForType(prs, t.id);
+        return (
+          <section
+            key={t.id}
+            className={`panel workout-pr-panel ${t.id}-panel`}
+          >
+            <p className="eyebrow">{t.label} PRs</p>
+            {typePrs.map((pr) => (
+              <PrRow key={pr.id} pr={pr} onDelete={deletePr} />
+            ))}
+            {typePrs.length === 0 && (
+              <p className="tiny muted">No {t.label} PRs yet.</p>
+            )}
+            <PrAddForm type={t.id} date={date} />
+            {t.id === "run" && (
+              <p className="tiny muted workout-mapmyrun-note">
+                MapMyRun sync coming later — log miles here for now.
+              </p>
+            )}
+          </section>
+        );
+      })}
     </div>
   );
 }

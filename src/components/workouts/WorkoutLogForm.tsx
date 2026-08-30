@@ -2,8 +2,15 @@
 
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import type { LiftType, WorkoutCategory } from "@/lib/types";
-import { LIFT_TYPES } from "@/lib/workouts";
+import type { WorkoutType } from "@/lib/types";
+import { gymSupportForType, WORKOUT_TYPES } from "@/lib/workouts";
+
+const PLACEHOLDERS: Record<WorkoutType, string> = {
+  run: "Easy 5K, long run…",
+  hiit: "Tabata, circuits…",
+  lift: "Leg day, upper body…",
+  stretch: "Yoga, mobility…",
+};
 
 export function WorkoutLogForm({
   date,
@@ -13,8 +20,7 @@ export function WorkoutLogForm({
   onLogged?: () => void;
 }) {
   const { post } = useApp();
-  const [category, setCategory] = useState<WorkoutCategory>("run");
-  const [liftType, setLiftType] = useState<LiftType>("weights");
+  const [type, setType] = useState<WorkoutType>("run");
   const [label, setLabel] = useState("");
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
@@ -32,11 +38,9 @@ export function WorkoutLogForm({
       await post("/api/workouts", {
         action: "log",
         date,
-        category,
-        liftType: category === "lift" ? liftType : undefined,
+        type,
         label: trimmed,
-        distanceMiles:
-          category === "run" && distance ? Number(distance) : undefined,
+        distanceMiles: type === "run" && distance ? Number(distance) : undefined,
         durationMin: duration ? Number(duration) : undefined,
         notes: notes.trim() || undefined,
       });
@@ -45,7 +49,7 @@ export function WorkoutLogForm({
       setDuration("");
       setNotes("");
       onLogged?.();
-      if (category === "lift") {
+      if (gymSupportForType(type)) {
         await post("/api/support", {
           date,
           supportType: "gym",
@@ -66,50 +70,29 @@ export function WorkoutLogForm({
         {date}
       </p>
 
-      <div className="workout-category-toggle">
-        <button
-          type="button"
-          className={`workout-cat-btn run${category === "run" ? " active" : ""}`}
-          onClick={() => setCategory("run")}
-        >
-          Run
-        </button>
-        <button
-          type="button"
-          className={`workout-cat-btn lift${category === "lift" ? " active" : ""}`}
-          onClick={() => setCategory("lift")}
-        >
-          Lift
-        </button>
+      <div className="workout-type-grid">
+        {WORKOUT_TYPES.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            className={`workout-type-btn ${t.id}${type === t.id ? " active" : ""}`}
+            onClick={() => setType(t.id)}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
-
-      {category === "lift" && (
-        <div className="workout-lift-types">
-          {LIFT_TYPES.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              className={`btn ghost workout-lift-btn${liftType === t.id ? " active" : ""}`}
-              onClick={() => setLiftType(t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      )}
 
       <input
         className="gym-log-input"
-        placeholder={
-          category === "run" ? "Run — e.g. Easy 5K, Long run" : "Workout name"
-        }
+        placeholder={PLACEHOLDERS[type]}
         value={label}
         onChange={(e) => setLabel(e.target.value)}
         aria-label="Workout label"
       />
 
       <div className="gym-log-row">
-        {category === "run" && (
+        {type === "run" && (
           <input
             className="gym-log-input"
             type="number"

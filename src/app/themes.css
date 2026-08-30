@@ -49,7 +49,9 @@
   --panel-shadow: none;
   --panel-blur: 10px;
   --workout-run: #6b9bd1;
+  --workout-hiit: #e8924a;
   --workout-lift: #c97060;
+  --workout-stretch: #5db89a;
 }
 
 [data-theme="morning-mist"] {

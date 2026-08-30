@@ -4,31 +4,89 @@ import type {
   WorkoutCategory,
   WorkoutLog,
   WorkoutPr,
+  WorkoutType,
 } from "./types";
 
-export const LIFT_TYPES: { id: LiftType; label: string }[] = [
+export const WORKOUT_TYPES: { id: WorkoutType; label: string }[] = [
+  { id: "run", label: "Run" },
   { id: "hiit", label: "HIIT" },
+  { id: "lift", label: "Lift" },
   { id: "stretch", label: "Stretch" },
-  { id: "weights", label: "Weights" },
 ];
 
-export function liftTypeLabel(type: LiftType | undefined): string {
-  return LIFT_TYPES.find((t) => t.id === type)?.label ?? "Lift";
+const WORKOUT_TYPE_SET = new Set<WorkoutType>(
+  WORKOUT_TYPES.map((t) => t.id),
+);
+
+export function workoutTypeLabel(type: WorkoutType | undefined): string {
+  return WORKOUT_TYPES.find((t) => t.id === type)?.label ?? "Workout";
 }
 
-/** Legacy rows without category default to weights lift */
+function legacyTypeFromRow(
+  category?: WorkoutCategory,
+  liftType?: LiftType,
+): WorkoutType {
+  if (category === "run") return "run";
+  if (liftType === "hiit") return "hiit";
+  if (liftType === "stretch") return "stretch";
+  return "lift";
+}
+
+function resolveWorkoutType(raw: {
+  type?: WorkoutType;
+  category?: WorkoutCategory;
+  liftType?: LiftType;
+}): WorkoutType {
+  if (raw.type && WORKOUT_TYPE_SET.has(raw.type)) return raw.type;
+  return legacyTypeFromRow(raw.category, raw.liftType);
+}
+
+/** Legacy rows without type default to lift; lift+weights → lift */
 export function normalizeWorkout(raw: WorkoutLog): WorkoutLog {
-  return {
-    ...raw,
-    category: raw.category ?? "lift",
-    liftType: raw.category === "run" ? undefined : (raw.liftType ?? "weights"),
-  };
+  const type = resolveWorkoutType(raw);
+  return { ...raw, type };
+}
+
+export function normalizeWorkoutPr(raw: WorkoutPr): WorkoutPr {
+  const type = resolveWorkoutType(raw);
+  return { ...raw, type };
 }
 
 export function normalizeWorkouts(
   workouts: WorkoutLog[] | undefined,
 ): WorkoutLog[] {
   return (workouts ?? []).map(normalizeWorkout);
+}
+
+export function normalizeWorkoutPrs(
+  prs: WorkoutPr[] | undefined,
+): WorkoutPr[] {
+  return (prs ?? []).map(normalizeWorkoutPr);
+}
+
+export function countsForDates(
+  workouts: WorkoutLog[] | undefined,
+  dates: Set<string>,
+): Record<WorkoutType, number> {
+  const counts: Record<WorkoutType, number> = {
+    run: 0,
+    hiit: 0,
+    lift: 0,
+    stretch: 0,
+  };
+  for (const w of normalizeWorkouts(workouts)) {
+    if (dates.has(w.date)) counts[w.type!] += 1;
+  }
+  return counts;
+}
+
+export function minutesForDates(
+  workouts: WorkoutLog[] | undefined,
+  dates: Set<string>,
+): number {
+  return normalizeWorkouts(workouts)
+    .filter((w) => dates.has(w.date))
+    .reduce((sum, w) => sum + (w.durationMin ?? 0), 0);
 }
 
 export function recentWorkouts(
@@ -103,18 +161,49 @@ export function monthLabel(year: number, month: number): string {
 }
 
 export type DayWorkoutSummary = {
-  hasRun: boolean;
-  hasLift: boolean;
-  liftTypes: LiftType[];
+  types: WorkoutType[];
 };
 
 export function summarizeDay(workouts: WorkoutLog[]): DayWorkoutSummary {
-  const runs = workouts.filter((w) => w.category === "run");
-  const lifts = workouts.filter((w) => w.category === "lift");
   return {
-    hasRun: runs.length > 0,
-    hasLift: lifts.length > 0,
-    liftTypes: [...new Set(lifts.map((w) => w.liftType ?? "weights"))],
+    types: [...new Set(workouts.map((w) => w.type!))],
+  };
+}
+
+export type PeriodWorkoutSummary = {
+  counts: Record<WorkoutType, number>;
+  runMiles: number;
+  totalMinutes: number;
+};
+
+export function weekWorkoutSummary(
+  workouts: WorkoutLog[] | undefined,
+  anchorDate: string,
+): PeriodWorkoutSummary {
+  const { start, end } = weekBounds(anchorDate);
+  const dates = new Set(datesInRange(start, end));
+  return {
+    counts: countsForDates(workouts, dates),
+    runMiles: weekRunMiles(workouts, anchorDate),
+    totalMinutes: minutesForDates(workouts, dates),
+  };
+}
+
+export function monthWorkoutSummary(
+  workouts: WorkoutLog[] | undefined,
+  year: number,
+  month: number,
+): PeriodWorkoutSummary {
+  const prefix = monthKey(year, month);
+  const dates = new Set(
+    normalizeWorkouts(workouts)
+      .filter((w) => w.date.startsWith(prefix))
+      .map((w) => w.date),
+  );
+  return {
+    counts: countsForDates(workouts, dates),
+    runMiles: monthRunMiles(workouts, year, month),
+    totalMinutes: minutesForDates(workouts, dates),
   };
 }
 
@@ -125,7 +214,7 @@ export function weekRunMiles(
   const { start, end } = weekBounds(anchorDate);
   const week = new Set(datesInRange(start, end));
   return normalizeWorkouts(workouts)
-    .filter((w) => w.category === "run" && week.has(w.date))
+    .filter((w) => w.type === "run" && week.has(w.date))
     .reduce((sum, w) => sum + (w.distanceMiles ?? 0), 0);
 }
 
@@ -136,21 +225,16 @@ export function monthRunMiles(
 ): number {
   const prefix = monthKey(year, month);
   return normalizeWorkouts(workouts)
-    .filter((w) => w.category === "run" && w.date.startsWith(prefix))
+    .filter((w) => w.type === "run" && w.date.startsWith(prefix))
     .reduce((sum, w) => sum + (w.distanceMiles ?? 0), 0);
 }
 
-export function prsForCategory(
+export function prsForType(
   prs: WorkoutPr[] | undefined,
-  category: WorkoutCategory,
-  liftType?: LiftType,
+  type: WorkoutType,
 ): WorkoutPr[] {
-  return (prs ?? [])
-    .filter(
-      (p) =>
-        p.category === category &&
-        (liftType == null || p.liftType === liftType),
-    )
+  return normalizeWorkoutPrs(prs)
+    .filter((p) => p.type === type)
     .sort(
       (a, b) =>
         b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt),
@@ -160,4 +244,8 @@ export function prsForCategory(
 export function formatMiles(n: number): string {
   if (n === 0) return "0";
   return n < 10 ? n.toFixed(1) : String(Math.round(n * 10) / 10);
+}
+
+export function gymSupportForType(type: WorkoutType): boolean {
+  return type !== "run";
 }
