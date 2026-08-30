@@ -436,10 +436,6 @@ h2 {
   gap: 14px;
 }
 
-.workout-log-date {
-  margin: -6px 0 0;
-}
-
 .workout-log-field {
   display: flex;
   flex-direction: column;
@@ -584,10 +580,6 @@ h2 {
   background: color-mix(in srgb, var(--accent) 20%, transparent);
   border-color: var(--accent);
   color: var(--accent);
-}
-
-.workout-quality-hint {
-  margin: 2px 0 0;
 }
 
 .workout-log-submit {
