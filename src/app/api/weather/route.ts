@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { todayInTz } from "@/lib/journey";
-import { fallbackForTimezone, fetchForecast } from "@/lib/weather";
+import { fallbackForTimezone, fetchForecast, reverseGeocodeLocation } from "@/lib/weather";
 import { readState } from "@/lib/store";
 
 export async function GET(req: Request) {
@@ -29,7 +29,7 @@ export async function GET(req: Request) {
       if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
         return NextResponse.json({ error: "Invalid coordinates" }, { status: 400 });
       }
-      locationLabel = labelParam?.trim() || "Your location";
+      locationLabel = labelParam?.trim() || (await reverseGeocodeLocation(lat, lon));
     } else {
       const fb = fallbackForTimezone(timezone);
       lat = fb.lat;

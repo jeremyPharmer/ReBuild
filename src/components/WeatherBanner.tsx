@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { dayLabel, type WeatherForecast } from "@/lib/weather";
+import { dayAbbrev, timeGreeting, type WeatherForecast } from "@/lib/weather";
 
 const COORDS_KEY = "rebuild-weather-coords";
 
@@ -39,10 +39,10 @@ function storeCoords(coords: StoredCoords) {
 }
 
 export function WeatherBanner() {
-  const { state, today } = useApp();
+  const { state } = useApp();
   const timezone = state.profile?.timezone ?? "America/Los_Angeles";
+  const greeting = timeGreeting(timezone);
   const [forecast, setForecast] = useState<WeatherForecast | null>(null);
-  const [todayKey, setTodayKey] = useState(today);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export function WeatherBanner() {
       if (lat != null && lon != null) {
         qs.set("lat", String(lat));
         qs.set("lon", String(lon));
-        if (label) qs.set("label", label);
+        if (label && label !== "Near you") qs.set("label", label);
       }
       const res = await fetch(`/api/weather?${qs.toString()}`);
       const data = await res.json();
@@ -62,8 +62,13 @@ export function WeatherBanner() {
         setError(data.error ?? "Weather unavailable");
         return;
       }
+      const coords: StoredCoords = {
+        lat: lat ?? 0,
+        lon: lon ?? 0,
+        label: data.locationLabel,
+      };
+      if (lat != null && lon != null) storeCoords(coords);
       setForecast({ locationLabel: data.locationLabel, days: data.days });
-      setTodayKey(data.today ?? today);
       setError("");
     }
 
@@ -81,13 +86,7 @@ export function WeatherBanner() {
     } else if (typeof navigator !== "undefined" && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const coords: StoredCoords = {
-            lat: pos.coords.latitude,
-            lon: pos.coords.longitude,
-            label: "Near you",
-          };
-          storeCoords(coords);
-          requestForecast(coords);
+          void load(pos.coords.latitude, pos.coords.longitude);
         },
         () => requestForecast(),
         { enableHighAccuracy: false, timeout: 8000, maximumAge: 600_000 },
@@ -99,44 +98,40 @@ export function WeatherBanner() {
     return () => {
       cancelled = true;
     };
-  }, [timezone, today]);
-
-  if (error && !forecast) {
-    return (
-      <section className="weather-banner weather-banner-muted" aria-label="Weather">
-        <p className="tiny muted">{error}</p>
-      </section>
-    );
-  }
-
-  if (!forecast) {
-    return (
-      <section className="weather-banner weather-banner-loading" aria-label="Weather">
-        <p className="tiny muted">Loading forecast…</p>
-      </section>
-    );
-  }
+  }, [timezone]);
 
   return (
-    <section className="weather-banner" aria-label="5-day weather forecast">
-      <div className="weather-banner-head">
-        <p className="weather-banner-kicker">{forecast.locationLabel}</p>
-        <p className="tiny weather-banner-sub">5-day forecast</p>
-      </div>
-      <div className="weather-banner-days">
-        {forecast.days.map((day) => (
-          <div key={day.date} className="weather-day">
-            <span className="weather-day-name">{dayLabel(day.date, todayKey)}</span>
-            <span className="weather-day-icon" aria-hidden>
-              {day.icon}
-            </span>
-            <span className="weather-day-temps">
-              <span className="weather-high">{day.highF}°</span>
-              <span className="weather-low">{day.lowF}°</span>
-            </span>
+    <header className="home-top-banner">
+      <p className="home-greeting">{greeting}</p>
+
+      {error && !forecast && (
+        <section className="weather-strip weather-strip-muted" aria-label="Weather">
+          <p className="tiny muted">{error}</p>
+        </section>
+      )}
+
+      {!error && !forecast && (
+        <section className="weather-strip weather-strip-muted" aria-label="Weather">
+          <p className="tiny muted">Loading forecast…</p>
+        </section>
+      )}
+
+      {forecast && (
+        <section className="weather-strip" aria-label="5-day weather forecast">
+          <p className="weather-location">{forecast.locationLabel}</p>
+          <div className="weather-strip-days">
+            {forecast.days.map((day) => (
+              <div key={day.date} className="weather-strip-day">
+                <span className="weather-strip-dow">{dayAbbrev(day.date)}</span>
+                <span className="weather-strip-icon" aria-hidden title={day.label}>
+                  {day.icon}
+                </span>
+                <span className="weather-strip-high">{day.highF}°</span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    </section>
+        </section>
+      )}
+    </header>
   );
 }

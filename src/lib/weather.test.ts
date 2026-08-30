@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dayLabel, weatherCodeMeta } from "./weather";
+import { dayAbbrev, dayLabel, timeGreeting, weatherCodeMeta } from "./weather";
 
 describe("weatherCodeMeta", () => {
   it("maps clear and rain codes", () => {
@@ -9,11 +9,24 @@ describe("weatherCodeMeta", () => {
   });
 });
 
+describe("dayAbbrev", () => {
+  it("returns uppercase weekday abbrev", () => {
+    expect(dayAbbrev("2026-08-30")).toMatch(/^[A-Z]{3}$/);
+  });
+});
+
 describe("dayLabel", () => {
   it("labels today vs other days", () => {
     expect(dayLabel("2026-08-30", "2026-08-30")).toBe("Today");
     expect(dayLabel("2026-08-31", "2026-08-30")).toMatch(
       /Mon|Tue|Wed|Thu|Fri|Sat|Sun/,
     );
+  });
+});
+
+describe("timeGreeting", () => {
+  it("returns afternoon for mid-day UTC on east coast morning", () => {
+    const noonUtc = new Date("2026-08-30T16:00:00Z");
+    expect(timeGreeting("America/New_York", noonUtc)).toBe("Good afternoon");
   });
 });

@@ -98,8 +98,70 @@ export function fallbackForTimezone(timezone: string): {
   );
 }
 
+export function dayAbbrev(date: string): string {
+  const d = new Date(`${date}T12:00:00`);
+  return d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
+}
+
+/** @deprecated use dayAbbrev for StayOS-style banner */
 export function dayLabel(date: string, today: string): string {
   if (date === today) return "Today";
   const d = new Date(`${date}T12:00:00`);
   return d.toLocaleDateString("en-US", { weekday: "short" });
+}
+
+export function timeGreeting(timezone: string, now = new Date()): string {
+  const hour = Number(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      hour: "numeric",
+      hour12: false,
+    }).format(now),
+  );
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+export async function reverseGeocodeLocation(
+  lat: number,
+  lon: number,
+): Promise<string> {
+  try {
+    const params = new URLSearchParams({
+      lat: String(lat),
+      lon: String(lon),
+      format: "json",
+    });
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?${params.toString()}`,
+      {
+        headers: {
+          "User-Agent": "JeremyOS/1.0 (https://rebuild-prod.fly.dev)",
+        },
+        next: { revalidate: 86400 },
+      },
+    );
+    if (!res.ok) return "Your location";
+    const data = (await res.json()) as {
+      address?: {
+        city?: string;
+        town?: string;
+        village?: string;
+        hamlet?: string;
+        county?: string;
+      };
+    };
+    const a = data.address;
+    return (
+      a?.city ??
+      a?.town ??
+      a?.village ??
+      a?.hamlet ??
+      a?.county ??
+      "Your location"
+    );
+  } catch {
+    return "Your location";
+  }
 }
