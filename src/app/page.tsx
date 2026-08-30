@@ -24,8 +24,8 @@ export default function HomePage() {
 
   return (
     <main className="fade-in home-cos stack">
-      <WeatherBanner />
       <HomeDateHeader date={today} />
+      <WeatherBanner />
 
       <TodayRebuildPanel />
 
