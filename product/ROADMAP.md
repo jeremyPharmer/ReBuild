@@ -7,7 +7,7 @@ Recovery journey + fund/incentive tools remain **personal tools** when useful (n
 Maintained by the **Head of Product** agent (`.cursor/agents/head-of-product.md`).  
 **Priority ranking is the primary planning signal.** Due dates, effort, and timeline support rank — they do not override it.
 
-Last updated: 2026-08-29
+Last updated: 2026-08-30
 
 ## North star (locked 2026-08-29)
 
@@ -31,9 +31,10 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 | 2 | RB-013 | Personal OS north star (cut bloat) | P0 | Ready | S | TBD |
 | 3 | RB-014 | To-do lists (first-class) | P0 | Backlog | M | TBD |
 | 4 | RB-016 | Five-year / paper journal UX | P0 | In Progress | M | TBD |
-| 5 | RB-002 | Email integration (Gmail) | P0 | Backlog | M | TBD |
-| 6 | RB-005 | Podcast-first + regular recovery content | P0 | In Progress | M | TBD |
-| 7 | RB-017 | Home cameras via Reolink | P1 | Backlog | M | TBD |
+| 5 | RB-021 | Journal photos (attach + paperclip) | P1 | Backlog | S | TBD |
+| 6 | RB-002 | Email integration (Gmail) | P0 | Backlog | M | TBD |
+| 7 | RB-005 | Podcast-first + regular recovery content | P0 | In Progress | M | TBD |
+| 8 | RB-017 | Home cameras via Reolink | P1 | Backlog | M | TBD |
 
 ## Now / Next / Later
 
@@ -43,11 +44,12 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 2. **RB-013 — Personal OS north star** — enforce EA / personal-use build filter; ranking already reflects pivot. Detail: [`items/personal-os-north-star.md`](./items/personal-os-north-star.md).
 3. **RB-014 — To-do lists** — founder loves these; first-class personal surface. Detail: [`items/todo-lists.md`](./items/todo-lists.md).
 4. **RB-016 — Five-year / paper journal UX** — same calendar day across years; headline + short summary; journal vibes (not stacked cards). Detail: [`items/five-year-journal-ux.md`](./items/five-year-journal-ux.md). Distinct from RB-010 backfill integrity.
-5. **RB-002 — Email / Gmail** — elevated; founder “My Gmail obviously.” Detail: [`items/email-integration.md`](./items/email-integration.md).
-6. **RB-005 — Podcast-first + regular recovery content** — **In Progress**; keep podcast useful + no-repeat; founder still wants some regular recovery content (no duplicate item). Detail: [`items/recovery-content-offers.md`](./items/recovery-content-offers.md).
-7. **RB-017 — Home cameras (Reolink)** — founder ~priority **5** on the personal-tools list; API spike / engineer handoff OK. Detail: [`items/home-cameras-reolink.md`](./items/home-cameras-reolink.md).
+5. **RB-021 — Journal photos (attach + paperclip)** — optional pics on journal/evening entries; paperclip (or similar) on year slots when a photo is present; tap to view; **reuse** existing photo infra. Detail: [`items/journal-photos.md`](./items/journal-photos.md).
+6. **RB-002 — Email / Gmail** — elevated; founder “My Gmail obviously.” Detail: [`items/email-integration.md`](./items/email-integration.md).
+7. **RB-005 — Podcast-first + regular recovery content** — **In Progress**; keep podcast useful + no-repeat; founder still wants some regular recovery content (no duplicate item). Detail: [`items/recovery-content-offers.md`](./items/recovery-content-offers.md).
+8. **RB-017 — Home cameras (Reolink)** — founder ~priority **5** on the personal-tools list; API spike / engineer handoff OK. Detail: [`items/home-cameras-reolink.md`](./items/home-cameras-reolink.md).
 
-**Mid-flight (finish thin; do not expand):** RB-011 (fund auto-credit), RB-010 (journal backfill) — personal-tool integrity, ranks 12–13.
+**Mid-flight (finish thin; do not expand):** RB-011 (fund auto-credit), RB-010 (journal backfill) — personal-tool integrity, ranks 13–14.
 
 ### Next
 
@@ -75,9 +77,9 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 | Focus | Planned | Notes |
 | --- | --- | --- |
 | Now (framing) | RB-012 rebrand (EA + drop trail) + RB-013 north star | Effort **M** + **S**; docs first, then chrome/copy; Journey label locked keep |
-| Now (personal tools) | RB-014 todos → RB-016 five-year journal → RB-002 Gmail → RB-005 podcast/recovery → RB-017 cameras | Founder-loved / liked skills; cameras ~5 on list |
+| Now (personal tools) | RB-014 todos → RB-016 five-year journal → **RB-021 journal photos** → RB-002 Gmail → RB-005 podcast/recovery → RB-017 cameras | Founder-loved / liked skills; photos are thin **S** reuse of celebration photo stack |
 | Next | RB-018 workout; RB-019 recipes; RB-015 hub; RB-003 digest | Personal OS cluster; hub needs Jeremy’s app list |
-| Finish thin | RB-011, RB-010 | Do not expand money/daily-loop polish; journal UI redesign = RB-016 |
+| Finish thin | RB-011, RB-010 | Do not expand money/daily-loop polish; journal UI redesign = RB-016; journal media = RB-021 |
 | Later (personal fund) | RB-006, RB-001 | Locked model; rails demoted |
 | Later / paused | RB-008, RB-004 | Unrequested channels |
 | Done (cut) | RB-020 drop craving stats + Home craving CTA | Surfaces removed; mood loop kept |
