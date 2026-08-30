@@ -203,7 +203,7 @@ export function TodayRebuildPanel() {
     <section className="panel">
       <div className="row">
         <p className="eyebrow" style={{ marginBottom: 0 }}>
-          Today&apos;s Rebuild
+          Today&apos;s Build
         </p>
         <div className="row" style={{ gap: 8, justifyContent: "flex-end" }}>
           <span className="chip">

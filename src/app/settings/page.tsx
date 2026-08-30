@@ -352,7 +352,7 @@ export default function SettingsPage() {
       <section className="panel">
         <p className="eyebrow">Weekly supports</p>
         <p className="tiny" style={{ marginBottom: 10 }}>
-          Toggle what shows on Today&apos;s Rebuild. Add your own anytime.
+          Toggle what shows on Today&apos;s Build. Add your own anytime.
         </p>
         {supports.map((s) => (
           <div key={s.type} className="support-edit">

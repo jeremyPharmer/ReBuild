@@ -95,7 +95,7 @@ export default function MorningPage() {
             <p className="tiny morning-quote-attr">— {quote.attribution}</p>
           </section>
         )}
-        <p className="eyebrow">Today&apos;s Rebuild</p>
+        <p className="eyebrow">Today&apos;s Build</p>
         <h1>Set yourself up.</h1>
         <div className="panel list-check">
           <p className="eyebrow" style={{ marginBottom: 10 }}>
