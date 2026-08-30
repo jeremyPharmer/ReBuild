@@ -129,7 +129,7 @@ h2 {
 
 .home-card-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
@@ -137,39 +137,168 @@ h2 {
   grid-column: 1 / -1;
 }
 
-@media (min-width: 380px) {
-  .home-card-entertainment,
-  .home-card-gym {
-    grid-column: span 1;
+/* —— Today's Entertainment: radio / newsletter feed —— */
+.radio-feed {
+  padding: 12px 14px 10px;
+  background: var(--surface-strong);
+  border-color: var(--line);
+  overflow: hidden;
+}
+
+.radio-feed-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.radio-feed-header h2 {
+  font-size: 1.12rem;
+  margin: 0;
+  font-style: italic;
+  letter-spacing: -0.01em;
+}
+
+.radio-on-air {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  font-style: italic;
+  transform: skewX(-6deg);
+  transform-origin: left center;
+}
+
+.radio-on-air-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 var(--accent-glow);
+  animation: radio-pulse 2s ease infinite;
+}
+
+@keyframes radio-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--accent-glow);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 6px transparent;
+    opacity: 0.75;
   }
 }
 
-.entertainment-toggle {
+.radio-feed-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.radio-feed-item {
+  border-bottom: 1px solid var(--line);
+}
+
+.radio-feed-item.done .radio-feed-title {
+  opacity: 0.65;
+}
+
+.radio-feed-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  gap: 2px 10px;
   width: 100%;
   text-align: left;
   background: transparent;
   border: none;
-  padding: 0;
+  padding: 10px 2px 10px 10px;
   cursor: pointer;
   color: inherit;
+  position: relative;
 }
 
-.entertainment-toggle-text {
+.radio-feed-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--accent);
+  opacity: 0.35;
+  transform: skewY(calc(var(--feed-i, 0) * -2deg - 3deg));
+}
+
+.radio-feed-item.open .radio-feed-row::before {
+  opacity: 1;
+}
+
+.radio-feed-show {
+  grid-column: 1 / -1;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 600;
+  font-style: italic;
+  transform: skewX(-4deg);
+  transform-origin: left center;
+}
+
+.radio-feed-title {
+  grid-column: 1;
+  font-size: 0.9rem;
+  line-height: 1.28;
+  font-weight: 600;
+  font-family: var(--font-display);
+}
+
+.radio-feed-time {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: end;
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.radio-feed-detail {
+  padding: 0 4px 10px 12px;
+}
+
+.radio-feed-blurb {
+  margin: 0 0 8px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.radio-feed-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.radio-feed-actions .btn.ghost {
   flex: 1;
   min-width: 0;
+  padding: 7px 10px;
+  font-size: 0.78rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
 }
 
-.entertainment-toggle h2 {
-  font-size: 1.05rem;
-  margin: 2px 0 0;
-}
-
-.entertainment-body {
-  margin-top: 4px;
+.radio-feed-play {
+  font-style: italic;
 }
 
 .home-card {
@@ -265,7 +394,7 @@ h2 {
   gap: 10px;
   width: 100%;
   text-align: left;
-  background: rgba(15, 28, 24, 0.35);
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 10px 12px;
@@ -292,7 +421,7 @@ h2 {
 
 .gym-log-input {
   width: 100%;
-  background: rgba(15, 28, 24, 0.45);
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 8px 10px;

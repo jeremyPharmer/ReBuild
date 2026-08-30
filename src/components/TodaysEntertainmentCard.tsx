@@ -14,12 +14,9 @@ export function TodaysEntertainmentCard() {
   const { state, today, post } = useApp();
   const heard = new Set(state.listenedPodcasts ?? []);
   const items = pickTodaysContent(today, state.listenedPodcasts);
-  const [open, setOpen] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
-
-  const heardCount = items.filter((i) => heard.has(i.id)).length;
-  const leftCount = items.length - heardCount;
 
   async function markHeard(item: DailyContentItem) {
     setBusyId(item.id);
@@ -37,53 +34,55 @@ export function TodaysEntertainmentCard() {
     }
   }
 
-  return (
-    <section className="home-card home-card-entertainment">
-      <button
-        type="button"
-        className="entertainment-toggle"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <div className="entertainment-toggle-text">
-          <p className="home-card-kicker">Listen</p>
-          <h2>Today&apos;s Entertainment</h2>
-          <p className="tiny home-card-sub">
-            {leftCount === 0
-              ? `${items.length} picks · all heard`
-              : `${items.length} picks · ${leftCount} left · 1 recovery`}
-          </p>
-        </div>
-        <span className={`podcast-caret${open ? " open" : ""}`} aria-hidden>
-          ▾
-        </span>
-      </button>
+  function toggleRow(id: string) {
+    setExpandedId((current) => (current === id ? null : id));
+  }
 
-      {open && (
-        <div className="entertainment-body fade-in">
-          <ul className="content-picks">
-            {items.map((item) => {
-              const done = heard.has(item.id);
-              return (
-                <li
-                  key={item.id}
-                  className={`content-pick${done ? " done" : ""}`}
-                >
-                  <div className="content-pick-main">
-                    <span className="content-pick-tag">{slotLabel(item)}</span>
-                    <p className="content-pick-title">{item.title}</p>
-                    <p className="tiny content-pick-meta">
-                      {item.blurb} · {formatDuration(item.durationMin)}
-                    </p>
-                  </div>
-                  <div className="content-pick-actions">
+  return (
+    <section className="home-card home-card-entertainment radio-feed">
+      <div className="radio-feed-header">
+        <span className="radio-on-air" aria-hidden>
+          <span className="radio-on-air-dot" />
+          ON AIR
+        </span>
+        <h2>Today&apos;s Entertainment</h2>
+      </div>
+
+      <ul className="radio-feed-list">
+        {items.map((item, index) => {
+          const done = heard.has(item.id);
+          const open = expandedId === item.id;
+          return (
+            <li
+              key={item.id}
+              className={`radio-feed-item${open ? " open" : ""}${done ? " done" : ""}`}
+              style={{ ["--feed-i" as string]: index }}
+            >
+              <button
+                type="button"
+                className="radio-feed-row"
+                aria-expanded={open}
+                onClick={() => toggleRow(item.id)}
+              >
+                <span className="radio-feed-show">{slotLabel(item)}</span>
+                <span className="radio-feed-title">{item.title}</span>
+                <span className="radio-feed-time">
+                  {done ? "✓ " : ""}
+                  {formatDuration(item.durationMin)}
+                </span>
+              </button>
+
+              {open && (
+                <div className="radio-feed-detail fade-in">
+                  <p className="tiny radio-feed-blurb">{item.blurb}</p>
+                  <div className="radio-feed-actions">
                     <a
-                      className="btn ghost"
+                      className="btn ghost radio-feed-play"
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Play
+                      ▶ Play
                     </a>
                     <button
                       type="button"
@@ -98,20 +97,17 @@ export function TodaysEntertainmentCard() {
                           : "Mark heard"}
                     </button>
                   </div>
-                </li>
-              );
-            })}
-          </ul>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
 
-          {error && (
-            <p
-              className="tiny"
-              style={{ color: "var(--danger)", marginTop: 8 }}
-            >
-              {error}
-            </p>
-          )}
-        </div>
+      {error && (
+        <p className="tiny" style={{ color: "var(--danger)", marginTop: 6 }}>
+          {error}
+        </p>
       )}
     </section>
   );
