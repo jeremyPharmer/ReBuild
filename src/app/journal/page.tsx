@@ -13,10 +13,33 @@ import {
 } from "@/lib/journal";
 import { missingEveningDates } from "@/lib/journey";
 
+function photoSrc(photoId: string): string {
+  return `/api/photos/${encodeURIComponent(photoId)}`;
+}
+
+function PaperclipIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+    </svg>
+  );
+}
+
 export default function JournalPage() {
   const { state, today } = useApp();
   const anchorYear = today ? Number(today.slice(0, 4)) : new Date().getFullYear();
   const [dayKey, setDayKey] = useState<DayKey | null>(null);
+  const [viewPhotoId, setViewPhotoId] = useState<string | null>(null);
 
   const activeDay: DayKey =
     dayKey ?? (today ? monthDayKey(today) : "01-01");
@@ -47,6 +70,8 @@ export default function JournalPage() {
   function go(delta: number) {
     setDayKey(shiftMonthDay(activeDay, delta, anchorYear));
   }
+
+  const viewSrc = viewPhotoId ? photoSrc(viewPhotoId) : undefined;
 
   return (
     <main className="fy-journal fade-in">
@@ -90,6 +115,17 @@ export default function JournalPage() {
             >
               <div className="fy-year-gutter">
                 <span className="fy-year-num">{slot.year}</span>
+                {slot.photoId && (
+                  <button
+                    type="button"
+                    className="fy-photo-clip"
+                    aria-label="View attached photo"
+                    title="Has photo"
+                    onClick={() => setViewPhotoId(slot.photoId!)}
+                  >
+                    <PaperclipIcon />
+                  </button>
+                )}
               </div>
               <div className="fy-year-body">
                 {empty ? (
@@ -130,6 +166,34 @@ export default function JournalPage() {
               : `${missed.length} days still open to catch up →`}
           </Link>
         </p>
+      )}
+
+      {viewSrc && (
+        <div
+          className="fy-photo-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Journal photo"
+          onClick={() => setViewPhotoId(null)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setViewPhotoId(null);
+          }}
+        >
+          <button
+            type="button"
+            className="fy-photo-lightbox-close"
+            aria-label="Close photo"
+            onClick={() => setViewPhotoId(null)}
+          >
+            Close
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={viewSrc}
+            alt="Journal photo"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       )}
     </main>
   );

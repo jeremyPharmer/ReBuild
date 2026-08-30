@@ -245,6 +245,8 @@ export type JournalEntry = {
   type: "one_line" | "journal" | "progress_note" | "life_event";
   text: string;
   tags?: string[];
+  /** Optional attached photo (RB-021); served via /api/photos/[id] */
+  photoId?: string;
   createdAt: string;
 };
 
