@@ -1,23 +1,30 @@
 import { describe, expect, it } from "vitest";
 import {
+  DAILY_ENTERTAINMENT_COUNT,
+  DAILY_GENERAL_COUNT,
+  DAILY_RECOVERY_COUNT,
   dateSeed,
   pickGeneralSourcesForDay,
   pickTodaysContent,
 } from "./daily-content";
 
 describe("pickTodaysContent", () => {
-  it("returns 1 recovery + 2 general podcasts", () => {
+  it("returns 1 recovery + 4 general podcasts (5 total)", () => {
     const items = pickTodaysContent("2026-08-30", []);
-    expect(items).toHaveLength(3);
-    expect(items.filter((i) => i.slot === "recovery")).toHaveLength(1);
-    expect(items.filter((i) => i.slot === "general")).toHaveLength(2);
+    expect(items).toHaveLength(DAILY_ENTERTAINMENT_COUNT);
+    expect(items.filter((i) => i.slot === "recovery")).toHaveLength(
+      DAILY_RECOVERY_COUNT,
+    );
+    expect(items.filter((i) => i.slot === "general")).toHaveLength(
+      DAILY_GENERAL_COUNT,
+    );
     expect(items[0].kind).toBe("podcast");
   });
 
   it("rotates general sources by date", () => {
     const a = pickGeneralSourcesForDay("2026-08-30");
     const b = pickGeneralSourcesForDay("2026-08-31");
-    expect(a[0]).not.toBe(a[1]);
+    expect(new Set(a).size).toBe(a.length);
     expect(a).not.toEqual(b);
   });
 

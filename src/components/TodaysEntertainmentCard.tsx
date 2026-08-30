@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { formatDuration } from "@/lib/podcasts";
-import { pickTodaysContent, type DailyContentItem } from "@/lib/daily-content";
+import {
+  DAILY_ENTERTAINMENT_COUNT,
+  pickTodaysContent,
+  type DailyContentItem,
+} from "@/lib/daily-content";
 
 function slotLabel(item: DailyContentItem): string {
   if (item.slot === "recovery") return "Recovery";
@@ -14,9 +18,12 @@ export function TodaysEntertainmentCard() {
   const { state, today, post } = useApp();
   const heard = new Set(state.listenedPodcasts ?? []);
   const items = pickTodaysContent(today, state.listenedPodcasts);
+  const [open, setOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
+
+  const heardCount = items.filter((i) => heard.has(i.id)).length;
 
   async function markHeard(item: DailyContentItem) {
     setBusyId(item.id);
@@ -39,72 +46,90 @@ export function TodaysEntertainmentCard() {
   }
 
   return (
-    <section className="home-card home-card-entertainment radio-feed">
-      <div className="radio-feed-header">
-        <span className="radio-on-air" aria-hidden>
-          <span className="radio-on-air-dot" />
-          ON AIR
+    <section
+      className={`home-card home-card-entertainment radio-feed${open ? " open" : ""}`}
+    >
+      <button
+        type="button"
+        className="radio-feed-toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <div className="radio-feed-header">
+          <span className="radio-on-air" aria-hidden>
+            <span className="radio-on-air-dot" />
+            ON AIR
+          </span>
+          <h2>Today&apos;s Entertainment</h2>
+          <p className="tiny radio-feed-collapsed-meta">
+            {DAILY_ENTERTAINMENT_COUNT} picks
+            {heardCount > 0 ? ` · ${heardCount} heard` : ""}
+          </p>
+        </div>
+        <span className={`podcast-caret${open ? " open" : ""}`} aria-hidden>
+          ▾
         </span>
-        <h2>Today&apos;s Entertainment</h2>
-      </div>
+      </button>
 
-      <ul className="radio-feed-list">
-        {items.map((item, index) => {
-          const done = heard.has(item.id);
-          const open = expandedId === item.id;
-          return (
-            <li
-              key={item.id}
-              className={`radio-feed-item${open ? " open" : ""}${done ? " done" : ""}`}
-              style={{ ["--feed-i" as string]: index }}
-            >
-              <button
-                type="button"
-                className="radio-feed-row"
-                aria-expanded={open}
-                onClick={() => toggleRow(item.id)}
+      {open && (
+        <ul className="radio-feed-list fade-in">
+          {items.map((item, index) => {
+            const done = heard.has(item.id);
+            const rowOpen = expandedId === item.id;
+            return (
+              <li
+                key={item.id}
+                className={`radio-feed-item${rowOpen ? " open" : ""}${done ? " done" : ""}`}
+                style={{ ["--feed-i" as string]: index }}
               >
-                <span className="radio-feed-show">{slotLabel(item)}</span>
-                <span className="radio-feed-title">{item.title}</span>
-                <span className="radio-feed-time">
-                  {done ? "✓ " : ""}
-                  {formatDuration(item.durationMin)}
-                </span>
-              </button>
+                <button
+                  type="button"
+                  className="radio-feed-row"
+                  aria-expanded={rowOpen}
+                  onClick={() => toggleRow(item.id)}
+                >
+                  <span className="radio-feed-show">{slotLabel(item)}</span>
+                  <span className="radio-feed-title">{item.title}</span>
+                  <span className="radio-feed-time">
+                    {done ? "✓ " : ""}
+                    {formatDuration(item.durationMin)}
+                  </span>
+                </button>
 
-              {open && (
-                <div className="radio-feed-detail fade-in">
-                  <p className="tiny radio-feed-blurb">{item.blurb}</p>
-                  <div className="radio-feed-actions">
-                    <a
-                      className="btn ghost radio-feed-play"
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      ▶ Play
-                    </a>
-                    <button
-                      type="button"
-                      className="btn ghost"
-                      disabled={done || busyId === item.id}
-                      onClick={() => markHeard(item)}
-                    >
-                      {done
-                        ? "Heard"
-                        : busyId === item.id
-                          ? "…"
-                          : "Mark heard"}
-                    </button>
+                {rowOpen && (
+                  <div className="radio-feed-detail fade-in">
+                    <p className="tiny radio-feed-blurb">{item.blurb}</p>
+                    <div className="radio-feed-actions">
+                      <a
+                        className="btn ghost radio-feed-play"
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        ▶ Play
+                      </a>
+                      <button
+                        type="button"
+                        className="btn ghost"
+                        disabled={done || busyId === item.id}
+                        onClick={() => markHeard(item)}
+                      >
+                        {done
+                          ? "Heard"
+                          : busyId === item.id
+                            ? "…"
+                            : "Mark heard"}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
-      {error && (
+      {open && error && (
         <p className="tiny" style={{ color: "var(--danger)", marginTop: 6 }}>
           {error}
         </p>

@@ -16,6 +16,10 @@ export type DailyContentItem = RecoveryContentItem & {
   sourceKey?: GeneralPodcastSource;
 };
 
+export const DAILY_ENTERTAINMENT_COUNT = 5;
+export const DAILY_RECOVERY_COUNT = 1;
+export const DAILY_GENERAL_COUNT = DAILY_ENTERTAINMENT_COUNT - DAILY_RECOVERY_COUNT;
+
 const GENERAL_SOURCES: GeneralPodcastSource[] = [
   "indicator",
   "planet-money",
@@ -138,14 +142,14 @@ export function dateSeed(date: string): number {
 
 export function pickGeneralSourcesForDay(
   date: string,
-): [GeneralPodcastSource, GeneralPodcastSource] {
-  const seed = dateSeed(date);
-  const first = seed % GENERAL_SOURCES.length;
-  let second = (seed + 2) % GENERAL_SOURCES.length;
-  if (second === first) {
-    second = (first + 1) % GENERAL_SOURCES.length;
+  count = DAILY_GENERAL_COUNT,
+): GeneralPodcastSource[] {
+  const start = dateSeed(date) % GENERAL_SOURCES.length;
+  const picked: GeneralPodcastSource[] = [];
+  for (let i = 0; i < count; i++) {
+    picked.push(GENERAL_SOURCES[(start + i) % GENERAL_SOURCES.length]);
   }
-  return [GENERAL_SOURCES[first], GENERAL_SOURCES[second]];
+  return picked;
 }
 
 function pickRecoveryForDay(
@@ -163,32 +167,28 @@ function pickGeneralForSource(
   source: GeneralPodcastSource,
   date: string,
   listenedIds: string[] | undefined,
+  offset = 0,
 ): RecoveryContentItem {
   const heard = new Set(listenedIds ?? []);
   const pool = GENERAL_PODCAST_CATALOG[source];
   const unheard = pool.filter((i) => !heard.has(i.id));
   const sourcePool = unheard.length > 0 ? unheard : pool;
-  return sourcePool[(dateSeed(date) + source.length) % sourcePool.length];
+  return sourcePool[(dateSeed(date) + source.length + offset) % sourcePool.length];
 }
 
-/** One recovery podcast + two rotating general podcasts for the calendar day. */
+/** One recovery podcast + four rotating general podcasts for the calendar day. */
 export function pickTodaysContent(
   date: string,
   listenedIds?: string[],
 ): DailyContentItem[] {
-  const [sourceA, sourceB] = pickGeneralSourcesForDay(date);
+  const generalSources = pickGeneralSourcesForDay(date);
   return [
     { ...pickRecoveryForDay(date, listenedIds), slot: "recovery" },
-    {
-      ...pickGeneralForSource(sourceA, date, listenedIds),
-      slot: "general",
-      sourceKey: sourceA,
-    },
-    {
-      ...pickGeneralForSource(sourceB, date, listenedIds),
-      slot: "general",
-      sourceKey: sourceB,
-    },
+    ...generalSources.map((source, i) => ({
+      ...pickGeneralForSource(source, date, listenedIds, i),
+      slot: "general" as const,
+      sourceKey: source,
+    })),
   ];
 }
 
