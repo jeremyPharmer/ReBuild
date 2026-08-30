@@ -86,9 +86,6 @@ export function WorkoutSummaryPanel({
   return (
     <section className="panel workout-summary-panel">
       <p className="eyebrow">Summary</p>
-      <p className="tiny muted" style={{ marginBottom: 12 }}>
-        Quality points = sum of each session’s 1–5 rating
-      </p>
       <div className="workout-summary-stack">
         <SummaryBlock
           title="This week"
