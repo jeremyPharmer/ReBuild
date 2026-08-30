@@ -46,6 +46,16 @@ export type MorningCheckIn = {
   completedAt: string;
 };
 
+/** Personal workout log entry (RB-018) */
+export type WorkoutLog = {
+  id: string;
+  date: string;
+  label: string;
+  durationMin?: number;
+  notes?: string;
+  createdAt: string;
+};
+
 /** One-off “provision for today” on Today's Rebuild */
 export type DayProvision = {
   id: string;
@@ -269,6 +279,8 @@ export type RebuildState = {
   dayProvisions?: DayProvision[];
   /** Morning quotes already shown (avoid reuse for ~1 year) */
   quoteLog?: { quoteId: string; usedOn: string }[];
+  /** Gym / workout log */
+  workouts?: WorkoutLog[];
 };
 
 export const DEFAULT_SUPPORTS: SupportConfig[] = [

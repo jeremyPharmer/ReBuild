@@ -40,6 +40,7 @@ export function normalizeState(state: RebuildState): RebuildState {
     reminderLog: state.reminderLog ?? {},
     dayProvisions: state.dayProvisions ?? [],
     quoteLog: state.quoteLog ?? [],
+    workouts: state.workouts ?? [],
   };
 }
 

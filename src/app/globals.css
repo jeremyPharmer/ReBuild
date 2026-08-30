@@ -112,6 +112,224 @@ h2 {
   margin-bottom: 6px;
 }
 
+/* —— Chief of Staff home —— */
+.home-cos {
+  gap: 16px;
+}
+
+.home-date-header {
+  padding: 4px 0 8px;
+}
+
+.home-date-header h1 {
+  font-size: clamp(1.65rem, 6vw, 2.1rem);
+  line-height: 1.12;
+  font-weight: 600;
+}
+
+.home-card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.home-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--panel-shadow, none);
+}
+
+.home-card-head h2 {
+  font-size: 1.15rem;
+  margin: 2px 0 0;
+}
+
+.home-card-kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.65rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.home-card-sub {
+  margin: 4px 0 0;
+  opacity: 0.85;
+}
+
+.content-picks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.content-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(15, 28, 24, 0.35);
+  border: 1px solid var(--line);
+}
+
+.content-pick.done {
+  opacity: 0.72;
+}
+
+.content-pick-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.content-pick-title {
+  margin: 4px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+.content-pick-meta {
+  margin: 2px 0 0;
+  opacity: 0.85;
+}
+
+.content-pick-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.content-pick-actions .btn.ghost {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  font-size: 0.78rem;
+}
+
+.gym-today-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: rgba(15, 28, 24, 0.35);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.gym-today-toggle.done {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.gym-today-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 4px;
+}
+
+.gym-log-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.gym-log-input {
+  width: 100%;
+  background: rgba(15, 28, 24, 0.45);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+  outline: none;
+}
+
+.gym-log-row {
+  display: flex;
+  gap: 8px;
+}
+
+.gym-log-duration {
+  width: 72px;
+  flex-shrink: 0;
+}
+
+.gym-log-btn {
+  flex: 1;
+  min-height: 40px !important;
+}
+
+.gym-recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.home-segments {
+  padding: 14px 16px 16px;
+}
+
+.segment-stack {
+  display: grid;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.segment-panel {
+  background: rgba(15, 28, 24, 0.28);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.segment-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.segment-head h3 {
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.segment-empty {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+}
+
+.work-event-row .work-event-main {
+  align-items: flex-start;
+}
+
+.work-event-time {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 52px;
+  padding-top: 2px;
+}
+
 .money {
   font-family: var(--font-display);
   font-variant-numeric: tabular-nums;

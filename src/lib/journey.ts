@@ -37,6 +37,15 @@ export function formatDisplayDate(date: string): string {
   });
 }
 
+/** Home header — weekday + full date only */
+export function formatHomeHeaderDate(date: string): string {
+  return parseDate(date).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 /**
  * Calendar day (YYYY-MM-DD) of the most recent Start or Close the day,
  * whichever was completed later. Null if neither exists.
@@ -316,6 +325,7 @@ export function emptyState(): RebuildState {
     listenedPodcasts: [],
     dayProvisions: [],
     quoteLog: [],
+    workouts: [],
   };
 }
 
