@@ -7,8 +7,14 @@ import {
   gymSupportForType,
   WORKOUT_CUSTOM,
   WORKOUT_PRESETS,
+  WORKOUT_QUALITY_MAX,
   WORKOUT_TYPES,
 } from "@/lib/workouts";
+
+const QUALITY_OPTIONS = Array.from(
+  { length: WORKOUT_QUALITY_MAX },
+  (_, i) => i + 1,
+);
 
 export function WorkoutLogForm({
   date,
@@ -21,6 +27,7 @@ export function WorkoutLogForm({
   const [type, setType] = useState<WorkoutType>("run");
   const [workout, setWorkout] = useState("");
   const [customLabel, setCustomLabel] = useState("");
+  const [quality, setQuality] = useState<number | null>(null);
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
   const [notes, setNotes] = useState("");
@@ -29,7 +36,7 @@ export function WorkoutLogForm({
 
   const isCustom = workout === WORKOUT_CUSTOM;
   const label = isCustom ? customLabel.trim() : workout.trim();
-  const canSubmit = Boolean(label) && !busy;
+  const canSubmit = Boolean(label) && quality != null && !busy;
 
   useEffect(() => {
     setWorkout("");
@@ -38,7 +45,7 @@ export function WorkoutLogForm({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!label) return;
+    if (!label || quality == null) return;
     setBusy(true);
     setError("");
     try {
@@ -47,12 +54,14 @@ export function WorkoutLogForm({
         date,
         type,
         label,
+        quality,
         distanceMiles: type === "run" && distance ? Number(distance) : undefined,
         durationMin: duration ? Number(duration) : undefined,
         notes: notes.trim() || undefined,
       });
       setWorkout("");
       setCustomLabel("");
+      setQuality(null);
       setDistance("");
       setDuration("");
       setNotes("");
@@ -134,6 +143,31 @@ export function WorkoutLogForm({
           />
         </label>
       )}
+
+      <fieldset className="workout-log-field">
+        <legend className="workout-log-label">Quality</legend>
+        <div
+          className="workout-quality-scale"
+          role="group"
+          aria-label="Workout quality 1 to 5"
+        >
+          {QUALITY_OPTIONS.map((n) => (
+            <button
+              key={n}
+              type="button"
+              className={`workout-quality-btn${quality === n ? " active" : ""}`}
+              onClick={() => setQuality(n)}
+              aria-pressed={quality === n}
+              aria-label={`Quality ${n}`}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+        <p className="tiny muted workout-quality-hint">
+          1 = rough · 5 = great — adds to weekly points
+        </p>
+      </fieldset>
 
       <div
         className={`workout-log-metrics${type === "run" ? " has-miles" : ""}`}

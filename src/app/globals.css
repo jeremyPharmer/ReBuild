@@ -562,6 +562,34 @@ h2 {
   gap: 10px;
 }
 
+.workout-quality-scale {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.workout-quality-btn {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-strong);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  color: var(--muted);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.workout-quality-btn.active {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.workout-quality-hint {
+  margin: 2px 0 0;
+}
+
 .workout-log-submit {
   width: 100%;
   min-height: 46px !important;
@@ -571,6 +599,26 @@ h2 {
 .workout-log-error {
   color: var(--danger);
   margin: -4px 0 0;
+}
+
+.workout-week-points {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+
+.workout-week-points-value {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 650;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.workout-week-points-label {
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 .workout-type-btn {
