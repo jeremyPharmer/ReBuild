@@ -48,6 +48,8 @@
     linear-gradient(160deg, #243f35, #15261f 60%, #0e1814);
   --panel-shadow: none;
   --panel-blur: 10px;
+  --workout-run: #6b9bd1;
+  --workout-lift: #c97060;
 }
 
 [data-theme="morning-mist"] {

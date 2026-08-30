@@ -7,7 +7,7 @@ import { HomeDateHeader } from "@/components/HomeDateHeader";
 import { WeatherBanner } from "@/components/WeatherBanner";
 import { TodayRebuildPanel } from "@/components/TodayRebuildPanel";
 import { TodaysEntertainmentCard } from "@/components/TodaysEntertainmentCard";
-import { GymTrackingCard } from "@/components/GymTrackingCard";
+import { MoveHubCard } from "@/components/MoveHubCard";
 import { WeekPlanPanel } from "@/components/WeekPlanPanel";
 
 export default function HomePage() {
@@ -31,7 +31,7 @@ export default function HomePage() {
 
       <div className="home-card-grid">
         <TodaysEntertainmentCard />
-        <GymTrackingCard />
+        <MoveHubCard />
       </div>
 
       <WeekPlanPanel today={today} week={dashboard.week} />

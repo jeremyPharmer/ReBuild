@@ -326,6 +326,7 @@ export function emptyState(): RebuildState {
     dayProvisions: [],
     quoteLog: [],
     workouts: [],
+    workoutPrs: [],
   };
 }
 

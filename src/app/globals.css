@@ -281,6 +281,261 @@ h2 {
   font-weight: 600;
 }
 
+.workout-open-link {
+  margin-top: auto;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+/* —— Workout calendar + move —— */
+.workout-cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.workout-cal-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 650;
+  flex: 1;
+  text-align: center;
+}
+
+.workout-cal-arrow {
+  width: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+}
+
+.workout-cal-dow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+  text-align: center;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.workout-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.workout-cal-cell {
+  aspect-ratio: 1;
+  min-height: 0;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 2px;
+  cursor: default;
+}
+
+.workout-cal-cell:not(:disabled) {
+  cursor: pointer;
+}
+
+.workout-cal-cell.has-work {
+  background: var(--surface);
+  border-color: var(--line);
+}
+
+.workout-cal-cell.today {
+  border-color: var(--accent);
+}
+
+.workout-cal-cell.selected {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.workout-cal-cell.empty {
+  pointer-events: none;
+}
+
+.workout-cal-daynum {
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.workout-cal-markers {
+  display: flex;
+  gap: 3px;
+  min-height: 6px;
+}
+
+.workout-marker {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.workout-marker.run {
+  background: var(--workout-run);
+}
+
+.workout-marker.lift {
+  background: var(--workout-lift);
+}
+
+.workout-cal-legend {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 10px;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.workout-cal-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.workout-cal-compact .workout-cal-cell {
+  aspect-ratio: auto;
+  min-height: 36px;
+}
+
+.workout-category-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.workout-cat-btn {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px;
+  background: var(--surface-strong);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.workout-cat-btn.run.active {
+  background: color-mix(in srgb, var(--workout-run) 22%, transparent);
+  border-color: var(--workout-run);
+  color: var(--workout-run);
+}
+
+.workout-cat-btn.lift.active {
+  background: color-mix(in srgb, var(--workout-lift) 18%, transparent);
+  border-color: var(--workout-lift);
+  color: var(--workout-lift);
+}
+
+.workout-lift-types {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.workout-lift-btn.active {
+  border-color: var(--workout-lift);
+  background: color-mix(in srgb, var(--workout-lift) 14%, transparent);
+}
+
+.workouts-page h1 {
+  margin: 8px 0 4px;
+}
+
+.workout-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.workout-day-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.workout-day-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+}
+
+.workout-day-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-right: 6px;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.workout-day-badge.run {
+  background: color-mix(in srgb, var(--workout-run) 20%, transparent);
+  color: var(--workout-run);
+}
+
+.workout-day-badge.lift {
+  background: color-mix(in srgb, var(--workout-lift) 18%, transparent);
+  color: var(--workout-lift);
+}
+
+.workout-pr-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.workout-pr-lift-group h3 {
+  font-size: 0.95rem;
+  margin: 12px 0 6px;
+}
+
+.workout-pr-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.workout-pr-add {
+  margin-top: 10px;
+}
+
+.workout-mapmyrun-note {
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.home-card-move {
+  gap: 12px;
+}
+
 .home-card-grid {
   display: grid;
   grid-template-columns: 1fr;

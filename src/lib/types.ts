@@ -46,12 +46,34 @@ export type MorningCheckIn = {
   completedAt: string;
 };
 
+export type WorkoutCategory = "run" | "lift";
+export type LiftType = "hiit" | "stretch" | "weights";
+
 /** Personal workout log entry (RB-018) */
 export type WorkoutLog = {
   id: string;
   date: string;
+  category?: WorkoutCategory;
+  /** When category is lift */
+  liftType?: LiftType;
   label: string;
   durationMin?: number;
+  /** Run distance in miles — MapMyRun sync later */
+  distanceMiles?: number;
+  notes?: string;
+  createdAt: string;
+};
+
+export type WorkoutPr = {
+  id: string;
+  category: WorkoutCategory;
+  liftType?: LiftType;
+  /** e.g. 5K, Bench press, Longest run */
+  name: string;
+  value: number;
+  unit: string;
+  date: string;
+  workoutId?: string;
   notes?: string;
   createdAt: string;
 };
@@ -281,6 +303,8 @@ export type RebuildState = {
   quoteLog?: { quoteId: string; usedOn: string }[];
   /** Gym / workout log */
   workouts?: WorkoutLog[];
+  /** Personal records — run + lift */
+  workoutPrs?: WorkoutPr[];
 };
 
 export const DEFAULT_SUPPORTS: SupportConfig[] = [
