@@ -430,6 +430,149 @@ h2 {
   margin-bottom: 10px;
 }
 
+.workout-log-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.workout-log-date {
+  margin: -6px 0 0;
+}
+
+.workout-log-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.workout-log-field legend.workout-log-label {
+  margin-bottom: 2px;
+}
+
+.workout-log-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.workout-type-segment {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface-strong);
+}
+
+.workout-type-seg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 52px;
+  padding: 8px 4px;
+  border: none;
+  border-right: 1px solid var(--line);
+  background: transparent;
+  font-weight: 600;
+  font-size: 0.72rem;
+  line-height: 1.1;
+  cursor: pointer;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.workout-type-seg:last-child {
+  border-right: none;
+}
+
+.workout-type-seg .workout-marker {
+  width: 8px;
+  height: 8px;
+  opacity: 0.45;
+}
+
+.workout-type-seg.active {
+  color: var(--text);
+}
+
+.workout-type-seg.active .workout-marker {
+  opacity: 1;
+}
+
+.workout-type-seg.run.active {
+  background: color-mix(in srgb, var(--workout-run) 18%, transparent);
+  color: var(--workout-run);
+}
+
+.workout-type-seg.hiit.active {
+  background: color-mix(in srgb, var(--workout-hiit) 16%, transparent);
+  color: var(--workout-hiit);
+}
+
+.workout-type-seg.lift.active {
+  background: color-mix(in srgb, var(--workout-lift) 16%, transparent);
+  color: var(--workout-lift);
+}
+
+.workout-type-seg.stretch.active {
+  background: color-mix(in srgb, var(--workout-stretch) 16%, transparent);
+  color: var(--workout-stretch);
+}
+
+.workout-log-select,
+.workout-log-input {
+  width: 100%;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 12px;
+  outline: none;
+  font-size: 0.95rem;
+}
+
+.workout-log-select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% + 2px),
+    calc(100% - 12px) calc(50% + 2px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 36px;
+}
+
+.workout-log-metrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.workout-log-metrics.has-miles {
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.workout-log-submit {
+  width: 100%;
+  min-height: 46px !important;
+  margin-top: 2px;
+}
+
+.workout-log-error {
+  color: var(--danger);
+  margin: -4px 0 0;
+}
+
 .workout-type-btn {
   border: 1px solid var(--line);
   border-radius: 10px;

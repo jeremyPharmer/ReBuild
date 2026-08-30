@@ -1,16 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import type { WorkoutType } from "@/lib/types";
-import { gymSupportForType, WORKOUT_TYPES } from "@/lib/workouts";
-
-const PLACEHOLDERS: Record<WorkoutType, string> = {
-  run: "Easy 5K, long run…",
-  hiit: "Tabata, circuits…",
-  lift: "Leg day, upper body…",
-  stretch: "Yoga, mobility…",
-};
+import {
+  gymSupportForType,
+  WORKOUT_CUSTOM,
+  WORKOUT_PRESETS,
+  WORKOUT_TYPES,
+} from "@/lib/workouts";
 
 export function WorkoutLogForm({
   date,
@@ -21,17 +19,26 @@ export function WorkoutLogForm({
 }) {
   const { post } = useApp();
   const [type, setType] = useState<WorkoutType>("run");
-  const [label, setLabel] = useState("");
+  const [workout, setWorkout] = useState("");
+  const [customLabel, setCustomLabel] = useState("");
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
+  const isCustom = workout === WORKOUT_CUSTOM;
+  const label = isCustom ? customLabel.trim() : workout.trim();
+  const canSubmit = Boolean(label) && !busy;
+
+  useEffect(() => {
+    setWorkout("");
+    setCustomLabel("");
+  }, [type]);
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const trimmed = label.trim();
-    if (!trimmed) return;
+    if (!label) return;
     setBusy(true);
     setError("");
     try {
@@ -39,12 +46,13 @@ export function WorkoutLogForm({
         action: "log",
         date,
         type,
-        label: trimmed,
+        label,
         distanceMiles: type === "run" && distance ? Number(distance) : undefined,
         durationMin: duration ? Number(duration) : undefined,
         notes: notes.trim() || undefined,
       });
-      setLabel("");
+      setWorkout("");
+      setCustomLabel("");
       setDistance("");
       setDuration("");
       setNotes("");
@@ -64,77 +72,131 @@ export function WorkoutLogForm({
   }
 
   return (
-    <form className="workout-log-form panel" onSubmit={submit}>
+    <form
+      className="workout-log-form panel"
+      onSubmit={submit}
+      autoComplete="off"
+    >
       <p className="eyebrow">Log workout</p>
-      <p className="tiny muted" style={{ marginBottom: 10 }}>
-        {date}
-      </p>
+      <p className="tiny muted workout-log-date">{date}</p>
 
-      <div className="workout-type-grid">
-        {WORKOUT_TYPES.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            className={`workout-type-btn ${t.id}${type === t.id ? " active" : ""}`}
-            onClick={() => setType(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <fieldset className="workout-log-field">
+        <legend className="workout-log-label">Type</legend>
+        <div className="workout-type-segment" role="group" aria-label="Workout type">
+          {WORKOUT_TYPES.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className={`workout-type-seg ${t.id}${type === t.id ? " active" : ""}`}
+              onClick={() => setType(t.id)}
+              aria-pressed={type === t.id}
+            >
+              <span className={`workout-marker ${t.id}`} aria-hidden />
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
-      <input
-        className="gym-log-input"
-        placeholder={PLACEHOLDERS[type]}
-        value={label}
-        onChange={(e) => setLabel(e.target.value)}
-        aria-label="Workout label"
-      />
-
-      <div className="gym-log-row">
-        {type === "run" && (
-          <input
-            className="gym-log-input"
-            type="number"
-            step="0.1"
-            min={0}
-            placeholder="Miles"
-            value={distance}
-            onChange={(e) => setDistance(e.target.value)}
-            aria-label="Distance in miles"
-          />
-        )}
-        <input
-          className="gym-log-input gym-log-duration"
-          type="number"
-          min={1}
-          max={600}
-          placeholder="Min"
-          value={duration}
-          onChange={(e) => setDuration(e.target.value)}
-          aria-label="Duration in minutes"
-        />
-        <button
-          type="submit"
-          className="btn primary gym-log-btn"
-          disabled={busy || !label.trim()}
+      <label className="workout-log-field">
+        <span className="workout-log-label">Workout</span>
+        <select
+          className="workout-log-select"
+          value={workout}
+          onChange={(e) => setWorkout(e.target.value)}
+          aria-label="Choose workout"
+          name="rebuild-workout-preset"
+          autoComplete="off"
         >
-          {busy ? "…" : "Log"}
-        </button>
+          <option value="">Choose workout…</option>
+          {WORKOUT_PRESETS[type].map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+          <option value={WORKOUT_CUSTOM}>Other…</option>
+        </select>
+      </label>
+
+      {isCustom && (
+        <label className="workout-log-field">
+          <span className="workout-log-label">Custom name</span>
+          <input
+            className="workout-log-input"
+            placeholder="Name this workout"
+            value={customLabel}
+            onChange={(e) => setCustomLabel(e.target.value)}
+            aria-label="Custom workout name"
+            name="rebuild-workout-custom"
+            autoComplete="off"
+            data-1p-ignore
+            data-lpignore="true"
+          />
+        </label>
+      )}
+
+      <div
+        className={`workout-log-metrics${type === "run" ? " has-miles" : ""}`}
+      >
+        {type === "run" && (
+          <label className="workout-log-field">
+            <span className="workout-log-label">Miles</span>
+            <input
+              className="workout-log-input"
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              min={0}
+              placeholder="0.0"
+              value={distance}
+              onChange={(e) => setDistance(e.target.value)}
+              aria-label="Distance in miles"
+              name="rebuild-workout-miles"
+              autoComplete="off"
+            />
+          </label>
+        )}
+        <label className="workout-log-field">
+          <span className="workout-log-label">Minutes</span>
+          <input
+            className="workout-log-input"
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={600}
+            placeholder="Optional"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            aria-label="Duration in minutes"
+            name="rebuild-workout-minutes"
+            autoComplete="off"
+          />
+        </label>
       </div>
 
-      <input
-        className="gym-log-input"
-        placeholder="Notes (optional)"
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        aria-label="Notes"
-      />
+      <label className="workout-log-field">
+        <span className="workout-log-label">Notes</span>
+        <input
+          className="workout-log-input"
+          placeholder="Optional"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          aria-label="Notes"
+          name="rebuild-workout-notes"
+          autoComplete="off"
+        />
+      </label>
+
+      <button
+        type="submit"
+        className="btn primary workout-log-submit"
+        disabled={!canSubmit}
+      >
+        {busy ? "Logging…" : "Log workout"}
+      </button>
 
       {error && (
-        <p className="tiny" style={{ color: "var(--danger)", marginTop: 8 }}>
-          {error}
-        </p>
+        <p className="tiny workout-log-error">{error}</p>
       )}
     </form>
   );
