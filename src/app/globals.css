@@ -825,6 +825,49 @@ h2 {
 
 .workout-pr-add {
   margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.workout-pr-type-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.workout-pr-type-btn {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 6px;
+  background: var(--surface-strong);
+  font-weight: 600;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.workout-pr-type-btn.hiit.active {
+  background: color-mix(in srgb, var(--workout-hiit) 16%, transparent);
+  border-color: var(--workout-hiit);
+  color: var(--workout-hiit);
+}
+
+.workout-pr-type-btn.lift.active {
+  background: color-mix(in srgb, var(--workout-lift) 16%, transparent);
+  border-color: var(--workout-lift);
+  color: var(--workout-lift);
+}
+
+.workout-pr-type-btn.stretch.active {
+  background: color-mix(in srgb, var(--workout-stretch) 16%, transparent);
+  border-color: var(--workout-stretch);
+  color: var(--workout-stretch);
+}
+
+.workout-pr-row strong .workout-day-badge {
+  margin-right: 6px;
+  vertical-align: middle;
 }
 
 .workout-mapmyrun-note {
