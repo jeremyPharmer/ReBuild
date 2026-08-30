@@ -4,9 +4,9 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { HomeDateHeader } from "@/components/HomeDateHeader";
+import { TodayRebuildPanel } from "@/components/TodayRebuildPanel";
 import { TodaysEntertainmentCard } from "@/components/TodaysEntertainmentCard";
 import { GymTrackingCard } from "@/components/GymTrackingCard";
-import { TodaySegmentsPanel } from "@/components/TodaySegmentsPanel";
 import { WeekPlanPanel } from "@/components/WeekPlanPanel";
 
 export default function HomePage() {
@@ -25,12 +25,12 @@ export default function HomePage() {
     <main className="fade-in home-cos stack">
       <HomeDateHeader date={today} />
 
+      <TodayRebuildPanel />
+
       <div className="home-card-grid">
         <TodaysEntertainmentCard />
         <GymTrackingCard />
       </div>
-
-      <TodaySegmentsPanel />
 
       <WeekPlanPanel today={today} week={dashboard.week} />
     </main>

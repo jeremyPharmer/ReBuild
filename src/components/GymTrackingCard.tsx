@@ -4,14 +4,12 @@ import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { weekBounds } from "@/lib/journey";
 import { recentWorkouts, workoutsForDate } from "@/lib/workouts";
-import { truncateSupportLabel } from "@/lib/auth-constants";
 
 export function GymTrackingCard() {
   const { state, dashboard, today, post } = useApp();
   const [label, setLabel] = useState("");
   const [duration, setDuration] = useState("");
   const [busy, setBusy] = useState(false);
-  const [supportBusy, setSupportBusy] = useState(false);
   const [error, setError] = useState("");
 
   const gymSupport = state.profile?.supports.find((s) => s.type === "gym");
@@ -61,46 +59,15 @@ export function GymTrackingCard() {
     }
   }
 
-  async function toggleGymSupport() {
-    setSupportBusy(true);
-    try {
-      await post("/api/support", {
-        date: today,
-        supportType: "gym",
-        completed: !gymDone,
-      });
-    } finally {
-      setSupportBusy(false);
-    }
-  }
-
   return (
     <section className="home-card home-card-gym">
       <div className="home-card-head">
         <p className="home-card-kicker">Move</p>
-        <h2>Gym</h2>
+        <h2>Gym log</h2>
         <p className="tiny home-card-sub">
           {weekDone}/{weekTarget} supports · {weekWorkouts} logged this week
         </p>
       </div>
-
-      <button
-        type="button"
-        className={`gym-today-toggle${gymDone ? " done" : ""}`}
-        disabled={supportBusy || gymSkipped}
-        onClick={toggleGymSupport}
-      >
-        <span className={`check-box${gymDone ? " checked" : ""}`}>
-          {gymDone ? "✓" : ""}
-        </span>
-        <span>
-          {gymSkipped
-            ? "Gym skipped today"
-            : gymDone
-              ? "Gym done today"
-              : truncateSupportLabel(gymSupport?.label ?? "Gym")}
-        </span>
-      </button>
 
       {todayWorkouts.length > 0 && (
         <ul className="gym-today-list">
@@ -132,7 +99,11 @@ export function GymTrackingCard() {
             onChange={(e) => setDuration(e.target.value)}
             aria-label="Duration in minutes"
           />
-          <button type="submit" className="btn primary gym-log-btn" disabled={busy || !label.trim()}>
+          <button
+            type="submit"
+            className="btn primary gym-log-btn"
+            disabled={busy || !label.trim()}
+          >
             {busy ? "…" : "Log"}
           </button>
         </div>
