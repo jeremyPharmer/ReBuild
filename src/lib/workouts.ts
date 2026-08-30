@@ -14,6 +14,15 @@ export const WORKOUT_TYPES: { id: WorkoutType; label: string }[] = [
   { id: "stretch", label: "Stretch" },
 ];
 
+export const WORKOUT_PRESETS: Record<WorkoutType, string[]> = {
+  run: ["Easy run", "Long run", "Tempo", "Intervals", "Recovery jog", "5K", "10K"],
+  hiit: ["Tabata", "Circuit", "AMRAP", "EMOM", "Boot camp", "Sprints"],
+  lift: ["Upper body", "Lower body", "Full body", "Push day", "Pull day", "Leg day"],
+  stretch: ["Yoga", "Mobility", "Foam roll", "Static stretch", "Recovery flow"],
+};
+
+export const WORKOUT_CUSTOM = "__custom__";
+
 const WORKOUT_TYPE_SET = new Set<WorkoutType>(
   WORKOUT_TYPES.map((t) => t.id),
 );
