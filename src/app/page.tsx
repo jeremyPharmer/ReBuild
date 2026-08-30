@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { HomeDateHeader } from "@/components/HomeDateHeader";
+import { WeatherBanner } from "@/components/WeatherBanner";
 import { TodayRebuildPanel } from "@/components/TodayRebuildPanel";
 import { TodaysEntertainmentCard } from "@/components/TodaysEntertainmentCard";
 import { GymTrackingCard } from "@/components/GymTrackingCard";
@@ -23,6 +24,7 @@ export default function HomePage() {
 
   return (
     <main className="fade-in home-cos stack">
+      <WeatherBanner />
       <HomeDateHeader date={today} />
 
       <TodayRebuildPanel />

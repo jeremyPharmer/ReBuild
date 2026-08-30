@@ -1,0 +1,105 @@
+export type DailyForecast = {
+  date: string;
+  highF: number;
+  lowF: number;
+  code: number;
+  label: string;
+  icon: string;
+};
+
+export type WeatherForecast = {
+  locationLabel: string;
+  days: DailyForecast[];
+};
+
+/** WMO weather code → short label + emoji icon */
+export function weatherCodeMeta(code: number): { label: string; icon: string } {
+  if (code === 0) return { label: "Clear", icon: "☀️" };
+  if (code <= 3) return { label: "Partly cloudy", icon: "⛅" };
+  if (code <= 48) return { label: "Fog", icon: "🌫️" };
+  if (code <= 57) return { label: "Drizzle", icon: "🌦️" };
+  if (code <= 67) return { label: "Rain", icon: "🌧️" };
+  if (code <= 77) return { label: "Snow", icon: "❄️" };
+  if (code <= 82) return { label: "Showers", icon: "🌦️" };
+  if (code <= 86) return { label: "Snow showers", icon: "🌨️" };
+  if (code >= 95) return { label: "Thunderstorm", icon: "⛈️" };
+  return { label: "Cloudy", icon: "☁️" };
+}
+
+type OpenMeteoDaily = {
+  time: string[];
+  weather_code: number[];
+  temperature_2m_max: number[];
+  temperature_2m_min: number[];
+};
+
+export async function fetchForecast(
+  lat: number,
+  lon: number,
+  timezone: string,
+  locationLabel: string,
+): Promise<WeatherForecast> {
+  const params = new URLSearchParams({
+    latitude: String(lat),
+    longitude: String(lon),
+    daily: "weather_code,temperature_2m_max,temperature_2m_min",
+    timezone,
+    forecast_days: "5",
+    temperature_unit: "fahrenheit",
+  });
+
+  const res = await fetch(
+    `https://api.open-meteo.com/v1/forecast?${params.toString()}`,
+    { next: { revalidate: 3600 } },
+  );
+  if (!res.ok) {
+    throw new Error("Weather unavailable");
+  }
+
+  const data = (await res.json()) as { daily: OpenMeteoDaily };
+  const daily = data.daily;
+
+  const days: DailyForecast[] = daily.time.map((date, i) => {
+    const code = daily.weather_code[i] ?? 0;
+    const meta = weatherCodeMeta(code);
+    return {
+      date,
+      highF: Math.round(daily.temperature_2m_max[i] ?? 0),
+      lowF: Math.round(daily.temperature_2m_min[i] ?? 0),
+      code,
+      label: meta.label,
+      icon: meta.icon,
+    };
+  });
+
+  return { locationLabel, days: days.slice(0, 5) };
+}
+
+/** Approximate coords when geolocation is unavailable */
+export const TIMEZONE_FALLBACKS: Record<
+  string,
+  { lat: number; lon: number; label: string }
+> = {
+  "America/Los_Angeles": { lat: 34.0522, lon: -118.2437, label: "Los Angeles" },
+  "America/Denver": { lat: 39.7392, lon: -104.9903, label: "Denver" },
+  "America/Chicago": { lat: 41.8781, lon: -87.6298, label: "Chicago" },
+  "America/New_York": { lat: 40.7128, lon: -74.006, label: "New York" },
+  "America/Phoenix": { lat: 33.4484, lon: -112.074, label: "Phoenix" },
+  "Pacific/Honolulu": { lat: 21.3069, lon: -157.8583, label: "Honolulu" },
+};
+
+export function fallbackForTimezone(timezone: string): {
+  lat: number;
+  lon: number;
+  label: string;
+} {
+  return (
+    TIMEZONE_FALLBACKS[timezone] ?? TIMEZONE_FALLBACKS["America/Los_Angeles"]
+  );
+}
+
+export function dayLabel(date: string, today: string): string {
+  if (date === today) return "Today";
+  const d = new Date(`${date}T12:00:00`);
+  return d.toLocaleDateString("en-US", { weekday: "short" });
+}
