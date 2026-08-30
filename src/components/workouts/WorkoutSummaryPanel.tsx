@@ -37,7 +37,7 @@ function SummaryBlock({
         <div className="workout-week-points">
           <span className="workout-week-points-value">{qualityPoints}</span>
           <span className="workout-week-points-label">
-            quality point{qualityPoints === 1 ? "" : "s"}
+            point{qualityPoints === 1 ? "" : "s"}
           </span>
         </div>
       )}
