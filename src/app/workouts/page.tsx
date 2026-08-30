@@ -6,12 +6,11 @@ import { useApp } from "@/components/AppProvider";
 import { WorkoutCalendar } from "@/components/workouts/WorkoutCalendar";
 import { WorkoutLogForm } from "@/components/workouts/WorkoutLogForm";
 import { WorkoutPrPanels } from "@/components/workouts/WorkoutPrPanels";
+import { WorkoutSummaryPanel } from "@/components/workouts/WorkoutSummaryPanel";
 import {
   formatMiles,
-  liftTypeLabel,
-  monthRunMiles,
   monthKey,
-  weekRunMiles,
+  workoutTypeLabel,
   workoutsForDate,
 } from "@/lib/workouts";
 import { parseDate } from "@/lib/journey";
@@ -25,13 +24,6 @@ export default function WorkoutsPage() {
   const [month, setMonth] = useState(initialMonth);
   const [selectedDate, setSelectedDate] = useState(today);
 
-  const { year, monthNum } = useMemo(() => {
-    const [y, m] = month.split("-").map(Number);
-    return { year: y, monthNum: m };
-  }, [month]);
-
-  const weekMiles = weekRunMiles(state.workouts, today);
-  const monthMiles = monthRunMiles(state.workouts, year, monthNum);
   const dayWorkouts = workoutsForDate(state.workouts, selectedDate);
 
   async function deleteWorkout(id: string) {
@@ -45,21 +37,8 @@ export default function WorkoutsPage() {
           ← Home
         </Link>
         <h1>Move</h1>
-        <p className="muted">Run · Lift · HIIT · Stretch · Weights</p>
+        <p className="muted">Run · HIIT · Lift · Stretch</p>
       </header>
-
-      <section className="panel workout-stats-row">
-        <div>
-          <p className="eyebrow">This week</p>
-          <p className="money">{formatMiles(weekMiles)} mi</p>
-          <p className="tiny muted">Running</p>
-        </div>
-        <div>
-          <p className="eyebrow">This month</p>
-          <p className="money">{formatMiles(monthMiles)} mi</p>
-          <p className="tiny muted">Running</p>
-        </div>
-      </section>
 
       <section className="panel">
         <WorkoutCalendar
@@ -82,12 +61,8 @@ export default function WorkoutsPage() {
             {dayWorkouts.map((w) => (
               <li key={w.id} className="workout-day-item">
                 <div>
-                  <span
-                    className={`workout-day-badge ${w.category}`}
-                  >
-                    {w.category === "run"
-                      ? "Run"
-                      : liftTypeLabel(w.liftType)}
+                  <span className={`workout-day-badge ${w.type}`}>
+                    {workoutTypeLabel(w.type)}
                   </span>
                   <strong>{w.label}</strong>
                   <p className="tiny muted">
@@ -112,6 +87,8 @@ export default function WorkoutsPage() {
       )}
 
       <WorkoutLogForm date={selectedDate ?? today} />
+
+      <WorkoutSummaryPanel monthKey={month} today={today} />
 
       <WorkoutPrPanels date={selectedDate ?? today} />
     </main>

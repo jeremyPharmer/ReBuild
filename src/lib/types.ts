@@ -46,15 +46,21 @@ export type MorningCheckIn = {
   completedAt: string;
 };
 
+export type WorkoutType = "run" | "hiit" | "lift" | "stretch";
+
+/** @deprecated legacy category + liftType — migrated to `type` on read */
 export type WorkoutCategory = "run" | "lift";
+/** @deprecated legacy lift subtype — migrated to `type` on read */
 export type LiftType = "hiit" | "stretch" | "weights";
 
 /** Personal workout log entry (RB-018) */
 export type WorkoutLog = {
   id: string;
   date: string;
+  type?: WorkoutType;
+  /** @deprecated use `type` */
   category?: WorkoutCategory;
-  /** When category is lift */
+  /** @deprecated use `type` */
   liftType?: LiftType;
   label: string;
   durationMin?: number;
@@ -66,7 +72,10 @@ export type WorkoutLog = {
 
 export type WorkoutPr = {
   id: string;
-  category: WorkoutCategory;
+  type?: WorkoutType;
+  /** @deprecated use `type` */
+  category?: WorkoutCategory;
+  /** @deprecated use `type` */
   liftType?: LiftType;
   /** e.g. 5K, Bench press, Longest run */
   name: string;

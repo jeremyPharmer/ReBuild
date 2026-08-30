@@ -390,13 +390,22 @@ h2 {
   background: var(--workout-run);
 }
 
+.workout-marker.hiit {
+  background: var(--workout-hiit);
+}
+
 .workout-marker.lift {
   background: var(--workout-lift);
 }
 
+.workout-marker.stretch {
+  background: var(--workout-stretch);
+}
+
 .workout-cal-legend {
   display: flex;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 10px 14px;
   justify-content: center;
   margin-top: 10px;
   font-size: 0.72rem;
@@ -414,44 +423,46 @@ h2 {
   min-height: 36px;
 }
 
-.workout-category-toggle {
+.workout-type-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 10px;
 }
 
-.workout-cat-btn {
+.workout-type-btn {
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 8px;
+  padding: 10px 8px;
   background: var(--surface-strong);
   font-weight: 600;
+  font-size: 0.88rem;
   cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
 }
 
-.workout-cat-btn.run.active {
+.workout-type-btn.run.active {
   background: color-mix(in srgb, var(--workout-run) 22%, transparent);
   border-color: var(--workout-run);
   color: var(--workout-run);
 }
 
-.workout-cat-btn.lift.active {
+.workout-type-btn.hiit.active {
+  background: color-mix(in srgb, var(--workout-hiit) 20%, transparent);
+  border-color: var(--workout-hiit);
+  color: var(--workout-hiit);
+}
+
+.workout-type-btn.lift.active {
   background: color-mix(in srgb, var(--workout-lift) 18%, transparent);
   border-color: var(--workout-lift);
   color: var(--workout-lift);
 }
 
-.workout-lift-types {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.workout-lift-btn.active {
-  border-color: var(--workout-lift);
-  background: color-mix(in srgb, var(--workout-lift) 14%, transparent);
+.workout-type-btn.stretch.active {
+  background: color-mix(in srgb, var(--workout-stretch) 18%, transparent);
+  border-color: var(--workout-stretch);
+  color: var(--workout-stretch);
 }
 
 .workouts-page h1 {
@@ -499,9 +510,107 @@ h2 {
   color: var(--workout-run);
 }
 
+.workout-day-badge.hiit {
+  background: color-mix(in srgb, var(--workout-hiit) 18%, transparent);
+  color: var(--workout-hiit);
+}
+
 .workout-day-badge.lift {
   background: color-mix(in srgb, var(--workout-lift) 18%, transparent);
   color: var(--workout-lift);
+}
+
+.workout-day-badge.stretch {
+  background: color-mix(in srgb, var(--workout-stretch) 18%, transparent);
+  color: var(--workout-stretch);
+}
+
+.workout-summary-panel {
+  display: grid;
+  gap: 8px;
+}
+
+.workout-summary-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.workout-summary-block + .workout-summary-block {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.workout-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.workout-summary-stat {
+  text-align: center;
+  padding: 10px 4px;
+  border-radius: 10px;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+}
+
+.workout-summary-stat.run {
+  border-color: color-mix(in srgb, var(--workout-run) 35%, var(--line));
+}
+
+.workout-summary-stat.hiit {
+  border-color: color-mix(in srgb, var(--workout-hiit) 35%, var(--line));
+}
+
+.workout-summary-stat.lift {
+  border-color: color-mix(in srgb, var(--workout-lift) 35%, var(--line));
+}
+
+.workout-summary-stat.stretch {
+  border-color: color-mix(in srgb, var(--workout-stretch) 35%, var(--line));
+}
+
+.workout-summary-count {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 650;
+  line-height: 1.1;
+}
+
+.workout-summary-stat.run .workout-summary-count {
+  color: var(--workout-run);
+}
+
+.workout-summary-stat.hiit .workout-summary-count {
+  color: var(--workout-hiit);
+}
+
+.workout-summary-stat.lift .workout-summary-count {
+  color: var(--workout-lift);
+}
+
+.workout-summary-stat.stretch .workout-summary-count {
+  color: var(--workout-stretch);
+}
+
+.workout-summary-label {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.workout-summary-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  font-size: 0.78rem;
+  color: var(--muted);
 }
 
 .workout-pr-stack {

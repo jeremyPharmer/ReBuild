@@ -1,22 +1,35 @@
 import { describe, expect, it } from "vitest";
 import {
   buildMonthGrid,
+  monthWorkoutSummary,
   normalizeWorkout,
   summarizeDay,
   weekRunMiles,
+  weekWorkoutSummary,
 } from "./workouts";
 import type { WorkoutLog } from "./types";
 
 describe("normalizeWorkout", () => {
-  it("defaults legacy rows to weights lift", () => {
+  it("defaults legacy rows to lift", () => {
     const w = normalizeWorkout({
       id: "1",
       date: "2026-08-30",
       label: "Leg day",
       createdAt: "2026-08-30T12:00:00Z",
     } as WorkoutLog);
-    expect(w.category).toBe("lift");
-    expect(w.liftType).toBe("weights");
+    expect(w.type).toBe("lift");
+  });
+
+  it("migrates lift+hiit to hiit type", () => {
+    const w = normalizeWorkout({
+      id: "1",
+      date: "2026-08-30",
+      category: "lift",
+      liftType: "hiit",
+      label: "Tabata",
+      createdAt: "2026-08-30T12:00:00Z",
+    });
+    expect(w.type).toBe("hiit");
   });
 
   it("preserves run with distance", () => {
@@ -28,8 +41,7 @@ describe("normalizeWorkout", () => {
       distanceMiles: 3.1,
       createdAt: "2026-08-30T12:00:00Z",
     });
-    expect(w.category).toBe("run");
-    expect(w.liftType).toBeUndefined();
+    expect(w.type).toBe("run");
   });
 });
 
@@ -43,27 +55,24 @@ describe("buildMonthGrid", () => {
 });
 
 describe("summarizeDay", () => {
-  it("detects run and lift on same day", () => {
+  it("lists all four types on one day", () => {
     const s = summarizeDay([
       {
         id: "a",
         date: "2026-08-30",
-        category: "run",
+        type: "run",
         label: "Run",
         createdAt: "",
       },
       {
         id: "b",
         date: "2026-08-30",
-        category: "lift",
-        liftType: "hiit",
+        type: "hiit",
         label: "HIIT",
         createdAt: "",
       },
     ]);
-    expect(s.hasRun).toBe(true);
-    expect(s.hasLift).toBe(true);
-    expect(s.liftTypes).toContain("hiit");
+    expect(s.types).toEqual(["run", "hiit"]);
   });
 });
 
@@ -74,7 +83,7 @@ describe("weekRunMiles", () => {
         {
           id: "1",
           date: "2026-08-30",
-          category: "run",
+          type: "run",
           label: "Run",
           distanceMiles: 3,
           createdAt: "",
@@ -82,7 +91,7 @@ describe("weekRunMiles", () => {
         {
           id: "2",
           date: "2026-08-31",
-          category: "run",
+          type: "run",
           label: "Run",
           distanceMiles: 2.5,
           createdAt: "",
@@ -90,8 +99,7 @@ describe("weekRunMiles", () => {
         {
           id: "3",
           date: "2026-08-30",
-          category: "lift",
-          liftType: "weights",
+          type: "lift",
           label: "Lift",
           createdAt: "",
         },
@@ -99,5 +107,62 @@ describe("weekRunMiles", () => {
       "2026-08-30",
     );
     expect(miles).toBe(5.5);
+  });
+});
+
+describe("weekWorkoutSummary", () => {
+  it("counts sessions by type", () => {
+    const summary = weekWorkoutSummary(
+      [
+        {
+          id: "1",
+          date: "2026-08-30",
+          type: "run",
+          label: "Run",
+          distanceMiles: 3,
+          durationMin: 30,
+          createdAt: "",
+        },
+        {
+          id: "2",
+          date: "2026-08-30",
+          type: "hiit",
+          label: "HIIT",
+          durationMin: 20,
+          createdAt: "",
+        },
+      ],
+      "2026-08-30",
+    );
+    expect(summary.counts.run).toBe(1);
+    expect(summary.counts.hiit).toBe(1);
+    expect(summary.runMiles).toBe(3);
+    expect(summary.totalMinutes).toBe(50);
+  });
+});
+
+describe("monthWorkoutSummary", () => {
+  it("filters to the selected month", () => {
+    const summary = monthWorkoutSummary(
+      [
+        {
+          id: "1",
+          date: "2026-08-01",
+          type: "stretch",
+          label: "Yoga",
+          createdAt: "",
+        },
+        {
+          id: "2",
+          date: "2026-07-31",
+          type: "stretch",
+          label: "Yoga",
+          createdAt: "",
+        },
+      ],
+      2026,
+      8,
+    );
+    expect(summary.counts.stretch).toBe(1);
   });
 });
