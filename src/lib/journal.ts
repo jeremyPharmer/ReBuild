@@ -1,5 +1,6 @@
-import type { JournalEntry } from "./types";
-import { addDays, formatDate, parseDate } from "./journey";
+import type { JournalEntry, RebuildState } from "./types";
+import { addDays, formatDate, getEvening, newId, parseDate } from "./journey";
+import { normalizeStarredDays } from "./fund";
 
 export type DayKey = `${string}-${string}`; // MM-DD
 
@@ -122,4 +123,113 @@ export function dateForYear(mmDd: DayKey, year: number): string {
     }
   }
   return `${year}-${mmDd}`;
+}
+
+/** Toggle a YYYY-MM-DD in the starred bookmark list (no cap). */
+export function toggleStarredDay(
+  starredDays: string[] | undefined,
+  date: string,
+): string[] {
+  const current = normalizeStarredDays(starredDays);
+  if (current.includes(date)) {
+    return current.filter((d) => d !== date);
+  }
+  return normalizeStarredDays([...current, date]);
+}
+
+export function isStarredDay(
+  starredDays: string[] | undefined,
+  date: string,
+): boolean {
+  return normalizeStarredDays(starredDays).includes(date);
+}
+
+/**
+ * Prose (+ optional photo) edit of an existing closed day.
+ * Updates evenings + journals only — never reclaim/milestones.
+ */
+export function applyJournalProseEdit(
+  state: RebuildState,
+  date: string,
+  oneLine: string,
+  expandedJournal?: string,
+  photoId?: string,
+): RebuildState {
+  const evening = getEvening(state, date);
+  if (!evening) {
+    throw Object.assign(new Error("No journal entry for that day"), {
+      status: 404,
+    });
+  }
+  const headline = oneLine.trim();
+  if (!headline) {
+    throw Object.assign(new Error("Headline is required"), { status: 400 });
+  }
+  const summary = expandedJournal?.trim() || undefined;
+
+  const evenings = state.evenings.map((e) =>
+    e.date === date
+      ? { ...e, oneLine: headline, expandedJournal: summary }
+      : e,
+  );
+
+  let journals = [...state.journals];
+  const oneLineIdx = journals.findIndex(
+    (j) => j.date === date && j.type === "one_line",
+  );
+  const journalIdx = journals.findIndex(
+    (j) => j.date === date && j.type === "journal",
+  );
+
+  const existingPhoto = journals.find(
+    (j) => j.date === date && j.photoId,
+  )?.photoId;
+  const resolvedPhoto =
+    photoId !== undefined ? photoId || undefined : existingPhoto;
+
+  if (oneLineIdx >= 0) {
+    journals[oneLineIdx] = {
+      ...journals[oneLineIdx],
+      text: headline,
+      ...(photoId !== undefined ? { photoId: resolvedPhoto } : {}),
+    };
+  } else {
+    journals.push({
+      id: newId("journal"),
+      date,
+      type: "one_line",
+      text: headline,
+      photoId: resolvedPhoto,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  if (summary) {
+    if (journalIdx >= 0) {
+      journals[journalIdx] = {
+        ...journals[journalIdx],
+        text: summary,
+        ...(photoId !== undefined ? { photoId: resolvedPhoto } : {}),
+      };
+    } else {
+      journals.push({
+        id: newId("journal"),
+        date,
+        type: "journal",
+        text: summary,
+        photoId: resolvedPhoto,
+        createdAt: new Date().toISOString(),
+      });
+    }
+  } else if (journalIdx >= 0) {
+    journals = journals.filter((_, i) => i !== journalIdx);
+  }
+
+  if (photoId !== undefined) {
+    journals = journals.map((j) =>
+      j.date === date ? { ...j, photoId: resolvedPhoto } : j,
+    );
+  }
+
+  return { ...state, evenings, journals };
 }

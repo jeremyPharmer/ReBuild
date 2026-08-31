@@ -31,10 +31,11 @@ Optional photo(s) can be attached when writing or closing a journal/evening entr
 
 - Multi-photo galleries, albums, or carousel polish beyond “one (or a few) attached + view”
 - Camera-only / in-app capture flows (library pick is enough for v1 if picker already supports it)
-- Editing or deleting photos after attach (unless a thin remove falls out of reuse)
+- Editing or deleting photos after attach (unless a thin remove falls out of reuse) — **add photos on edit of existing entries** is **[RB-022](./journal-edit-star-calendar.md)** (reuse this item’s storage model; do not fork)
 - Auto-attaching milestone celebration photos into journal slots (may surface later if PRODUCT_DECISIONS already implies Journey/journal day display — do not block this item on that)
 - Print/export of photo journals; AI captions
 - Five-year layout / headline+summary model — remains **[RB-016](./five-year-journal-ux.md)**
+- Month calendar, star bookmark, prose edit of existing entries — **[RB-022](./journal-edit-star-calendar.md)**
 - Missed-evening backfill integrity — remains **[RB-010](./backfill-missed-evening-journal-close.md)**
 
 ## Dependencies & risks
@@ -50,4 +51,4 @@ Optional photo(s) can be attached when writing or closing a journal/evening entr
 - Intake **2026-08-30** founder: “Can I add pics to the journal, give me a paperclip or some symbol when it's there.”
 - Rank **5** / **P1** — founder-asked enhancement to the five-year journal surface; sits immediately after RB-016 core UX, ahead of Gmail/podcast expansion. Not P0: does not block rebrand, todos, or journal layout finish.
 - Build **after** RB-016 day-page is usable (already largely shipped); pull forward when journal is touched — effort **S** because infra exists.
-- Related: [RB-016](./five-year-journal-ux.md), [RB-010](./backfill-missed-evening-journal-close.md); code anchors `src/lib/photos.ts`, `src/lib/clientPhoto.ts`, `SubtlePhotoPicker`.
+- Related: [RB-016](./five-year-journal-ux.md), [RB-010](./backfill-missed-evening-journal-close.md), [RB-022](./journal-edit-star-calendar.md) (edit-path photos + calendar/star — builds on this infra); code anchors `src/lib/photos.ts`, `src/lib/clientPhoto.ts`, `SubtlePhotoPicker`.

@@ -317,6 +317,7 @@ export function emptyState(): RebuildState {
     cravings: [],
     weeklyBonuses: [],
     journals: [],
+    starredDays: [],
     skips: [],
     fund: { future: 0, treat: 0 },
     consecutiveSaves: 0,

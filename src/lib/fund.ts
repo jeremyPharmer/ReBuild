@@ -34,6 +34,7 @@ export function normalizeState(state: RebuildState): RebuildState {
   return {
     ...state,
     skips: state.skips ?? [],
+    starredDays: normalizeStarredDays(state.starredDays),
     fund: normalizeFund(state.fund),
     consecutiveSaves: state.consecutiveSaves ?? 0,
     milestoneDecisions: state.milestoneDecisions ?? [],
@@ -44,6 +45,18 @@ export function normalizeState(state: RebuildState): RebuildState {
     workouts: (state.workouts ?? []).map(normalizeWorkout),
     workoutPrs: normalizeWorkoutPrs(state.workoutPrs),
   };
+}
+
+/** Unique sorted YYYY-MM-DD bookmarks */
+export function normalizeStarredDays(days?: string[]): string[] {
+  if (!days?.length) return [];
+  const seen = new Set<string>();
+  for (const d of days) {
+    if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
+      seen.add(d);
+    }
+  }
+  return [...seen].sort();
 }
 
 /** Recommended default: Future 30% / Treat Yourself 70% (user can set at onboarding). */
