@@ -46,8 +46,8 @@ Keep changes in your lane when sharing a branch. Prefer small PRs that can ship.
 ## App / ship
 
 1. Verify on **dev** first: https://jeremyos-dev.fly.dev (`fly deploy -c fly.dev.toml -a jeremyos-dev`)
-2. Deploy **prod** only when ready: `fly deploy -c fly.prod.toml -a jeremyos-prod`
-3. `POST /api/reset` is blocked when `JEREMYOS_ENV=prod`. Prod Day-1 restart: clear `/app/.data/db.json` on `jeremyos-prod` (see `DEPLOY.md`).
+2. Deploy **prod**: `fly deploy -c fly.prod.toml -a rebuild-prod` (until `jeremyos-prod` exists — see `DEPLOY.md`)
+3. `POST /api/reset` is blocked when `JEREMYOS_ENV=prod`. Prod Day-1 restart: clear `/app/.data/db.json` on the prod Fly app (see `DEPLOY.md`).
 
 ## Cursor Cloud notes
 

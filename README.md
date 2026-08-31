@@ -32,10 +32,11 @@ npm run build
 
 ## Live URLs (Fly.io)
 
-| Env | URL | Data |
+| Env | URL | Notes |
 |---|---|---|
-| **Dev** | https://jeremyos-dev.fly.dev | Test / sample |
-| **Prod** | https://jeremyos-prod.fly.dev | Founder true-source |
+| **Prod (now)** | https://rebuild-prod.fly.dev | Legacy app name; JeremyOS branding live |
+| **Prod (target)** | https://jeremyos-prod.fly.dev | After URL migration — see `DEPLOY.md` |
+| **Dev** | https://jeremyos-dev.fly.dev | Create app when needed |
 
 See `DEPLOY.md`, `PRODUCT_DECISIONS.md`, and `product/` (roadmap + locked fund model).
 

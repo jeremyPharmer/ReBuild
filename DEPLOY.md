@@ -1,21 +1,84 @@
 # Fly.io deployment
 
-Two private stable apps with **separate persistent volumes**:
+JeremyOS runs on **Fly.io** with a persistent volume at `/app/.data/db.json`.
+
+## Current state (2026-08-31)
+
+| | App | URL | Volume |
+|---|---|---|---|
+| **Prod (live)** | `rebuild-prod` | https://rebuild-prod.fly.dev | `rebuild_prod_data` |
+| **Target** | `jeremyos-prod` | https://jeremyos-prod.fly.dev | `jeremyos_prod_data` |
+
+Prod still uses the legacy `rebuild-prod` app until you run the URL migration below. Deploy with `-a rebuild-prod` until then.
+
+## Target environments
 
 | Env | App name | Config | Data volume | URL |
 |---|---|---|---|---|
 | Dev | `jeremyos-dev` | `fly.dev.toml` | `jeremyos_dev_data` | https://jeremyos-dev.fly.dev |
 | Prod | `jeremyos-prod` | `fly.prod.toml` | `jeremyos_prod_data` | https://jeremyos-prod.fly.dev |
 
-Legacy apps `rebuild-dev` / `rebuild-prod` may still exist until migrated.
+## Change the URL
 
-**Interim prod deploy (until `jeremyos-prod` app is created):**
+Fly **cannot rename** an app. The app name sets the default `https://<app>.fly.dev` URL. Two paths:
+
+### A — New Fly app (`jeremyos-prod.fly.dev`)
+
+Run on your laptop with `fly auth login`:
+
+```bash
+# 1. Create app + volume
+fly apps create jeremyos-prod
+fly volumes create jeremyos_prod_data --region sjc --size 1 -a jeremyos-prod
+
+# 2. Export founder data from legacy prod
+fly ssh console -a rebuild-prod -C "cat /app/.data/db.json" > /tmp/db.json
+
+# 3. Deploy (from repo root)
+fly deploy -c fly.prod.toml -a jeremyos-prod
+
+# 4. Import data
+fly ssh console -a jeremyos-prod -C "sh -c 'cat > /app/.data/db.json'" < /tmp/db.json
+
+# 5. Secrets (copy values from rebuild-prod)
+fly secrets set \
+  AUTH_SECRET='…' \
+  CRON_SECRET='…' \
+  RESEND_API_KEY='…' \
+  EMAIL_FROM='JeremyOS <noreply@icanrebuild.com>' \
+  APP_URL='https://jeremyos-prod.fly.dev' \
+  -a jeremyos-prod
+```
+
+Then in the repo:
+- Set `fly.prod.toml` `[mounts] source = 'jeremyos_prod_data'`
+- Set GitHub secret **`JEREMYOS_APP_URL`** = `https://jeremyos-prod.fly.dev`
+- Update bookmarks; decommission `rebuild-prod` when verified
+
+### B — Custom domain (keep `rebuild-prod` app)
+
+Best if you own a domain (e.g. `jeremyos.yourdomain.com`):
+
+```bash
+fly certs add jeremyos.yourdomain.com -a rebuild-prod
+# Add the DNS record Fly prints (usually CNAME → rebuild-prod.fly.dev)
+
+fly secrets set APP_URL='https://jeremyos.yourdomain.com' -a rebuild-prod
+```
+
+Set GitHub secret **`JEREMYOS_APP_URL`** to the same URL. Email links and cron use `APP_URL`, not the Fly app name.
+
+The old `https://rebuild-prod.fly.dev` URL keeps working unless you remove it.
+
+---
+
+**Interim prod deploy (while still on `rebuild-prod`):**
 
 ```bash
 fly deploy -c fly.prod.toml -a rebuild-prod
 ```
 
-Keep `[mounts] source = 'rebuild_prod_data'` in `fly.prod.toml` while on `rebuild-prod`. Set `APP_URL=https://rebuild-prod.fly.dev` until you cut over to `jeremyos-prod.fly.dev`.
+Keep `[mounts] source = 'rebuild_prod_data'` in `fly.prod.toml` until you cut over to `jeremyos-prod`.
 
 ## Promotion policy (locked)
 
@@ -30,10 +93,13 @@ Keep `[mounts] source = 'rebuild_prod_data'` in `fly.prod.toml` while on `rebuil
 ## Deploy
 
 ```bash
-# Dev (test / sample data) — iterate here
+# Dev (when jeremyos-dev exists)
 fly deploy -c fly.dev.toml -a jeremyos-dev
 
-# Prod (founder true-source) — promote only when ready
+# Prod — use rebuild-prod until jeremyos-prod is created (see "Change the URL")
+fly deploy -c fly.prod.toml -a rebuild-prod
+
+# Prod — after URL migration
 fly deploy -c fly.prod.toml -a jeremyos-prod
 ```
 
@@ -139,7 +205,8 @@ Until you verify a domain in Resend, use the default `onboarding@resend.dev` fro
 ### GitHub Actions schedule
 
 Repo secret **`JEREMYOS_CRON_SECRET`** must match Fly `CRON_SECRET` (legacy `REBUILD_CRON_SECRET` still works until rotated).  
-Workflow: `.github/workflows/reminders.yml` (hourly + manual dispatch).
+Optional **`JEREMYOS_APP_URL`** — prod reminder target (defaults to `https://rebuild-prod.fly.dev` until you migrate).  
+Workflow: `.github/workflows/reminders.yml` (every 15 min + manual dispatch).
 
 ### In-app
 
