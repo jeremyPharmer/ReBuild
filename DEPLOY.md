@@ -7,7 +7,15 @@ Two private stable apps with **separate persistent volumes**:
 | Dev | `jeremyos-dev` | `fly.dev.toml` | `jeremyos_dev_data` | https://jeremyos-dev.fly.dev |
 | Prod | `jeremyos-prod` | `fly.prod.toml` | `jeremyos_prod_data` | https://jeremyos-prod.fly.dev |
 
-Legacy apps `rebuild-dev` / `rebuild-prod` may still exist until migrated — use the JeremyOS names above for new deploys.
+Legacy apps `rebuild-dev` / `rebuild-prod` may still exist until migrated.
+
+**Interim prod deploy (until `jeremyos-prod` app is created):**
+
+```bash
+fly deploy -c fly.prod.toml -a rebuild-prod
+```
+
+Keep `[mounts] source = 'rebuild_prod_data'` in `fly.prod.toml` while on `rebuild-prod`. Set `APP_URL=https://rebuild-prod.fly.dev` until you cut over to `jeremyos-prod.fly.dev`.
 
 ## Promotion policy (locked)
 
