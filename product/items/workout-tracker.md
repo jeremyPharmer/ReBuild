@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-018 |
-| Rank | 9 |
+| Rank | 10 |
 | Priority | P1 |
 | Status | Backlog |
 | Effort | M |
