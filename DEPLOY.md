@@ -8,6 +8,8 @@ JeremyOS runs on **Fly.io** with a persistent volume at `/app/.data/db.json`.
 |---|---|---|---|
 | **Prod** | `jeremyos-prod` | https://jeremyos-prod.fly.dev | `jeremyos_prod_data` |
 
+**`jeremyos-dev` is retired** (deleted). Do not deploy to or reference a Fly dev app. Local `npm run dev` is the experiment surface; ship straight to **prod** when ready.
+
 Legacy `rebuild-prod` was retired. Founder data is restored from backup into `jeremyos-prod` after migration.
 
 ### Emergency recovery (if prod is down)
@@ -34,8 +36,10 @@ Or from repo root (with full org Fly token): `npm run migrate:fly-prod`
 
 | Env | App name | Config | Data volume | URL |
 |---|---|---|---|---|
-| Dev | `jeremyos-dev` | `fly.dev.toml` | `jeremyos_dev_data` | https://jeremyos-dev.fly.dev |
+| Local | — | `npm run dev` | `.data/db.json` | http://localhost:3000 |
 | Prod | `jeremyos-prod` | `fly.prod.toml` | `jeremyos_prod_data` | https://jeremyos-prod.fly.dev |
+
+`fly.dev.toml` is retained only as a historical stub — **do not deploy it**.
 
 ## Change the URL
 
@@ -101,29 +105,24 @@ Keep `[mounts] source = 'rebuild_prod_data'` in `fly.prod.toml` until you cut ov
 
 ## Promotion policy (locked)
 
-1. **Dev** is for experiments and sample data. Reset allowed (`POST /api/reset`).
+1. **Local** (`npm run dev`) is for experiments and sample data. Reset allowed (`POST /api/reset` or delete `.data/db.json`).
 2. **Prod** is founder true-source history.
    - `/api/reset` is **disabled** when `JEREMYOS_ENV=prod`.
    - Deploys use the existing Fly volume — **code updates never wipe `.data/db.json`**.
    - Only promote to prod when intentionally shipping; do not treat prod like a scratch pad.
-3. Verify on **dev** first, then promote to **prod**.
+3. There is **no Fly staging/dev app**. Verify locally, then deploy **prod**.
 4. Do **not** destroy `jeremyos_prod_data`.
 
 ## Deploy
 
 ```bash
-# Dev (when jeremyos-dev exists)
-fly deploy -c fly.dev.toml -a jeremyos-dev
-
-# Prod — use rebuild-prod until jeremyos-prod is created (see "Change the URL")
-fly deploy -c fly.prod.toml -a rebuild-prod
-
-# Prod — after URL migration
-fly deploy -c fly.prod.toml -a jeremyos-prod --ha=false
+fly deploy -c fly.prod.toml -a jeremyos-prod --ha=false --vm-memory 512
 ```
 
-GitHub Actions: **Actions → Deploy → Run workflow** (`both` / `dev` / `prod`).
+GitHub Actions: **Actions → Deploy → Run workflow** (prod only).  
 Requires repo secret `FLY_API_TOKEN` (same value as Cursor secret below).
+
+Alternate browser path: **Actions → Fix jeremyos-prod → Run workflow** (volume + 512MB + deploy).
 
 ## Cloud agent / CI auth (`FLY_API_TOKEN`)
 
@@ -148,19 +147,26 @@ started before the value was saved). Fix below, then **start a new Cloud Agent**
 
 ```bash
 fly auth login
-# Org token can deploy both jeremyos-dev and jeremyos-prod:
+# Org token that can deploy jeremyos-prod:
 fly tokens create org -o personal -n "cursor-jeremyos-deploy" -x 2160h
 # (use your real org slug from `fly orgs list` if not "personal")
 ```
 
 Copy the printed token (starts with `FlyV1` / `fo1_…`). Do **not** commit it.
 
+Confirm the token sees prod:
+
+```bash
+export FLY_API_TOKEN='…'
+fly apps list   # must include jeremyos-prod
+```
+
 ### Install the token where agents can use it
 
 1. **Cursor Cloud Secrets** (required for this agent):
    [cursor.com/dashboard/cloud-agents](https://cursor.com/dashboard/cloud-agents)
    → Secrets → add / update **`FLY_API_TOKEN`** = the token value → save.
-2. **GitHub Actions** (optional, for Actions → Deploy):
+2. **GitHub Actions** (for Actions → Deploy):
    Repo → Settings → Secrets and variables → Actions →
    **`FLY_API_TOKEN`** = same value.
 3. **Restart**: start a **new** Cloud Agent after saving. Existing VMs do not
@@ -169,22 +175,17 @@ Copy the printed token (starts with `FlyV1` / `fo1_…`). Do **not** commit it.
 Then the agent can run:
 
 ```bash
-fly deploy -c fly.dev.toml -a jeremyos-dev
-fly deploy -c fly.prod.toml -a jeremyos-prod --ha=false
+fly deploy -c fly.prod.toml -a jeremyos-prod --ha=false --vm-memory 512
 ```
 
-## One-time setup (JeremyOS apps)
-
-If migrating from `rebuild-*` apps, create new Fly apps and volumes:
+## One-time setup (JeremyOS prod)
 
 ```bash
-fly apps create jeremyos-dev
 fly apps create jeremyos-prod
-fly volumes create jeremyos_dev_data --region sjc --size 1 -a jeremyos-dev
 fly volumes create jeremyos_prod_data --region sjc --size 1 -a jeremyos-prod
 ```
 
-Copy `/app/.data/db.json` from the old prod volume if you need to preserve founder data, then point `APP_URL` and DNS bookmarks at the new URLs.
+Copy `/app/.data/db.json` from the old prod volume if you need to preserve founder data, then point `APP_URL` and DNS bookmarks at the new URL.
 
 ## Prod Day-1 restart (emergency only)
 
@@ -200,16 +201,14 @@ Never use this as part of routine promotion.
 
 N=1 Start-the-day and Close-the-day emails via [Resend](https://resend.com).
 
-### Secrets (prod + optionally dev)
+### Secrets (prod)
 
 ```bash
 # Resend API key (https://resend.com/api-keys)
 fly secrets set RESEND_API_KEY=re_xxx -a jeremyos-prod
-fly secrets set RESEND_API_KEY=re_xxx -a jeremyos-dev
 
 # Shared cron bearer (any long random string)
 fly secrets set CRON_SECRET='long-random-string' -a jeremyos-prod
-fly secrets set CRON_SECRET='long-random-string' -a jeremyos-dev
 ```
 
 Optional:
@@ -224,8 +223,8 @@ Until you verify a domain in Resend, use the default `onboarding@resend.dev` fro
 ### GitHub Actions schedule
 
 Repo secret **`JEREMYOS_CRON_SECRET`** must match Fly `CRON_SECRET` (legacy `REBUILD_CRON_SECRET` still works until rotated).  
-Optional **`JEREMYOS_APP_URL`** — prod reminder target (defaults to `https://rebuild-prod.fly.dev` until you migrate).  
-Workflow: `.github/workflows/reminders.yml` (every 15 min + manual dispatch).
+Optional **`JEREMYOS_APP_URL`** — prod reminder target (defaults to `https://jeremyos-prod.fly.dev`).  
+Workflow: `.github/workflows/reminders.yml` (every 15 min + manual dispatch) — **prod only**.
 
 ### In-app
 

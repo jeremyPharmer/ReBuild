@@ -4,15 +4,6 @@ on:
   schedule:
     - cron: "5,20,35,50 * * * *"
   workflow_dispatch:
-    inputs:
-      target:
-        description: "dev or prod"
-        required: true
-        default: prod
-        type: choice
-        options:
-          - prod
-          - dev
 
 jobs:
   ping:
@@ -23,8 +14,6 @@ jobs:
           JEREMYOS_CRON_SECRET: ${{ secrets.JEREMYOS_CRON_SECRET }}
           REBUILD_CRON_SECRET: ${{ secrets.REBUILD_CRON_SECRET }}
           JEREMYOS_APP_URL: ${{ secrets.JEREMYOS_APP_URL }}
-          JEREMYOS_DEV_URL: ${{ secrets.JEREMYOS_DEV_URL }}
-          TARGET: ${{ github.event.inputs.target || 'prod' }}
         run: |
           set -euo pipefail
           CRON_SECRET="${JEREMYOS_CRON_SECRET:-${REBUILD_CRON_SECRET:-}}"
@@ -33,12 +22,7 @@ jobs:
             exit 1
           fi
           PROD_URL="${JEREMYOS_APP_URL:-https://jeremyos-prod.fly.dev}"
-          DEV_URL="${JEREMYOS_DEV_URL:-https://jeremyos-dev.fly.dev}"
-          if [ "$TARGET" = "dev" ]; then
-            URL="${DEV_URL%/}/api/cron/reminders"
-          else
-            URL="${PROD_URL%/}/api/cron/reminders"
-          fi
+          URL="${PROD_URL%/}/api/cron/reminders"
           curl -fsS -X POST "$URL" \
             -H "Authorization: Bearer ${CRON_SECRET}" \
             -H "Content-Type: application/json" \

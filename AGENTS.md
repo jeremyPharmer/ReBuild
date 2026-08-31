@@ -30,7 +30,7 @@ Source of truth:
 
 ## App / ship
 
-Implement and deploy against Fly **dev** then **prod** per `DEPLOY.md`. Prod data wipe for Day-1 restart: clear `/app/.data/db.json` on `jeremyos-prod` (reset API is blocked on prod).
+Verify locally (`npm run dev`), then deploy **prod** per `DEPLOY.md`. **`jeremyos-dev` is retired** — do not deploy to or wait on a Fly staging app. Prod data wipe for Day-1 restart: clear `/app/.data/db.json` on `jeremyos-prod` (reset API is blocked on prod).
 
 ## Agent roles
 
@@ -45,13 +45,13 @@ Keep changes in your lane when sharing a branch. Prefer small PRs that can ship.
 
 ## App / ship
 
-1. Verify on **dev** first: https://jeremyos-dev.fly.dev (`fly deploy -c fly.dev.toml -a jeremyos-dev`)
-2. Deploy **prod**: `fly deploy -c fly.prod.toml -a rebuild-prod` (until `jeremyos-prod` exists — see `DEPLOY.md`)
+1. Verify locally: `npm run dev` → http://localhost:3000
+2. Deploy **prod**: `fly deploy -c fly.prod.toml -a jeremyos-prod --ha=false --vm-memory 512` (or Actions → Deploy)
 3. `POST /api/reset` is blocked when `JEREMYOS_ENV=prod`. Prod Day-1 restart: clear `/app/.data/db.json` on the prod Fly app (see `DEPLOY.md`).
 
 ## Cursor Cloud notes
 
 - `npm run dev` → http://localhost:3000
-- Reset data: `POST /api/reset` (dev only) or delete `.data/db.json`
+- Reset data: `POST /api/reset` (non-prod / local only) or delete `.data/db.json`
 - Run `npm test` for journey/reclaim/milestone/fund tests
 - `npm run build` before relying on `npm run typecheck` (Next generates types)

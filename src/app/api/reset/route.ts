@@ -9,7 +9,7 @@ export async function POST() {
     return NextResponse.json(
       {
         error:
-          "Reset is disabled on prod. Use jeremyos-dev for test wipes.",
+          "Reset is disabled on prod. Wipe locally via .data/db.json or npm run dev.",
       },
       { status: 403 },
     );

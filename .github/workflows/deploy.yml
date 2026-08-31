@@ -2,43 +2,9 @@ name: Deploy
 
 on:
   workflow_dispatch:
-    inputs:
-      target:
-        description: "Where to deploy"
-        required: true
-        default: both
-        type: choice
-        options:
-          - both
-          - dev
-          - prod
 
 jobs:
-  deploy-dev:
-    if: ${{ github.event.inputs.target == 'both' || github.event.inputs.target == 'dev' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - name: Deploy jeremyos-dev
-        run: flyctl deploy -c fly.dev.toml -a jeremyos-dev --ha=false
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
-  deploy-prod-after-dev:
-    needs: [deploy-dev]
-    if: ${{ github.event.inputs.target == 'both' && needs.deploy-dev.result == 'success' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - name: Deploy jeremyos-prod
-        run: flyctl deploy -c fly.prod.toml -a jeremyos-prod --ha=false --vm-memory 512
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
-  deploy-prod-only:
-    if: ${{ github.event.inputs.target == 'prod' }}
+  deploy-prod:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

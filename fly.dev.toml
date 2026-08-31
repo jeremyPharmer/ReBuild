@@ -1,3 +1,7 @@
+# RETIRED — jeremyos-dev was deleted (2026-08-31). Do not `fly deploy` this file.
+# Local experiments: `npm run dev`. Ship: `fly.prod.toml` → jeremyos-prod.
+# See DEPLOY.md.
+
 # fly.toml app configuration file generated for jeremyos-dev
 # See https://fly.io/docs/reference/configuration/
 

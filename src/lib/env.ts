@@ -9,5 +9,5 @@ export function appBaseUrl(): string {
   if (process.env.APP_URL) return process.env.APP_URL.replace(/\/$/, "");
   return isProdEnv()
     ? "https://jeremyos-prod.fly.dev"
-    : "https://jeremyos-dev.fly.dev";
+    : "http://localhost:3000";
 }

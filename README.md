@@ -34,8 +34,8 @@ npm run build
 
 | Env | URL | Notes |
 |---|---|---|
-| **Prod** | https://jeremyos-prod.fly.dev | After migration |
-| **Dev** | https://jeremyos-dev.fly.dev | Create app when needed |
+| **Prod** | https://jeremyos-prod.fly.dev | Only Fly app — `jeremyos-dev` retired |
+| **Local** | http://localhost:3000 | `npm run dev` |
 
 See `DEPLOY.md`, `PRODUCT_DECISIONS.md`, and `product/` (roadmap + locked fund model).
 
