@@ -15,7 +15,7 @@ Last updated: 2026-08-31
 | 3 | RB-014 | To-do lists (first-class) | P0 | Backlog | M | TBD | v1 | [items/todo-lists.md](./items/todo-lists.md) |
 | 4 | RB-016 | Five-year / paper journal UX | P0 | In Progress | M | TBD | v1 | [items/five-year-journal-ux.md](./items/five-year-journal-ux.md) |
 | 5 | RB-021 | Journal photos (attach + paperclip) | P1 | Backlog | S | TBD | v1.x | [items/journal-photos.md](./items/journal-photos.md) |
-| 6 | RB-022 | Journal edit, star & month calendar | P0 | Backlog | M | TBD | v1.x | [items/journal-edit-star-calendar.md](./items/journal-edit-star-calendar.md) |
+| 6 | RB-022 | Journal edit, star & month calendar | P0 | In Progress | M | TBD | v1.x | [items/journal-edit-star-calendar.md](./items/journal-edit-star-calendar.md) |
 | 7 | RB-002 | Email integration (Gmail) | P0 | Backlog | M | TBD | v1 | [items/email-integration.md](./items/email-integration.md) |
 | 8 | RB-005 | Podcast-first + regular recovery content | P0 | In Progress | M | TBD | v1 | [items/recovery-content-offers.md](./items/recovery-content-offers.md) |
 | 9 | RB-017 | Home cameras via Reolink | P1 | Backlog | M | TBD | v1.x | [items/home-cameras-reolink.md](./items/home-cameras-reolink.md) |

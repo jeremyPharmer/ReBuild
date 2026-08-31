@@ -2477,6 +2477,309 @@ h2 {
   font-size: 0.9rem;
 }
 
+.fy-journal-tools {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.fy-tool-btn {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.88rem;
+  font-weight: 550;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.fy-tool-btn:hover,
+.fy-tool-btn:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.fy-tool-btn.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.fy-cal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 2px 8px;
+}
+
+.fy-cal-nav {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 4px;
+}
+
+.fy-cal-title {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 650;
+}
+
+.fy-cal-dow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fy-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.fy-cal-cell {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2px;
+  min-height: 52px;
+  padding: 6px 2px 4px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.fy-cal-cell.empty {
+  pointer-events: none;
+}
+
+.fy-cal-cell.today {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+
+.fy-cal-cell.selected {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-color: var(--accent);
+}
+
+.fy-cal-cell.mark-closed {
+  background: color-mix(in srgb, var(--surface-strong) 80%, transparent);
+}
+
+.fy-cal-cell.starred .fy-cal-daynum {
+  color: var(--accent);
+}
+
+.fy-cal-daynum {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.fy-cal-markers {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 12px;
+}
+
+.fy-cal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.fy-cal-dot.closed {
+  background: var(--accent);
+}
+
+.fy-cal-dot.missing {
+  background: transparent;
+  border: 1.5px solid color-mix(in srgb, var(--accent) 70%, var(--muted));
+}
+
+.fy-cal-star {
+  color: var(--accent);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.fy-cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 16px;
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+}
+
+.fy-cal-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fy-star-btn {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.fy-star-btn:hover,
+.fy-star-btn:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.fy-star-on {
+  color: var(--accent);
+}
+
+.fy-star-off {
+  color: var(--muted);
+}
+
+.fy-year.is-starred .fy-year-num {
+  color: var(--accent);
+}
+
+.fy-edit-link {
+  appearance: none;
+  margin-top: 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.fy-edit-link:hover,
+.fy-edit-link:focus-visible {
+  border-bottom-color: var(--accent);
+  outline: none;
+}
+
+.fy-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.fy-missed-notice {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.fy-missed-notice a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.fy-missed-inline {
+  margin: 6px 0 0;
+  font-size: 0.88rem;
+}
+
+.fy-missed-inline a {
+  color: var(--accent);
+  font-weight: 550;
+}
+
+.fy-starred-list {
+  padding: 4px 0 8px;
+}
+
+.fy-starred-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fy-starred-empty {
+  text-align: center;
+  margin: 12px 0;
+}
+
+.fy-starred-row {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.fy-starred-row:hover,
+.fy-starred-row:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.fy-starred-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.fy-starred-headline {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
 .fy-photo-lightbox {
   position: fixed;
   inset: 0;

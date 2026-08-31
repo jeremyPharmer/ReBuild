@@ -299,6 +299,8 @@ export type RebuildState = {
   cravings: CravingEvent[];
   weeklyBonuses: WeeklyBonus[];
   journals: JournalEntry[];
+  /** Personal “day to remember” bookmarks (YYYY-MM-DD), no cap */
+  starredDays?: string[];
   /** Today's Rebuild items dismissed for a given date */
   skips: DailySkip[];
   /** Segmented balances still set aside */

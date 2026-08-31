@@ -1,14 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
   SUMMARY_SENTENCE_SOFT_LIMIT,
+  applyJournalProseEdit,
   bundleJournalsByDate,
   countSentences,
   fiveYearSlots,
   formatMonthDayLong,
+  isStarredDay,
   monthDayKey,
   shiftMonthDay,
+  toggleStarredDay,
   type DayKey,
 } from "./journal";
+import { emptyState } from "./journey";
 import type { JournalEntry } from "./types";
 
 function entry(
@@ -97,5 +101,93 @@ describe("journal five-year helpers", () => {
   it("shifts month-day across month boundaries", () => {
     expect(shiftMonthDay("08-29" as DayKey, 1, 2026)).toBe("08-30");
     expect(shiftMonthDay("08-01" as DayKey, -1, 2026)).toBe("07-31");
+  });
+});
+
+describe("journal edit + star helpers", () => {
+  it("toggles starred days without cap", () => {
+    expect(toggleStarredDay(undefined, "2026-08-29")).toEqual(["2026-08-29"]);
+    expect(toggleStarredDay(["2026-08-29"], "2026-08-29")).toEqual([]);
+    expect(toggleStarredDay(["2026-08-01"], "2026-08-29")).toEqual([
+      "2026-08-01",
+      "2026-08-29",
+    ]);
+    expect(isStarredDay(["2026-08-29"], "2026-08-29")).toBe(true);
+    expect(isStarredDay([], "2026-08-29")).toBe(false);
+  });
+
+  it("edits evening prose and journal rows without side-effect fields", () => {
+    const state = emptyState();
+    state.evenings = [
+      {
+        date: "2026-08-29",
+        mood: 7,
+        stress: 3,
+        alignment: "aligned",
+        oneLine: "Old headline",
+        expandedJournal: "Old summary.",
+        completedAt: "2026-08-29T20:00:00.000Z",
+      },
+    ];
+    state.journals = [
+      entry({ date: "2026-08-29", type: "one_line", text: "Old headline" }),
+      entry({ date: "2026-08-29", type: "journal", text: "Old summary." }),
+    ];
+    state.reclaimDays = [
+      { date: "2026-08-29", estimatedAmount: 40, accounted: false },
+    ];
+
+    const next = applyJournalProseEdit(
+      state,
+      "2026-08-29",
+      "New headline",
+      "New summary. Still soft.",
+    );
+
+    expect(next.evenings[0].oneLine).toBe("New headline");
+    expect(next.evenings[0].expandedJournal).toBe("New summary. Still soft.");
+    expect(next.evenings[0].mood).toBe(7);
+    expect(next.reclaimDays).toEqual(state.reclaimDays);
+    expect(bundleJournalsByDate(next.journals).get("2026-08-29")).toEqual({
+      date: "2026-08-29",
+      headline: "New headline",
+      summary: "New summary. Still soft.",
+    });
+  });
+
+  it("attaches photo id on edit and clears empty summary row", () => {
+    const state = emptyState();
+    state.evenings = [
+      {
+        date: "2026-08-30",
+        mood: 6,
+        alignment: "aligned",
+        oneLine: "Hi",
+        expandedJournal: "Bye.",
+        completedAt: "2026-08-30T20:00:00.000Z",
+      },
+    ];
+    state.journals = [
+      entry({ date: "2026-08-30", type: "one_line", text: "Hi" }),
+      entry({ date: "2026-08-30", type: "journal", text: "Bye." }),
+    ];
+
+    const next = applyJournalProseEdit(
+      state,
+      "2026-08-30",
+      "Hi again",
+      "   ",
+      "photo_new.jpg",
+    );
+    expect(next.evenings[0].expandedJournal).toBeUndefined();
+    expect(next.journals).toHaveLength(1);
+    expect(next.journals[0].text).toBe("Hi again");
+    expect(next.journals[0].photoId).toBe("photo_new.jpg");
+  });
+
+  it("rejects edit when evening is missing", () => {
+    expect(() =>
+      applyJournalProseEdit(emptyState(), "2026-08-29", "Nope"),
+    ).toThrow(/No journal entry/);
   });
 });
