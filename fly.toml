@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for jeremyos-prod on 2026-08-31T13:33:58Z
+# fly.toml app configuration file generated for jeremyos-prod on 2026-08-31T13:48:55Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
 app = 'jeremyos-prod'
-primary_region = 'yyz'
+primary_region = 'sjc'
 
 [build]
 
