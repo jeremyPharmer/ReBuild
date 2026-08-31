@@ -44,12 +44,12 @@ export default function LoginPage() {
   return (
     <main className="fade-in enroll-shell">
       <section className="stack enroll-step">
-        <p className="brand-mark">REBUILD</p>
+        <p className="brand-mark">JeremyOS</p>
         <h1>Welcome back.</h1>
         <p className="muted enroll-lead">
           {deviceHint
             ? `Continue as ${deviceHint.displayName} — quick PIN or full password.`
-            : "Sign in to pick up your trail where you left it."}
+            : "Sign in to pick up where you left off."}
         </p>
 
         {pinUnlockAvailable && (

@@ -1,0 +1,44 @@
+# One tap on your phone fixes jeremyos-prod (volume + RAM + deploy).
+name: Fix jeremyos-prod
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Stop broken machines (clean slate)
+        run: flyctl scale count 0 -a jeremyos-prod -y || true
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Ensure data volume exists (sjc)
+        run: |
+          if flyctl volumes list -a jeremyos-prod 2>/dev/null | grep -q jeremyos_prod_data; then
+            echo "Volume OK"
+          else
+            flyctl volumes create jeremyos_prod_data --region sjc --size 1 -a jeremyos-prod --yes
+          fi
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Deploy with 512MB RAM (256MB crashes Next.js)
+        run: flyctl deploy -c fly.prod.toml -a jeremyos-prod --ha=false --vm-memory 512
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Wait for login page
+        run: |
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS https://jeremyos-prod.fly.dev/login | grep -q JeremyOS; then
+              echo "JeremyOS is up"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "Site not up yet — check Fly Machines tab"
+          exit 1

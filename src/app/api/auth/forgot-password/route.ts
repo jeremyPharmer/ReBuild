@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { hashResetToken } from "@/lib/auth";
 import { findUserByEmail, updateDb } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { isProdEnv } from "@/lib/env";
 
 function appBaseUrl(req: Request): string {
   return (
@@ -57,16 +58,15 @@ export async function POST(req: Request) {
   if (process.env.RESEND_API_KEY) {
     const result = await sendEmail({
       to: email,
-      subject: "Reset your REBUILD password",
+      subject: "Reset your JeremyOS password",
       html: `<p>Reset your password:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>This link expires in one hour.</p>`,
-      text: `Reset your REBUILD password: ${resetUrl}\nThis link expires in one hour.`,
+      text: `Reset your JeremyOS password: ${resetUrl}\nThis link expires in one hour.`,
     });
     emailed = result.ok;
   }
 
   // Until email is fully wired (RB-002), surface the link on non-prod for testing
-  const exposeLink =
-    process.env.REBUILD_ENV !== "prod" || !process.env.RESEND_API_KEY;
+  const exposeLink = !isProdEnv() || !process.env.RESEND_API_KEY;
 
   return okResponse({
     emailed,

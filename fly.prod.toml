@@ -1,28 +1,32 @@
-# fly.toml app configuration file generated for rebuild-prod
+# fly.toml app configuration file generated for jeremyos-prod
+# Target app: jeremyos-prod (https://jeremyos-prod.fly.dev)
+# Interim: deploy to legacy rebuild-prod until jeremyos-prod exists:
+#   fly deploy -c fly.prod.toml -a rebuild-prod
 # See https://fly.io/docs/reference/configuration/
 
-app = 'rebuild-prod'
+app = 'jeremyos-prod'
 primary_region = 'sjc'
 
 [build]
 
 [env]
   NODE_ENV = 'production'
-  REBUILD_ENV = 'prod'
+  JEREMYOS_ENV = 'prod'
 
 [http_service]
   internal_port = 3000
   force_https = true
-  auto_stop_machines = 'stop'
+  auto_stop_machines = 'off'
   auto_start_machines = true
   min_machines_running = 1
   processes = ['app']
 
 [[vm]]
+  size = 'shared-cpu-1x'
   memory = '512mb'
   cpu_kind = 'shared'
   cpus = 1
 
 [mounts]
-  source = 'rebuild_prod_data'
+  source = 'jeremyos_prod_data'
   destination = '/app/.data'

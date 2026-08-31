@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser, sessionPublic } from "@/lib/auth";
+import { isProdEnv } from "@/lib/env";
 import { buildDashboard, emptyState, todayInTz } from "@/lib/journey";
 import { pendingCashableMoments } from "@/lib/fund";
 import {
@@ -18,7 +19,7 @@ export async function GET() {
         today: todayInTz(),
         dashboard: null,
         pendingRewards: [],
-        env: process.env.REBUILD_ENV === "prod" ? "prod" : "dev",
+        env: isProdEnv() ? "prod" : "dev",
       },
       { status: 401 },
     );
@@ -42,6 +43,6 @@ export async function GET() {
     today,
     dashboard: buildDashboard(state, today),
     pendingRewards: pendingCashableMoments(state),
-    env: process.env.REBUILD_ENV === "prod" ? "prod" : "dev",
+    env: isProdEnv() ? "prod" : "dev",
   });
 }

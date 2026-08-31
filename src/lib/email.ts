@@ -8,7 +8,7 @@ export type SendEmailResult =
 
 function fromAddress(): string {
   return (
-    process.env.EMAIL_FROM?.trim() || "REBUILD <onboarding@resend.dev>"
+    process.env.EMAIL_FROM?.trim() || "JeremyOS <onboarding@resend.dev>"
   );
 }
 

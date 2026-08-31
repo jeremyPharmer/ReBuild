@@ -42,7 +42,7 @@ Venmo reconcile / link = later (UI totals first).
 
 - One journey: cannabis + alcohol abstinence
 - Combined historical daily spend
-- Home: **ReBuilding for N days** = calendar days on the current abstinence run (**Day 1 = start date** / `currentRunStartedOn`, including the start day before any evening)
+- Home: **Day N** = calendar days on the current abstinence run (**Day 1 = start date** / `currentRunStartedOn`, including the start day before any evening)
 - **Milestones unlock when that day is reached** (clean-day count ≥ milestone day), not only after evening close — Home reward card can appear on the morning of Day 3, etc.
 - **Waiting-to-reclaim accrual (locked 2026-08-21):** each completed calendar day in the current run credits **one** day’s `historicalDailySpend` into waiting reclaim when that **day ends**, whether or not the user closed the evening. Closing the evening also ensures the same credit (idempotent by date — **no double credit**). Evening close is **not** a gate for funds showing. Move to Rebuild still pulls from waiting reclaim as today. See RB-011.
 - **Reset my journey** (Settings) → run resets next calendar day; history kept; restart / re-achieve (trail “re-climb” copy retired under RB-012)

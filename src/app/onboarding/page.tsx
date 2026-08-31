@@ -21,7 +21,7 @@ const STEPS = [
   "Supports",
   "Money",
   "Rewards",
-  "Trailhead",
+  "Ready",
 ] as const;
 
 const CATEGORIES: RewardCategory[] = [
@@ -52,12 +52,12 @@ function slugify(label: string) {
   return base || "support";
 }
 
-function TrailProgress({ step }: { step: number }) {
+function OnboardingProgress({ step }: { step: number }) {
   const pct = Math.round(((step + 1) / STEPS.length) * 100);
   return (
     <div className="trail-progress" aria-label="Onboarding progress">
       <div className="trail-progress-meta">
-        <span className="eyebrow">Trail marker {step + 1}</span>
+        <span className="eyebrow">Step {step + 1} of {STEPS.length}</span>
         <span className="tiny muted">{STEPS[step]}</span>
       </div>
       <div className="trail-progress-track">
@@ -225,7 +225,7 @@ export default function OnboardingPage() {
     }
   }
 
-  async function finishTrail() {
+  async function finishOnboarding() {
     setBusy(true);
     setError("");
     try {
@@ -258,12 +258,12 @@ export default function OnboardingPage() {
 
   return (
     <main className="fade-in enroll-shell">
-      {step < 6 && <TrailProgress step={Math.min(step, 5)} />}
+      {step < 6 && <OnboardingProgress step={Math.min(step, 5)} />}
 
       {step === 0 && (
         <section className="stack enroll-step" key="s0">
-          <p className="brand-mark">REBUILD</p>
-          <h1>Set out on the trail.</h1>
+          <p className="brand-mark">JeremyOS</p>
+          <h1>Set up your personal OS.</h1>
           <p className="muted enroll-lead">
             Create your account to begin. You&apos;re not promising forever —
             you&apos;re choosing a first step.
@@ -316,7 +316,7 @@ export default function OnboardingPage() {
               setStep(1);
             }}
           >
-            Continue along the trail
+            Continue
           </PrimaryButton>
           <p className="tiny muted" style={{ textAlign: "center" }}>
             Already enrolled?{" "}
@@ -329,11 +329,11 @@ export default function OnboardingPage() {
 
       {step === 1 && (
         <section className="stack enroll-step" key="s1">
-          <p className="eyebrow">Mile marker</p>
-          <h1>Who&apos;s walking this path?</h1>
+          <p className="eyebrow">About you</p>
+          <h1>Who&apos;s using JeremyOS?</h1>
           <p className="muted enroll-lead">
             A name for encouragement — and a few details so we can keep your
-            trail private and yours.
+            account private and yours.
           </p>
           <label className="field">
             <span className="field-label">Display name</span>
@@ -391,7 +391,7 @@ export default function OnboardingPage() {
             }}
             disabled={busy}
           >
-            {busy ? "Creating account…" : "Claim your trailhead"}
+            {busy ? "Creating account…" : "Create account"}
           </PrimaryButton>
           <SecondaryButton onClick={() => setStep(0)} disabled={busy}>
             Back
@@ -401,7 +401,7 @@ export default function OnboardingPage() {
 
       {step === 2 && (
         <section className="stack enroll-step" key="s2">
-          <p className="eyebrow">Camp lock</p>
+          <p className="eyebrow">Unlock</p>
           <h1>Keep it private.</h1>
           <p className="muted enroll-lead">
             Optional 4-digit PIN for quick access on any device — or stay signed
@@ -464,11 +464,11 @@ export default function OnboardingPage() {
 
       {step === 3 && (
         <section className="stack enroll-step" key="s3">
-          <p className="eyebrow">Provisions</p>
+          <p className="eyebrow">Supports</p>
           <h1>What will support you each week?</h1>
           <p className="muted enroll-lead">
             Consistently engaging in your recovery is a key to success — what
-            will you do every week to stay on the trail?
+            will you do every week to stay on track?
           </p>
           <div className="chip-row">
             {SUPPORT_INSPIRATION.map((s) => {
@@ -551,7 +551,7 @@ export default function OnboardingPage() {
               setStep(4);
             }}
           >
-            Pack these for the week
+            Save weekly supports
           </PrimaryButton>
           <SecondaryButton onClick={() => setStep(2)}>Back</SecondaryButton>
         </section>
@@ -559,7 +559,7 @@ export default function OnboardingPage() {
 
       {step === 4 && (
         <section className="stack enroll-step" key="s4">
-          <p className="eyebrow">Rebuild fund</p>
+          <p className="eyebrow">Fund</p>
           <h1>What was your daily spend</h1>
           <p className="muted enroll-lead">
             Each day you progress, this is what you&apos;ll save.
@@ -617,7 +617,7 @@ export default function OnboardingPage() {
 
       {step === 5 && (
         <section className="stack enroll-step" key="s5">
-          <p className="eyebrow">Something to walk toward</p>
+          <p className="eyebrow">Rewards</p>
           <h1>Add a couple rewards to start.</h1>
           <p className="muted enroll-lead">
             Wishlist items you&apos;ll earn with Treat Yourself — same as in
@@ -700,8 +700,8 @@ export default function OnboardingPage() {
             </div>
           ))}
           {error && <p className="form-error">{error}</p>}
-          <PrimaryButton onClick={() => void finishTrail()} disabled={busy}>
-            {busy ? "Opening the trail…" : "Finish & step onto the trail"}
+          <PrimaryButton onClick={() => void finishOnboarding()} disabled={busy}>
+            {busy ? "Finishing setup…" : "Finish setup"}
           </PrimaryButton>
           <SecondaryButton
             onClick={() => {
@@ -709,7 +709,7 @@ export default function OnboardingPage() {
                 { name: "", cost: "", category: "wellness", url: "" },
                 { name: "", cost: "", category: "experiences", url: "" },
               ]);
-              void finishTrail();
+              void finishOnboarding();
             }}
             disabled={busy}
           >
@@ -723,10 +723,10 @@ export default function OnboardingPage() {
 
       {step === 6 && (
         <section className="stack enroll-step success-pop" key="s6">
-          <p className="eyebrow">Trailhead</p>
-          <h1>You&apos;re on the path, {displayName.split(" ")[0] || "friend"}.</h1>
+          <p className="eyebrow">Ready</p>
+          <h1>You&apos;re set up, {displayName.split(" ")[0] || "friend"}.</h1>
           <p className="muted enroll-lead">
-            Day 1 is yours. One camp at a time — we&apos;ll walk with you.
+            Day 1 is yours. One day at a time — JeremyOS has your back.
           </p>
           <div className="panel">
             <p className="tiny">Money potentially reclaimed today</p>

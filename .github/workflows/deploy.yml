@@ -20,25 +20,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - name: Deploy rebuild-dev
-        run: flyctl deploy -c fly.dev.toml -a rebuild-dev
+      - name: Deploy jeremyos-dev
+        run: flyctl deploy -c fly.dev.toml -a jeremyos-dev --ha=false
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-  deploy-prod:
+  deploy-prod-after-dev:
     needs: [deploy-dev]
-    if: >
-      ${{
-        always() && (
-          github.event.inputs.target == 'prod' ||
-          (github.event.inputs.target == 'both' && needs.deploy-dev.result == 'success')
-        )
-      }}
+    if: ${{ github.event.inputs.target == 'both' && needs.deploy-dev.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - name: Deploy rebuild-prod
-        run: flyctl deploy -c fly.prod.toml -a rebuild-prod
+      - name: Deploy jeremyos-prod
+        run: flyctl deploy -c fly.prod.toml -a jeremyos-prod --ha=false --vm-memory 512
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  deploy-prod-only:
+    if: ${{ github.event.inputs.target == 'prod' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Deploy jeremyos-prod
+        run: flyctl deploy -c fly.prod.toml -a jeremyos-prod --ha=false --vm-memory 512
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

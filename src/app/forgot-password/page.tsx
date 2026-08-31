@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
   return (
     <main className="fade-in enroll-shell">
       <section className="stack enroll-step">
-        <p className="brand-mark">REBUILD</p>
+        <p className="brand-mark">JeremyOS</p>
         <h1>Reset your password.</h1>
         <p className="muted enroll-lead">
           We&apos;ll send a link to your email. Email delivery ships fully with

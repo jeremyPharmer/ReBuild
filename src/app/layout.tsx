@@ -6,9 +6,9 @@ import { THEME_STORAGE_KEY } from "@/lib/themes";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "REBUILD",
+  title: "JeremyOS",
   description:
-    "You're not starting over. You're building from here — a daily recovery companion with a financial operating system.",
+    "Jeremy's executive assistant and personal operating system — daily rhythm, journal, and fund in one place.",
 };
 
 export const viewport: Viewport = {

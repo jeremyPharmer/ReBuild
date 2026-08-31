@@ -1,8 +1,7 @@
-name: Daily Rebuild reminders
+name: Daily JeremyOS reminders
 
 on:
   schedule:
-    # Every 15 minutes — app decides due morning/evening (with same-day catch-up)
     - cron: "5,20,35,50 * * * *"
   workflow_dispatch:
     inputs:
@@ -21,18 +20,24 @@ jobs:
     steps:
       - name: Trigger reminder cron
         env:
-          CRON_SECRET: ${{ secrets.REBUILD_CRON_SECRET }}
+          JEREMYOS_CRON_SECRET: ${{ secrets.JEREMYOS_CRON_SECRET }}
+          REBUILD_CRON_SECRET: ${{ secrets.REBUILD_CRON_SECRET }}
+          JEREMYOS_APP_URL: ${{ secrets.JEREMYOS_APP_URL }}
+          JEREMYOS_DEV_URL: ${{ secrets.JEREMYOS_DEV_URL }}
           TARGET: ${{ github.event.inputs.target || 'prod' }}
         run: |
           set -euo pipefail
-          if [ -z "${CRON_SECRET:-}" ]; then
-            echo "REBUILD_CRON_SECRET is not set in GitHub Actions secrets"
+          CRON_SECRET="${JEREMYOS_CRON_SECRET:-${REBUILD_CRON_SECRET:-}}"
+          if [ -z "${CRON_SECRET}" ]; then
+            echo "JEREMYOS_CRON_SECRET (or legacy REBUILD_CRON_SECRET) is not set"
             exit 1
           fi
+          PROD_URL="${JEREMYOS_APP_URL:-https://jeremyos-prod.fly.dev}"
+          DEV_URL="${JEREMYOS_DEV_URL:-https://jeremyos-dev.fly.dev}"
           if [ "$TARGET" = "dev" ]; then
-            URL="https://rebuild-dev.fly.dev/api/cron/reminders"
+            URL="${DEV_URL%/}/api/cron/reminders"
           else
-            URL="https://rebuild-prod.fly.dev/api/cron/reminders"
+            URL="${PROD_URL%/}/api/cron/reminders"
           fi
           curl -fsS -X POST "$URL" \
             -H "Authorization: Bearer ${CRON_SECRET}" \

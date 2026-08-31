@@ -431,7 +431,7 @@ export const MILESTONE_DEFS: MilestoneDef[] = [
   {
     dayNumber: 365,
     type: "destination",
-    title: "The Rebuild Year",
-    reflectionPrompt: "What did you rebuild?",
+    title: "One Year",
+    reflectionPrompt: "What did you build?",
   },
 ];

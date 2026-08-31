@@ -38,7 +38,7 @@ function ResetForm() {
 
   return (
     <section className="stack enroll-step">
-      <p className="brand-mark">REBUILD</p>
+      <p className="brand-mark">JeremyOS</p>
       <h1>Choose a new password.</h1>
       <label className="field">
         <span className="field-label">Email</span>

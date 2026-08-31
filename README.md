@@ -1,20 +1,17 @@
-# REBUILD
+# JeremyOS
 
-You're not starting over. You're building from here.
-
-Mobile-web V1 of Rebuild — a daily recovery companion with a financial
-operating system for abstinence (cannabis + alcohol as one journey).
+Jeremy's executive assistant and personal operating system — daily rhythm, journal, fund, and recovery tools in one place.
 
 ## Product rules (locked for V1)
 
 - **Daily companion wins** when systems conflict; money makes it tangible
 - Abstinence-only reclaim (no partial days)
-- Home label: **ReBuilding for N days** = calendar days on the **current run**
+- Home label: **Day N** = calendar days on the **current run**
   (Day 1 = start date)
 - Return to use resets the run counter; milestone **history stays**; you
-  re-climb and can **re-achieve** milestones; reward pools grow with later days
+  can **re-achieve** milestones; reward pools grow with later days
 - Reclaim is separate from day counting (Venmo confirm in the evening)
-- No auth — open the link and go
+- Auth + multi-user (see onboarding)
 - Honor system everywhere
 
 ## Stack
@@ -35,10 +32,10 @@ npm run build
 
 ## Live URLs (Fly.io)
 
-| Env | URL | Data |
+| Env | URL | Notes |
 |---|---|---|
-| **Dev** | https://rebuild-dev.fly.dev | Test / sample |
-| **Prod** | https://rebuild-prod.fly.dev | Founder true-source |
+| **Prod** | https://jeremyos-prod.fly.dev | After migration |
+| **Dev** | https://jeremyos-dev.fly.dev | Create app when needed |
 
 See `DEPLOY.md`, `PRODUCT_DECISIONS.md`, and `product/` (roadmap + locked fund model).
 
@@ -46,13 +43,13 @@ See `DEPLOY.md`, `PRODUCT_DECISIONS.md`, and `product/` (roadmap + locked fund m
 
 ## First-run path
 
-1. `/onboarding` — goal, combined daily spend, default supports
+1. `/onboarding` — account, supports, fund split, rewards
 2. `/morning` — Start the day
-3. `/plan` — log supports (content asks “what will you do differently?”)
-4. `/evening` — Close the day + one-line journal (+ Move to Rebuild)
-5. `/money` — reclaim ledger, wishlist, What I Rebuilt (Rewards tab)
-6. `/journey` — adventure map + milestone history
-7. `/settings` — spend, supports, this week’s plan
+3. `/plan` — log supports
+4. `/evening` — Close the day + one-line journal
+5. `/money` — reclaim ledger, wishlist
+6. `/journey` — day log + milestone history
+7. `/settings` — spend, supports, email nudges
 8. `/craving` — delay + intervention
 
-Primary nav: Home · Journey · Rewards · Journal · Settings
+Primary nav: Home · Journey · Journal · Settings

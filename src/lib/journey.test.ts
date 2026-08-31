@@ -358,13 +358,13 @@ describe("milestones and projections", () => {
 });
 
 describe("dashboard label", () => {
-  it("uses ReBuilding for N days from calendar asOf", () => {
+  it("uses Day N label from calendar asOf", () => {
     const state = baseState();
     // No evening yet — still Day 1 on the start date
     const dash = buildDashboard(state, "2026-08-01");
     expect(dash?.cleanDays).toBe(1);
-    expect(dash?.label).toBe("ReBuilding for 1 day");
-    expect(dash?.sinceLabel).toBe("ReBuilding since 8-1-2026");
+    expect(dash?.label).toBe("Day 1");
+    expect(dash?.sinceLabel).toBe("Run started 8-1-2026");
   });
 });
 
