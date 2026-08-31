@@ -37,8 +37,8 @@ Last updated: 2026-08-31
 
 | Status | Count |
 | --- | --- |
-| Backlog | 13 |
-| Ready | 2 |
+| Backlog | 12 |
+| Ready | 3 |
 | In Progress | 4 |
 | Blocked | 0 |
 | Done | 2 |
