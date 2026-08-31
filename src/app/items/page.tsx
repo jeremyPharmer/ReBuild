@@ -52,10 +52,10 @@ export default function ItemsPage() {
 
   return (
     <main className="stack fade-in">
-      <p className="eyebrow">To-do</p>
-      <h1>Items</h1>
+      <p className="eyebrow">Tasks</p>
+      <h1>Tasks</h1>
       <p className="muted">
-        Master list — today, upcoming, and finished. Each account has its own.
+        Master list — today, upcoming, and finished.
       </p>
 
       {adding ? (
