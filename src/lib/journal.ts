@@ -1,4 +1,4 @@
-import type { RebuildState } from "./types";
+import type { JournalEntry, RebuildState } from "./types";
 import { addDays, formatDate, getEvening, newId, parseDate } from "./journey";
 import { normalizeStarredDays } from "./fund";
 
