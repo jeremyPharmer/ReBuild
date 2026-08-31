@@ -214,9 +214,16 @@ export function TodayRebuildPanel() {
           Today&apos;s Items
         </p>
         <div className="row" style={{ gap: 8, justifyContent: "flex-end" }}>
-          <span className="chip">
-            {openCount === 0 ? "Clear for today" : `${openCount} left`}
-          </span>
+          {!adding && (
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label="Add an item"
+              onClick={() => setAdding(true)}
+            >
+              +
+            </button>
+          )}
           <button
             type="button"
             className="icon-btn"
@@ -305,6 +312,15 @@ export function TodayRebuildPanel() {
       )}
 
       <div className="daily-actions" style={{ marginTop: 10 }}>
+        {adding && (
+          <TodoComposer
+            today={today}
+            busy={addBusy}
+            onSubmit={addTodo}
+            onCancel={() => setAdding(false)}
+          />
+        )}
+
         {showMorningOpen && (
           <div className="check-item check-item-row">
             <Link href="/morning" className="check-item-main">
@@ -444,26 +460,6 @@ export function TodayRebuildPanel() {
             onDelete={() => todoAction(p.id, { action: "delete", id: p.id })}
           />
         ))}
-
-        {adding ? (
-          <TodoComposer
-            today={today}
-            busy={addBusy}
-            onSubmit={addTodo}
-            onCancel={() => setAdding(false)}
-          />
-        ) : (
-          <button
-            type="button"
-            className="todo-add-toggle"
-            onClick={() => setAdding(true)}
-          >
-            <span>Add an item</span>
-            <span className="morning-add-plus" aria-hidden>
-              +
-            </span>
-          </button>
-        )}
 
         {showEveningOpen && (
           <div className="check-item check-item-row">
