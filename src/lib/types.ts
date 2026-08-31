@@ -98,6 +98,15 @@ export type DayProvision = {
   completedAt?: string;
 };
 
+/**
+ * Local cross-off for an Apple Calendar occurrence on Today's Build (RB-022).
+ * Keyed by occurrence id (`uid|YYYY-MM-DD`) so re-sync does not resurrect done items.
+ */
+export type CalendarCompletion = {
+  id: string;
+  completedAt: string;
+};
+
 export type EveningCheckIn = {
   date: string;
   mood: number;
@@ -318,6 +327,8 @@ export type RebuildState = {
   workouts?: WorkoutLog[];
   /** Personal records — run + lift */
   workoutPrs?: WorkoutPr[];
+  /** Local calendar occurrence cross-offs (RB-022) */
+  calendarCompletions?: CalendarCompletion[];
 };
 
 export const DEFAULT_SUPPORTS: SupportConfig[] = [

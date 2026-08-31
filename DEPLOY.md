@@ -130,3 +130,25 @@ Workflow: `.github/workflows/reminders.yml` (hourly + manual dispatch).
 ### In-app
 
 Settings → Email nudges → set email, enable, choose hours (profile timezone) → **Test morning / Test evening**.
+
+## Apple Calendar → Today’s Build (RB-022)
+
+Pull ICS feeds into Today’s Build (poll on load; local cross-off; no Apple webhooks).
+
+### Secrets / env
+
+Publish or subscribe an ICS URL from Apple Calendar (or any CalDAV export), then set:
+
+```bash
+# Single feed
+fly secrets set APPLE_CALENDAR_ICS_URL='https://…' -a rebuild-dev
+fly secrets set APPLE_CALENDAR_NAME='Personal' -a rebuild-dev
+fly secrets set APPLE_CALENDAR_COLOR='#5AC8FA' -a rebuild-dev
+
+# Or multiple feeds: Name|#hex|url,Name|#hex|url
+fly secrets set APPLE_CALENDAR_FEEDS='Personal|#5AC8FA|https://…,Work|#007AFF|https://…' -a rebuild-dev
+```
+
+`WORK_CALENDAR_ICS_URL` still works as a single-feed fallback.
+
+Local demo without a real feed: `APPLE_CALENDAR_DEMO=1`.

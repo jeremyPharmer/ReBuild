@@ -18,7 +18,7 @@ Last updated: 2026-08-31
 | 6 | RB-002 | Email integration (Gmail) | P0 | Backlog | M | TBD | v1 | [items/email-integration.md](./items/email-integration.md) |
 | 7 | RB-005 | Podcast-first + regular recovery content | P0 | In Progress | M | TBD | v1 | [items/recovery-content-offers.md](./items/recovery-content-offers.md) |
 | 8 | RB-017 | Home cameras via Reolink | P1 | Backlog | M | TBD | v1.x | [items/home-cameras-reolink.md](./items/home-cameras-reolink.md) |
-| 9 | RB-022 | Apple Calendar → Today’s Build | P1 | Backlog | M | TBD | v1.x | [items/apple-calendar-todays-build.md](./items/apple-calendar-todays-build.md) |
+| 9 | RB-022 | Apple Calendar → Today’s Build | P1 | In Progress | M | TBD | v1.x | [items/apple-calendar-todays-build.md](./items/apple-calendar-todays-build.md) |
 | 10 | RB-018 | Workout tracker | P1 | Backlog | M | TBD | v1.x | [items/workout-tracker.md](./items/workout-tracker.md) |
 | 11 | RB-019 | Favorite recipes section | P1 | Backlog | S | TBD | v1.x | [items/favorite-recipes.md](./items/favorite-recipes.md) |
 | 12 | RB-015 | Hub: Jeremy’s other apps & sites | P1 | Backlog | S | TBD | v1.x | [items/jeremy-apps-hub.md](./items/jeremy-apps-hub.md) |
@@ -37,9 +37,9 @@ Last updated: 2026-08-31
 
 | Status | Count |
 | --- | --- |
-| Backlog | 13 |
+| Backlog | 12 |
 | Ready | 2 |
-| In Progress | 4 |
+| In Progress | 5 |
 | Blocked | 0 |
 | Done | 2 |
 | Won't Do | 1 |

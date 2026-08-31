@@ -53,7 +53,7 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 
 ### Next
 
-1. **RB-022 — Apple Calendar → Today’s Build** — CalDAV **poll** (no Apple webhooks) of today’s events onto **Today’s Build** + **local cross-off** in JeremyOS; separate from RB-014 todos. Detail: [`items/apple-calendar-todays-build.md`](./items/apple-calendar-todays-build.md).
+1. **RB-022 — Apple Calendar → Today’s Build** — **In Progress:** ICS poll of today’s events onto **Today’s Build** (color + start time + More detail) + **local cross-off**; separate from RB-014 todos. Detail: [`items/apple-calendar-todays-build.md`](./items/apple-calendar-todays-build.md).
 2. **RB-018 — Workout tracker** — personal log, not fitness SaaS. Detail: [`items/workout-tracker.md`](./items/workout-tracker.md).
 3. **RB-019 — Favorite recipes** — thin favorites section. Detail: [`items/favorite-recipes.md`](./items/favorite-recipes.md).
 4. **RB-015 — Hub: Jeremy’s other apps & sites** — link hub v1. Detail: [`items/jeremy-apps-hub.md`](./items/jeremy-apps-hub.md).

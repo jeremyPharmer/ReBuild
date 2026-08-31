@@ -1,24 +1,45 @@
+import {
+  fetchAppleCalendarOccurrences,
+  isAppleCalendarConnected,
+  type AppleCalendarOccurrence,
+} from "./apple-calendar";
+
 export type WorkCalendarEvent = {
   id: string;
   title: string;
-  /** Local time label, e.g. "9:00 AM" */
+  /** Local time label, e.g. "9:00 AM"; omit for all-day */
   startTime: string;
   endTime?: string;
   location?: string;
-  /** Video call or calendar deep link when available */
   url?: string;
+  calendarName?: string;
+  calendarColor?: string;
+  allDay?: boolean;
 };
 
 /**
- * Work calendar events for a calendar day.
- * v1: stub until Google/Outlook sync (RB-002 / calendar integration).
- * Set WORK_CALENDAR_ICS_URL later to wire real feeds.
+ * Work / Apple calendar events for a calendar day.
+ * Prefers Apple Calendar ICS feeds (RB-022). See `apple-calendar.ts` for env.
  */
 export async function fetchWorkCalendarEvents(
-  _date: string,
+  date: string,
+  timeZone = "America/New_York",
 ): Promise<WorkCalendarEvent[]> {
-  const icsUrl = process.env.WORK_CALENDAR_ICS_URL?.trim();
-  if (!icsUrl) return [];
-  // ICS parsing deferred — return empty until integration lands.
-  return [];
+  if (!isAppleCalendarConnected()) return [];
+  const events = await fetchAppleCalendarOccurrences(date, timeZone);
+  return events.map(toWorkEvent);
+}
+
+function toWorkEvent(e: AppleCalendarOccurrence): WorkCalendarEvent {
+  return {
+    id: e.id,
+    title: e.title,
+    startTime: e.startTime ?? "All day",
+    endTime: e.endTime ?? undefined,
+    location: e.location,
+    url: e.url,
+    calendarName: e.calendarName,
+    calendarColor: e.calendarColor,
+    allDay: e.allDay,
+  };
 }

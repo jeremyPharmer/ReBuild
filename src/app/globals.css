@@ -1678,6 +1678,85 @@ h2 {
   white-space: nowrap;
 }
 
+/* Apple Calendar rows on Today's Build (RB-022) */
+.check-item-row.cal-row {
+  position: relative;
+  padding-left: 4px;
+  align-items: stretch;
+}
+
+.check-item-row.cal-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--cal-color, #5ac8fa);
+}
+
+.check-item-row.cal-row .check-item-main {
+  align-items: flex-start;
+}
+
+.check-label.cal-label {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.check-label.cal-label .check-label-meta {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+
+.check-label.cal-label .check-label-name {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.3;
+}
+
+.cal-detail {
+  margin: 0 0 2px 34px;
+  padding: 0 0 6px;
+  display: grid;
+  gap: 2px;
+}
+
+.cal-detail p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.cal-detail a {
+  color: var(--accent, #007aff);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cal-expand {
+  flex: 0 0 auto;
+  align-self: center;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.cal-expand[aria-expanded="true"] {
+  color: var(--ink);
+}
+
+
 .dismiss-btn {
   flex: 0 0 auto;
   border: 1px solid var(--line);

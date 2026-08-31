@@ -43,6 +43,7 @@ export function normalizeState(state: RebuildState): RebuildState {
     quoteLog: state.quoteLog ?? [],
     workouts: (state.workouts ?? []).map(normalizeWorkout),
     workoutPrs: normalizeWorkoutPrs(state.workoutPrs),
+    calendarCompletions: state.calendarCompletions ?? [],
   };
 }
 

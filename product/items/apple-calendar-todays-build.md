@@ -5,7 +5,7 @@
 | ID | RB-022 |
 | Rank | 9 |
 | Priority | P1 |
-| Status | Backlog |
+| Status | In Progress |
 | Effort | M |
 | Target due | TBD |
 | Milestone | v1.x |
@@ -95,3 +95,4 @@ Typical iCalendar / CalDAV fields:
 - Separate from [RB-014](./todo-lists.md): that item’s out-of-scope already excludes “Recurring complex rules / calendar sync.” Cross-link kept there → this ID.
 - ID is **RB-022** (RB-021 already claimed by journal photos).
 - **Founder follow-up 2026-08-31:** no Apple webhooks (poll CalDAV); daily sync yes / phone nudge = JeremyOS-owned later; local cross-off in v1 (no Apple write-back); document v1 vs later field list. Rank/priority unchanged.
+- **Build started 2026-08-31:** ICS feed pull (`APPLE_CALENDAR_*` / demo), color swatch + start-time rows on Today’s Build, More expands detail, local complete/undo. CalDAV app-password path still later if ICS sharing is painful.

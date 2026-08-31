@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { truncateSupportLabel } from "@/lib/auth-constants";
 import type { SupportType } from "@/lib/types";
@@ -19,6 +19,22 @@ type ExitingSupport = {
   label: string;
   weekDone: number;
   weeklyTarget: number;
+};
+
+type CalendarEventRow = {
+  id: string;
+  uid: string;
+  title: string;
+  startTime: string | null;
+  endTime?: string | null;
+  allDay: boolean;
+  location?: string;
+  description?: string;
+  url?: string;
+  calendarName: string;
+  calendarColor: string;
+  recurring: boolean;
+  completed: boolean;
 };
 
 function DismissingTaskRow({ label, meta }: { label: string; meta?: string }) {
@@ -47,6 +63,31 @@ export function TodayRebuildPanel() {
   const [undoBusy, setUndoBusy] = useState<string | null>(null);
   const [exiting, setExiting] = useState<ExitingSupport[]>([]);
   const [dismissing, setDismissing] = useState<DismissingItem[]>([]);
+  const [calEvents, setCalEvents] = useState<CalendarEventRow[]>([]);
+  const [calExpanded, setCalExpanded] = useState<string | null>(null);
+  const [calExiting, setCalExiting] = useState<string[]>([]);
+  const [calBusy, setCalBusy] = useState<string | null>(null);
+
+  const loadCalendar = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `/api/calendar/apple?date=${encodeURIComponent(today)}`,
+        { credentials: "include" },
+      );
+      if (!res.ok) return;
+      const data = (await res.json()) as {
+        connected?: boolean;
+        events?: CalendarEventRow[];
+      };
+      setCalEvents(data.events ?? []);
+    } catch {
+      /* ignore — panel still works without calendar */
+    }
+  }, [today]);
+
+  useEffect(() => {
+    void loadCalendar();
+  }, [loadCalendar]);
 
   if (!dashboard || !state.profile) return null;
 
@@ -77,8 +118,17 @@ export function TodayRebuildPanel() {
     !morningDone && !morningSkipped && !dismissingKeys.has("morning");
   const showEveningOpen =
     !eveningDone && !eveningSkipped && !dismissingKeys.has("evening");
+
+  const openCalEvents = calEvents.filter(
+    (e) => !e.completed && !calExiting.includes(e.id),
+  );
+  const completedCalEvents = calEvents.filter((e) => e.completed);
+  const calExitingRows = calEvents.filter((e) => calExiting.includes(e.id));
+
   const openCount =
     (showMorningOpen ? 1 : 0) +
+    openCalEvents.length +
+    calExitingRows.length +
     openSupports.length +
     openProvisions.length +
     exiting.length +
@@ -90,6 +140,7 @@ export function TodayRebuildPanel() {
   const hasUndoItems =
     completedSupports.length > 0 ||
     completedProvisions.length > 0 ||
+    completedCalEvents.length > 0 ||
     skippedToday.length > 0 ||
     morningDone ||
     eveningDone;
@@ -187,6 +238,36 @@ export function TodayRebuildPanel() {
     }
   }
 
+  async function completeCalendar(id: string) {
+    setCalBusy(id);
+    setCalExiting((prev) => (prev.includes(id) ? prev : [...prev, id]));
+    setCalExpanded((prev) => (prev === id ? null : prev));
+    try {
+      await Promise.all([
+        post("/api/calendar/apple", { action: "complete", id }),
+        new Promise((r) => setTimeout(r, 700)),
+      ]);
+      setCalEvents((prev) =>
+        prev.map((e) => (e.id === id ? { ...e, completed: true } : e)),
+      );
+    } finally {
+      setCalExiting((prev) => prev.filter((x) => x !== id));
+      setCalBusy(null);
+    }
+  }
+
+  async function undoCalendar(id: string) {
+    setUndoBusy(`cal:${id}`);
+    try {
+      await post("/api/calendar/apple", { action: "undo", id });
+      setCalEvents((prev) =>
+        prev.map((e) => (e.id === id ? { ...e, completed: false } : e)),
+      );
+    } finally {
+      setUndoBusy(null);
+    }
+  }
+
   function supportLabel(type: string) {
     return (
       state.profile?.supports.find((s) => s.type === type)?.label ?? type
@@ -197,6 +278,77 @@ export function TodayRebuildPanel() {
     if (key === "morning") return "Start the day";
     if (key === "evening") return "Close the day";
     return supportLabel(key);
+  }
+
+  function calTimeLabel(e: CalendarEventRow) {
+    if (e.allDay || !e.startTime) return "All day";
+    return e.startTime;
+  }
+
+  function renderCalendarRow(e: CalendarEventRow, exitingRow: boolean) {
+    const expanded = calExpanded === e.id;
+    const hasDetail = Boolean(
+      e.location || e.description || e.endTime || e.url || e.calendarName,
+    );
+    return (
+      <div key={e.id}>
+        <div
+          className={`check-item check-item-row cal-row${exitingRow ? " clearing" : ""}`}
+          style={{ ["--cal-color" as string]: e.calendarColor }}
+          aria-live={exitingRow ? "polite" : undefined}
+        >
+          <button
+            type="button"
+            className="check-item-main"
+            disabled={calBusy === e.id || exitingRow}
+            onClick={() => completeCalendar(e.id)}
+            aria-label={`Complete ${e.title}`}
+          >
+            <span className={`check-box${exitingRow ? " checked" : ""}`}>
+              {exitingRow ? "✓" : null}
+            </span>
+            <span className="check-label cal-label">
+              <span className="check-label-meta">{calTimeLabel(e)}</span>
+              <span className="check-label-name">{e.title}</span>
+            </span>
+          </button>
+          {hasDetail && !exitingRow ? (
+            <button
+              type="button"
+              className="cal-expand"
+              aria-expanded={expanded}
+              aria-label={expanded ? "Hide details" : "Show details"}
+              onClick={() =>
+                setCalExpanded((prev) => (prev === e.id ? null : e.id))
+              }
+            >
+              {expanded ? "Less" : "More"}
+            </button>
+          ) : null}
+          {exitingRow ? (
+            <span className="clear-burst" aria-hidden>
+              ✓
+            </span>
+          ) : null}
+        </div>
+        {expanded && !exitingRow ? (
+          <div className="cal-detail">
+            {e.calendarName ? <p>{e.calendarName}</p> : null}
+            {e.endTime && !e.allDay ? <p>Until {e.endTime}</p> : null}
+            {e.location ? <p>{e.location}</p> : null}
+            {e.description ? <p>{e.description}</p> : null}
+            {e.recurring ? <p>Repeats</p> : null}
+            {e.url ? (
+              <p>
+                <a href={e.url} target="_blank" rel="noreferrer">
+                  Open link
+                </a>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    );
   }
 
   return (
@@ -270,6 +422,21 @@ export function TodayRebuildPanel() {
               </button>
             </div>
           ))}
+          {completedCalEvents.map((e) => (
+            <div key={`cal-done-${e.id}`} className="undo-row">
+              <span>
+                {calTimeLabel(e)} · {e.title} · done
+              </span>
+              <button
+                type="button"
+                className="dismiss-btn"
+                disabled={undoBusy === `cal:${e.id}`}
+                onClick={() => undoCalendar(e.id)}
+              >
+                Undo
+              </button>
+            </div>
+          ))}
           {morningDone && (
             <div className="undo-row">
               <span>Start the day · done</span>
@@ -314,6 +481,9 @@ export function TodayRebuildPanel() {
           .map((d) => (
             <DismissingTaskRow key={d.key} label={d.label} />
           ))}
+
+        {calExitingRows.map((e) => renderCalendarRow(e, true))}
+        {openCalEvents.map((e) => renderCalendarRow(e, false))}
 
         {enabledSupports.map((s) => {
           const weekDone =
