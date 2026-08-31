@@ -57,7 +57,93 @@ function StarIcon({ filled }: { filled: boolean }) {
   );
 }
 
-type Panel = "day" | "month" | "stars";
+type Panel = "day" | "month" | "stars" | "photos";
+
+type DayListRow = {
+  date: string;
+  headline?: string;
+  summary?: string;
+  photoId?: string;
+};
+
+function JournalDayList({
+  emptyMessage,
+  rows,
+  metaIcon,
+  onSelect,
+}: {
+  emptyMessage: string;
+  rows: DayListRow[];
+  metaIcon: "star" | "photo";
+  onSelect: (date: string) => void;
+}) {
+  if (rows.length === 0) {
+    return <p className="muted fy-starred-empty">{emptyMessage}</p>;
+  }
+  return (
+    <ul>
+      {rows.map((row) => (
+        <li key={row.date}>
+          <button
+            type="button"
+            className="fy-starred-row"
+            onClick={() => onSelect(row.date)}
+          >
+            <span className="fy-starred-meta">
+              {metaIcon === "star" ? (
+                <StarIcon filled />
+              ) : (
+                <PaperclipIcon />
+              )}
+              <span>{formatDisplayDate(row.date)}</span>
+            </span>
+            <span className="fy-starred-headline">
+              {row.headline || "Untitled"}
+            </span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function JournalNav({
+  panel,
+  onSelect,
+}: {
+  panel: Panel;
+  onSelect: (next: Panel) => void;
+}) {
+  function toggle(next: Panel) {
+    onSelect(panel === next ? "day" : next);
+  }
+
+  return (
+    <nav className="fy-journal-foot" aria-label="Journal views">
+      <button
+        type="button"
+        className={`fy-tool-btn${panel === "month" ? " is-active" : ""}`}
+        onClick={() => toggle("month")}
+      >
+        Month
+      </button>
+      <button
+        type="button"
+        className={`fy-tool-btn${panel === "stars" ? " is-active" : ""}`}
+        onClick={() => toggle("stars")}
+      >
+        Remembered
+      </button>
+      <button
+        type="button"
+        className={`fy-tool-btn${panel === "photos" ? " is-active" : ""}`}
+        onClick={() => toggle("photos")}
+      >
+        With photos
+      </button>
+    </nav>
+  );
+}
 
 export default function JournalPage() {
   const { state, today, post } = useApp();
@@ -90,8 +176,6 @@ export default function JournalPage() {
     () => fiveYearSlots(activeDay, byDate, anchorYear, 5),
     [activeDay, byDate, anchorYear],
   );
-
-  const filledCount = slots.filter((s) => s.headline || s.summary).length;
 
   const missed = useMemo(() => {
     if (!today) return [];
@@ -136,15 +220,37 @@ export default function JournalPage() {
     return map;
   }, [calMonth, closedSet, byDate, missedSet]);
 
-  const starredList = useMemo(() => {
+  const starredList = useMemo((): DayListRow[] => {
     return [...(state.starredDays ?? [])]
       .sort((a, b) => b.localeCompare(a))
-      .map((date) => ({
-        date,
-        headline: byDate.get(date)?.headline,
-        summary: byDate.get(date)?.summary,
-      }));
+      .map((date) => {
+        const bundle = byDate.get(date);
+        return {
+          date,
+          headline: bundle?.headline,
+          summary: bundle?.summary,
+          photoId: bundle?.photoId,
+        };
+      });
   }, [state.starredDays, byDate]);
+
+  const photosList = useMemo((): DayListRow[] => {
+    const dates = new Set<string>();
+    for (const j of state.journals) {
+      if (j.photoId) dates.add(j.date);
+    }
+    return [...dates]
+      .sort((a, b) => b.localeCompare(a))
+      .map((date) => {
+        const bundle = byDate.get(date);
+        return {
+          date,
+          headline: bundle?.headline,
+          summary: bundle?.summary,
+          photoId: bundle?.photoId,
+        };
+      });
+  }, [state.journals, byDate]);
 
   const todaySlot = today ? slots.find((s) => s.date === today) : undefined;
   const canWriteToday =
@@ -163,7 +269,7 @@ export default function JournalPage() {
     setEditingDate(null);
   }
 
-  function openDayFromCalendar(date: string) {
+  function openDayFromList(date: string) {
     setDayKey(monthDayKey(date));
     setPanel("day");
     setEditingDate(null);
@@ -171,6 +277,13 @@ export default function JournalPage() {
       setMissedNotice(date);
     } else {
       setMissedNotice(null);
+    }
+  }
+
+  function selectPanel(next: Panel) {
+    setPanel(next);
+    if (next === "month" && today) {
+      setCalMonth(today.slice(0, 7));
     }
   }
 
@@ -227,10 +340,27 @@ export default function JournalPage() {
 
   const viewSrc = viewPhotoId ? photoSrc(viewPhotoId) : undefined;
 
+  const panelTitle =
+    panel === "month"
+      ? "Browse days"
+      : panel === "stars"
+        ? "Days to remember"
+        : panel === "photos"
+          ? "With photos"
+          : null;
+
+  const panelSubtitle =
+    panel === "month"
+      ? "Tap a day to open its page."
+      : panel === "stars"
+        ? "Your starred journal days."
+        : panel === "photos"
+          ? "Days with an attached photo."
+          : null;
+
   return (
     <main className="fy-journal fade-in">
       <header className="fy-journal-head">
-        <p className="fy-journal-mark">Five years</p>
         {panel === "day" ? (
           <>
             <div className="fy-journal-nav">
@@ -256,45 +386,16 @@ export default function JournalPage() {
             </div>
             <p className="fy-journal-sub muted">
               Same day, every year — headline and a short note.
-              {filledCount > 0 ? ` · ${filledCount} written` : ""}
-            </p>
-          </>
-        ) : panel === "month" ? (
-          <>
-            <h1 className="fy-journal-title">Browse days</h1>
-            <p className="fy-journal-sub muted">
-              Tap a day to open its page. Stars mark days to remember.
             </p>
           </>
         ) : (
           <>
-            <h1 className="fy-journal-title">Days to remember</h1>
-            <p className="fy-journal-sub muted">
-              Your starred journal days.
-            </p>
+            <h1 className="fy-journal-title">{panelTitle}</h1>
+            {panelSubtitle && (
+              <p className="fy-journal-sub muted">{panelSubtitle}</p>
+            )}
           </>
         )}
-
-        <div className="fy-journal-tools">
-          <button
-            type="button"
-            className={`fy-tool-btn${panel === "month" ? " is-active" : ""}`}
-            onClick={() => {
-              setPanel(panel === "month" ? "day" : "month");
-              if (today) setCalMonth(today.slice(0, 7));
-            }}
-          >
-            {panel === "month" ? "Back to day" : "Month"}
-          </button>
-          <button
-            type="button"
-            className={`fy-tool-btn${panel === "stars" ? " is-active" : ""}`}
-            onClick={() => setPanel(panel === "stars" ? "day" : "stars")}
-          >
-            Remembered
-            {starredList.length > 0 ? ` · ${starredList.length}` : ""}
-          </button>
-        </div>
       </header>
 
       {panel === "month" && today && (
@@ -309,37 +410,29 @@ export default function JournalPage() {
               : today
           }
           onMonthChange={setCalMonth}
-          onSelectDate={openDayFromCalendar}
+          onSelectDate={openDayFromList}
         />
       )}
 
       {panel === "stars" && (
         <section className="fy-starred-list">
-          {starredList.length === 0 ? (
-            <p className="muted fy-starred-empty">
-              Star a written day to keep it here.
-            </p>
-          ) : (
-            <ul>
-              {starredList.map((row) => (
-                <li key={row.date}>
-                  <button
-                    type="button"
-                    className="fy-starred-row"
-                    onClick={() => openDayFromCalendar(row.date)}
-                  >
-                    <span className="fy-starred-meta">
-                      <StarIcon filled />
-                      <span>{formatDisplayDate(row.date)}</span>
-                    </span>
-                    <span className="fy-starred-headline">
-                      {row.headline || "Untitled"}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+          <JournalDayList
+            emptyMessage="Star a written day to keep it here."
+            rows={starredList}
+            metaIcon="star"
+            onSelect={openDayFromList}
+          />
+        </section>
+      )}
+
+      {panel === "photos" && (
+        <section className="fy-starred-list">
+          <JournalDayList
+            emptyMessage="Attach a photo on a journal day to see it here."
+            rows={photosList}
+            metaIcon="photo"
+            onSelect={openDayFromList}
+          />
         </section>
       )}
 
@@ -529,6 +622,8 @@ export default function JournalPage() {
           )}
         </>
       )}
+
+      <JournalNav panel={panel} onSelect={selectPanel} />
 
       {error && (
         <p style={{ color: "var(--danger)", textAlign: "center" }}>{error}</p>
