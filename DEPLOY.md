@@ -12,8 +12,7 @@ Legacy `rebuild-prod` was retired. Founder data is restored from backup into `je
 
 ### Emergency recovery (if prod is down)
 
-**Stuck adding a volume?** See [`docs/FLY_VOLUME_SETUP.md`](docs/FLY_VOLUME_SETUP.md)  
-**Phone + browser only (no laptop)?** See [`docs/FLY_PHONE_SETUP.md`](docs/FLY_PHONE_SETUP.md)
+**Browser-only prod setup:** [`docs/START_JEREMYOS_PROD.md`](docs/START_JEREMYOS_PROD.md)
 
 Founder `db.json` was backed up before migration. On your laptop:
 

@@ -1,6 +1,6 @@
 # Phone + browser only (no laptop)
 
-**Start here:** [`docs/START_JEREMYOS_PROD.md`](START_JEREMYOS_PROD.md) — 3 steps.
+**Browser-only setup:** [`docs/START_JEREMYOS_PROD.md`](START_JEREMYOS_PROD.md)
 
 Older detail: [`docs/FLY_VOLUME_SETUP.md`](FLY_VOLUME_SETUP.md)
 
