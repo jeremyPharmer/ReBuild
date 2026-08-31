@@ -1,3 +1,4 @@
+import { appBaseUrl } from "./env";
 import type { RebuildProfile, RebuildState, ReminderPrefs } from "./types";
 
 export type ReminderKind = "morning" | "evening";
@@ -71,12 +72,7 @@ export function localClock(
   };
 }
 
-export function appBaseUrl(): string {
-  if (process.env.APP_URL) return process.env.APP_URL.replace(/\/$/, "");
-  return process.env.REBUILD_ENV === "prod"
-    ? "https://rebuild-prod.fly.dev"
-    : "https://rebuild-dev.fly.dev";
-}
+export { appBaseUrl };
 
 export function reminderLink(kind: ReminderKind): string {
   const base = appBaseUrl();

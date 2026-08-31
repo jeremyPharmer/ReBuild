@@ -1,14 +1,14 @@
-# fly.toml app configuration file generated for rebuild-prod
+# fly.toml app configuration file generated for jeremyos-prod
 # See https://fly.io/docs/reference/configuration/
 
-app = 'rebuild-prod'
+app = 'jeremyos-prod'
 primary_region = 'sjc'
 
 [build]
 
 [env]
   NODE_ENV = 'production'
-  REBUILD_ENV = 'prod'
+  JEREMYOS_ENV = 'prod'
 
 [http_service]
   internal_port = 3000
@@ -24,5 +24,5 @@ primary_region = 'sjc'
   cpus = 1
 
 [mounts]
-  source = 'rebuild_prod_data'
+  source = 'jeremyos_prod_data'
   destination = '/app/.data'

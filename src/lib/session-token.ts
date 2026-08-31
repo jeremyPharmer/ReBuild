@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 
-export const SESSION_COOKIE = "rebuild_session";
-export const DEVICE_USER_COOKIE = "rebuild_device_user";
+export const SESSION_COOKIE = "jeremyos_session";
+export const DEVICE_USER_COOKIE = "jeremyos_device_user";
 
 /** Idle logout window when Remember this device is off. */
 export const IDLE_TIMEOUT_SECONDS = 2 * 60 * 60;
@@ -18,7 +18,7 @@ function authSecret(): Uint8Array {
   const raw =
     process.env.AUTH_SECRET?.trim() ||
     process.env.CRON_SECRET?.trim() ||
-    "rebuild-dev-auth-secret-change-me";
+    "jeremyos-dev-auth-secret-change-me";
   return new TextEncoder().encode(raw);
 }
 

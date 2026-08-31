@@ -129,7 +129,7 @@ export default function SettingsPage() {
 
   async function resetAll() {
     if (env === "prod") return;
-    if (!window.confirm("Reset all Rebuild data on DEV?")) {
+    if (!window.confirm("Reset all JeremyOS data on DEV?")) {
       return;
     }
     const res = await fetch("/api/reset", { method: "POST" });

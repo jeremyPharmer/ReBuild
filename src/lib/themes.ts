@@ -1,4 +1,4 @@
-export const THEME_STORAGE_KEY = "rebuild-theme";
+export const THEME_STORAGE_KEY = "jeremyos-theme";
 
 export type ThemeId =
   | "forest"

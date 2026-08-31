@@ -108,7 +108,7 @@ function TrailDayCard({
   const thesis =
     morning?.intention?.trim() ||
     evening?.oneLine?.trim() ||
-    "Day marked on the trail";
+    "Day logged";
 
   function startEditIntention() {
     if (!morning) return;
@@ -178,7 +178,7 @@ function TrailDayCard({
           {morning && (
             <div className="trail-block">
               <div className="trail-block-head">
-                <p className="tiny trail-block-label">Set out</p>
+                <p className="tiny trail-block-label">Morning</p>
                 <button
                   type="button"
                   className="trail-day-menu"
@@ -251,12 +251,12 @@ function TrailDayCard({
 
           {!morning && (
             <div className="trail-block">
-              <p className="tiny trail-block-label">Set out</p>
+              <p className="tiny trail-block-label">Morning</p>
             </div>
           )}
 
           <div className="trail-block">
-            <p className="tiny trail-block-label">Provisions</p>
+            <p className="tiny trail-block-label">Supports</p>
             {(day.supports.length > 0 || day.provisions.length > 0) && (
               <div className="trail-provisions">
                 {day.supports.map((s) => (
@@ -371,7 +371,7 @@ function TrailDayCard({
           )}
 
           <div className="trail-block">
-            <p className="tiny trail-block-label">Make camp</p>
+            <p className="tiny trail-block-label">Evening</p>
             {evening && (
               <>
                 <WeatherDots mood={evening.mood} stress={evening.stress} />
@@ -386,7 +386,7 @@ function TrailDayCard({
                   </p>
                 )}
                 {evening.returnNotes && (
-                  <PrivateReveal label="Reveal storm notes">
+                  <PrivateReveal label="Reveal notes">
                     <p className="trail-private-text">{evening.returnNotes}</p>
                   </PrivateReveal>
                 )}
@@ -770,11 +770,11 @@ export default function JourneyPage() {
       </section>
 
       <section className="panel">
-        <p className="eyebrow">Trail log</p>
-        <h2 style={{ marginBottom: 12 }}>This climb</h2>
+        <p className="eyebrow">Day log</p>
+        <h2 style={{ marginBottom: 12 }}>This run</h2>
         {trailDays.length === 0 && (
           <p className="muted">
-            No trail days yet — start or close a day to leave a mark.
+            No days logged yet — start or close a day to leave a mark.
           </p>
         )}
         <div className="trail-log">
@@ -790,7 +790,7 @@ export default function JourneyPage() {
       </section>
 
       <section className="panel">
-        <p className="eyebrow">Trail markers</p>
+        <p className="eyebrow">Milestones</p>
         <div className="trail-list">
           {MILESTONE_DEFS.filter((m) => m.dayNumber <= 180).map((m) => {
             const done = achievedThisRun.has(m.dayNumber);
@@ -820,19 +820,19 @@ export default function JourneyPage() {
           })}
         </div>
         <p className="tiny" style={{ marginTop: 8 }}>
-          Full year trail continues through Day 365.
+          Milestones continue through Day 365.
         </p>
       </section>
 
       {state.returns.length > 0 && (
         <section className="panel">
-          <p className="eyebrow">Storm breaks</p>
+          <p className="eyebrow">Setbacks</p>
           {state.returns.map((r) => (
             <div key={r.id} className="support-row storm-break">
               <strong>{r.date}</strong>
               <p className="tiny">After {r.previousCleanDays} clean days</p>
               {r.notes && (
-                <PrivateReveal label="Reveal storm notes">
+                <PrivateReveal label="Reveal notes">
                   <p className="trail-private-text">{r.notes}</p>
                 </PrivateReveal>
               )}

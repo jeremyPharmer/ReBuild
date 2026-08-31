@@ -440,8 +440,8 @@ export function buildDashboard(
   const waiting = waitingReclaimDays(state);
   return {
     cleanDays,
-    label: `ReBuilding for ${cleanDays} day${cleanDays === 1 ? "" : "s"}`,
-    sinceLabel: `ReBuilding since ${formatSinceDate(state.profile.currentRunStartedOn)}`,
+    label: `Day ${cleanDays}`,
+    sinceLabel: `Run started ${formatSinceDate(state.profile.currentRunStartedOn)}`,
     reclaimed: moneyReclaimed(state),
     waiting: waitingReclaimTotal(state),
     waitingDays: waiting.length,

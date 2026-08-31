@@ -4,27 +4,29 @@ Two private stable apps with **separate persistent volumes**:
 
 | Env | App name | Config | Data volume | URL |
 |---|---|---|---|---|
-| Dev | `rebuild-dev` | `fly.dev.toml` | `rebuild_dev_data` | https://rebuild-dev.fly.dev |
-| Prod | `rebuild-prod` | `fly.prod.toml` | `rebuild_prod_data` | https://rebuild-prod.fly.dev |
+| Dev | `jeremyos-dev` | `fly.dev.toml` | `jeremyos_dev_data` | https://jeremyos-dev.fly.dev |
+| Prod | `jeremyos-prod` | `fly.prod.toml` | `jeremyos_prod_data` | https://jeremyos-prod.fly.dev |
+
+Legacy apps `rebuild-dev` / `rebuild-prod` may still exist until migrated — use the JeremyOS names above for new deploys.
 
 ## Promotion policy (locked)
 
 1. **Dev** is for experiments and sample data. Reset allowed (`POST /api/reset`).
 2. **Prod** is founder true-source history.
-   - `/api/reset` is **disabled** when `REBUILD_ENV=prod`.
+   - `/api/reset` is **disabled** when `JEREMYOS_ENV=prod`.
    - Deploys use the existing Fly volume — **code updates never wipe `.data/db.json`**.
    - Only promote to prod when intentionally shipping; do not treat prod like a scratch pad.
 3. Verify on **dev** first, then promote to **prod**.
-4. Do **not** destroy `rebuild_prod_data`.
+4. Do **not** destroy `jeremyos_prod_data`.
 
 ## Deploy
 
 ```bash
 # Dev (test / sample data) — iterate here
-fly deploy -c fly.dev.toml -a rebuild-dev
+fly deploy -c fly.dev.toml -a jeremyos-dev
 
 # Prod (founder true-source) — promote only when ready
-fly deploy -c fly.prod.toml -a rebuild-prod
+fly deploy -c fly.prod.toml -a jeremyos-prod
 ```
 
 GitHub Actions: **Actions → Deploy → Run workflow** (`both` / `dev` / `prod`).
@@ -53,8 +55,8 @@ started before the value was saved). Fix below, then **start a new Cloud Agent**
 
 ```bash
 fly auth login
-# Org token can deploy both rebuild-dev and rebuild-prod:
-fly tokens create org -o personal -n "cursor-rebuild-deploy" -x 2160h
+# Org token can deploy both jeremyos-dev and jeremyos-prod:
+fly tokens create org -o personal -n "cursor-jeremyos-deploy" -x 2160h
 # (use your real org slug from `fly orgs list` if not "personal")
 ```
 
@@ -74,25 +76,29 @@ Copy the printed token (starts with `FlyV1` / `fo1_…`). Do **not** commit it.
 Then the agent can run:
 
 ```bash
-fly deploy -c fly.dev.toml -a rebuild-dev
-fly deploy -c fly.prod.toml -a rebuild-prod
+fly deploy -c fly.dev.toml -a jeremyos-dev
+fly deploy -c fly.prod.toml -a jeremyos-prod
 ```
 
-## One-time setup (already done)
+## One-time setup (JeremyOS apps)
+
+If migrating from `rebuild-*` apps, create new Fly apps and volumes:
 
 ```bash
-fly apps create rebuild-dev
-fly apps create rebuild-prod
-fly volumes create rebuild_dev_data --region sjc --size 1 -a rebuild-dev
-fly volumes create rebuild_prod_data --region sjc --size 1 -a rebuild-prod
+fly apps create jeremyos-dev
+fly apps create jeremyos-prod
+fly volumes create jeremyos_dev_data --region sjc --size 1 -a jeremyos-dev
+fly volumes create jeremyos_prod_data --region sjc --size 1 -a jeremyos-prod
 ```
+
+Copy `/app/.data/db.json` from the old prod volume if you need to preserve founder data, then point `APP_URL` and DNS bookmarks at the new URLs.
 
 ## Prod Day-1 restart (emergency only)
 
 If founder explicitly requests a clean prod restart (not a normal deploy):
 
 ```bash
-fly ssh console -a rebuild-prod -C "sh -c 'printf \"%s\" \"{...empty state...}\" > /app/.data/db.json'"
+fly ssh console -a jeremyos-prod -C "sh -c 'printf \"%s\" \"{...empty state...}\" > /app/.data/db.json'"
 ```
 
 Never use this as part of routine promotion.
@@ -105,26 +111,26 @@ N=1 Start-the-day and Close-the-day emails via [Resend](https://resend.com).
 
 ```bash
 # Resend API key (https://resend.com/api-keys)
-fly secrets set RESEND_API_KEY=re_xxx -a rebuild-prod
-fly secrets set RESEND_API_KEY=re_xxx -a rebuild-dev
+fly secrets set RESEND_API_KEY=re_xxx -a jeremyos-prod
+fly secrets set RESEND_API_KEY=re_xxx -a jeremyos-dev
 
 # Shared cron bearer (any long random string)
-fly secrets set CRON_SECRET='long-random-string' -a rebuild-prod
-fly secrets set CRON_SECRET='long-random-string' -a rebuild-dev
+fly secrets set CRON_SECRET='long-random-string' -a jeremyos-prod
+fly secrets set CRON_SECRET='long-random-string' -a jeremyos-dev
 ```
 
 Optional:
 
 ```bash
-fly secrets set EMAIL_FROM='REBUILD <you@yourdomain.com>' -a rebuild-prod
-fly secrets set APP_URL=https://rebuild-prod.fly.dev -a rebuild-prod
+fly secrets set EMAIL_FROM='JeremyOS <you@yourdomain.com>' -a jeremyos-prod
+fly secrets set APP_URL=https://jeremyos-prod.fly.dev -a jeremyos-prod
 ```
 
 Until you verify a domain in Resend, use the default `onboarding@resend.dev` from-address (can only send to your Resend account email).
 
 ### GitHub Actions schedule
 
-Repo secret **`REBUILD_CRON_SECRET`** must match Fly `CRON_SECRET`.  
+Repo secret **`JEREMYOS_CRON_SECRET`** must match Fly `CRON_SECRET` (legacy `REBUILD_CRON_SECRET` still works until rotated).  
 Workflow: `.github/workflows/reminders.yml` (hourly + manual dispatch).
 
 ### In-app

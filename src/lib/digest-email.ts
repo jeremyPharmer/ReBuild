@@ -88,7 +88,7 @@ function wrapCard(inner: string): string {
 function kicker(date: string): string {
   return `<tr>
             <td style="padding:16px 28px 4px;font-family:Georgia,serif;font-size:12px;letter-spacing:0.16em;text-transform:uppercase;color:#5a6b63;">
-              Rebuild · ${esc(weekdayName(date))}
+              JeremyOS · ${esc(weekdayName(date))}
             </td>
           </tr>`;
 }
@@ -133,7 +133,7 @@ function cta(href: string, label: string): string {
           </tr>`;
 }
 
-function trailCopy(state: RebuildState, date: string): {
+function runCopy(state: RebuildState, date: string): {
   days: number;
   html: string;
   text: string;
@@ -150,8 +150,8 @@ function trailCopy(state: RebuildState, date: string): {
         : left === 1
           ? "one more morning"
           : `${left} more mornings like this`;
-    html += `<br />Next marker: ${esc(next.title)} (Day ${next.dayNumber}). ${esc(when === "today" ? "Today." : when.charAt(0).toUpperCase() + when.slice(1) + ".")}`;
-    text += ` Next marker: ${next.title} (Day ${next.dayNumber}).`;
+    html += `<br />Next milestone: ${esc(next.title)} (Day ${next.dayNumber}). ${esc(when === "today" ? "Today." : when.charAt(0).toUpperCase() + when.slice(1) + ".")}`;
+    text += ` Next milestone: ${next.title} (Day ${next.dayNumber}).`;
   }
   return { days, html, text };
 }
@@ -247,32 +247,32 @@ export function buildMorningDigest(
   const name = state.profile?.displayName?.trim() || "there";
   const startUrl = reminderLink("morning");
   const moneyUrl = `${startUrl.replace(/\/morning$/, "")}/money`;
-  const trail = trailCopy(state, day);
+  const run = runCopy(state, day);
   const bars = supportBars(state, day);
   const treat = treatBlock(state, moneyUrl);
   const pods = podcastBlock(state);
 
-  const subject = `Day ${trail.days} is waiting`;
+  const subject = `Day ${run.days} is waiting`;
   const html = wrapCard(
     `${kicker(day)}
      ${heading(subject)}
      ${body(`Good morning, ${esc(name)}. Keep this run alive — Start the day is still open.`)}
-     ${sectionLabel("On the trail")}
-     ${sectionText(trail.html)}
+     ${sectionLabel("This run")}
+     ${sectionText(run.html)}
      ${sectionLabel("Today")}
      ${sectionText("Start the day still open.", "10px")}
      ${bars.html}
      ${treat.html}
      ${pods.html}
-     ${cta(startUrl, `Start the day — keep Day ${trail.days}`)}`,
+     ${cta(startUrl, `Start the day — keep Day ${run.days}`)}`,
   );
   const text = [
     subject,
     "",
     `Good morning, ${name}. Keep this run alive — Start the day is still open.`,
     "",
-    "ON THE TRAIL",
-    trail.text,
+    "THIS RUN",
+    run.text,
     "",
     "TODAY",
     "Start the day still open.",
@@ -298,19 +298,19 @@ export function buildEveningDigest(
   const name = state.profile?.displayName?.trim() || "there";
   const closeUrl = reminderLink("evening");
   const moneyUrl = `${closeUrl.replace(/\/evening$/, "")}/money`;
-  const trail = trailCopy(state, day);
+  const run = runCopy(state, day);
   const bars = supportBars(state, day);
   const treat = treatBlock(state, moneyUrl);
   const morning = state.mornings.find((m) => m.date === day);
   const alreadyClosed = state.evenings.some((e) => e.date === day);
 
-  const subject = `Close Day ${trail.days}`;
+  const subject = `Close Day ${run.days}`;
   const lookBack = alreadyClosed
     ? `You already closed today — this is a look back.`
     : `This is your chance to look back on the day. Don’t forget to close it.`;
   const intention = morning?.intention?.trim()
-    ? `You set out with “${esc(morning.intention.trim())}.”`
-    : `Start the day is still open, if you want a line on the trail before you close.`;
+    ? `You started with "${esc(morning.intention.trim())}."`
+    : `Start the day is still open, if you want to set an intention before you close.`;
 
   const html = wrapCard(
     `${kicker(day)}
@@ -318,8 +318,8 @@ export function buildEveningDigest(
      ${body(`Hey ${esc(name)}. ${esc(lookBack)}`)}
      ${sectionLabel("Look back")}
      ${sectionText(intention)}
-     ${sectionLabel("On the trail")}
-     ${sectionText(trail.html)}
+     ${sectionLabel("This run")}
+     ${sectionText(run.html)}
      ${sectionLabel("This week")}
      ${sectionText("How the week is sitting as you close.", "10px")}
      ${bars.html}
@@ -333,11 +333,11 @@ export function buildEveningDigest(
     `Hey ${name}. ${lookBack}`,
     "",
     morning?.intention?.trim()
-      ? `You set out with "${morning.intention.trim()}."`
+      ? `You started with "${morning.intention.trim()}."`
       : "Start the day is still open.",
     "",
-    "ON THE TRAIL",
-    trail.text,
+    "THIS RUN",
+    run.text,
     "",
     "THIS WEEK",
     bars.text,

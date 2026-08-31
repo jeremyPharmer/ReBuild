@@ -117,8 +117,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   if (loading) {
     return (
       <div className="boot">
-        <p className="brand-mark">REBUILD</p>
-        <p className="muted">Loading your journey…</p>
+        <p className="brand-mark">JeremyOS</p>
+        <p className="muted">Loading…</p>
       </div>
     );
   }

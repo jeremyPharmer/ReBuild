@@ -1,6 +1,6 @@
 ---
 name: product-roadmap
-description: Maintain ReBuild product roadmap, backlog ranking, efforts, due dates, and timelines. Use when adding features, reprioritizing, planning releases, or when the head-of-product agent updates product docs.
+description: Maintain JeremyOS product roadmap, backlog ranking, efforts, due dates, and timelines. Use when adding features, reprioritizing, planning releases, or when the head-of-product agent updates product docs.
 ---
 
 # Product roadmap
