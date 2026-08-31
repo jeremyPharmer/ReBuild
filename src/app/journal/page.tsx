@@ -15,6 +15,7 @@ import {
   countSentences,
   fiveYearSlots,
   formatMonthDayLong,
+  formatWeekdayAbbrev,
   isStarredDay,
   monthDayKey,
   shiftMonthDay,
@@ -374,6 +375,7 @@ export default function JournalPage() {
                 >
                   <div className="fy-year-gutter">
                     <span className="fy-year-num">{slot.year}</span>
+                    <span className="fy-year-dow">{formatWeekdayAbbrev(slot.date)}</span>
                     {slot.photoId && (
                       <button
                         type="button"

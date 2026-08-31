@@ -6,6 +6,7 @@ import {
   countSentences,
   fiveYearSlots,
   formatMonthDayLong,
+  formatWeekdayAbbrev,
   isStarredDay,
   monthDayKey,
   shiftMonthDay,
@@ -39,6 +40,11 @@ describe("journal five-year helpers", () => {
   it("formats long month-day labels", () => {
     expect(formatMonthDayLong("08-29")).toBe("August 29");
     expect(formatMonthDayLong("2024-01-03")).toBe("January 3");
+  });
+
+  it("formats weekday abbreviations", () => {
+    expect(formatWeekdayAbbrev("2026-08-29")).toBe("Sat");
+    expect(formatWeekdayAbbrev("2026-08-31")).toBe("Mon");
   });
 
   it("counts sentences softly", () => {
