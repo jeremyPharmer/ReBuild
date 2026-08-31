@@ -6,9 +6,6 @@ import { usePathname } from "next/navigation";
 const LINKS = [
   { href: "/", label: "Home" },
   { href: "/journey", label: "Journey" },
-  // Items is the fifth tab (Rewards /money stays hidden). RB-014 chose a
-  // dedicated tab over a nested route — five tabs, not six.
-  { href: "/items", label: "Items" },
   { href: "/journal", label: "Journal" },
   { href: "/settings", label: "Settings" },
 ];

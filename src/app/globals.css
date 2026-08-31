@@ -287,6 +287,10 @@ h2 {
   font-size: 0.85rem;
 }
 
+.panel .workout-open-link {
+  margin-top: 12px;
+}
+
 /* —— Workout calendar + move —— */
 .workout-cal-nav {
   display: flex;

@@ -492,6 +492,10 @@ export function TodayRebuildPanel() {
           </p>
         )}
       </div>
+
+      <Link href="/items" className="btn ghost workout-open-link">
+        Open tasks →
+      </Link>
     </section>
   );
 }
