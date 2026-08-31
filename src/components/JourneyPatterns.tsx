@@ -52,7 +52,7 @@ export function RhythmPanel({
   if (rows.length === 0) {
     return (
       <p className="muted" style={{ marginTop: 8 }}>
-        Provision rhythm appears as you log supports.
+        Support rhythm appears as you log supports.
       </p>
     );
   }

@@ -764,7 +764,7 @@ export default function JourneyPage() {
             journeyStart={journeyStart}
           />
         )}
-        <PatternCollapse title="Provision rhythm">
+        <PatternCollapse title="Support rhythm">
           <RhythmPanel rows={rhythm} weeks={rhythmWeeks} />
         </PatternCollapse>
       </section>
