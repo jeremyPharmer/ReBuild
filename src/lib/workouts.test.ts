@@ -1,9 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
+  blankActualsFromRoutine,
   buildMonthGrid,
+  formatExerciseActualSummary,
   monthWorkoutSummary,
+  normalizeExerciseActuals,
   normalizeQuality,
+  normalizeRoutines,
   normalizeWorkout,
+  parseRoutineSelectValue,
+  routineSelectValue,
+  routinesForType,
   summarizeDay,
   weekRunMiles,
   weekWorkoutSummary,
@@ -180,5 +187,91 @@ describe("normalizeQuality", () => {
     expect(normalizeQuality(0)).toBeUndefined();
     expect(normalizeQuality(6)).toBeUndefined();
     expect(normalizeQuality("4")).toBe(4);
+  });
+});
+
+describe("routines and actuals", () => {
+  const routine = {
+    id: "routine_1",
+    name: "Upper",
+    type: "lift" as const,
+    exercises: [
+      {
+        id: "ex_1",
+        name: "Bench",
+        sets: 3,
+        reps: 8,
+        tracksWeight: true,
+      },
+      {
+        id: "ex_2",
+        name: "Push-ups",
+        sets: 2,
+        reps: 12,
+        tracksWeight: false,
+      },
+    ],
+    createdAt: "2026-08-30T12:00:00Z",
+  };
+
+  it("normalizes routines and filters by type", () => {
+    const list = normalizeRoutines([
+      routine,
+      {
+        id: "routine_2",
+        name: "Flow",
+        type: "stretch",
+        exercises: [
+          {
+            id: "ex_3",
+            name: "Hamstring",
+            sets: 1,
+            reps: 30,
+            tracksWeight: false,
+          },
+        ],
+        createdAt: "2026-08-30T12:00:00Z",
+      },
+    ]);
+    expect(routinesForType(list, "lift")).toHaveLength(1);
+    expect(routinesForType(list, "lift")[0].name).toBe("Upper");
+  });
+
+  it("seeds blank actuals from routine plan", () => {
+    const actuals = blankActualsFromRoutine(routine);
+    expect(actuals).toHaveLength(2);
+    expect(actuals[0].sets).toHaveLength(3);
+    expect(actuals[0].sets[0].reps).toBe(8);
+    expect(actuals[0].tracksWeight).toBe(true);
+    expect(actuals[1].tracksWeight).toBe(false);
+    expect(actuals[1].sets[0].weight).toBeUndefined();
+  });
+
+  it("formats actual summaries and strips weight when not tracked", () => {
+    const actuals = normalizeExerciseActuals([
+      {
+        exerciseId: "ex_1",
+        name: "Bench",
+        tracksWeight: true,
+        sets: [
+          { reps: 8, weight: 135 },
+          { reps: 6, weight: 145 },
+        ],
+      },
+      {
+        exerciseId: "ex_2",
+        name: "Push-ups",
+        tracksWeight: false,
+        sets: [{ reps: 12, weight: 999 }],
+      },
+    ]);
+    expect(actuals?.[1].sets[0].weight).toBeUndefined();
+    expect(formatExerciseActualSummary(actuals)).toContain("Bench 8×135, 6×145");
+    expect(formatExerciseActualSummary(actuals)).toContain("Push-ups 12");
+  });
+
+  it("parses routine select values", () => {
+    expect(parseRoutineSelectValue(routineSelectValue("abc"))).toBe("abc");
+    expect(parseRoutineSelectValue("Upper body")).toBeNull();
   });
 });

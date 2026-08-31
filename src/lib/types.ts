@@ -53,6 +53,41 @@ export type WorkoutCategory = "run" | "lift";
 /** @deprecated legacy lift subtype — migrated to `type` on read */
 export type LiftType = "hiit" | "stretch" | "weights";
 
+/** Planned exercise inside a saved routine (weights flag fixed at setup) */
+export type WorkoutRoutineExercise = {
+  id: string;
+  name: string;
+  sets: number;
+  reps: number;
+  /** If true, weight is collected when logging — not toggled mid-session */
+  tracksWeight: boolean;
+};
+
+/** Named reusable workout (stretch, lift, etc.) */
+export type WorkoutRoutine = {
+  id: string;
+  name: string;
+  type: WorkoutType;
+  exercises: WorkoutRoutineExercise[];
+  createdAt: string;
+  updatedAt?: string;
+};
+
+/** One set performed in a logged session */
+export type WorkoutSetActual = {
+  reps: number;
+  /** Present only when the exercise tracks weight */
+  weight?: number;
+};
+
+/** Snapshot of an exercise + performed sets (retained for history) */
+export type WorkoutExerciseActual = {
+  exerciseId: string;
+  name: string;
+  tracksWeight: boolean;
+  sets: WorkoutSetActual[];
+};
+
 /** Personal workout log entry (RB-018) */
 export type WorkoutLog = {
   id: string;
@@ -69,6 +104,10 @@ export type WorkoutLog = {
   /** Run distance in miles — MapMyRun sync later */
   distanceMiles?: number;
   notes?: string;
+  /** Saved routine this log was based on */
+  routineId?: string;
+  /** Performed sets/reps/(weights) retained for tracking */
+  exerciseActuals?: WorkoutExerciseActual[];
   createdAt: string;
 };
 
@@ -318,6 +357,8 @@ export type RebuildState = {
   workouts?: WorkoutLog[];
   /** Personal records — run + lift */
   workoutPrs?: WorkoutPr[];
+  /** Saved named routines (templates) */
+  workoutRoutines?: WorkoutRoutine[];
 };
 
 export const DEFAULT_SUPPORTS: SupportConfig[] = [

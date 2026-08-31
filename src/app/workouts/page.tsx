@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useApp } from "@/components/AppProvider";
 import { WorkoutCalendar } from "@/components/workouts/WorkoutCalendar";
 import { WorkoutLogForm } from "@/components/workouts/WorkoutLogForm";
+import { WorkoutRoutineBuilder } from "@/components/workouts/WorkoutRoutineBuilder";
 import { WorkoutSummaryPanel } from "@/components/workouts/WorkoutSummaryPanel";
 import {
+  formatExerciseActualSummary,
   formatMiles,
   monthKey,
   workoutTypeLabel,
@@ -57,45 +59,55 @@ export default function WorkoutsPage() {
             <p className="tiny muted">Nothing logged this day.</p>
           )}
           <ul className="workout-day-list">
-            {dayWorkouts.map((w) => (
-              <li key={w.id} className="workout-day-item">
-                <div>
-                  <span className={`workout-day-badge ${w.type}`}>
-                    {workoutTypeLabel(w.type)}
-                  </span>
-                  <strong>{w.label}</strong>
-                  <p className="tiny muted">
-                    {w.quality != null ? `Q${w.quality}` : ""}
-                    {w.quality != null &&
-                    (w.distanceMiles != null || w.durationMin != null || w.notes)
-                      ? " · "
-                      : ""}
-                    {w.distanceMiles != null
-                      ? `${formatMiles(w.distanceMiles)} mi`
-                      : ""}
-                    {w.distanceMiles != null && w.durationMin != null
-                      ? " · "
-                      : ""}
-                    {w.durationMin != null ? `${w.durationMin} min` : ""}
-                    {(w.distanceMiles != null || w.durationMin != null) &&
-                    w.notes
-                      ? " · "
-                      : ""}
-                    {w.notes ? w.notes : ""}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className="dismiss-btn"
-                  onClick={() => deleteWorkout(w.id)}
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
+            {dayWorkouts.map((w) => {
+              const actualSummary = formatExerciseActualSummary(
+                w.exerciseActuals,
+              );
+              return (
+                <li key={w.id} className="workout-day-item">
+                  <div>
+                    <span className={`workout-day-badge ${w.type}`}>
+                      {workoutTypeLabel(w.type)}
+                    </span>
+                    <strong>{w.label}</strong>
+                    <p className="tiny muted">
+                      {w.quality != null ? `Q${w.quality}` : ""}
+                      {w.quality != null &&
+                      (w.distanceMiles != null ||
+                        w.durationMin != null ||
+                        w.notes ||
+                        actualSummary)
+                        ? " · "
+                        : ""}
+                      {w.distanceMiles != null
+                        ? `${formatMiles(w.distanceMiles)} mi`
+                        : ""}
+                      {w.distanceMiles != null && w.durationMin != null
+                        ? " · "
+                        : ""}
+                      {w.durationMin != null ? `${w.durationMin} min` : ""}
+                      {(w.distanceMiles != null || w.durationMin != null) &&
+                      (w.notes || actualSummary)
+                        ? " · "
+                        : ""}
+                      {actualSummary || (w.notes ? w.notes : "")}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="dismiss-btn"
+                    onClick={() => deleteWorkout(w.id)}
+                  >
+                    Delete
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
+
+      <WorkoutRoutineBuilder />
 
       <WorkoutLogForm date={selectedDate ?? today} />
 

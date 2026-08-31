@@ -1,10 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import type { WorkoutType } from "@/lib/types";
+import type {
+  WorkoutExerciseActual,
+  WorkoutType,
+} from "@/lib/types";
 import {
+  blankActualsFromRoutine,
+  findRoutine,
   gymSupportForType,
+  parseRoutineSelectValue,
+  routineSelectValue,
+  routinesForType,
   WORKOUT_CUSTOM,
   WORKOUT_PRESETS,
   WORKOUT_QUALITY_MAX,
@@ -23,7 +31,7 @@ export function WorkoutLogForm({
   date: string;
   onLogged?: () => void;
 }) {
-  const { post } = useApp();
+  const { state, post } = useApp();
   const [type, setType] = useState<WorkoutType>("run");
   const [workout, setWorkout] = useState("");
   const [customLabel, setCustomLabel] = useState("");
@@ -31,17 +39,71 @@ export function WorkoutLogForm({
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
   const [notes, setNotes] = useState("");
+  const [actuals, setActuals] = useState<WorkoutExerciseActual[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
+  const typeRoutines = useMemo(
+    () => routinesForType(state.workoutRoutines, type),
+    [state.workoutRoutines, type],
+  );
+
+  const routineId = parseRoutineSelectValue(workout);
+  const selectedRoutine = routineId
+    ? findRoutine(state.workoutRoutines, routineId)
+    : undefined;
   const isCustom = workout === WORKOUT_CUSTOM;
-  const label = isCustom ? customLabel.trim() : workout.trim();
+  const label = selectedRoutine
+    ? selectedRoutine.name
+    : isCustom
+      ? customLabel.trim()
+      : workout.trim();
   const canSubmit = Boolean(label) && quality != null && !busy;
 
   useEffect(() => {
     setWorkout("");
     setCustomLabel("");
+    setActuals([]);
   }, [type]);
+
+  useEffect(() => {
+    const id = parseRoutineSelectValue(workout);
+    if (!id) {
+      setActuals([]);
+      return;
+    }
+    const r = findRoutine(state.workoutRoutines, id);
+    setActuals(r ? blankActualsFromRoutine(r) : []);
+  }, [workout, state.workoutRoutines]);
+
+  function updateSet(
+    exerciseIndex: number,
+    setIndex: number,
+    patch: { reps?: string; weight?: string },
+  ) {
+    setActuals((prev) =>
+      prev.map((ex, ei) => {
+        if (ei !== exerciseIndex) return ex;
+        return {
+          ...ex,
+          sets: ex.sets.map((s, si) => {
+            if (si !== setIndex) return s;
+            const next = { ...s };
+            if (patch.reps != null) {
+              const n = Number(patch.reps);
+              next.reps = Number.isFinite(n) && n > 0 ? Math.round(n) : 0;
+            }
+            if (patch.weight != null && ex.tracksWeight) {
+              const n = Number(patch.weight);
+              next.weight =
+                patch.weight === "" || !Number.isFinite(n) ? undefined : n;
+            }
+            return next;
+          }),
+        };
+      }),
+    );
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,6 +111,22 @@ export function WorkoutLogForm({
     setBusy(true);
     setError("");
     try {
+      const exerciseActuals =
+        selectedRoutine && actuals.length
+          ? actuals.map((ex) => ({
+              exerciseId: ex.exerciseId,
+              name: ex.name,
+              tracksWeight: ex.tracksWeight,
+              sets: ex.sets
+                .filter((s) => s.reps > 0)
+                .map((s) =>
+                  ex.tracksWeight
+                    ? { reps: s.reps, weight: s.weight }
+                    : { reps: s.reps },
+                ),
+            }))
+          : undefined;
+
       await post("/api/workouts", {
         action: "log",
         date,
@@ -58,6 +136,8 @@ export function WorkoutLogForm({
         distanceMiles: type === "run" && distance ? Number(distance) : undefined,
         durationMin: duration ? Number(duration) : undefined,
         notes: notes.trim() || undefined,
+        routineId: selectedRoutine?.id,
+        exerciseActuals,
       });
       setWorkout("");
       setCustomLabel("");
@@ -65,6 +145,7 @@ export function WorkoutLogForm({
       setDistance("");
       setDuration("");
       setNotes("");
+      setActuals([]);
       onLogged?.();
       if (gymSupportForType(type)) {
         await post("/api/support", {
@@ -117,12 +198,23 @@ export function WorkoutLogForm({
           autoComplete="off"
         >
           <option value="">Choose workout…</option>
-          {WORKOUT_PRESETS[type].map((name) => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-          <option value={WORKOUT_CUSTOM}>Other…</option>
+          {typeRoutines.length > 0 && (
+            <optgroup label="My routines">
+              {typeRoutines.map((r) => (
+                <option key={r.id} value={routineSelectValue(r.id)}>
+                  {r.name}
+                </option>
+              ))}
+            </optgroup>
+          )}
+          <optgroup label="Quick log">
+            {WORKOUT_PRESETS[type].map((presetName) => (
+              <option key={presetName} value={presetName}>
+                {presetName}
+              </option>
+            ))}
+            <option value={WORKOUT_CUSTOM}>Other…</option>
+          </optgroup>
         </select>
       </label>
 
@@ -141,6 +233,61 @@ export function WorkoutLogForm({
             data-lpignore="true"
           />
         </label>
+      )}
+
+      {selectedRoutine && actuals.length > 0 && (
+        <div className="workout-actuals">
+          <p className="workout-log-label">Today&apos;s sets</p>
+          <p className="tiny muted">
+            Enter what you did — weights only where this routine tracks them.
+          </p>
+          {actuals.map((ex, ei) => (
+            <div key={ex.exerciseId} className="workout-actual-ex">
+              <p className="workout-actual-ex-name">{ex.name}</p>
+              {ex.sets.map((s, si) => (
+                <div
+                  key={si}
+                  className={`workout-actual-set-row${ex.tracksWeight ? " has-weight" : ""}`}
+                >
+                  <span className="tiny muted">Set {si + 1}</span>
+                  <label className="workout-log-field">
+                    <span className="workout-log-label">Reps</span>
+                    <input
+                      className="workout-log-input"
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={99}
+                      value={s.reps || ""}
+                      onChange={(e) =>
+                        updateSet(ei, si, { reps: e.target.value })
+                      }
+                      aria-label={`${ex.name} set ${si + 1} reps`}
+                    />
+                  </label>
+                  {ex.tracksWeight && (
+                    <label className="workout-log-field">
+                      <span className="workout-log-label">lb</span>
+                      <input
+                        className="workout-log-input"
+                        type="number"
+                        inputMode="decimal"
+                        min={0}
+                        step="0.5"
+                        value={s.weight ?? ""}
+                        onChange={(e) =>
+                          updateSet(ei, si, { weight: e.target.value })
+                        }
+                        aria-label={`${ex.name} set ${si + 1} weight`}
+                        placeholder="—"
+                      />
+                    </label>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       )}
 
       <fieldset className="workout-log-field">
