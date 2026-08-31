@@ -25,15 +25,20 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-  deploy-prod:
+  deploy-prod-after-dev:
     needs: [deploy-dev]
-    if: >
-      ${{
-        always() && (
-          github.event.inputs.target == 'prod' ||
-          (github.event.inputs.target == 'both' && needs.deploy-dev.result == 'success')
-        )
-      }}
+    if: ${{ github.event.inputs.target == 'both' && needs.deploy-dev.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Deploy jeremyos-prod
+        run: flyctl deploy -c fly.prod.toml -a jeremyos-prod --ha=false
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  deploy-prod-only:
+    if: ${{ github.event.inputs.target == 'prod' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

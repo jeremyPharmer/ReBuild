@@ -1,0 +1,38 @@
+# Phone-friendly: GitHub → Actions → "Setup jeremyos-prod" → Run workflow
+# Creates volume (if missing), scales to 1 machine, deploys prod.
+name: Setup jeremyos-prod
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Scale to 1 machine
+        run: flyctl scale count 1 -a jeremyos-prod || true
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Create prod volume if missing
+        run: |
+          if flyctl volumes list -a jeremyos-prod 2>/dev/null | grep -q jeremyos_prod_data; then
+            echo "Volume jeremyos_prod_data already exists"
+          else
+            flyctl volumes create jeremyos_prod_data --region sjc --size 1 -a jeremyos-prod --yes
+          fi
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Deploy jeremyos-prod
+        run: flyctl deploy -c fly.prod.toml -a jeremyos-prod --ha=false
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Smoke test login page
+        run: |
+          sleep 10
+          curl -fsS https://jeremyos-prod.fly.dev/login | grep -q JeremyOS
