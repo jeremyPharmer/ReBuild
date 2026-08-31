@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useApp } from "@/components/AppProvider";
 import { WorkoutCalendar } from "@/components/workouts/WorkoutCalendar";
 import { WorkoutLogForm } from "@/components/workouts/WorkoutLogForm";
-import { WorkoutPrPanels } from "@/components/workouts/WorkoutPrPanels";
 import { WorkoutSummaryPanel } from "@/components/workouts/WorkoutSummaryPanel";
 import {
   formatMiles,
@@ -101,8 +100,6 @@ export default function WorkoutsPage() {
       <WorkoutLogForm date={selectedDate ?? today} />
 
       <WorkoutSummaryPanel monthKey={month} today={today} />
-
-      <WorkoutPrPanels date={selectedDate ?? today} />
     </main>
   );
 }
