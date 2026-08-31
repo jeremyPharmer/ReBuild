@@ -1,0 +1,29 @@
+# Restore founder db.json onto jeremyos-prod (browser-only).
+#
+# One-time setup in GitHub → Settings → Secrets → Actions:
+#   FOUNDER_DB_GZ_B64 = gzip+base64 of db.json (see docs/RESTORE_FOUNDER_DATA.md)
+#
+# Then: Actions → Restore founder db → Run workflow
+name: Restore founder db
+
+on:
+  workflow_dispatch:
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Import db.json to Fly volume
+        run: |
+          if [ -z "${{ secrets.FOUNDER_DB_GZ_B64 }}" ]; then
+            echo "Missing GitHub secret FOUNDER_DB_GZ_B64"
+            exit 1
+          fi
+          echo "${{ secrets.FOUNDER_DB_GZ_B64 }}" | base64 -d | gunzip > /tmp/db.json
+          python3 -c "import json; json.load(open('/tmp/db.json'))"
+          wc -c /tmp/db.json
+          flyctl ssh console -a jeremyos-prod -C "sh -c 'cat > /app/.data/db.json'" < /tmp/db.json
+          flyctl ssh console -a jeremyos-prod -C "wc -c /app/.data/db.json"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
