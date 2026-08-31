@@ -53,7 +53,7 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 
 ### Next
 
-1. **RB-022 — Apple Calendar → Today’s Build** — read-only pull of today’s (and optional near-term) Apple / iCloud events onto **Today’s Build**; separate from RB-014 todos. Detail: [`items/apple-calendar-todays-build.md`](./items/apple-calendar-todays-build.md).
+1. **RB-022 — Apple Calendar → Today’s Build** — CalDAV **poll** (no Apple webhooks) of today’s events onto **Today’s Build** + **local cross-off** in JeremyOS; separate from RB-014 todos. Detail: [`items/apple-calendar-todays-build.md`](./items/apple-calendar-todays-build.md).
 2. **RB-018 — Workout tracker** — personal log, not fitness SaaS. Detail: [`items/workout-tracker.md`](./items/workout-tracker.md).
 3. **RB-019 — Favorite recipes** — thin favorites section. Detail: [`items/favorite-recipes.md`](./items/favorite-recipes.md).
 4. **RB-015 — Hub: Jeremy’s other apps & sites** — link hub v1. Detail: [`items/jeremy-apps-hub.md`](./items/jeremy-apps-hub.md).
@@ -79,7 +79,7 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 | --- | --- | --- |
 | Now (framing) | RB-012 rebrand (EA + drop trail) + RB-013 north star | Effort **M** + **S**; docs first, then chrome/copy; Journey label locked keep |
 | Now (personal tools) | RB-014 todos → RB-016 five-year journal → **RB-021 journal photos** → RB-002 Gmail → RB-005 podcast/recovery → RB-017 cameras | Founder-loved / liked skills; photos are thin **S** reuse of celebration photo stack |
-| Next | **RB-022 Apple Calendar → Today’s Build**; RB-018 workout; RB-019 recipes; RB-015 hub; RB-003 digest | Personal OS cluster; calendar needs Apple/iCloud access-path spike; hub needs Jeremy’s app list |
+| Next | **RB-022 Apple Calendar → Today’s Build**; RB-018 workout; RB-019 recipes; RB-015 hub; RB-003 digest | Personal OS cluster; calendar = CalDAV poll + local cross-off (no Apple webhooks); hub needs Jeremy’s app list |
 | Finish thin | RB-011, RB-010 | Do not expand money/daily-loop polish; journal UI redesign = RB-016; journal media = RB-021 |
 | Later (personal fund) | RB-006, RB-001 | Locked model; rails demoted |
 | Later / paused | RB-008, RB-004 | Unrequested channels |
