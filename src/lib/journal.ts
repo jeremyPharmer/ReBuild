@@ -33,6 +33,11 @@ export function formatMonthDayLong(isoOrMd: string): string {
   });
 }
 
+/** Three-letter weekday for YYYY-MM-DD (e.g. Mon, Tue). */
+export function formatWeekdayAbbrev(isoDate: string): string {
+  return parseDate(isoDate).toLocaleDateString("en-US", { weekday: "short" });
+}
+
 /** Soft sentence count for journal summaries (approx). */
 export function countSentences(text: string): number {
   const trimmed = text.trim();

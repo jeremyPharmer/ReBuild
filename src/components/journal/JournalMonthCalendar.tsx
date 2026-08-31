@@ -83,8 +83,12 @@ export function JournalMonthCalendar({
             >
               <span className="fy-cal-daynum">{dayNum}</span>
               <span className="fy-cal-markers" aria-hidden>
-                {mark === "closed" && <span className="fy-cal-dot closed" />}
-                {mark === "missing" && <span className="fy-cal-dot missing" />}
+                {mark === "closed" && !starred && (
+                  <span className="fy-cal-dot closed" />
+                )}
+                {mark === "missing" && !starred && (
+                  <span className="fy-cal-dot missing" />
+                )}
                 {starred && <span className="fy-cal-star">★</span>}
               </span>
             </button>

@@ -2509,6 +2509,16 @@ h2 {
   color: var(--muted);
 }
 
+.fy-year-dow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--muted) 85%, transparent);
+  line-height: 1;
+  margin-top: -2px;
+}
+
 .fy-photo-clip {
   appearance: none;
   display: inline-flex;
