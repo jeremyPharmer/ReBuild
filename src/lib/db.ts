@@ -1,12 +1,11 @@
-import { promises as fs } from "fs";
-import path from "path";
 import { emptyState } from "./journey";
 import { normalizeState } from "./fund";
+import { readDbText, writeDbText, DATA_DIR } from "./storage";
 import type { GenderOption } from "./auth-constants";
 import type { RebuildState } from "./types";
 
-const DATA_DIR = path.join(process.cwd(), ".data");
-export const DB_PATH = path.join(DATA_DIR, "db.json");
+export { DATA_DIR };
+export const DB_PATH = "db.json";
 
 export type PasswordReset = {
   tokenHash: string;
@@ -52,7 +51,7 @@ export function emptyDb(): DbRoot {
 }
 
 export async function ensureDataDir() {
-  await fs.mkdir(DATA_DIR, { recursive: true });
+  // No-op on Vercel KV/Blob; local mkdir handled on write in storage-local.
 }
 
 export function normalizeDb(raw: unknown): DbRoot {
@@ -85,7 +84,8 @@ export function normalizeDb(raw: unknown): DbRoot {
 
 export async function readDb(): Promise<DbRoot> {
   try {
-    const raw = await fs.readFile(DB_PATH, "utf8");
+    const raw = await readDbText();
+    if (!raw) return emptyDb();
     return normalizeDb(JSON.parse(raw) as unknown);
   } catch {
     return emptyDb();
@@ -93,9 +93,8 @@ export async function readDb(): Promise<DbRoot> {
 }
 
 export async function writeDb(db: DbRoot): Promise<void> {
-  await ensureDataDir();
   const normalized = normalizeDb(db);
-  await fs.writeFile(DB_PATH, JSON.stringify(normalized, null, 2), "utf8");
+  await writeDbText(JSON.stringify(normalized, null, 2));
 }
 
 export async function updateDb(

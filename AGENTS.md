@@ -3,11 +3,11 @@
 ## Project overview
 
 JeremyOS is Jeremy's executive assistant and personal OS. Next.js 16 App Router serves UI
-and API. Persistence is `.data/db.json` (gitignored). Auth + multi-user.
+and API. Persistence is **Vercel KV** (`db.json`) + **Vercel Blob** (photos); local dev uses `.data/` (gitignored). Auth + multi-user.
 
 Core logic: `src/lib/journey.ts` (pure) and `src/lib/mutations.ts` (evening /
 reclaim side effects). Fund ledger: `src/lib/fund.ts` (Future + Treat Yourself).
-UI under `src/app/*`.
+Storage: `src/lib/storage.ts`. UI under `src/app/*`.
 
 ## Product
 
@@ -30,7 +30,7 @@ Source of truth:
 
 ## App / ship
 
-Implement and deploy against Fly **dev** then **prod** per `DEPLOY.md`. Prod data wipe for Day-1 restart: clear `/app/.data/db.json` on `jeremyos-prod` (reset API is blocked on prod).
+Implement and deploy against **Vercel** per `DEPLOY.md`. Prod data lives in KV/Blob — not wiped on deploy.
 
 ## Agent roles
 
@@ -45,13 +45,13 @@ Keep changes in your lane when sharing a branch. Prefer small PRs that can ship.
 
 ## App / ship
 
-1. Verify on **dev** first: https://jeremyos-dev.fly.dev (`fly deploy -c fly.dev.toml -a jeremyos-dev`)
-2. Deploy **prod** only when ready: `fly deploy -c fly.prod.toml -a jeremyos-prod`
-3. `POST /api/reset` is blocked when `JEREMYOS_ENV=prod`. Prod Day-1 restart: clear `/app/.data/db.json` on `jeremyos-prod` (see `DEPLOY.md`).
+1. Verify on **Vercel Preview** first (PR deploy)
+2. Merge to **main** for production
+3. `POST /api/reset` is blocked on production (`JEREMYOS_ENV=prod` or `VERCEL_ENV=production`)
 
 ## Cursor Cloud notes
 
 - `npm run dev` → http://localhost:3000
-- Reset data: `POST /api/reset` (dev only) or delete `.data/db.json`
+- Reset data: `POST /api/reset` (dev/preview only) or delete `.data/db.json`
 - Run `npm test` for journey/reclaim/milestone/fund tests
 - `npm run build` before relying on `npm run typecheck` (Next generates types)

@@ -1,9 +1,5 @@
-import { promises as fs } from "fs";
-import path from "path";
 import { newId } from "./journey";
-
-const DATA_DIR = path.join(process.cwd(), ".data");
-const PHOTOS_DIR = path.join(DATA_DIR, "photos");
+import { readPhotoBytes, writePhotoBytes } from "./storage";
 
 /** Soft cap after client shrink; keep in sync with clientPhoto target (~1.2MB). */
 const MAX_BYTES = 2.5 * 1024 * 1024;
@@ -15,12 +11,9 @@ const MIME_EXT: Record<string, string> = {
   "image/webp": "webp",
 };
 
-export function photoFilePath(photoId: string): string | null {
-  if (!/^[a-zA-Z0-9_-]+$/.test(photoId)) return null;
-  // Resolve under photos dir only
-  const full = path.join(PHOTOS_DIR, photoId);
-  if (!full.startsWith(PHOTOS_DIR)) return null;
-  return full;
+function photoRelativePath(photoId: string): string | null {
+  if (!/^[a-zA-Z0-9_-]+\.[a-z0-9]+$/i.test(photoId)) return null;
+  return `photos/${photoId}`;
 }
 
 /** Save a data-URL image; returns photo id (filename with extension). */
@@ -47,33 +40,30 @@ export async function savePhotoDataUrl(dataUrl: string): Promise<string> {
       { status: 400 },
     );
   }
-  await fs.mkdir(PHOTOS_DIR, { recursive: true });
   const id = `${newId("photo")}.${ext}`;
-  const dest = path.join(PHOTOS_DIR, id);
-  await fs.writeFile(dest, buffer);
+  const relativePath = photoRelativePath(id);
+  if (!relativePath) {
+    throw Object.assign(new Error("Could not save photo"), { status: 500 });
+  }
+  await writePhotoBytes(relativePath, buffer, mime);
   return id;
 }
 
 export async function readPhoto(
   photoId: string,
 ): Promise<{ buffer: Buffer; contentType: string } | null> {
-  const base = photoId.includes(".") ? photoId : null;
-  if (!base || base.includes("..") || base.includes("/")) return null;
-  const full = path.join(PHOTOS_DIR, base);
-  if (!full.startsWith(PHOTOS_DIR)) return null;
-  try {
-    const buffer = await fs.readFile(full);
-    const ext = path.extname(base).slice(1).toLowerCase();
-    const contentType =
-      ext === "png"
-        ? "image/png"
-        : ext === "webp"
-          ? "image/webp"
-          : "image/jpeg";
-    return { buffer, contentType };
-  } catch {
-    return null;
-  }
+  const relativePath = photoRelativePath(photoId);
+  if (!relativePath) return null;
+  const buffer = await readPhotoBytes(relativePath);
+  if (!buffer) return null;
+  const ext = photoId.split(".").pop()?.toLowerCase();
+  const contentType =
+    ext === "png"
+      ? "image/png"
+      : ext === "webp"
+        ? "image/webp"
+        : "image/jpeg";
+  return { buffer, contentType };
 }
 
 export function photoUrl(photoId: string | undefined): string | undefined {

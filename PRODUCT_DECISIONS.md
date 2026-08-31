@@ -30,11 +30,10 @@ Canonical backlog: RB-012 (rebrand + drop trail), RB-013 (north star), RB-014 (t
 
 | Env | Purpose | Host |
 |---|---|---|
-| **dev** | Test / sample data; push freely without touching real journey | Fly.io (private) |
-| **prod** | Founder true-source data | Fly.io (private) |
+| **Preview** | Test / sample data; push freely without touching real journey | Vercel preview deploys |
+| **Production** | Founder true-source data | Vercel production |
 
-Separate data volumes/stores. Dev deploys must not overwrite prod.  
-Venmo reconcile / link = later (UI totals first).
+Persistence: Vercel KV (`db.json`) + Vercel Blob (photos). Legacy Fly volume deprecated.
 
 ---
 

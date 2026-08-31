@@ -1,146 +1,79 @@
-# Fly.io deployment
+# JeremyOS on Vercel
 
-Two private stable apps with **separate persistent volumes**:
+Deploy target is **Vercel** (Next.js). Persistence uses **Vercel KV** (db.json) and **Vercel Blob** (photos). Local dev still uses `.data/` on disk when KV/Blob env vars are unset.
 
-| Env | App name | Config | Data volume | URL |
-|---|---|---|---|---|
-| Dev | `jeremyos-dev` | `fly.dev.toml` | `jeremyos_dev_data` | https://jeremyos-dev.fly.dev |
-| Prod | `jeremyos-prod` | `fly.prod.toml` | `jeremyos_prod_data` | https://jeremyos-prod.fly.dev |
+## Environments
 
-Legacy apps `rebuild-dev` / `rebuild-prod` may still exist until migrated.
+| Env | Vercel | Purpose |
+|---|---|---|
+| **Preview** | PR / branch deploys | Experiments; `/api/reset` allowed when not production |
+| **Production** | `main` branch | Founder true-source data |
 
-**Interim prod deploy (until `jeremyos-prod` app is created):**
+Set a stable production URL via **`APP_URL`** (custom domain or `https://your-project.vercel.app`).
 
-```bash
-fly deploy -c fly.prod.toml -a rebuild-prod
-```
+## One-time Vercel setup
 
-Keep `[mounts] source = 'rebuild_prod_data'` in `fly.prod.toml` while on `rebuild-prod`. Set `APP_URL=https://rebuild-prod.fly.dev` until you cut over to `jeremyos-prod.fly.dev`.
+1. **Import repo** at [vercel.com/new](https://vercel.com/new) → connect `jeremyPharmer/ReBuild` (or renamed repo).
+2. **Storage → Create KV store** (Upstash Redis) → connect to the project.  
+   Vercel injects `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
+3. **Storage → Create Blob store** → connect to the project.  
+   Vercel injects `BLOB_READ_WRITE_TOKEN`.
+4. **Environment variables** (Production + Preview as needed):
 
-## Promotion policy (locked)
+| Variable | Example | Notes |
+|---|---|---|
+| `AUTH_SECRET` | long random string | Session signing |
+| `CRON_SECRET` | long random string | Reminder cron auth |
+| `RESEND_API_KEY` | `re_…` | Email |
+| `EMAIL_FROM` | `JeremyOS <noreply@yourdomain.com>` | Verified in Resend |
+| `APP_URL` | `https://jeremyos.vercel.app` | Email links + reminders |
+| `JEREMYOS_ENV` | `prod` on Production only | Blocks `/api/reset` on prod |
 
-1. **Dev** is for experiments and sample data. Reset allowed (`POST /api/reset`).
-2. **Prod** is founder true-source history.
-   - `/api/reset` is **disabled** when `JEREMYOS_ENV=prod`.
-   - Deploys use the existing Fly volume — **code updates never wipe `.data/db.json`**.
-   - Only promote to prod when intentionally shipping; do not treat prod like a scratch pad.
-3. Verify on **dev** first, then promote to **prod**.
-4. Do **not** destroy `jeremyos_prod_data`.
+5. **Deploy** — push to `main` or run `vercel --prod` locally.
 
-## Deploy
+## Migrate data from Fly
 
-```bash
-# Dev (test / sample data) — iterate here
-fly deploy -c fly.dev.toml -a jeremyos-dev
-
-# Prod (founder true-source) — promote only when ready
-fly deploy -c fly.prod.toml -a jeremyos-prod
-```
-
-GitHub Actions: **Actions → Deploy → Run workflow** (`both` / `dev` / `prod`).
-Requires repo secret `FLY_API_TOKEN` (same value as Cursor secret below).
-
-## Cloud agent / CI auth (`FLY_API_TOKEN`)
-
-Cloud agents and the Deploy workflow need a Fly API token in the environment as
-**`FLY_API_TOKEN`**. Interactive `fly auth login` does not work in this VM.
-
-### Diagnose
-
-In the agent shell:
+Export founder data from the old Fly volume:
 
 ```bash
-# Name is registered but value missing → secret empty or needs agent restart
-echo "names=$CLOUD_AGENT_INJECTED_SECRET_NAMES"
-[ -n "${FLY_API_TOKEN:-}" ] && echo "FLY_API_TOKEN ok" || echo "FLY_API_TOKEN MISSING"
+fly ssh console -a rebuild-prod -C "cat /app/.data/db.json" > .data/db.json
+# optional: copy photos dir from Fly if you have them locally
 ```
 
-If the name appears in `CLOUD_AGENT_INJECTED_SECRET_NAMES` but `FLY_API_TOKEN`
-is unset, the Cursor secret exists **without a usable value** (or the agent
-started before the value was saved). Fix below, then **start a new Cloud Agent**.
-
-### Mint a token (on your laptop, once)
+Upload to Vercel storage:
 
 ```bash
-fly auth login
-# Org token can deploy both jeremyos-dev and jeremyos-prod:
-fly tokens create org -o personal -n "cursor-jeremyos-deploy" -x 2160h
-# (use your real org slug from `fly orgs list` if not "personal")
+KV_REST_API_URL=... KV_REST_API_TOKEN=... BLOB_READ_WRITE_TOKEN=... \
+  node scripts/migrate-to-vercel.mjs
 ```
 
-Copy the printed token (starts with `FlyV1` / `fo1_…`). Do **not** commit it.
+Values come from the Vercel project → Storage → KV / Blob → `.env.local` snippet.
 
-### Install the token where agents can use it
+## Cron (morning / evening reminders)
 
-1. **Cursor Cloud Secrets** (required for this agent):
-   [cursor.com/dashboard/cloud-agents](https://cursor.com/dashboard/cloud-agents)
-   → Secrets → add / update **`FLY_API_TOKEN`** = the token value → save.
-2. **GitHub Actions** (optional, for Actions → Deploy):
-   Repo → Settings → Secrets and variables → Actions →
-   **`FLY_API_TOKEN`** = same value.
-3. **Restart**: start a **new** Cloud Agent after saving. Existing VMs do not
-   pick up secret value changes mid-run.
+`vercel.json` runs `/api/cron/reminders` every 15 minutes. Vercel sends  
+`Authorization: Bearer $CRON_SECRET` when `CRON_SECRET` is set.
 
-Then the agent can run:
+GitHub Actions (`.github/workflows/reminders.yml`) can remain as a backup ping — point URLs at your Vercel `APP_URL`.
+
+## Local development
 
 ```bash
-fly deploy -c fly.dev.toml -a jeremyos-dev
-fly deploy -c fly.prod.toml -a jeremyos-prod
+npm install
+npm run dev    # http://localhost:3000 — uses .data/db.json
+npm test
 ```
 
-## One-time setup (JeremyOS apps)
+No KV/Blob tokens needed locally.
 
-If migrating from `rebuild-*` apps, create new Fly apps and volumes:
+## Promotion policy
 
-```bash
-fly apps create jeremyos-dev
-fly apps create jeremyos-prod
-fly volumes create jeremyos_dev_data --region sjc --size 1 -a jeremyos-dev
-fly volumes create jeremyos_prod_data --region sjc --size 1 -a jeremyos-prod
-```
+1. Test on **Preview** deploys first.
+2. **Production** is founder true-source — `/api/reset` is disabled when `JEREMYOS_ENV=prod` or `VERCEL_ENV=production`.
+3. Prod deploys never wipe KV/Blob data; only code changes.
 
-Copy `/app/.data/db.json` from the old prod volume if you need to preserve founder data, then point `APP_URL` and DNS bookmarks at the new URLs.
+## Legacy Fly (deprecated)
 
-## Prod Day-1 restart (emergency only)
+Fly configs (`fly.dev.toml`, `fly.prod.toml`) and the Fly deploy workflow are kept for reference during cutover. After Vercel is verified, decommission `rebuild-prod` on Fly.io.
 
-If founder explicitly requests a clean prod restart (not a normal deploy):
-
-```bash
-fly ssh console -a jeremyos-prod -C "sh -c 'printf \"%s\" \"{...empty state...}\" > /app/.data/db.json'"
-```
-
-Never use this as part of routine promotion.
-
-## Email reminders (morning / evening)
-
-N=1 Start-the-day and Close-the-day emails via [Resend](https://resend.com).
-
-### Secrets (prod + optionally dev)
-
-```bash
-# Resend API key (https://resend.com/api-keys)
-fly secrets set RESEND_API_KEY=re_xxx -a jeremyos-prod
-fly secrets set RESEND_API_KEY=re_xxx -a jeremyos-dev
-
-# Shared cron bearer (any long random string)
-fly secrets set CRON_SECRET='long-random-string' -a jeremyos-prod
-fly secrets set CRON_SECRET='long-random-string' -a jeremyos-dev
-```
-
-Optional:
-
-```bash
-fly secrets set EMAIL_FROM='JeremyOS <you@yourdomain.com>' -a jeremyos-prod
-fly secrets set APP_URL=https://jeremyos-prod.fly.dev -a jeremyos-prod
-```
-
-Until you verify a domain in Resend, use the default `onboarding@resend.dev` from-address (can only send to your Resend account email).
-
-### GitHub Actions schedule
-
-Repo secret **`JEREMYOS_CRON_SECRET`** must match Fly `CRON_SECRET` (legacy `REBUILD_CRON_SECRET` still works until rotated).  
-Workflow: `.github/workflows/reminders.yml` (hourly + manual dispatch).
-
-### In-app
-
-Settings → Email nudges → set email, enable, choose hours (profile timezone) → **Test morning / Test evening**.
+Previous prod URL (until DNS moves): https://rebuild-prod.fly.dev

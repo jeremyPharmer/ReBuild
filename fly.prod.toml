@@ -1,5 +1,5 @@
-# fly.toml app configuration file generated for jeremyos-prod
-# Target app: jeremyos-prod (https://jeremyos-prod.fly.dev)
+# DEPRECATED — JeremyOS now deploys to Vercel. See DEPLOY.md.
+# Target app: jeremyos-prod (legacy Fly — use Vercel instead)
 # Interim: deploy to legacy rebuild-prod until jeremyos-prod exists:
 #   fly deploy -c fly.prod.toml -a rebuild-prod
 # See https://fly.io/docs/reference/configuration/

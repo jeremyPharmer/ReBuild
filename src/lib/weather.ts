@@ -137,7 +137,7 @@ export async function reverseGeocodeLocation(
       `https://nominatim.openstreetmap.org/reverse?${params.toString()}`,
       {
         headers: {
-          "User-Agent": "JeremyOS/1.0 (https://jeremyos-prod.fly.dev)",
+          "User-Agent": "JeremyOS/1.0 (https://jeremyos.vercel.app)",
         },
         next: { revalidate: 86400 },
       },
