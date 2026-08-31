@@ -12,13 +12,17 @@ import {
 import type { JournalEntry } from "./types";
 
 function entry(
-  partial: Pick<JournalEntry, "date" | "type" | "text"> & { id?: string },
+  partial: Pick<JournalEntry, "date" | "type" | "text"> & {
+    id?: string;
+    photoId?: string;
+  },
 ): JournalEntry {
   return {
     id: partial.id ?? `${partial.date}-${partial.type}`,
     date: partial.date,
     type: partial.type,
     text: partial.text,
+    photoId: partial.photoId,
     createdAt: "2026-08-29T12:00:00.000Z",
   };
 }
@@ -56,6 +60,26 @@ describe("journal five-year helpers", () => {
       summary: "Walked the dog. Coffee on the porch.",
     });
     expect(map.get("2025-08-29")?.headline).toBe("Last year");
+  });
+
+  it("carries photoId onto the day bundle and five-year slot", () => {
+    const map = bundleJournalsByDate([
+      entry({
+        date: "2026-08-29",
+        type: "one_line",
+        text: "With pic",
+        photoId: "photo_abc.jpg",
+      }),
+      entry({
+        date: "2026-08-29",
+        type: "journal",
+        text: "Note",
+        photoId: "photo_abc.jpg",
+      }),
+    ]);
+    expect(map.get("2026-08-29")?.photoId).toBe("photo_abc.jpg");
+    const slots = fiveYearSlots("08-29" as DayKey, map, 2026, 1);
+    expect(slots[0].photoId).toBe("photo_abc.jpg");
   });
 
   it("builds five year slots newest-first with blanks", () => {

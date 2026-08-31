@@ -8,12 +8,14 @@ export type FiveYearEntry = {
   year: number;
   headline?: string;
   summary?: string;
+  photoId?: string;
 };
 
 export type DayBundle = {
   date: string;
   headline?: string;
   summary?: string;
+  photoId?: string;
 };
 
 /** Calendar month-day key from YYYY-MM-DD */
@@ -55,6 +57,9 @@ export function bundleJournalsByDate(
     } else if (j.type === "journal") {
       row.summary = j.text;
     }
+    if (j.photoId && !row.photoId) {
+      row.photoId = j.photoId;
+    }
     byDate.set(j.date, row);
   }
   return byDate;
@@ -80,6 +85,7 @@ export function fiveYearSlots(
       year,
       headline: bundled?.headline,
       summary: bundled?.summary,
+      photoId: bundled?.photoId,
     });
   }
   return slots;

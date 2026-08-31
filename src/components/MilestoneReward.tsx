@@ -1,96 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import { SubtlePhotoPicker } from "@/components/SubtlePhotoPicker";
 import { Money, PrimaryButton, SecondaryButton } from "@/components/ui";
 import { fundTotal, mustTreat, pendingCashableMoments } from "@/lib/fund";
 import { assignedRewardForMilestone } from "@/lib/journey";
 import type { MilestoneAchievement, Reward } from "@/lib/types";
-
-function SubtlePhotoPicker({
-  preview,
-  onPick,
-  onClear,
-}: {
-  preview: string | null;
-  onPick: (dataUrl: string) => void;
-  onClear: () => void;
-}) {
-  const cameraRef = useRef<HTMLInputElement>(null);
-  const libraryRef = useRef<HTMLInputElement>(null);
-  const [busy, setBusy] = useState(false);
-  const [localError, setLocalError] = useState("");
-
-  async function onFile(file: File | undefined) {
-    if (!file) return;
-    setBusy(true);
-    setLocalError("");
-    try {
-      const { fileToCompressedDataUrl } = await import("@/lib/clientPhoto");
-      const dataUrl = await fileToCompressedDataUrl(file);
-      onPick(dataUrl);
-    } catch (e) {
-      setLocalError(e instanceof Error ? e.message : "Could not use that photo");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <div className="photo-subtle">
-      <input
-        ref={cameraRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        hidden
-        onChange={(e) => {
-          void onFile(e.target.files?.[0]);
-          e.target.value = "";
-        }}
-      />
-      <input
-        ref={libraryRef}
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(e) => {
-          void onFile(e.target.files?.[0]);
-          e.target.value = "";
-        }}
-      />
-      {preview ? (
-        <div className="photo-subtle-preview">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview} alt="Celebration preview" />
-          <button type="button" className="dismiss-btn" onClick={onClear}>
-            Remove
-          </button>
-        </div>
-      ) : (
-        <div className="photo-subtle-actions">
-          <button
-            type="button"
-            className="photo-subtle-btn"
-            disabled={busy}
-            onClick={() => cameraRef.current?.click()}
-          >
-            {busy ? "Preparing photo…" : "Take a photo · optional"}
-          </button>
-          <button
-            type="button"
-            className="photo-subtle-btn"
-            disabled={busy}
-            onClick={() => libraryRef.current?.click()}
-          >
-            Choose from library
-          </button>
-        </div>
-      )}
-      {localError && <p className="error">{localError}</p>}
-    </div>
-  );
-}
 
 export function HomeRewardCard({
   moment,

@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
+import { SubtlePhotoPicker } from "@/components/SubtlePhotoPicker";
 import { PrimaryButton, ScaleInput, SecondaryButton } from "@/components/ui";
 import {
   formatDisplayDate,
@@ -42,6 +43,7 @@ function EveningPageInner() {
   const [stress, setStress] = useState(5);
   const [oneLine, setOneLine] = useState("");
   const [standOut, setStandOut] = useState("");
+  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(false);
   const [error, setError] = useState("");
@@ -75,6 +77,7 @@ function EveningPageInner() {
         stress,
         oneLine,
         expandedJournal: standOut.trim() || undefined,
+        photoDataUrl: photoDataUrl || undefined,
       });
       setResult(true);
       await refresh();
@@ -130,6 +133,12 @@ function EveningPageInner() {
             <p className="muted" style={{ margin: "10px 0 0", lineHeight: 1.45 }}>
               {standOut.trim()}
             </p>
+          )}
+          {photoDataUrl && (
+            <div className="photo-subtle-preview" style={{ marginTop: 12 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photoDataUrl} alt="Attached photo" />
+            </div>
           )}
         </div>
 
@@ -230,6 +239,16 @@ function EveningPageInner() {
             </span>
           )}
         </label>
+        <div style={{ marginTop: 14 }}>
+          <span className="field-label">Photo · optional</span>
+          <SubtlePhotoPicker
+            preview={photoDataUrl}
+            onPick={setPhotoDataUrl}
+            onClear={() => setPhotoDataUrl(null)}
+            cameraLabel="Take a photo"
+            libraryLabel="Choose from Photos"
+          />
+        </div>
       </section>
       {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
       <PrimaryButton

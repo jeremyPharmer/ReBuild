@@ -5,6 +5,7 @@ import { newId } from "./journey";
 const DATA_DIR = path.join(process.cwd(), ".data");
 const PHOTOS_DIR = path.join(DATA_DIR, "photos");
 
+/** Soft cap after client shrink; keep in sync with clientPhoto target (~1.2MB). */
 const MAX_BYTES = 2.5 * 1024 * 1024;
 
 const MIME_EXT: Record<string, string> = {

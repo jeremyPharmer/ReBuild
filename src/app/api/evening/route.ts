@@ -7,12 +7,19 @@ import {
 } from "@/lib/journey";
 import { pendingCashableMoments } from "@/lib/fund";
 import { applyEveningSideEffects } from "@/lib/mutations";
+import { savePhotoDataUrl } from "@/lib/photos";
 import { updateState } from "@/lib/store";
 import type { EveningCheckIn, JournalEntry } from "@/lib/types";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+
+    let photoId: string | undefined;
+    if (body.photoDataUrl) {
+      photoId = await savePhotoDataUrl(String(body.photoDataUrl));
+    }
+
     const state = await updateState((prev) => {
       if (!prev.profile) {
         const err = new Error("Not onboarded");
@@ -72,6 +79,7 @@ export async function POST(req: Request) {
           date,
           type: "one_line",
           text: evening.oneLine,
+          photoId,
           createdAt: new Date().toISOString(),
         };
         next = { ...next, journals: [...next.journals, entry] };
@@ -82,6 +90,9 @@ export async function POST(req: Request) {
           date,
           type: "journal",
           text: evening.expandedJournal,
+          // Same attach on summary row so day still shows paperclip if
+          // headline is ever missing; bundleJournalsByDate dedupes.
+          photoId,
           createdAt: new Date().toISOString(),
         };
         next = { ...next, journals: [...next.journals, entry] };
