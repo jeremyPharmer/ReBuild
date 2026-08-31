@@ -30,8 +30,8 @@ export default function HomePage() {
       <TodayRebuildPanel />
 
       <div className="home-card-grid">
-        <TodaysEntertainmentCard />
         <MoveHubCard />
+        <TodaysEntertainmentCard />
       </div>
 
       <WeekPlanPanel today={today} week={dashboard.week} />
