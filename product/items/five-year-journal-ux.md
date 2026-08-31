@@ -45,5 +45,5 @@ JeremyOS Journal feels like a classic five-year diary: same calendar day, years 
 - Intake **2026-08-29** founder (JeremyOS): wants paper five-year journal look — same day every prior year on one page; headline + short summary (~5 sentences); journal vibes; **not stacked**.
 - **2026-08-29 ship slice:** `/journal` is a five-year day page (year gutter + headline/summary, not stacked feed); evening capture labels → Headline + Short summary with soft 5-sentence hint; existing `one_line` / `journal` storage unchanged. Deployed to prod with history retained.
 - Rank **4** / **P0** — founder-loved personal tool, immediately after todos (RB-014) and framing (RB-012/013); ahead of email/podcast polish.
-- Related: [RB-010](./backfill-missed-evening-journal-close.md) (backfill integrity only); [RB-013](./personal-os-north-star.md) build filter (Jeremy said he wants it).
+- Related: [RB-010](./backfill-missed-evening-journal-close.md) (backfill integrity only); [RB-021](./journal-photos.md) (optional pics + paperclip on year slots — follow-on, not this item); [RB-013](./personal-os-north-star.md) build filter (Jeremy said he wants it).
 - Open: hard vs soft 5-sentence limit (v1 = soft); year layout settled as vertical page composition (not cards); evening one-liners map to headline, standout → summary.
