@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-# Migrate JeremyOS prod from rebuild-prod → jeremyos-prod on Fly.io
+# Migrate JeremyOS prod → jeremyos-prod on Fly.io
+#
+# Modes:
+#   Default — export from OLD_APP (rebuild-prod), deploy, import, copy secrets
+#   SKIP_OLD=1 — skip legacy app; use DB_BACKUP file or repo .data/db.json
+#   IMPORT_ONLY=1 — only import DB_BACKUP into running jeremyos-prod
 set -euo pipefail
 
 export PATH="${HOME}/.fly/bin:${PATH}"
@@ -8,6 +13,8 @@ OLD_APP="${OLD_APP:-rebuild-prod}"
 NEW_APP="${NEW_APP:-jeremyos-prod}"
 NEW_VOL="${NEW_VOL:-jeremyos_prod_data}"
 REGION="${REGION:-sjc}"
+SKIP_OLD="${SKIP_OLD:-0}"
+IMPORT_ONLY="${IMPORT_ONLY:-0}"
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DB_BACKUP="${DB_BACKUP:-/tmp/jeremyos-db.json}"
 
@@ -43,7 +50,43 @@ create_volume_if_needed() {
   fly_cmd volumes create "$NEW_VOL" --region "$REGION" --size 1 -a "$NEW_APP" --yes
 }
 
+scale_to_one() {
+  log "Scaling $NEW_APP to 1 machine (single volume) …"
+  fly_cmd scale count 1 -a "$NEW_APP" || true
+}
+
+resolve_backup() {
+  if [ -f "$DB_BACKUP" ]; then
+    return 0
+  fi
+  if [ -f "$REPO_ROOT/.data/db.json" ]; then
+    DB_BACKUP="$REPO_ROOT/.data/db.json"
+    log "Using repo backup $DB_BACKUP"
+    return 0
+  fi
+  return 1
+}
+
 export_db() {
+  if [ "$SKIP_OLD" = "1" ]; then
+    if resolve_backup; then
+      python3 -c "import json; json.load(open('$DB_BACKUP'))"
+      log "Using existing backup ($(wc -c < "$DB_BACKUP") bytes)"
+      return 0
+    fi
+    echo "SKIP_OLD=1 but no DB_BACKUP and no $REPO_ROOT/.data/db.json"
+    exit 1
+  fi
+  if ! app_exists "$OLD_APP"; then
+    log "$OLD_APP gone — trying local backup"
+    if resolve_backup; then
+      python3 -c "import json; json.load(open('$DB_BACKUP'))"
+      log "Using existing backup ($(wc -c < "$DB_BACKUP") bytes)"
+      return 0
+    fi
+    echo "Cannot export from $OLD_APP and no local backup found"
+    exit 1
+  fi
   log "Exporting db.json from $OLD_APP …"
   fly_cmd ssh console -a "$OLD_APP" -C "cat /app/.data/db.json" > "$DB_BACKUP"
   python3 -c "import json; json.load(open('$DB_BACKUP'))"
@@ -51,9 +94,9 @@ export_db() {
 }
 
 deploy_new() {
-  log "Deploying to $NEW_APP …"
+  log "Deploying to $NEW_APP (--ha=false) …"
   cd "$REPO_ROOT"
-  fly_cmd deploy -c fly.prod.toml -a "$NEW_APP"
+  fly_cmd deploy -c fly.prod.toml -a "$NEW_APP" --ha=false
 }
 
 import_db() {
@@ -62,6 +105,10 @@ import_db() {
 }
 
 copy_secrets() {
+  if [ "$SKIP_OLD" = "1" ] || ! app_exists "$OLD_APP"; then
+    log "Skipping secret copy — set manually on $NEW_APP (see DEPLOY.md)"
+    return 0
+  fi
   log "Copying secrets from $OLD_APP → $NEW_APP …"
   mapfile -t lines < <(
     fly_cmd ssh console -a "$OLD_APP" -C "printenv AUTH_SECRET CRON_SECRET RESEND_API_KEY EMAIL_FROM" 2>&1 \
@@ -87,13 +134,24 @@ verify_new() {
 }
 
 retire_old() {
+  if [ "$SKIP_OLD" = "1" ] || ! app_exists "$OLD_APP"; then
+    return 0
+  fi
   log "Destroying legacy app $OLD_APP …"
   fly_cmd apps destroy "$OLD_APP" --yes
   log "Retired $OLD_APP"
 }
 
 main() {
+  if [ "$IMPORT_ONLY" = "1" ]; then
+    resolve_backup || { echo "IMPORT_ONLY needs DB_BACKUP or .data/db.json"; exit 1; }
+    import_db
+    verify_new
+    log "Import complete → https://${NEW_APP}.fly.dev"
+    return 0
+  fi
   create_app_if_needed
+  scale_to_one
   create_volume_if_needed
   export_db
   deploy_new

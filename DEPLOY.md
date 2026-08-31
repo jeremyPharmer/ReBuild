@@ -6,10 +6,29 @@ JeremyOS runs on **Fly.io** with a persistent volume at `/app/.data/db.json`.
 
 | | App | URL | Volume |
 |---|---|---|---|
-| **Prod (live)** | `rebuild-prod` | https://rebuild-prod.fly.dev | `rebuild_prod_data` |
-| **Target** | `jeremyos-prod` | https://jeremyos-prod.fly.dev | `jeremyos_prod_data` |
+| **Prod** | `jeremyos-prod` | https://jeremyos-prod.fly.dev | `jeremyos_prod_data` |
 
-Prod still uses the legacy `rebuild-prod` app until you run the URL migration below. Deploy with `-a rebuild-prod` until then.
+Legacy `rebuild-prod` was retired. Founder data is restored from backup into `jeremyos-prod` after migration.
+
+### Emergency recovery (if prod is down)
+
+**Stuck adding a volume?** See the step-by-step guide: [`docs/FLY_VOLUME_SETUP.md`](docs/FLY_VOLUME_SETUP.md)
+
+Founder `db.json` was backed up before migration. On your laptop:
+
+```bash
+fly auth login
+fly apps create jeremyos-prod
+fly volumes create jeremyos_prod_data --region sjc --size 1 -a jeremyos-prod --yes
+git clone … && cd ReBuild
+fly deploy -c fly.prod.toml -a jeremyos-prod --ha=false
+fly ssh console -a jeremyos-prod -C "sh -c 'cat > /app/.data/db.json'" < /path/to/db.json
+fly secrets set AUTH_SECRET='…' CRON_SECRET='…' RESEND_API_KEY='…' \
+  EMAIL_FROM='JeremyOS <noreply@icanrebuild.com>' \
+  APP_URL='https://jeremyos-prod.fly.dev' -a jeremyos-prod
+```
+
+Or from repo root (with full org Fly token): `npm run migrate:fly-prod`
 
 ## Target environments
 
@@ -35,7 +54,7 @@ fly volumes create jeremyos_prod_data --region sjc --size 1 -a jeremyos-prod
 fly ssh console -a rebuild-prod -C "cat /app/.data/db.json" > /tmp/db.json
 
 # 3. Deploy (from repo root)
-fly deploy -c fly.prod.toml -a jeremyos-prod
+fly deploy -c fly.prod.toml -a jeremyos-prod --ha=false
 
 # 4. Import data
 fly ssh console -a jeremyos-prod -C "sh -c 'cat > /app/.data/db.json'" < /tmp/db.json
@@ -100,7 +119,7 @@ fly deploy -c fly.dev.toml -a jeremyos-dev
 fly deploy -c fly.prod.toml -a rebuild-prod
 
 # Prod — after URL migration
-fly deploy -c fly.prod.toml -a jeremyos-prod
+fly deploy -c fly.prod.toml -a jeremyos-prod --ha=false
 ```
 
 GitHub Actions: **Actions → Deploy → Run workflow** (`both` / `dev` / `prod`).
@@ -151,7 +170,7 @@ Then the agent can run:
 
 ```bash
 fly deploy -c fly.dev.toml -a jeremyos-dev
-fly deploy -c fly.prod.toml -a jeremyos-prod
+fly deploy -c fly.prod.toml -a jeremyos-prod --ha=false
 ```
 
 ## One-time setup (JeremyOS apps)

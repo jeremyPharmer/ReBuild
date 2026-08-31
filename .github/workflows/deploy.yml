@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy jeremyos-dev
-        run: flyctl deploy -c fly.dev.toml -a jeremyos-dev
+        run: flyctl deploy -c fly.dev.toml -a jeremyos-dev --ha=false
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
@@ -39,6 +39,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Deploy jeremyos-prod
-        run: flyctl deploy -c fly.prod.toml -a jeremyos-prod
+        run: flyctl deploy -c fly.prod.toml -a jeremyos-prod --ha=false
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

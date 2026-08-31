@@ -34,8 +34,7 @@ npm run build
 
 | Env | URL | Notes |
 |---|---|---|
-| **Prod (now)** | https://rebuild-prod.fly.dev | Legacy app name; JeremyOS branding live |
-| **Prod (target)** | https://jeremyos-prod.fly.dev | After URL migration — see `DEPLOY.md` |
+| **Prod** | https://jeremyos-prod.fly.dev | After migration |
 | **Dev** | https://jeremyos-dev.fly.dev | Create app when needed |
 
 See `DEPLOY.md`, `PRODUCT_DECISIONS.md`, and `product/` (roadmap + locked fund model).

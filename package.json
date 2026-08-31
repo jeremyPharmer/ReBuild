@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "migrate:fly-prod": "bash scripts/migrate-fly-prod.sh"
+    "migrate:fly-prod": "bash scripts/migrate-fly-prod.sh",
+    "setup:jeremyos-prod": "bash scripts/setup-jeremyos-prod.sh"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
