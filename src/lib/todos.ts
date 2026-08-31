@@ -1,0 +1,318 @@
+import { addDays, formatDate, newId, parseDate } from "./journey";
+import type { DayProvision, RebuildState, TodoRecurrence } from "./types";
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
+
+export function isCalendarDate(value: string): boolean {
+  return DATE_RE.test(value) && !Number.isNaN(parseDate(value).getTime());
+}
+
+export function recurrenceOf(item: DayProvision): TodoRecurrence {
+  return item.recurrence ?? { kind: "none" };
+}
+
+export function isRecurring(item: DayProvision): boolean {
+  return recurrenceOf(item).kind !== "none";
+}
+
+export function parseRecurrence(raw: unknown): TodoRecurrence {
+  if (!raw || typeof raw !== "object") return { kind: "none" };
+  const rec = raw as { kind?: unknown; weekdays?: unknown; n?: unknown };
+  const kind = String(rec.kind ?? "none");
+  if (kind === "daily") return { kind: "daily" };
+  if (kind === "monthly_first") return { kind: "monthly_first" };
+  if (kind === "every_n_days") {
+    const n = Number(rec.n);
+    if (!Number.isInteger(n) || n < 1) {
+      throw Object.assign(new Error("Every N days needs a whole number ≥ 1"), {
+        status: 400,
+      });
+    }
+    return { kind: "every_n_days", n: Math.min(n, 365) };
+  }
+  if (kind === "weekly") {
+    const weekdays = normalizeWeekdays(rec.weekdays);
+    if (weekdays.length === 0) {
+      throw Object.assign(new Error("Pick at least one weekday"), { status: 400 });
+    }
+    return { kind: "weekly", weekdays };
+  }
+  return { kind: "none" };
+}
+
+export function normalizeWeekdays(raw: unknown): number[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<number>();
+  for (const v of raw) {
+    const n = Number(v);
+    if (Number.isInteger(n) && n >= 0 && n <= 6) seen.add(n);
+  }
+  return [...seen].sort((a, b) => a - b);
+}
+
+/** First due date for a new item (today if it matches the cadence). */
+export function firstDueDate(today: string, recurrence: TodoRecurrence): string {
+  if (recurrence.kind === "weekly") {
+    return nextMatchingWeekday(today, recurrence.weekdays, true);
+  }
+  if (recurrence.kind === "monthly_first") {
+    return nextFirstOfMonth(today, true);
+  }
+  return today;
+}
+
+/** Next due after completing an occurrence on `completedOn`. */
+export function nextDueDate(completedOn: string, recurrence: TodoRecurrence): string {
+  if (recurrence.kind === "daily") return addDays(completedOn, 1);
+  if (recurrence.kind === "every_n_days") {
+    return addDays(completedOn, recurrence.n);
+  }
+  if (recurrence.kind === "weekly") {
+    return nextMatchingWeekday(addDays(completedOn, 1), recurrence.weekdays, true);
+  }
+  if (recurrence.kind === "monthly_first") {
+    return nextFirstOfMonth(addDays(completedOn, 1), true);
+  }
+  return completedOn;
+}
+
+export function nextMatchingWeekday(
+  fromInclusive: string,
+  weekdays: number[],
+  inclusive: boolean,
+): string {
+  const wanted = normalizeWeekdays(weekdays);
+  if (wanted.length === 0) return fromInclusive;
+  const start = inclusive ? fromInclusive : addDays(fromInclusive, 1);
+  for (let i = 0; i < 8; i++) {
+    const d = addDays(start, i);
+    if (wanted.includes(parseDate(d).getDay())) return d;
+  }
+  return addDays(start, 7);
+}
+
+export function nextFirstOfMonth(fromInclusive: string, inclusive: boolean): string {
+  const start = inclusive ? fromInclusive : addDays(fromInclusive, 1);
+  const d = parseDate(start);
+  if (d.getDate() === 1) return start;
+  return formatDate(new Date(d.getFullYear(), d.getMonth() + 1, 1));
+}
+
+export function isOpenOn(item: DayProvision, date: string): boolean {
+  if (item.completed) return false;
+  return item.date === date;
+}
+
+export function openTodosOn(items: DayProvision[], date: string): DayProvision[] {
+  return items.filter((item) => isOpenOn(item, date));
+}
+
+/** One-off done today, or recurring completed today (date already advanced). */
+export function completedTodosForUndo(
+  items: DayProvision[],
+  today: string,
+): DayProvision[] {
+  return items.filter((item) => {
+    if (item.lastCompletedOn === today && isRecurring(item)) return true;
+    return item.completed && item.date === today;
+  });
+}
+
+export function upcomingTodos(items: DayProvision[], today: string): DayProvision[] {
+  return items
+    .filter((item) => !item.completed && item.date > today)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.label.localeCompare(b.label));
+}
+
+export function doneOneOffTodos(items: DayProvision[]): DayProvision[] {
+  return items
+    .filter((item) => item.completed && !isRecurring(item))
+    .sort((a, b) => (b.completedAt ?? "").localeCompare(a.completedAt ?? ""));
+}
+
+/**
+ * Incomplete items with a due date before today move to today.
+ * Future (snoozed) and completed one-offs stay put.
+ */
+export function autoRollTodos(items: DayProvision[], today: string): DayProvision[] {
+  let changed = false;
+  const next = items.map((item) => {
+    if (item.completed) return item;
+    if (item.date < today) {
+      changed = true;
+      return { ...item, date: today };
+    }
+    return item;
+  });
+  return changed ? next : items;
+}
+
+export function ensureTodosRolled(state: RebuildState, today: string): RebuildState {
+  const items = state.dayProvisions ?? [];
+  const rolled = autoRollTodos(items, today);
+  if (rolled === items) return state;
+  return { ...state, dayProvisions: rolled };
+}
+
+export function snoozeUntil(item: DayProvision, until: string): DayProvision {
+  if (item.completed) {
+    throw Object.assign(new Error("Can’t snooze a finished item"), { status: 400 });
+  }
+  if (!isCalendarDate(until)) {
+    throw Object.assign(new Error("Pick a date to snooze until"), { status: 400 });
+  }
+  return { ...item, date: until, completed: false };
+}
+
+export function completeTodo(
+  item: DayProvision,
+  today: string,
+  nowIso: string,
+): DayProvision {
+  const rec = recurrenceOf(item);
+  if (rec.kind === "none") {
+    return {
+      ...item,
+      completed: true,
+      completedAt: nowIso,
+      lastCompletedOn: today,
+    };
+  }
+  return {
+    ...item,
+    completed: false,
+    completedAt: nowIso,
+    lastCompletedOn: today,
+    date: nextDueDate(today, rec),
+  };
+}
+
+export function undoCompleteTodo(item: DayProvision): DayProvision {
+  if (isRecurring(item) && item.lastCompletedOn) {
+    return {
+      ...item,
+      completed: false,
+      date: item.lastCompletedOn,
+      lastCompletedOn: undefined,
+      completedAt: undefined,
+    };
+  }
+  return {
+    ...item,
+    completed: false,
+    lastCompletedOn: undefined,
+    completedAt: undefined,
+  };
+}
+
+export function formatRecurrence(recurrence: TodoRecurrence): string {
+  if (recurrence.kind === "daily") return "Daily";
+  if (recurrence.kind === "monthly_first") return "1st of the month";
+  if (recurrence.kind === "every_n_days") {
+    return recurrence.n === 1 ? "Every day" : `Every ${recurrence.n} days`;
+  }
+  if (recurrence.kind === "weekly") {
+    const labels = recurrence.weekdays.map((d) => WEEKDAY_LABELS[d]);
+    if (labels.length === 7) return "Every day";
+    return labels.join(" · ");
+  }
+  return "";
+}
+
+export type TodoActionInput = {
+  action?: string;
+  id?: string;
+  label?: string;
+  date?: string;
+  until?: string;
+  recurrence?: unknown;
+};
+
+export function applyTodoAction(
+  state: RebuildState,
+  body: TodoActionInput,
+  today: string,
+  nowIso: string,
+): RebuildState {
+  const action = String(body.action ?? "add");
+  const next = ensureTodosRolled(state, today);
+  const items = [...(next.dayProvisions ?? [])];
+
+  if (action === "add") {
+    const label = String(body.label ?? "").trim();
+    if (!label) {
+      throw Object.assign(new Error("Item label is required"), { status: 400 });
+    }
+    const recurrence = parseRecurrence(body.recurrence);
+    const requested = String(body.date ?? "").trim();
+    let date = isCalendarDate(requested)
+      ? requested
+      : firstDueDate(today, recurrence);
+    if (date < today) date = today;
+    const row: DayProvision = {
+      id: newId("todo"),
+      date,
+      label,
+      completed: false,
+      recurrence,
+    };
+    return { ...next, dayProvisions: [...items, row] };
+  }
+
+  const id = String(body.id ?? "");
+  const index = items.findIndex((p) => p.id === id);
+  if (action !== "add" && index < 0) {
+    throw Object.assign(new Error("Item not found"), { status: 404 });
+  }
+  const current = items[index];
+
+  if (action === "complete") {
+    items[index] = completeTodo(current, today, nowIso);
+    return { ...next, dayProvisions: items };
+  }
+
+  if (action === "undo") {
+    items[index] = undoCompleteTodo(current);
+    return { ...next, dayProvisions: items };
+  }
+
+  if (action === "edit") {
+    const label = String(body.label ?? current.label).trim();
+    if (!label) {
+      throw Object.assign(new Error("Item label is required"), { status: 400 });
+    }
+    const recurrence =
+      body.recurrence !== undefined
+        ? parseRecurrence(body.recurrence)
+        : recurrenceOf(current);
+    const requested = String(body.date ?? "").trim();
+    let date = isCalendarDate(requested) ? requested : current.date;
+    if (date < today) date = today;
+    items[index] = {
+      ...current,
+      label,
+      recurrence,
+      date,
+      completed: recurrence.kind !== "none" ? false : current.completed,
+    };
+    return { ...next, dayProvisions: items };
+  }
+
+  if (action === "remove" || action === "delete") {
+    return { ...next, dayProvisions: items.filter((p) => p.id !== id) };
+  }
+
+  if (action === "snooze") {
+    const untilRaw = String(body.until ?? "").trim();
+    const until = untilRaw === "tomorrow" ? addDays(today, 1) : untilRaw;
+    if (!isCalendarDate(until) || until <= today) {
+      throw Object.assign(new Error("Snooze until a future date"), { status: 400 });
+    }
+    items[index] = snoozeUntil(current, until);
+    return { ...next, dayProvisions: items };
+  }
+
+  throw Object.assign(new Error("Unknown action"), { status: 400 });
+}

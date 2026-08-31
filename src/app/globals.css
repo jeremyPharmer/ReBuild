@@ -1458,6 +1458,7 @@ h2 {
 .field input[type="email"],
 .field input[type="password"],
 .field input[type="url"],
+.field input[type="date"],
 .field textarea,
 .field select {
   width: 100%;
@@ -1536,7 +1537,7 @@ h2 {
   transform: translateX(-50%);
   width: min(440px, calc(100% - 24px));
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 4px;
   padding: 8px;
   background: var(--nav-bg);
@@ -1548,12 +1549,12 @@ h2 {
 
 .nav-link {
   text-align: center;
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--muted);
-  padding: 10px 4px;
+  padding: 10px 2px;
   border-radius: 12px;
 }
 
@@ -3776,7 +3777,8 @@ html.sheet-open .bottom-nav {
   color: var(--muted);
 }
 
-.morning-add-provision-toggle {
+.morning-add-provision-toggle,
+.todo-add-toggle {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3793,7 +3795,8 @@ html.sheet-open .bottom-nav {
   cursor: pointer;
 }
 
-.morning-add-provision-toggle:hover {
+.morning-add-provision-toggle:hover,
+.todo-add-toggle:hover {
   color: var(--text);
   border-color: var(--accent);
 }
@@ -3812,17 +3815,63 @@ html.sheet-open .bottom-nav {
   font-weight: 500;
 }
 
-.morning-add-provision {
+.morning-add-provision,
+.todo-composer,
+.todo-snooze-until {
   display: grid;
   gap: 8px;
   margin-top: 4px;
   padding: 8px 2px 2px;
 }
 
-.morning-add-provision-actions {
+.morning-add-provision-actions,
+.todo-composer-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
+}
+
+.todo-weekdays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.todo-day-chip {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.todo-day-chip.selected {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.todo-task {
+  display: grid;
+  gap: 6px;
+}
+
+.todo-more-btn {
+  width: 32px;
+  height: 32px;
+  font-size: 1.1rem;
+  flex: none;
+}
+
+.todo-item-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 4px 4px;
 }
 
 .provision-chip-open {

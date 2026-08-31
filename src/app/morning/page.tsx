@@ -3,8 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import { TodoComposer, type TodoComposerPayload } from "@/components/TodoComposer";
 import { PrimaryButton, ScaleInput, SecondaryButton } from "@/components/ui";
 import { quoteById } from "@/lib/quotes";
+import { openTodosOn } from "@/lib/todos";
 
 export default function MorningPage() {
   const { post, state, dashboard, today, refresh } = useApp();
@@ -19,18 +21,15 @@ export default function MorningPage() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
-  const [provisionDraft, setProvisionDraft] = useState("");
-  const [provisionBusy, setProvisionBusy] = useState(false);
-  const [provisionOpen, setProvisionOpen] = useState(false);
+  const [itemOpen, setItemOpen] = useState(false);
+  const [itemBusy, setItemBusy] = useState(false);
 
   const todayMorning = state.mornings.find((m) => m.date === today);
   const quote = useMemo(
     () => quoteById(todayMorning?.quoteId),
     [todayMorning?.quoteId],
   );
-  const todayProvisions = (state.dayProvisions ?? []).filter(
-    (p) => p.date === today,
-  );
+  const todayItems = openTodosOn(state.dayProvisions ?? [], today);
 
   async function submit() {
     setBusy(true);
@@ -54,23 +53,21 @@ export default function MorningPage() {
     }
   }
 
-  async function addProvision() {
-    const label = provisionDraft.trim();
-    if (!label) return;
-    setProvisionBusy(true);
+  async function addItem(payload: TodoComposerPayload) {
+    setItemBusy(true);
     try {
-      await post("/api/day-provision", {
+      await post("/api/todos", {
         action: "add",
-        date: today,
-        label,
+        label: payload.label,
+        date: payload.date,
+        recurrence: payload.recurrence,
       });
-      setProvisionDraft("");
-      setProvisionOpen(false);
+      setItemOpen(false);
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not add provision");
+      setError(e instanceof Error ? e.message : "Could not add item");
     } finally {
-      setProvisionBusy(false);
+      setItemBusy(false);
     }
   }
 
@@ -95,11 +92,11 @@ export default function MorningPage() {
             <p className="tiny morning-quote-attr">— {quote.attribution}</p>
           </section>
         )}
-        <p className="eyebrow">Today&apos;s Build</p>
+        <p className="eyebrow">Today&apos;s Items</p>
         <h1>Set yourself up.</h1>
         <div className="panel list-check">
           <p className="eyebrow" style={{ marginBottom: 10 }}>
-            Provisions
+            Today
           </p>
           {state.profile?.supports
             .filter((s) => s.enabled)
@@ -111,7 +108,7 @@ export default function MorningPage() {
                 </div>
               </div>
             ))}
-          {todayProvisions.map((p) => (
+          {todayItems.map((p) => (
             <div key={p.id} className="check-item">
               <span className="check-box" />
               <div>
@@ -119,53 +116,24 @@ export default function MorningPage() {
               </div>
             </div>
           ))}
-          {!provisionOpen ? (
+          {!itemOpen ? (
             <button
               type="button"
-              className="morning-add-provision-toggle"
-              onClick={() => setProvisionOpen(true)}
+              className="todo-add-toggle"
+              onClick={() => setItemOpen(true)}
             >
-              <span>Add a one time provision for today</span>
+              <span>Add an item for today</span>
               <span className="morning-add-plus" aria-hidden>
                 +
               </span>
             </button>
           ) : (
-            <div className="morning-add-provision fade-in">
-              <label className="field" style={{ marginBottom: 0 }}>
-                <span className="field-label">Provision for today</span>
-                <input
-                  type="text"
-                  value={provisionDraft}
-                  onChange={(e) => setProvisionDraft(e.target.value)}
-                  placeholder="One short line"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      void addProvision();
-                    }
-                  }}
-                />
-              </label>
-              <div className="morning-add-provision-actions">
-                <SecondaryButton
-                  onClick={() => {
-                    setProvisionOpen(false);
-                    setProvisionDraft("");
-                  }}
-                  disabled={provisionBusy}
-                >
-                  Cancel
-                </SecondaryButton>
-                <PrimaryButton
-                  onClick={() => void addProvision()}
-                  disabled={provisionBusy || !provisionDraft.trim()}
-                >
-                  {provisionBusy ? "Adding…" : "Add"}
-                </PrimaryButton>
-              </div>
-            </div>
+            <TodoComposer
+              today={today}
+              busy={itemBusy}
+              onSubmit={addItem}
+              onCancel={() => setItemOpen(false)}
+            />
           )}
         </div>
         {intention && (

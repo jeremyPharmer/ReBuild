@@ -8,6 +8,7 @@ import {
   ensureMilestonesReached,
 } from "@/lib/mutations";
 import { updateState } from "@/lib/store";
+import { ensureTodosRolled } from "@/lib/todos";
 
 export async function GET() {
   const user = await getSessionUser();
@@ -31,6 +32,7 @@ export async function GET() {
     // RB-011: catch up daily savings for ended days even without evening close.
     let next = ensureElapsedReclaimDays(prev, today);
     next = ensureMilestonesReached(next, today);
+    next = ensureTodosRolled(next, today);
     return next;
   });
   const today = state.profile

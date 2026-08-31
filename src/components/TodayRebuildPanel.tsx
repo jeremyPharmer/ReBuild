@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import { TodoComposer, type TodoComposerPayload } from "@/components/TodoComposer";
+import { TodoTaskRow } from "@/components/TodoTaskRow";
 import { truncateSupportLabel } from "@/lib/auth-constants";
+import {
+  completedTodosForUndo,
+  openTodosOn,
+} from "@/lib/todos";
 import type { SupportType } from "@/lib/types";
 
 type SkipKey = SupportType | "morning" | "evening";
@@ -47,6 +53,9 @@ export function TodayRebuildPanel() {
   const [undoBusy, setUndoBusy] = useState<string | null>(null);
   const [exiting, setExiting] = useState<ExitingSupport[]>([]);
   const [dismissing, setDismissing] = useState<DismissingItem[]>([]);
+  const [adding, setAdding] = useState(false);
+  const [addBusy, setAddBusy] = useState(false);
+  const [todoBusyId, setTodoBusyId] = useState<string | null>(null);
 
   if (!dashboard || !state.profile) return null;
 
@@ -64,11 +73,9 @@ export function TodayRebuildPanel() {
       !exitingTypes.has(s.type) &&
       !dismissingKeys.has(s.type),
   );
-  const todayProvisions = (state.dayProvisions ?? []).filter(
-    (p) => p.date === today,
-  );
-  const openProvisions = todayProvisions.filter((p) => !p.completed);
-  const completedProvisions = todayProvisions.filter((p) => p.completed);
+  const todos = state.dayProvisions ?? [];
+  const openTodos = openTodosOn(todos, today);
+  const undoTodos = completedTodosForUndo(todos, today);
   const morningSkipped = skips.has("morning");
   const eveningSkipped = skips.has("evening");
   const morningDone = Boolean(dashboard.todayMorning);
@@ -80,7 +87,7 @@ export function TodayRebuildPanel() {
   const openCount =
     (showMorningOpen ? 1 : 0) +
     openSupports.length +
-    openProvisions.length +
+    openTodos.length +
     exiting.length +
     dismissing.length +
     (showEveningOpen ? 1 : 0);
@@ -89,7 +96,7 @@ export function TodayRebuildPanel() {
   const skippedToday = (state.skips ?? []).filter((s) => s.date === today);
   const hasUndoItems =
     completedSupports.length > 0 ||
-    completedProvisions.length > 0 ||
+    undoTodos.length > 0 ||
     skippedToday.length > 0 ||
     morningDone ||
     eveningDone;
@@ -161,29 +168,30 @@ export function TodayRebuildPanel() {
     }
   }
 
-  async function completeProvision(id: string) {
-    setUndoBusy(`prov:${id}`);
+  async function todoAction(
+    id: string,
+    body: Record<string, unknown>,
+  ) {
+    setTodoBusyId(id);
     try {
-      await post("/api/day-provision", {
-        action: "complete",
-        id,
-        date: today,
-      });
+      await post("/api/todos", body);
     } finally {
-      setUndoBusy(null);
+      setTodoBusyId(null);
     }
   }
 
-  async function undoProvision(id: string) {
-    setUndoBusy(`prov:${id}`);
+  async function addTodo(payload: TodoComposerPayload) {
+    setAddBusy(true);
     try {
-      await post("/api/day-provision", {
-        action: "undo",
-        id,
-        date: today,
+      await post("/api/todos", {
+        action: "add",
+        label: payload.label,
+        date: payload.date,
+        recurrence: payload.recurrence,
       });
+      setAdding(false);
     } finally {
-      setUndoBusy(null);
+      setAddBusy(false);
     }
   }
 
@@ -203,7 +211,7 @@ export function TodayRebuildPanel() {
     <section className="panel">
       <div className="row">
         <p className="eyebrow" style={{ marginBottom: 0 }}>
-          Today&apos;s Build
+          Today&apos;s Items
         </p>
         <div className="row" style={{ gap: 8, justifyContent: "flex-end" }}>
           <span className="chip">
@@ -257,14 +265,21 @@ export function TodayRebuildPanel() {
               </button>
             </div>
           ))}
-          {completedProvisions.map((p) => (
-            <div key={`prov-done-${p.id}`} className="undo-row">
+          {undoTodos.map((p) => (
+            <div key={`todo-done-${p.id}`} className="undo-row">
               <span>{p.label} · done</span>
               <button
                 type="button"
                 className="dismiss-btn"
-                disabled={undoBusy === `prov:${p.id}`}
-                onClick={() => undoProvision(p.id)}
+                disabled={undoBusy === `todo:${p.id}`}
+                onClick={async () => {
+                  setUndoBusy(`todo:${p.id}`);
+                  try {
+                    await post("/api/todos", { action: "undo", id: p.id });
+                  } finally {
+                    setUndoBusy(null);
+                  }
+                }}
               >
                 Undo
               </button>
@@ -407,19 +422,48 @@ export function TodayRebuildPanel() {
           );
         })}
 
-        {openProvisions.map((p) => (
-          <div key={p.id} className="check-item check-item-row">
-            <button
-              type="button"
-              className="check-item-main"
-              disabled={undoBusy === `prov:${p.id}`}
-              onClick={() => completeProvision(p.id)}
-            >
-              <span className="check-box" />
-              <span className="check-label">{p.label}</span>
-            </button>
-          </div>
+        {openTodos.map((p) => (
+          <TodoTaskRow
+            key={p.id}
+            item={p}
+            today={today}
+            busy={todoBusyId === p.id}
+            onComplete={() =>
+              todoAction(p.id, { action: "complete", id: p.id })
+            }
+            onSnooze={(until) =>
+              todoAction(p.id, { action: "snooze", id: p.id, until })
+            }
+            onEdit={(payload) =>
+              todoAction(p.id, {
+                action: "edit",
+                id: p.id,
+                ...payload,
+              })
+            }
+            onDelete={() => todoAction(p.id, { action: "delete", id: p.id })}
+          />
         ))}
+
+        {adding ? (
+          <TodoComposer
+            today={today}
+            busy={addBusy}
+            onSubmit={addTodo}
+            onCancel={() => setAdding(false)}
+          />
+        ) : (
+          <button
+            type="button"
+            className="todo-add-toggle"
+            onClick={() => setAdding(true)}
+          >
+            <span>Add an item</span>
+            <span className="morning-add-plus" aria-hidden>
+              +
+            </span>
+          </button>
+        )}
 
         {showEveningOpen && (
           <div className="check-item check-item-row">
@@ -446,7 +490,7 @@ export function TodayRebuildPanel() {
             <DismissingTaskRow key={d.key} label={d.label} />
           ))}
 
-        {openCount === 0 && (
+        {openCount === 0 && !adding && (
           <p className="muted" style={{ marginTop: 4 }}>
             Today&apos;s list is clear. Nice work.
           </p>
