@@ -9,7 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "migrate:fly-prod": "bash scripts/migrate-fly-prod.sh"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

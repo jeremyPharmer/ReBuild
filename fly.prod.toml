@@ -27,5 +27,5 @@ primary_region = 'sjc'
   cpus = 1
 
 [mounts]
-  source = 'rebuild_prod_data'
+  source = 'jeremyos_prod_data'
   destination = '/app/.data'

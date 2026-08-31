@@ -32,7 +32,7 @@ jobs:
             echo "JEREMYOS_CRON_SECRET (or legacy REBUILD_CRON_SECRET) is not set"
             exit 1
           fi
-          PROD_URL="${JEREMYOS_APP_URL:-https://rebuild-prod.fly.dev}"
+          PROD_URL="${JEREMYOS_APP_URL:-https://jeremyos-prod.fly.dev}"
           DEV_URL="${JEREMYOS_DEV_URL:-https://jeremyos-dev.fly.dev}"
           if [ "$TARGET" = "dev" ]; then
             URL="${DEV_URL%/}/api/cron/reminders"
