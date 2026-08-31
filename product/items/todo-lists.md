@@ -29,7 +29,7 @@ JeremyOS has a simple, durable **to-do list** Jeremy will use daily: capture, ch
 ## Out of scope / later
 
 - Projects, tags, GTD systems, shared lists, assignees
-- Recurring complex rules / calendar sync
+- Recurring complex rules / calendar sync — tracked separately as [RB-022](./apple-calendar-todays-build.md) (Apple Calendar → Today’s Build)
 - Replacing journal or evening close with todos
 - AI task breakdown
 
@@ -43,4 +43,5 @@ JeremyOS has a simple, durable **to-do list** Jeremy will use daily: capture, ch
 
 - Intake **2026-08-29** founder: loves to-do lists. Rank **3** / **P0** under JeremyOS — ahead of recovery-catalog polish and money-rail expansion.
 - Related: [RB-003](./daily-open-checklist-email.md) becomes a consumer of this list once email exists; update RB-003 when todo model lands.
+- **Calendar sync is not in this v1** — Apple Calendar → Today’s Build is [RB-022](./apple-calendar-todays-build.md) (intake 2026-08-31).
 - Open: does “to-do” replace or sit beside today’s support checklist language? Default: **beside** — supports stay recovery provisions; todos are personal wants/tasks.

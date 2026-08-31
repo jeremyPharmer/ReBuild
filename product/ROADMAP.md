@@ -7,7 +7,7 @@ Recovery journey + fund/incentive tools remain **personal tools** when useful (n
 Maintained by the **Head of Product** agent (`.cursor/agents/head-of-product.md`).  
 **Priority ranking is the primary planning signal.** Due dates, effort, and timeline support rank — they do not override it.
 
-Last updated: 2026-08-30
+Last updated: 2026-08-31
 
 ## North star (locked 2026-08-29)
 
@@ -17,7 +17,7 @@ Last updated: 2026-08-30
 | **Role** | **Executive assistant / personal OS for Jeremy** |
 | **Focus** | All about Jeremy and things he wants |
 | **Anti-goal** | Stop inventing a generic product “to love daily”; don’t add features for their own sake; drop trail/hiking metaphor |
-| **Elevate** | Email/Gmail, podcast + regular recovery content, **to-do lists**, **five-year journal**, home cameras, workout tracker, favorite recipes, links to **other apps/sites Jeremy creates**; **morning/evening mood & feeling** ritual |
+| **Elevate** | Email/Gmail, podcast + regular recovery content, **to-do lists**, **five-year journal**, home cameras, workout tracker, favorite recipes, links to **other apps/sites Jeremy creates**; **morning/evening mood & feeling** ritual; **Apple Calendar → Today’s Build** |
 | **Recovery / fund** | Keep documented as personal tools (no trail language); ship honesty fixes if mid-flight; demote expansion vs EA / personal OS; **drop craving stats** + Home craving CTA ([RB-020](./items/drop-craving-stats-home-cta.md)) |
 | **Delivery** | Rebrand / reframing over greenfield (RB-012); keep **Journey** nav label |
 
@@ -49,16 +49,17 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 7. **RB-005 — Podcast-first + regular recovery content** — **In Progress**; keep podcast useful + no-repeat; founder still wants some regular recovery content (no duplicate item). Detail: [`items/recovery-content-offers.md`](./items/recovery-content-offers.md).
 8. **RB-017 — Home cameras (Reolink)** — founder ~priority **5** on the personal-tools list; API spike / engineer handoff OK. Detail: [`items/home-cameras-reolink.md`](./items/home-cameras-reolink.md).
 
-**Mid-flight (finish thin; do not expand):** RB-011 (fund auto-credit), RB-010 (journal backfill) — personal-tool integrity, ranks 13–14.
+**Mid-flight (finish thin; do not expand):** RB-011 (fund auto-credit), RB-010 (journal backfill) — personal-tool integrity, ranks 14–15.
 
 ### Next
 
-1. **RB-018 — Workout tracker** — personal log, not fitness SaaS. Detail: [`items/workout-tracker.md`](./items/workout-tracker.md).
-2. **RB-019 — Favorite recipes** — thin favorites section. Detail: [`items/favorite-recipes.md`](./items/favorite-recipes.md).
-3. **RB-015 — Hub: Jeremy’s other apps & sites** — link hub v1. Detail: [`items/jeremy-apps-hub.md`](./items/jeremy-apps-hub.md).
-4. **RB-003 — Daily email: open checklist / todos** — after RB-002 (+ prefer RB-014 list model).
-5. **RB-011 — Auto-credit daily savings** — complete In Progress slice; then stop money expansion.
-6. **RB-010 — Backfill missed evening / journal** — complete thin slice if still useful personally (integrity only; five-year UI is RB-016).
+1. **RB-022 — Apple Calendar → Today’s Build** — read-only pull of today’s (and optional near-term) Apple / iCloud events onto **Today’s Build**; separate from RB-014 todos. Detail: [`items/apple-calendar-todays-build.md`](./items/apple-calendar-todays-build.md).
+2. **RB-018 — Workout tracker** — personal log, not fitness SaaS. Detail: [`items/workout-tracker.md`](./items/workout-tracker.md).
+3. **RB-019 — Favorite recipes** — thin favorites section. Detail: [`items/favorite-recipes.md`](./items/favorite-recipes.md).
+4. **RB-015 — Hub: Jeremy’s other apps & sites** — link hub v1. Detail: [`items/jeremy-apps-hub.md`](./items/jeremy-apps-hub.md).
+5. **RB-003 — Daily email: open checklist / todos** — after RB-002 (+ prefer RB-014 list model).
+6. **RB-011 — Auto-credit daily savings** — complete In Progress slice; then stop money expansion.
+7. **RB-010 — Backfill missed evening / journal** — complete thin slice if still useful personally (integrity only; five-year UI is RB-016).
 
 ### Later
 
@@ -78,7 +79,7 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 | --- | --- | --- |
 | Now (framing) | RB-012 rebrand (EA + drop trail) + RB-013 north star | Effort **M** + **S**; docs first, then chrome/copy; Journey label locked keep |
 | Now (personal tools) | RB-014 todos → RB-016 five-year journal → **RB-021 journal photos** → RB-002 Gmail → RB-005 podcast/recovery → RB-017 cameras | Founder-loved / liked skills; photos are thin **S** reuse of celebration photo stack |
-| Next | RB-018 workout; RB-019 recipes; RB-015 hub; RB-003 digest | Personal OS cluster; hub needs Jeremy’s app list |
+| Next | **RB-022 Apple Calendar → Today’s Build**; RB-018 workout; RB-019 recipes; RB-015 hub; RB-003 digest | Personal OS cluster; calendar needs Apple/iCloud access-path spike; hub needs Jeremy’s app list |
 | Finish thin | RB-011, RB-010 | Do not expand money/daily-loop polish; journal UI redesign = RB-016; journal media = RB-021 |
 | Later (personal fund) | RB-006, RB-001 | Locked model; rails demoted |
 | Later / paused | RB-008, RB-004 | Unrequested channels |
