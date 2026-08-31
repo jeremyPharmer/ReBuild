@@ -128,13 +128,28 @@ export type WorkoutPr = {
   createdAt: string;
 };
 
-/** One-off “provision for today” on Today's Rebuild */
+/** Recurrence for personal tasks (date-only). Stored on DayProvision. */
+export type TodoRecurrence =
+  | { kind: "none" }
+  | { kind: "daily" }
+  | { kind: "weekly"; weekdays: number[] }
+  | { kind: "every_n_days"; n: number }
+  | { kind: "monthly_first" };
+
+/**
+ * Personal to-do (Today’s Items). Stored as `dayProvisions`.
+ * `date` is the next due calendar day. One-off done sets `completed`.
+ * Recurring stays open and advances `date` after each complete.
+ */
 export type DayProvision = {
   id: string;
   date: string;
   label: string;
   completed: boolean;
   completedAt?: string;
+  recurrence?: TodoRecurrence;
+  /** Last occurrence completed (YYYY-MM-DD); undo for recurring. */
+  lastCompletedOn?: string;
 };
 
 export type EveningCheckIn = {
@@ -351,7 +366,7 @@ export type RebuildState = {
   reminderLog?: { morning?: string; evening?: string };
   /** Podcast/article ids marked heard or read — never offered again */
   listenedPodcasts?: string[];
-  /** One-off provisions added for a calendar day */
+  /** Personal to-dos (Today’s Items); `date` is next due day */
   dayProvisions?: DayProvision[];
   /** Morning quotes already shown (avoid reuse for ~1 year) */
   quoteLog?: { quoteId: string; usedOn: string }[];
