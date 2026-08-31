@@ -37,7 +37,7 @@ function SummaryBlock({
         <div className="workout-week-points">
           <span className="workout-week-points-value">{qualityPoints}</span>
           <span className="workout-week-points-label">
-            quality point{qualityPoints === 1 ? "" : "s"}
+            point{qualityPoints === 1 ? "" : "s"}
           </span>
         </div>
       )}
@@ -86,9 +86,6 @@ export function WorkoutSummaryPanel({
   return (
     <section className="panel workout-summary-panel">
       <p className="eyebrow">Summary</p>
-      <p className="tiny muted" style={{ marginBottom: 12 }}>
-        Quality points = sum of each session’s 1–5 rating
-      </p>
       <div className="workout-summary-stack">
         <SummaryBlock
           title="This week"

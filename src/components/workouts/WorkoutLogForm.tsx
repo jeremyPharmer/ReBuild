@@ -87,7 +87,6 @@ export function WorkoutLogForm({
       autoComplete="off"
     >
       <p className="eyebrow">Log workout</p>
-      <p className="tiny muted workout-log-date">{date}</p>
 
       <fieldset className="workout-log-field">
         <legend className="workout-log-label">Type</legend>
@@ -164,9 +163,6 @@ export function WorkoutLogForm({
             </button>
           ))}
         </div>
-        <p className="tiny muted workout-quality-hint">
-          1 = rough · 5 = great — adds to weekly points
-        </p>
       </fieldset>
 
       <div
