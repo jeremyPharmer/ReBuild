@@ -12,7 +12,7 @@ Last updated: 2026-08-31
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | RB-012 | Rebrand to JeremyOS (EA + drop trail) | P0 | Ready | M | TBD | v1 | [items/rebrand-jeremyos.md](./items/rebrand-jeremyos.md) |
 | 2 | RB-013 | Personal OS north star (cut bloat) | P0 | Ready | S | TBD | v1 | [items/personal-os-north-star.md](./items/personal-os-north-star.md) |
-| 3 | RB-014 | To-do lists (first-class) | P0 | Backlog | TBD | TBD | v1 | [items/todo-lists.md](./items/todo-lists.md) |
+| 3 | RB-014 | To-do lists (first-class) | P0 | Ready | L | TBD | v1 | [items/todo-lists.md](./items/todo-lists.md) |
 | 4 | RB-016 | Five-year / paper journal UX | P0 | In Progress | M | TBD | v1 | [items/five-year-journal-ux.md](./items/five-year-journal-ux.md) |
 | 5 | RB-021 | Journal photos (attach + paperclip) | P1 | Backlog | S | TBD | v1.x | [items/journal-photos.md](./items/journal-photos.md) |
 | 6 | RB-022 | Journal edit, star & month calendar | P0 | In Progress | M | TBD | v1.x | [items/journal-edit-star-calendar.md](./items/journal-edit-star-calendar.md) |
