@@ -1,25 +1,55 @@
 import { NextResponse } from "next/server";
 import { todayInTz, newId } from "@/lib/journey";
 import {
+  isWorkoutType,
+  normalizeExerciseActuals,
   normalizeQuality,
+  normalizeRoutine,
   normalizeWorkout,
   normalizeWorkoutPr,
 } from "@/lib/workouts";
 import { updateState } from "@/lib/store";
-import type { WorkoutLog, WorkoutPr, WorkoutType } from "@/lib/types";
+import type {
+  WorkoutLog,
+  WorkoutPr,
+  WorkoutRoutine,
+  WorkoutRoutineExercise,
+  WorkoutType,
+} from "@/lib/types";
 
 function parseWorkoutType(body: Record<string, unknown>): WorkoutType {
   const raw = body.type ?? body.category;
-  if (raw === "run") return "run";
-  if (raw === "hiit") return "hiit";
-  if (raw === "stretch") return "stretch";
-  if (raw === "lift" || raw === "weights") return "lift";
+  if (isWorkoutType(raw)) return raw;
+  if (raw === "weights") return "lift";
   if (body.category === "lift") {
     if (body.liftType === "hiit") return "hiit";
     if (body.liftType === "stretch") return "stretch";
     return "lift";
   }
   return "lift";
+}
+
+function parseRoutineExercises(
+  raw: unknown,
+): WorkoutRoutineExercise[] {
+  if (!Array.isArray(raw)) return [];
+  const out: WorkoutRoutineExercise[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const row = item as Record<string, unknown>;
+    const name = String(row.name ?? "").trim();
+    if (!name) continue;
+    const sets = Math.min(99, Math.max(1, Math.round(Number(row.sets) || 3)));
+    const reps = Math.min(99, Math.max(1, Math.round(Number(row.reps) || 10)));
+    out.push({
+      id: String(row.id ?? "").trim() || newId("ex"),
+      name,
+      sets,
+      reps,
+      tracksWeight: Boolean(row.tracksWeight),
+    });
+  }
+  return out;
 }
 
 export async function POST(req: Request) {
@@ -36,6 +66,9 @@ export async function POST(req: Request) {
 
       const workouts = [...(prev.workouts ?? [])].map(normalizeWorkout);
       const workoutPrs = [...(prev.workoutPrs ?? [])].map(normalizeWorkoutPr);
+      const workoutRoutines = [...(prev.workoutRoutines ?? [])].map(
+        normalizeRoutine,
+      );
 
       if (action === "delete") {
         const id = String(body.id ?? "");
@@ -59,7 +92,7 @@ export async function POST(req: Request) {
         const value = Number(body.value);
         if (!name || !Number.isFinite(value)) {
           const err = new Error("PR name and value required");
-          (err as Error & { status: 400 }).status = 400;
+          (err as Error & { status: number }).status = 400;
           throw err;
         }
         const row: WorkoutPr = {
@@ -78,6 +111,58 @@ export async function POST(req: Request) {
         return { ...prev, workoutPrs: [row, ...workoutPrs] };
       }
 
+      if (action === "delete_routine") {
+        const id = String(body.id ?? "");
+        return {
+          ...prev,
+          workoutRoutines: workoutRoutines.filter((r) => r.id !== id),
+        };
+      }
+
+      if (action === "save_routine") {
+        const name = String(body.name ?? "").trim();
+        const type = parseWorkoutType(body);
+        const exercises = parseRoutineExercises(body.exercises);
+        if (!name) {
+          const err = new Error("Routine name required");
+          (err as Error & { status: number }).status = 400;
+          throw err;
+        }
+        if (exercises.length === 0) {
+          const err = new Error("Add at least one exercise");
+          (err as Error & { status: number }).status = 400;
+          throw err;
+        }
+        const existingId = body.id ? String(body.id) : "";
+        const now = new Date().toISOString();
+        if (existingId) {
+          const idx = workoutRoutines.findIndex((r) => r.id === existingId);
+          if (idx === -1) {
+            const err = new Error("Routine not found");
+            (err as Error & { status: number }).status = 404;
+            throw err;
+          }
+          const updated: WorkoutRoutine = {
+            ...workoutRoutines[idx],
+            name,
+            type,
+            exercises,
+            updatedAt: now,
+          };
+          const next = [...workoutRoutines];
+          next[idx] = updated;
+          return { ...prev, workoutRoutines: next };
+        }
+        const row: WorkoutRoutine = {
+          id: newId("routine"),
+          name,
+          type,
+          exercises,
+          createdAt: now,
+        };
+        return { ...prev, workoutRoutines: [row, ...workoutRoutines] };
+      }
+
       const date = String(body.date ?? todayInTz(prev.profile.timezone));
       const type = parseWorkoutType(body);
       const label = String(body.label ?? "").trim();
@@ -93,6 +178,11 @@ export async function POST(req: Request) {
         throw err;
       }
 
+      const exerciseActuals = normalizeExerciseActuals(body.exerciseActuals);
+      const routineId = body.routineId
+        ? String(body.routineId).trim()
+        : undefined;
+
       const row: WorkoutLog = {
         id: newId(),
         date,
@@ -104,6 +194,8 @@ export async function POST(req: Request) {
         distanceMiles:
           body.distanceMiles != null ? Number(body.distanceMiles) : undefined,
         notes: body.notes ? String(body.notes) : undefined,
+        routineId,
+        exerciseActuals,
         createdAt: new Date().toISOString(),
       };
 

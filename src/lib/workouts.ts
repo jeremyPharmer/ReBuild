@@ -2,8 +2,12 @@ import { datesInRange, formatDate, weekBounds } from "./journey";
 import type {
   LiftType,
   WorkoutCategory,
+  WorkoutExerciseActual,
   WorkoutLog,
   WorkoutPr,
+  WorkoutRoutine,
+  WorkoutRoutineExercise,
+  WorkoutSetActual,
   WorkoutType,
 } from "./types";
 
@@ -22,12 +26,27 @@ export const WORKOUT_PRESETS: Record<WorkoutType, string[]> = {
 };
 
 export const WORKOUT_CUSTOM = "__custom__";
+export const WORKOUT_ROUTINE_PREFIX = "routine:";
 
 export const WORKOUT_QUALITY_MAX = 5;
 
 const WORKOUT_TYPE_SET = new Set<WorkoutType>(
   WORKOUT_TYPES.map((t) => t.id),
 );
+
+export function isWorkoutType(raw: unknown): raw is WorkoutType {
+  return typeof raw === "string" && WORKOUT_TYPE_SET.has(raw as WorkoutType);
+}
+
+export function routineSelectValue(id: string): string {
+  return `${WORKOUT_ROUTINE_PREFIX}${id}`;
+}
+
+export function parseRoutineSelectValue(value: string): string | null {
+  if (!value.startsWith(WORKOUT_ROUTINE_PREFIX)) return null;
+  const id = value.slice(WORKOUT_ROUTINE_PREFIX.length);
+  return id || null;
+}
 
 /** Clamp quality to 1–5; missing/invalid → undefined */
 export function normalizeQuality(raw: unknown): number | undefined {
@@ -61,11 +80,157 @@ function resolveWorkoutType(raw: {
   return legacyTypeFromRow(raw.category, raw.liftType);
 }
 
+function normalizePositiveInt(raw: unknown, fallback: number): number {
+  const n = typeof raw === "number" ? raw : Number(raw);
+  if (!Number.isFinite(n) || n < 1) return fallback;
+  return Math.min(99, Math.round(n));
+}
+
+function normalizeSetActual(raw: unknown): WorkoutSetActual | null {
+  if (!raw || typeof raw !== "object") return null;
+  const row = raw as Record<string, unknown>;
+  const reps = normalizePositiveInt(row.reps, 0);
+  if (reps < 1) return null;
+  const weightRaw = row.weight;
+  const weight =
+    weightRaw === undefined || weightRaw === null || weightRaw === ""
+      ? undefined
+      : Number(weightRaw);
+  return {
+    reps,
+    weight:
+      weight != null && Number.isFinite(weight) && weight >= 0
+        ? weight
+        : undefined,
+  };
+}
+
+export function normalizeExerciseActuals(
+  raw: unknown,
+): WorkoutExerciseActual[] | undefined {
+  if (!Array.isArray(raw) || raw.length === 0) return undefined;
+  const out: WorkoutExerciseActual[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const row = item as Record<string, unknown>;
+    const name = String(row.name ?? "").trim();
+    if (!name) continue;
+    const sets = Array.isArray(row.sets)
+      ? row.sets
+          .map(normalizeSetActual)
+          .filter((s): s is WorkoutSetActual => s != null)
+      : [];
+    if (sets.length === 0) continue;
+    out.push({
+      exerciseId: String(row.exerciseId ?? "").trim() || name,
+      name,
+      tracksWeight: Boolean(row.tracksWeight),
+      sets: sets.map((s) =>
+        row.tracksWeight
+          ? s
+          : { reps: s.reps },
+      ),
+    });
+  }
+  return out.length ? out : undefined;
+}
+
+function normalizeRoutineExercise(
+  raw: unknown,
+): WorkoutRoutineExercise | null {
+  if (!raw || typeof raw !== "object") return null;
+  const row = raw as Record<string, unknown>;
+  const name = String(row.name ?? "").trim();
+  if (!name) return null;
+  return {
+    id: String(row.id ?? "").trim() || name,
+    name,
+    sets: normalizePositiveInt(row.sets, 3),
+    reps: normalizePositiveInt(row.reps, 10),
+    tracksWeight: Boolean(row.tracksWeight),
+  };
+}
+
+export function normalizeRoutine(raw: WorkoutRoutine): WorkoutRoutine {
+  const type = isWorkoutType(raw.type) ? raw.type : "lift";
+  const exercises = (raw.exercises ?? [])
+    .map(normalizeRoutineExercise)
+    .filter((e): e is WorkoutRoutineExercise => e != null);
+  return {
+    ...raw,
+    type,
+    name: String(raw.name ?? "").trim() || "Routine",
+    exercises,
+  };
+}
+
+export function normalizeRoutines(
+  routines: WorkoutRoutine[] | undefined,
+): WorkoutRoutine[] {
+  return (routines ?? []).map(normalizeRoutine);
+}
+
+export function routinesForType(
+  routines: WorkoutRoutine[] | undefined,
+  type: WorkoutType,
+): WorkoutRoutine[] {
+  return normalizeRoutines(routines)
+    .filter((r) => r.type === type)
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function findRoutine(
+  routines: WorkoutRoutine[] | undefined,
+  id: string,
+): WorkoutRoutine | undefined {
+  return normalizeRoutines(routines).find((r) => r.id === id);
+}
+
+/** Seed empty actual rows from a routine plan (reps prefilled; weight blank). */
+export function blankActualsFromRoutine(
+  routine: WorkoutRoutine,
+): WorkoutExerciseActual[] {
+  return normalizeRoutine(routine).exercises.map((ex) => ({
+    exerciseId: ex.id,
+    name: ex.name,
+    tracksWeight: ex.tracksWeight,
+    sets: Array.from({ length: ex.sets }, () => ({
+      reps: ex.reps,
+      weight: undefined,
+    })),
+  }));
+}
+
+/** Short summary for day list: "3×10 @ 135" style */
+export function formatExerciseActualSummary(
+  actuals: WorkoutExerciseActual[] | undefined,
+): string {
+  if (!actuals?.length) return "";
+  return actuals
+    .map((ex) => {
+      const parts = ex.sets.map((s) => {
+        if (ex.tracksWeight && s.weight != null) {
+          return `${s.reps}×${s.weight}`;
+        }
+        return `${s.reps}`;
+      });
+      return `${ex.name} ${parts.join(", ")}`;
+    })
+    .join(" · ");
+}
+
 /** Legacy rows without type default to lift; lift+weights → lift */
 export function normalizeWorkout(raw: WorkoutLog): WorkoutLog {
   const type = resolveWorkoutType(raw);
   const quality = normalizeQuality(raw.quality);
-  return { ...raw, type, quality };
+  const exerciseActuals = normalizeExerciseActuals(raw.exerciseActuals);
+  return {
+    ...raw,
+    type,
+    quality,
+    routineId: raw.routineId ? String(raw.routineId) : undefined,
+    exerciseActuals,
+  };
 }
 
 export function normalizeWorkoutPr(raw: WorkoutPr): WorkoutPr {
