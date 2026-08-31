@@ -1,6 +1,8 @@
 # Phone + browser only (no laptop)
 
-Use this if you **cannot run terminal commands**. The Fly dashboard does **not** have a “Create volume” button — volumes are created via deploy tooling. From a phone you have two paths: **GitHub Actions** (recommended) or **Fly dashboard** checks + redeploy.
+**Start here:** [`docs/START_JEREMYOS_PROD.md`](START_JEREMYOS_PROD.md) — 3 steps.
+
+Older detail: [`docs/FLY_VOLUME_SETUP.md`](FLY_VOLUME_SETUP.md)
 
 ---
 
