@@ -208,7 +208,7 @@ export function TodayRebuildPanel() {
   }
 
   return (
-    <section className="panel">
+    <section className="home-card home-card-tasks">
       <div className="row">
         <p className="eyebrow" style={{ marginBottom: 0 }}>
           Today&apos;s Items

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { AppProvider } from "@/components/AppProvider";
-import { BottomNav } from "@/components/BottomNav";
+import { TopNav } from "@/components/TopNav";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { THEME_STORAGE_KEY } from "@/lib/themes";
 import "./globals.css";
@@ -32,8 +32,8 @@ export default function RootLayout({
         <ThemeProvider>
           <AppProvider>
             <div className="app-shell">
+              <TopNav />
               {children}
-              <BottomNav />
             </div>
           </AppProvider>
         </ThemeProvider>

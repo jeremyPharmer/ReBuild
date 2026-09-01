@@ -10,7 +10,7 @@ const LINKS = [
   { href: "/settings", label: "Settings" },
 ];
 
-export function BottomNav() {
+export function TopNav() {
   const path = usePathname();
   if (
     path.startsWith("/onboarding") ||
@@ -23,9 +23,10 @@ export function BottomNav() {
     return null;
   }
   return (
-    <nav className="bottom-nav" aria-label="Primary">
+    <nav className="top-nav" aria-label="Primary">
       {LINKS.map((l) => {
-        const active = path === l.href || (l.href !== "/" && path.startsWith(l.href));
+        const active =
+          path === l.href || (l.href !== "/" && path.startsWith(l.href));
         return (
           <Link
             key={l.href}
