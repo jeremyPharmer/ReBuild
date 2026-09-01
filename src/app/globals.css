@@ -3295,6 +3295,7 @@ h2 {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  outline: none;
   background:
     linear-gradient(165deg, rgba(30, 52, 44, 0.98), rgba(15, 28, 24, 0.98));
   border: 1px solid var(--line);
