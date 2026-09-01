@@ -40,10 +40,9 @@ function HeaderStrip({ date }: { date: string }) {
   );
 }
 
-function FocusRail() {
+function EntertainmentRail() {
   return (
     <div className="home-focus-rail">
-      <MoveHubCard />
       <TodaysEntertainmentCard />
     </div>
   );
@@ -59,7 +58,6 @@ function CommandBoard({
   return (
     <div className="home-command-board">
       <WeekPlanPanel today={today} week={week} />
-      <MoveHubCard />
       <TodaysEntertainmentCard />
     </div>
   );
@@ -79,8 +77,8 @@ function layoutBody(
           <div className="home-today-hero">
             <TodayRebuildPanel />
           </div>
-          <WeekPlanPanel today={today} week={week} />
           <HubsPair />
+          <WeekPlanPanel today={today} week={week} />
         </>
       );
     case "split-day":
@@ -92,8 +90,9 @@ function layoutBody(
           <div className="home-split-day">
             <div className="home-split-primary">
               <TodayRebuildPanel />
+              <MoveHubCard />
             </div>
-            <FocusRail />
+            <EntertainmentRail />
           </div>
           <WeekPlanPanel today={today} week={week} />
         </>
@@ -103,11 +102,11 @@ function layoutBody(
         <>
           <HomeDateHeader date={today} />
           <WeatherBanner />
+          <AgendaBlock />
+          <TodayRebuildPanel />
           <div className="home-train-hero">
             <MoveHubCard />
           </div>
-          <AgendaBlock />
-          <TodayRebuildPanel />
           <TodaysEntertainmentCard />
           <WeekPlanPanel today={today} week={week} />
         </>
@@ -125,8 +124,8 @@ function layoutBody(
           <div className="home-ritual-today">
             <TodayRebuildPanel />
           </div>
-          <WeekPlanPanel today={today} week={week} />
           <HubsPair />
+          <WeekPlanPanel today={today} week={week} />
         </>
       );
     case "command":
@@ -137,6 +136,7 @@ function layoutBody(
           <div className="home-today-compact">
             <TodayRebuildPanel />
           </div>
+          <MoveHubCard />
           <CommandBoard today={today} week={week} />
         </>
       );
@@ -159,8 +159,8 @@ function layoutBody(
           <HomeDateHeader date={today} />
           <WeatherBanner />
           <AgendaBlock />
-          <HubsPair hero />
           <TodayRebuildPanel />
+          <HubsPair hero />
           <WeekPlanPanel today={today} week={week} />
         </>
       );
