@@ -1,0 +1,53 @@
+import type { RebuildState } from "./types";
+import type { WorkCalendarEvent } from "./work-calendar";
+
+const TITLE_MAX = 120;
+
+/** Local display title overrides for calendar events (keyed by stable event id). */
+export function calendarTitleOverrides(
+  state: RebuildState,
+): Record<string, string> {
+  return state.calendarTitleOverrides ?? {};
+}
+
+export function displayCalendarTitle(
+  event: WorkCalendarEvent,
+  overrides: Record<string, string>,
+): string {
+  const custom = overrides[event.id]?.trim();
+  return custom || event.title;
+}
+
+export function applyCalendarTitleOverrides(
+  events: WorkCalendarEvent[],
+  overrides: Record<string, string>,
+): WorkCalendarEvent[] {
+  if (!Object.keys(overrides).length) return events;
+  return events.map((ev) => {
+    const title = displayCalendarTitle(ev, overrides);
+    return title === ev.title ? ev : { ...ev, title };
+  });
+}
+
+export function setCalendarTitleOverride(
+  state: RebuildState,
+  eventId: string,
+  title: string,
+): RebuildState {
+  const id = String(eventId || "").trim();
+  if (!id) return state;
+
+  const next = { ...(state.calendarTitleOverrides ?? {}) };
+  const trimmed = title.trim().slice(0, TITLE_MAX);
+
+  if (!trimmed) {
+    delete next[id];
+  } else {
+    next[id] = trimmed;
+  }
+
+  return {
+    ...state,
+    calendarTitleOverrides: Object.keys(next).length ? next : undefined,
+  };
+}

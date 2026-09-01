@@ -411,6 +411,8 @@ export type RebuildState = {
   workoutPrs?: WorkoutPr[];
   /** Saved named routines (templates) */
   workoutRoutines?: WorkoutRoutine[];
+  /** Home agenda display titles keyed by calendar event id */
+  calendarTitleOverrides?: Record<string, string>;
 };
 
 export const DEFAULT_SUPPORTS: SupportConfig[] = [
