@@ -3,6 +3,7 @@ import {
   blankActualsFromRoutine,
   buildMonthGrid,
   formatExerciseActualSummary,
+  formatWorkoutListDate,
   monthWorkoutSummary,
   normalizeExerciseActuals,
   normalizeQuality,
@@ -14,6 +15,7 @@ import {
   summarizeDay,
   weekRunMiles,
   weekWorkoutSummary,
+  workoutsInMonth,
 } from "./workouts";
 import type { WorkoutLog } from "./types";
 
@@ -273,5 +275,28 @@ describe("routines and actuals", () => {
   it("parses routine select values", () => {
     expect(parseRoutineSelectValue(routineSelectValue("abc"))).toBe("abc");
     expect(parseRoutineSelectValue("Upper body")).toBeNull();
+  });
+});
+
+describe("workout history list", () => {
+  it("formats MM/DD and lists month workouts newest first", () => {
+    const logs: WorkoutLog[] = [
+      {
+        id: "a",
+        date: "2026-09-01",
+        label: "Stretch 1",
+        type: "stretch",
+        createdAt: "2026-09-01T12:00:00Z",
+      },
+      {
+        id: "b",
+        date: "2026-08-28",
+        label: "Easy run",
+        type: "run",
+        createdAt: "2026-08-28T12:00:00Z",
+      },
+    ];
+    expect(formatWorkoutListDate("2026-09-01")).toBe("09/01");
+    expect(workoutsInMonth(logs, "2026-09").map((w) => w.id)).toEqual(["a"]);
   });
 });
