@@ -1352,44 +1352,26 @@ h2 {
 }
 
 .radio-feed-header h2 {
-  font-size: 1.12rem;
+  font-size: 1.15rem;
   margin: 0;
-  font-style: italic;
-  letter-spacing: -0.01em;
+  font-style: normal;
+  letter-spacing: normal;
 }
 
-.radio-on-air {
+.radio-feed-kicker {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: var(--accent);
-  font-style: italic;
-  transform: skewX(-6deg);
-  transform-origin: left center;
+  margin: 0;
 }
 
 .radio-on-air-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 0 var(--accent-glow);
-  animation: radio-pulse 2s ease infinite;
-}
-
-@keyframes radio-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 var(--accent-glow);
-    opacity: 1;
-  }
-  50% {
-    box-shadow: 0 0 0 6px transparent;
-    opacity: 0.75;
-  }
+  flex-shrink: 0;
+  opacity: 0.9;
 }
 
 .radio-feed-list {
@@ -1431,27 +1413,25 @@ h2 {
   left: 0;
   top: 8px;
   bottom: 8px;
-  width: 3px;
-  border-radius: 3px;
-  background: var(--accent);
-  opacity: 0.35;
-  transform: skewY(calc(var(--feed-i, 0) * -2deg - 3deg));
+  width: 2px;
+  border-radius: 2px;
+  background: var(--line);
+  opacity: 1;
 }
 
 .radio-feed-item.open .radio-feed-row::before {
+  background: var(--accent);
   opacity: 1;
 }
 
 .radio-feed-show {
   grid-column: 1 / -1;
-  font-size: 0.62rem;
+  font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: var(--accent);
   font-weight: 600;
-  font-style: italic;
-  transform: skewX(-4deg);
-  transform-origin: left center;
+  font-style: normal;
 }
 
 .radio-feed-title {
@@ -4397,19 +4377,56 @@ html.sheet-open .top-nav {
 .todo-composer-datetime {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
+  align-items: end;
 }
 
 .todo-composer-datetime .todo-composer-field {
   margin-bottom: 0;
+  min-width: 0;
+}
+
+.todo-composer-datetime .field-label {
+  margin-bottom: 8px;
+}
+
+.todo-composer-datetime input[type="date"],
+.todo-composer-datetime input[type="time"],
+.todo-composer-datetime .todo-time-add {
+  width: 100%;
+  min-height: 48px;
+  box-sizing: border-box;
 }
 
 .todo-composer-datetime .todo-time-add {
-  width: 100%;
-  min-height: 46px;
   display: flex;
   align-items: center;
-  box-sizing: border-box;
+  justify-content: flex-start;
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.92rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.todo-composer-datetime .todo-time-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.todo-composer-datetime .todo-time-row input[type="time"] {
+  min-width: 0;
+}
+
+@media (max-width: 380px) {
+  .todo-composer-datetime {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
 }
 
 .field-label-row {
@@ -4469,23 +4486,27 @@ html.sheet-open .top-nav {
   flex: 1;
 }
 
-.todo-time-add,
-.text-btn {
+.todo-time-add {
   appearance: none;
-  border: 1px dashed var(--line);
-  background: transparent;
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
   color: var(--muted);
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 0.88rem;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.92rem;
   cursor: pointer;
   text-align: left;
 }
-
 .text-btn {
+  appearance: none;
   border: none;
-  padding: 6px 4px;
+  background: transparent;
   color: var(--accent);
+  border-radius: 10px;
+  padding: 6px 4px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: left;
   flex-shrink: 0;
 }
 

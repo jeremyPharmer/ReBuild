@@ -56,10 +56,10 @@ export function TodaysEntertainmentCard() {
         onClick={() => setOpen((v) => !v)}
       >
         <div className="radio-feed-header">
-          <span className="radio-on-air" aria-hidden>
-            <span className="radio-on-air-dot" />
-            ON AIR
-          </span>
+          <p className="home-card-kicker radio-feed-kicker">
+            <span className="radio-on-air-dot" aria-hidden />
+            On air
+          </p>
           <h2>Today&apos;s Entertainment</h2>
           <p className="tiny radio-feed-collapsed-meta">
             {DAILY_ENTERTAINMENT_COUNT} picks
