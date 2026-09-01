@@ -1,4 +1,5 @@
 import { appBaseUrl } from "./env";
+import { REMINDERS_ENABLED } from "./feature-flags";
 import type { RebuildProfile, RebuildState, ReminderPrefs } from "./types";
 
 export type ReminderKind = "morning" | "evening";
@@ -12,6 +13,10 @@ export const DEFAULT_REMINDERS: ReminderPrefs = {
   morningHour: 7,
   eveningHour: 20,
 };
+
+export function remindersGloballyEnabled(): boolean {
+  return REMINDERS_ENABLED;
+}
 
 export function normalizeReminders(
   raw: Partial<ReminderPrefs> | RebuildProfile["reminders"] | undefined,
@@ -88,6 +93,7 @@ export function dueReminderKinds(
   state: RebuildState,
   now = new Date(),
 ): ReminderKind[] {
+  if (!remindersGloballyEnabled()) return [];
   const profile = state.profile;
   if (!profile?.email?.trim()) return [];
   const prefs = normalizeReminders(profile.reminders);
