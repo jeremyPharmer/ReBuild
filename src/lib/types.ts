@@ -374,10 +374,19 @@ export type RebuildProfile = {
   /**
    * Secret Google Calendar iCal URL for work (Settings).
    * Calendar events — not to-dos (RB-023).
+   * Superseded by Google OAuth on the user account when connected.
    */
   workIcalUrl?: string;
   /** User-added craving intervention labels (merged with defaults in the craving flow) */
   cravingInterventions?: string[];
+};
+
+export type GoogleCalendarLink = {
+  connectedAt: string;
+  accountEmail?: string;
+  /** Calendar id, e.g. `primary` */
+  calendarId: string;
+  refreshToken: string;
 };
 
 export type RebuildState = {

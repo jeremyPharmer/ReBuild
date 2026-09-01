@@ -15,6 +15,7 @@ const PUBLIC_PREFIXES = [
   "/layouts",
   "/api/auth",
   "/api/cron",
+  "/api/calendar/google/callback",
 ];
 
 function isPublic(pathname: string): boolean {
