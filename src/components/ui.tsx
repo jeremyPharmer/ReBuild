@@ -125,6 +125,9 @@ export function Sheet({
     document.body.style.right = "0";
     document.body.style.width = "100%";
 
+    // Focus the dialog chrome (not an input) so iOS doesn't open the keyboard.
+    sheetRef.current?.focus({ preventScroll: true });
+
     const syncHeight = () => {
       const viewport =
         window.visualViewport?.height ?? window.innerHeight ?? 0;
@@ -168,6 +171,7 @@ export function Sheet({
         role="dialog"
         aria-modal="true"
         aria-label={label}
+        tabIndex={-1}
         style={
           dragOffset > 0
             ? { transform: `translateY(${dragOffset}px)` }

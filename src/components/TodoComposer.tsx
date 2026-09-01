@@ -263,7 +263,6 @@ export function TodoComposer({
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             placeholder="What needs doing?"
-            autoFocus
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
