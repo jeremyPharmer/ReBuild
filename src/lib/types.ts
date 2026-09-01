@@ -429,6 +429,21 @@ export type RebuildState = {
   calendarTitleOverrides?: Record<string, string>;
   /** Home agenda events hidden locally (ICS feed can lag after phone delete) */
   calendarHiddenEventIds?: string[];
+  /** Jeremy-added reminders/events on Home calendar (local only) */
+  customAgendaEvents?: CustomAgendaEvent[];
+};
+
+export type CustomAgendaEvent = {
+  id: string;
+  /** Local calendar day YYYY-MM-DD */
+  date: string;
+  title: string;
+  allDay?: boolean;
+  /** Display label, e.g. "3:00 PM" */
+  startTime?: string;
+  endTime?: string;
+  note?: string;
+  createdAt: string;
 };
 
 export const DEFAULT_SUPPORTS: SupportConfig[] = [

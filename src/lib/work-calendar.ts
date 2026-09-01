@@ -6,7 +6,7 @@ import {
 } from "./google-calendar";
 import type { GoogleCalendarLink } from "./types";
 
-export type CalendarFeedSource = "personal" | "work";
+export type CalendarFeedSource = "personal" | "work" | "custom";
 
 export type WorkCalendarEvent = {
   id: string;
@@ -117,7 +117,7 @@ export function eventOverlapsLocalDay(
   return startYmd < date && endYmd > date;
 }
 
-function sortAgenda(events: WorkCalendarEvent[]): WorkCalendarEvent[] {
+export function sortAgenda(events: WorkCalendarEvent[]): WorkCalendarEvent[] {
   return [...events].sort((a, b) => {
     if (a.allDay && !b.allDay) return -1;
     if (!a.allDay && b.allDay) return 1;

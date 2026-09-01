@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireSessionUser } from "@/lib/auth";
+import { customEventsForDay, mergeAgendaEvents } from "@/lib/custom-agenda";
 import { normalizeState } from "@/lib/fund";
 import { todayInTz } from "@/lib/journey";
 import { fetchWorkCalendarEvents } from "@/lib/work-calendar";
@@ -21,7 +22,8 @@ export async function GET(req: Request) {
     const date = String(
       url.searchParams.get("date") ?? todayInTz(state.profile.timezone),
     );
-    const { events, connected, errors } = await fetchWorkCalendarEvents(
+    const { events: feedEvents, connected, errors } =
+      await fetchWorkCalendarEvents(
       date,
       state.profile.timezone,
       {
@@ -30,7 +32,16 @@ export async function GET(req: Request) {
         googleCalendar: user.googleCalendar,
       },
     );
-    return NextResponse.json({ date, events, connected, errors });
+    const events = mergeAgendaEvents(
+      feedEvents,
+      customEventsForDay(state, date),
+    );
+    return NextResponse.json({
+      date,
+      events,
+      connected: connected || events.some((e) => e.source === "custom"),
+      errors,
+    });
   } catch (e) {
     const err = e as Error & { status?: number };
     return NextResponse.json({ error: err.message }, { status: err.status ?? 500 });

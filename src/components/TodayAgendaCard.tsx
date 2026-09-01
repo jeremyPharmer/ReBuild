@@ -4,12 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useApp } from "@/components/AppProvider";
 import {
+  AgendaEventComposer,
+  type AgendaEventPayload,
+} from "@/components/AgendaEventComposer";
+import {
   applyCalendarTitleOverrides,
   calendarHiddenEventIds,
   calendarTitleOverrides,
   displayCalendarTitle,
   filterHiddenCalendarEvents,
 } from "@/lib/calendar-overrides";
+import { isCustomAgendaId } from "@/lib/custom-agenda-shared";
 import type { WorkCalendarEvent } from "@/lib/work-calendar";
 
 type AgendaResponse = {
@@ -21,8 +26,11 @@ type AgendaResponse = {
 };
 
 function AgendaTime({ event }: { event: WorkCalendarEvent }) {
-  if (event.allDay) {
+  if (event.allDay || event.startTime === "All day") {
     return <span className="agenda-time-label">All day</span>;
+  }
+  if (event.startTime === "Anytime") {
+    return <span className="agenda-time-label">Anytime</span>;
   }
   if (event.endTime) {
     return (
@@ -42,17 +50,18 @@ function AgendaEventRow({
   event,
   displayTitle,
   onSaveTitle,
-  onHide,
+  onRemove,
 }: {
   event: WorkCalendarEvent;
   displayTitle: string;
   onSaveTitle: (title: string) => Promise<void>;
-  onHide: () => Promise<void>;
+  onRemove: () => Promise<void>;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(displayTitle);
   const [saving, setSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isCustom = isCustomAgendaId(event.id);
 
   useEffect(() => {
     if (!editing) setDraft(displayTitle);
@@ -75,7 +84,7 @@ function AgendaEventRow({
   }
 
   return (
-    <li className="agenda-item">
+    <li className={`agenda-item${isCustom ? " agenda-item-custom" : ""}`}>
       <div className="agenda-time">
         <AgendaTime event={event} />
       </div>
@@ -124,9 +133,9 @@ function AgendaEventRow({
             <button
               type="button"
               className="agenda-hide-btn"
-              aria-label={`Hide ${displayTitle}`}
+              aria-label={`Remove ${displayTitle}`}
               disabled={saving}
-              onClick={() => void onHide()}
+              onClick={() => void onRemove()}
             >
               ×
             </button>
@@ -147,11 +156,14 @@ export function TodayAgendaCard() {
   const { today, state, post } = useApp();
   const [data, setData] = useState<AgendaResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const [addBusy, setAddBusy] = useState(false);
 
   const personal = state.profile?.personalIcalUrl?.trim();
   const work = state.profile?.workIcalUrl?.trim();
   const [googleConnected, setGoogleConnected] = useState(false);
-  const hasUrls = Boolean(personal || work || googleConnected);
+  const hasFeeds = Boolean(personal || work || googleConnected);
+  const customSig = JSON.stringify(state.customAgendaEvents ?? []);
   const overrides = calendarTitleOverrides(state);
   const hidden = calendarHiddenEventIds(state);
 
@@ -201,7 +213,7 @@ export function TodayAgendaCard() {
     return () => {
       cancelled = true;
     };
-  }, [today, personal, work, googleConnected]);
+  }, [today, personal, work, googleConnected, customSig]);
 
   const rawEvents = data?.events ?? [];
   const events = filterHiddenCalendarEvents(
@@ -209,37 +221,81 @@ export function TodayAgendaCard() {
     hidden,
   );
   const connected = data?.connected ?? false;
-  const showSetup = !loading && !connected && !hasUrls;
-  const showCard =
-    loading || showSetup || connected || (data?.errors?.length ?? 0) > 0;
-
-  if (!showCard && events.length === 0) return null;
+  const showSetup = !loading && !connected && !hasFeeds && events.length === 0;
 
   async function saveTitle(eventId: string, title: string) {
+    if (isCustomAgendaId(eventId)) {
+      await post("/api/calendar/custom", {
+        action: "update",
+        id: eventId,
+        title,
+      });
+      return;
+    }
     await post("/api/calendar/overrides", { eventId, title });
   }
 
-  async function hideEvent(eventId: string) {
+  async function removeEvent(eventId: string) {
+    if (isCustomAgendaId(eventId)) {
+      await post("/api/calendar/custom", { action: "delete", id: eventId });
+      return;
+    }
     await post("/api/calendar/overrides", { eventId, hide: true });
+  }
+
+  async function addEvent(payload: AgendaEventPayload) {
+    setAddBusy(true);
+    try {
+      await post("/api/calendar/custom", {
+        action: "add",
+        date: today,
+        title: payload.title,
+        allDay: payload.allDay,
+        startTime: payload.startTime,
+        endTime: payload.endTime,
+      });
+      setAdding(false);
+    } finally {
+      setAddBusy(false);
+    }
   }
 
   return (
     <section className="home-card home-card-agenda" aria-label="Today's calendar">
-      <div className="home-card-head">
-        <p className="home-card-kicker">Calendar</p>
-        <h2>Today</h2>
+      <div className="home-card-head-row">
+        <div className="home-card-head">
+          <p className="home-card-kicker">Calendar</p>
+          <h2>Today</h2>
+        </div>
+        <button
+          type="button"
+          className="icon-btn"
+          aria-label="Add reminder or event"
+          onClick={() => setAdding(true)}
+        >
+          +
+        </button>
       </div>
+
+      {adding && (
+        <AgendaEventComposer
+          busy={addBusy}
+          onSubmit={addEvent}
+          onCancel={() => setAdding(false)}
+        />
+      )}
 
       {loading && <p className="muted tiny">Loading…</p>}
 
-      {!loading && showSetup && (
+      {!loading && showSetup && !adding && (
         <p className="muted">
-          Add calendar links in <Link href="/settings">Settings</Link>.
+          Add your own reminders with <strong>+</strong>, or connect calendars in{" "}
+          <Link href="/settings">Settings</Link>.
         </p>
       )}
 
-      {!loading && connected && events.length === 0 && (
-        <p className="muted">Clear day.</p>
+      {!loading && connected && events.length === 0 && !adding && (
+        <p className="muted">Clear day — tap + to add something.</p>
       )}
 
       {!loading && events.length > 0 && (
@@ -250,7 +306,7 @@ export function TodayAgendaCard() {
               event={ev}
               displayTitle={displayCalendarTitle(ev, overrides)}
               onSaveTitle={(title) => saveTitle(ev.id, title)}
-              onHide={() => hideEvent(ev.id)}
+              onRemove={() => removeEvent(ev.id)}
             />
           ))}
         </ul>
