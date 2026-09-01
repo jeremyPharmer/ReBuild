@@ -20,10 +20,22 @@ type AgendaResponse = {
   error?: string;
 };
 
-function formatTimeRange(ev: WorkCalendarEvent): string {
-  if (ev.allDay) return "All day";
-  if (ev.endTime) return `${ev.startTime}–${ev.endTime}`;
-  return ev.startTime;
+function AgendaTime({ event }: { event: WorkCalendarEvent }) {
+  if (event.allDay) {
+    return <span className="agenda-time-label">All day</span>;
+  }
+  if (event.endTime) {
+    return (
+      <>
+        <span className="agenda-time-label">{event.startTime}</span>
+        <span className="agenda-time-sep" aria-hidden="true">
+          –
+        </span>
+        <span className="agenda-time-label">{event.endTime}</span>
+      </>
+    );
+  }
+  return <span className="agenda-time-label">{event.startTime}</span>;
 }
 
 function AgendaEventRow({
@@ -64,7 +76,9 @@ function AgendaEventRow({
 
   return (
     <li className="agenda-item">
-      <span className="agenda-time">{formatTimeRange(event)}</span>
+      <div className="agenda-time">
+        <AgendaTime event={event} />
+      </div>
       <div className="agenda-body">
         {editing ? (
           <input
