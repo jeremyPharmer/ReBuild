@@ -303,8 +303,8 @@ function CustomRecurrenceSheet({
                   })
                 }
               >
-                <option value="day">Same date each month</option>
-                <option value="nth_weekday">Same weekday each month</option>
+                <option value="day">Same calendar day (e.g. 1st)</option>
+                <option value="nth_weekday">Same weekday (e.g. 2nd Tue)</option>
               </select>
             </label>
           )}
@@ -396,6 +396,7 @@ export function TodoComposer({
   submitLabel,
   onSubmit,
   onCancel,
+  onDelete,
 }: {
   today: string;
   initial?: DayProvision | null;
@@ -403,6 +404,7 @@ export function TodoComposer({
   submitLabel?: string;
   onSubmit: (payload: TodoComposerPayload) => void | Promise<void>;
   onCancel: () => void;
+  onDelete?: () => void | Promise<void>;
 }) {
   const initialRec = initial ? recurrenceOf(initial) : { kind: "none" as const };
   const initialDue = initial?.date ?? today;
@@ -428,7 +430,10 @@ export function TodoComposer({
 
   const schedulePreview = useMemo(() => {
     if (!repeats) return "";
-    return formatRecurrence(buildCustomRecurrence(date || today, today, customFields));
+    return formatRecurrence(
+      buildCustomRecurrence(date || today, today, customFields),
+      date || today,
+    );
   }, [repeats, date, today, customFields]);
 
   function openCustomSheet() {
@@ -502,7 +507,7 @@ export function TodoComposer({
           </label>
 
           <div className="todo-composer-datetime">
-            <label className="field">
+            <label className="field todo-composer-field">
               <span className="field-label">Date</span>
               <input
                 type="date"
@@ -511,7 +516,7 @@ export function TodoComposer({
                 onChange={(e) => setDate(e.target.value)}
               />
             </label>
-            <div className="field">
+            <div className="field todo-composer-field">
               <span className="field-label">Time</span>
               {hasTime ? (
                 <div className="todo-time-row">
@@ -546,27 +551,33 @@ export function TodoComposer({
             </div>
           </div>
 
-          <div className="field">
-            <span className="field-label">Repeat</span>
-            <div className="todo-repeat-toggle" role="group" aria-label="Repeat">
-              <button
-                type="button"
-                className={!repeats ? "todo-repeat-seg on" : "todo-repeat-seg"}
-                aria-pressed={!repeats}
-                disabled={busy}
-                onClick={setRepeatsNo}
+          <div className="field todo-repeat-field">
+            <div className="field-label-row">
+              <span className="field-label">Repeat</span>
+              <div
+                className="todo-repeat-toggle compact"
+                role="group"
+                aria-label="Repeat"
               >
-                No
-              </button>
-              <button
-                type="button"
-                className={repeats ? "todo-repeat-seg on" : "todo-repeat-seg"}
-                aria-pressed={repeats}
-                disabled={busy}
-                onClick={setRepeatsYes}
-              >
-                Yes
-              </button>
+                <button
+                  type="button"
+                  className={!repeats ? "todo-repeat-seg on" : "todo-repeat-seg"}
+                  aria-pressed={!repeats}
+                  disabled={busy}
+                  onClick={setRepeatsNo}
+                >
+                  No
+                </button>
+                <button
+                  type="button"
+                  className={repeats ? "todo-repeat-seg on" : "todo-repeat-seg"}
+                  aria-pressed={repeats}
+                  disabled={busy}
+                  onClick={setRepeatsYes}
+                >
+                  Yes
+                </button>
+              </div>
             </div>
             {repeats && (
               <button
@@ -585,6 +596,17 @@ export function TodoComposer({
             <p className="tiny" style={{ color: "var(--danger)", margin: 0 }}>
               {error}
             </p>
+          )}
+
+          {onDelete && (
+            <button
+              type="button"
+              className="todo-delete-link"
+              disabled={busy}
+              onClick={() => void onDelete()}
+            >
+              Delete task
+            </button>
           )}
 
           <div className="todo-composer-actions">

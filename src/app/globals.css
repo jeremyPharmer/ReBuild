@@ -2285,10 +2285,59 @@ h2 {
 }
 
 .check-label-meta {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
   color: var(--muted);
   font-weight: 500;
+  font-size: 0.76rem;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.check-label-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+.check-label-stacked .check-label-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.check-box-btn {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.check-box-btn:disabled {
+  cursor: default;
+}
+
+.check-item-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+}
+
+.check-item-body:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .dismiss-btn {
@@ -4351,6 +4400,65 @@ html.sheet-open .top-nav {
   gap: 10px;
 }
 
+.todo-composer-datetime .todo-composer-field {
+  margin-bottom: 0;
+}
+
+.todo-composer-datetime .todo-time-add {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.field-label-row .field-label {
+  margin-bottom: 0;
+}
+
+.todo-repeat-field {
+  margin-bottom: 14px;
+}
+
+.todo-repeat-toggle.compact {
+  display: inline-flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.todo-repeat-toggle.compact .todo-repeat-seg {
+  flex: none;
+  min-width: 42px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  border-radius: 999px;
+}
+
+.todo-repeat-toggle {
+  display: flex;
+  gap: 6px;
+}
+
+.todo-repeat-seg {
+  flex: 1;
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
 .todo-time-row {
   display: flex;
   align-items: center;
@@ -4384,23 +4492,6 @@ html.sheet-open .top-nav {
 .todo-time-add:hover,
 .text-btn:hover {
   color: var(--text);
-}
-
-.todo-repeat-toggle {
-  display: flex;
-  gap: 6px;
-}
-
-.todo-repeat-seg {
-  flex: 1;
-  border: 1px solid var(--line);
-  background: var(--surface-strong);
-  color: var(--muted);
-  font-size: 0.92rem;
-  font-weight: 600;
-  padding: 12px 14px;
-  border-radius: 12px;
-  cursor: pointer;
 }
 
 .todo-repeat-seg.on {
@@ -4441,6 +4532,30 @@ html.sheet-open .top-nav {
   flex-shrink: 0;
   color: var(--accent);
   font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.todo-delete-link {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--danger, #c44);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0;
+  margin: 0 0 4px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.todo-delete-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.todo-undo-link {
+  padding: 6px 8px;
+  font-size: 0.82rem;
   font-weight: 600;
 }
 
