@@ -1098,8 +1098,19 @@ h2 {
 
 .workout-routine-ex-metrics {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 64px 1fr;
   gap: 10px;
+  align-items: end;
+}
+
+.workout-routine-metric {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.workout-routine-metric-grow {
+  flex: 1;
 }
 
 .workout-routine-weight-toggle {
@@ -1239,7 +1250,7 @@ h2 {
 
 .workout-rep-mode-row {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 1fr 56px;
   gap: 8px;
   align-items: center;
 }
@@ -1251,15 +1262,16 @@ h2 {
   border-radius: 10px;
   overflow: hidden;
   background: var(--surface-strong);
+  min-width: 0;
 }
 
 .workout-rep-mode-btn {
   border: none;
   border-right: 1px solid var(--line);
   background: transparent;
-  min-height: 40px;
-  padding: 0 10px;
-  font-size: 0.72rem;
+  min-height: 38px;
+  padding: 0 6px;
+  font-size: 0.68rem;
   font-weight: 650;
   color: var(--muted);
   cursor: pointer;
@@ -1275,6 +1287,7 @@ h2 {
 }
 
 .workout-rep-mode-value {
+  width: 100%;
   min-width: 0;
 }
 
