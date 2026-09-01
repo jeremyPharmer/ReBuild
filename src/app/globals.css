@@ -37,8 +37,8 @@ select {
   width: min(480px, 100%);
   margin: 0 auto;
   min-height: 100dvh;
-  /* Clear fixed bottom nav so last Journal/Journey rows stay readable */
-  padding: 20px 18px calc(120px + env(safe-area-inset-bottom, 0px));
+  padding: calc(64px + env(safe-area-inset-top, 0px)) 18px
+    calc(24px + env(safe-area-inset-bottom, 0px));
   position: relative;
 }
 
@@ -282,13 +282,11 @@ h2 {
 }
 
 .workout-open-link {
+  display: block;
+  width: 100%;
   margin-top: auto;
   text-align: center;
   font-size: 0.85rem;
-}
-
-.panel .workout-open-link {
-  margin-top: 12px;
 }
 
 /* —— Workout calendar + move —— */
@@ -985,6 +983,10 @@ h2 {
   gap: 12px;
 }
 
+.home-card-tasks {
+  gap: 12px;
+}
+
 .home-card-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -1534,19 +1536,18 @@ h2 {
   margin-left: auto;
 }
 
-.bottom-nav {
+.top-nav {
   position: fixed;
+  top: 0;
   left: 50%;
-  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
-  width: min(440px, calc(100% - 24px));
+  width: min(480px, 100%);
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
-  padding: 8px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px;
   background: var(--nav-bg);
-  border: 1px solid var(--line);
-  border-radius: 18px;
+  border-bottom: 1px solid var(--line);
   backdrop-filter: blur(16px);
   z-index: 40;
 }
@@ -3334,7 +3335,7 @@ html.sheet-open body {
   overscroll-behavior: none;
 }
 
-html.sheet-open .bottom-nav {
+html.sheet-open .top-nav {
   visibility: hidden;
   pointer-events: none;
 }
