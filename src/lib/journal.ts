@@ -72,7 +72,7 @@ export function bundleJournalsByDate(
 }
 
 /**
- * Five year slots for a month-day, newest year first.
+ * Five year slots for a month-day, starting at anchor year forward.
  * Always returns `years` slots (empty when no entry), anchored on `anchorYear`.
  */
 export function fiveYearSlots(
@@ -83,7 +83,7 @@ export function fiveYearSlots(
 ): FiveYearEntry[] {
   const slots: FiveYearEntry[] = [];
   for (let i = 0; i < years; i++) {
-    const year = anchorYear - i;
+    const year = anchorYear + i;
     const date = `${year}-${mmDd}`;
     const bundled = byDate.get(date);
     slots.push({
