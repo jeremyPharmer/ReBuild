@@ -1,4 +1,4 @@
-import { addDays, formatDate, newId, parseDate } from "./journey";
+import { addDays, formatDate, formatDisplayDate, newId, parseDate } from "./journey";
 import type {
   DayProvision,
   RebuildState,
@@ -414,6 +414,12 @@ export function undoCompleteTodo(item: DayProvision): DayProvision {
   };
 }
 
+function formatEndsSuffix(ends?: TodoRepeatEnds): string {
+  if (!ends || ends.type === "never") return "";
+  if (ends.type === "on") return ` · until ${formatDisplayDate(ends.date)}`;
+  return ` · ${ends.count}×`;
+}
+
 export function formatRecurrence(recurrence: TodoRecurrence): string {
   if (recurrence.kind === "daily") return "Daily";
   if (recurrence.kind === "monthly_first") return "1st of the month";
@@ -426,6 +432,7 @@ export function formatRecurrence(recurrence: TodoRecurrence): string {
     return labels.join(" · ");
   }
   if (recurrence.kind === "repeat") {
+    const ends = formatEndsSuffix(recurrence.ends);
     const n = recurrence.interval;
     const unit =
       recurrence.frequency === "day"
@@ -447,21 +454,21 @@ export function formatRecurrence(recurrence: TodoRecurrence): string {
     if (recurrence.frequency === "day" && n === 1) base = "Daily";
     if (recurrence.frequency === "week") {
       const labels = (recurrence.weekdays ?? []).map((d) => WEEKDAY_LABELS[d]);
-      if (labels.length === 7 && n === 1) return "Daily";
-      if (n === 1) return labels.join(" · ") || "Weekly";
-      return `${base} · ${labels.join(" · ")}`;
+      if (labels.length === 7 && n === 1) return "Daily" + ends;
+      if (n === 1) return (labels.join(" · ") || "Weekly") + ends;
+      return `${base} · ${labels.join(" · ")}` + ends;
     }
     if (recurrence.frequency === "month") {
-      if (n === 1 && recurrence.monthlyOn !== "nth_weekday") return "Monthly";
+      if (n === 1 && recurrence.monthlyOn !== "nth_weekday") return "Monthly" + ends;
       if (recurrence.monthlyOn === "nth_weekday") {
-        return n === 1 ? "Monthly (same weekday)" : `${base} (same weekday)`;
+        return (n === 1 ? "Monthly (same weekday)" : `${base} (same weekday)`) + ends;
       }
-      return base;
+      return base + ends;
     }
     if (recurrence.frequency === "year") {
-      return n === 1 ? "Yearly" : base;
+      return (n === 1 ? "Yearly" : base) + ends;
     }
-    return base;
+    return base + ends;
   }
   return "";
 }

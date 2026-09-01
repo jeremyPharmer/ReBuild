@@ -287,6 +287,31 @@ describe("repeat ends", () => {
     expect(s.dayProvisions![0].completed).toBe(true);
   });
 
+  it("ends on a date before the next due", () => {
+    let s = applyTodoAction(
+      emptyState(),
+      {
+        action: "add",
+        label: "Report",
+        date: "2026-08-31",
+        recurrence: {
+          kind: "repeat",
+          frequency: "day",
+          interval: 1,
+          ends: { type: "on", date: "2026-09-01" },
+        },
+      },
+      "2026-08-31",
+      "now",
+    );
+    const id = s.dayProvisions![0].id;
+    s = applyTodoAction(s, { action: "complete", id }, "2026-08-31", "now");
+    expect(s.dayProvisions![0].completed).toBe(false);
+    expect(s.dayProvisions![0].date).toBe("2026-09-01");
+    s = applyTodoAction(s, { action: "complete", id }, "2026-09-01", "now");
+    expect(s.dayProvisions![0].completed).toBe(true);
+  });
+
   it("stores optional due time", () => {
     const s = applyTodoAction(
       emptyState(),
