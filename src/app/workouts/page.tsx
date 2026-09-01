@@ -35,6 +35,10 @@ export default function WorkoutsPage() {
         <h1>Move</h1>
       </header>
 
+      <WorkoutSummaryPanel monthKey={month} today={today} />
+
+      <WorkoutLogForm date={selectedDate ?? today} />
+
       <section className="panel workout-calendar-panel">
         <WorkoutCalendar
           monthKey={month}
@@ -87,10 +91,6 @@ export default function WorkoutsPage() {
       </section>
 
       <WorkoutRoutineBuilder />
-
-      <WorkoutLogForm date={selectedDate ?? today} />
-
-      <WorkoutSummaryPanel monthKey={month} today={today} />
     </main>
   );
 }
