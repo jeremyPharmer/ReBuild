@@ -4386,6 +4386,64 @@ html.sheet-open .top-nav {
   color: var(--text);
 }
 
+.todo-repeat-toggle {
+  display: flex;
+  gap: 6px;
+}
+
+.todo-repeat-seg {
+  flex: 1;
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.todo-repeat-seg.on {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.todo-repeat-seg:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.todo-repeat-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-strong);
+  color: var(--text);
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.todo-repeat-summary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.todo-repeat-summary-edit {
+  flex-shrink: 0;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .todo-custom-repeat {
   display: grid;
   gap: 14px;
