@@ -26,25 +26,43 @@ type AgendaResponse = {
   error?: string;
 };
 
+function eventTimeLabel(event: WorkCalendarEvent): string {
+  if (event.allDay || event.startTime === "All day") return "All day";
+  if (event.startTime === "Anytime") return "Anytime";
+  if (event.endTime) return `${event.startTime}–${event.endTime}`;
+  return event.startTime;
+}
+
+function shouldShowLocation(event: WorkCalendarEvent): boolean {
+  if (!event.location) return false;
+  if (!event.url) return true;
+  const loc = event.location.toLowerCase();
+  if (
+    loc.includes("google meet") ||
+    loc.includes("zoom") ||
+    loc.includes("teams")
+  ) {
+    return false;
+  }
+  return true;
+}
+
 function AgendaTime({ event }: { event: WorkCalendarEvent }) {
-  if (event.allDay || event.startTime === "All day") {
-    return <span className="agenda-time-label">All day</span>;
-  }
-  if (event.startTime === "Anytime") {
-    return <span className="agenda-time-label">Anytime</span>;
-  }
-  if (event.endTime) {
+  const label = eventTimeLabel(event);
+  if (event.url) {
     return (
-      <>
-        <span className="agenda-time-label">{event.startTime}</span>
-        <span className="agenda-time-sep" aria-hidden="true">
-          –
-        </span>
-        <span className="agenda-time-label">{event.endTime}</span>
-      </>
+      <a
+        className="agenda-time-link"
+        href={event.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Join ${event.title} at ${label}`}
+      >
+        {label}
+      </a>
     );
   }
-  return <span className="agenda-time-label">{event.startTime}</span>;
+  return <span className="agenda-time-label">{label}</span>;
 }
 
 function agendaDayHeading(viewDate: string, today: string): string {
@@ -121,41 +139,30 @@ function AgendaEventRow({
             aria-label="Event name"
           />
         ) : (
-          <div className="agenda-title-row">
-            <button
-              type="button"
-              className="agenda-title-btn"
-              onClick={() => setEditing(true)}
-              disabled={saving}
-            >
-              {displayTitle}
-            </button>
-            {event.url ? (
-              <a
-                className="agenda-open-link"
-                href={event.url}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`Open ${displayTitle}`}
-              >
-                ↗
-              </a>
-            ) : null}
-            <button
-              type="button"
-              className="agenda-hide-btn"
-              aria-label={`Remove ${displayTitle}`}
-              disabled={saving}
-              onClick={() => void onRemove()}
-            >
-              ×
-            </button>
-          </div>
+          <button
+            type="button"
+            className="agenda-title-btn"
+            onClick={() => setEditing(true)}
+            disabled={saving}
+          >
+            {displayTitle}
+          </button>
         )}
-        {event.location ? (
+        {shouldShowLocation(event) ? (
           <p className="agenda-loc">{event.location}</p>
         ) : null}
       </div>
+      {!editing ? (
+        <button
+          type="button"
+          className="agenda-hide-btn"
+          aria-label={`Remove ${displayTitle}`}
+          disabled={saving}
+          onClick={() => void onRemove()}
+        >
+          ×
+        </button>
+      ) : null}
     </li>
   );
 }
