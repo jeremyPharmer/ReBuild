@@ -1,12 +1,28 @@
 import { addDays, formatDate, newId, parseDate } from "./journey";
-import type { DayProvision, RebuildState, TodoRecurrence } from "./types";
+import type {
+  DayProvision,
+  RebuildState,
+  TodoRecurrence,
+  TodoRepeatEnds,
+} from "./types";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^\d{2}:\d{2}$/;
 
 export const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 
 export function isCalendarDate(value: string): boolean {
   return DATE_RE.test(value) && !Number.isNaN(parseDate(value).getTime());
+}
+
+/** Optional due time HH:mm (24h). Empty / invalid → undefined. */
+export function parseTime(raw: unknown): string | undefined {
+  if (raw == null || raw === "") return undefined;
+  const s = String(raw).trim();
+  if (!TIME_RE.test(s)) return undefined;
+  const [hh, mm] = s.split(":").map(Number);
+  if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return undefined;
+  return s;
 }
 
 export function recurrenceOf(item: DayProvision): TodoRecurrence {
@@ -17,9 +33,40 @@ export function isRecurring(item: DayProvision): boolean {
   return recurrenceOf(item).kind !== "none";
 }
 
+function parseEnds(raw: unknown): TodoRepeatEnds | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const ends = raw as { type?: unknown; date?: unknown; count?: unknown };
+  const type = String(ends.type ?? "never");
+  if (type === "on") {
+    const date = String(ends.date ?? "");
+    if (!isCalendarDate(date)) {
+      throw Object.assign(new Error("Ends-on needs a valid date"), { status: 400 });
+    }
+    return { type: "on", date };
+  }
+  if (type === "after") {
+    const count = Number(ends.count);
+    if (!Number.isInteger(count) || count < 1) {
+      throw Object.assign(new Error("Ends after needs a whole number ≥ 1"), {
+        status: 400,
+      });
+    }
+    return { type: "after", count: Math.min(count, 999) };
+  }
+  return { type: "never" };
+}
+
 export function parseRecurrence(raw: unknown): TodoRecurrence {
   if (!raw || typeof raw !== "object") return { kind: "none" };
-  const rec = raw as { kind?: unknown; weekdays?: unknown; n?: unknown };
+  const rec = raw as {
+    kind?: unknown;
+    weekdays?: unknown;
+    n?: unknown;
+    frequency?: unknown;
+    interval?: unknown;
+    monthlyOn?: unknown;
+    ends?: unknown;
+  };
   const kind = String(rec.kind ?? "none");
   if (kind === "daily") return { kind: "daily" };
   if (kind === "monthly_first") return { kind: "monthly_first" };
@@ -39,6 +86,54 @@ export function parseRecurrence(raw: unknown): TodoRecurrence {
     }
     return { kind: "weekly", weekdays };
   }
+  if (kind === "repeat") {
+    const frequency = String(rec.frequency ?? "");
+    if (
+      frequency !== "day" &&
+      frequency !== "week" &&
+      frequency !== "month" &&
+      frequency !== "year"
+    ) {
+      throw Object.assign(new Error("Pick a repeat frequency"), { status: 400 });
+    }
+    const interval = Number(rec.interval ?? 1);
+    if (!Number.isInteger(interval) || interval < 1) {
+      throw Object.assign(new Error("Repeat interval needs a whole number ≥ 1"), {
+        status: 400,
+      });
+    }
+    const ends = parseEnds(rec.ends) ?? { type: "never" as const };
+    if (frequency === "week") {
+      const weekdays = normalizeWeekdays(rec.weekdays);
+      if (weekdays.length === 0) {
+        throw Object.assign(new Error("Pick at least one weekday"), { status: 400 });
+      }
+      return {
+        kind: "repeat",
+        frequency: "week",
+        interval: Math.min(interval, 99),
+        weekdays,
+        ends,
+      };
+    }
+    if (frequency === "month") {
+      const monthlyOn =
+        rec.monthlyOn === "nth_weekday" ? "nth_weekday" : "day";
+      return {
+        kind: "repeat",
+        frequency: "month",
+        interval: Math.min(interval, 99),
+        monthlyOn,
+        ends,
+      };
+    }
+    return {
+      kind: "repeat",
+      frequency,
+      interval: Math.min(interval, 99),
+      ends,
+    };
+  }
   return { kind: "none" };
 }
 
@@ -52,6 +147,78 @@ export function normalizeWeekdays(raw: unknown): number[] {
   return [...seen].sort((a, b) => a - b);
 }
 
+function addMonthsClamped(date: string, months: number): string {
+  const d = parseDate(date);
+  const day = d.getDate();
+  const target = new Date(d.getFullYear(), d.getMonth() + months, 1);
+  const last = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+  target.setDate(Math.min(day, last));
+  return formatDate(target);
+}
+
+function addYearsClamped(date: string, years: number): string {
+  return addMonthsClamped(date, years * 12);
+}
+
+/** Nth weekday in a month (1–4 or 5 = last). */
+function dateOnNthWeekday(
+  year: number,
+  monthIndex: number,
+  weekday: number,
+  nth: number,
+): string {
+  if (nth >= 5) {
+    const last = new Date(year, monthIndex + 1, 0);
+    const back = (last.getDay() - weekday + 7) % 7;
+    last.setDate(last.getDate() - back);
+    return formatDate(last);
+  }
+  const first = new Date(year, monthIndex, 1);
+  const forward = (weekday - first.getDay() + 7) % 7;
+  first.setDate(1 + forward + (nth - 1) * 7);
+  return formatDate(first);
+}
+
+function nthWeekdayOfDate(date: string): { weekday: number; nth: number } {
+  const d = parseDate(date);
+  const weekday = d.getDay();
+  const nth = Math.ceil(d.getDate() / 7);
+  return { weekday, nth: Math.min(nth, 5) };
+}
+
+function nextRepeatDue(completedOn: string, recurrence: Extract<TodoRecurrence, { kind: "repeat" }>): string {
+  const { frequency, interval } = recurrence;
+  if (frequency === "day") return addDays(completedOn, interval);
+  if (frequency === "week") {
+    const weekdays = normalizeWeekdays(recurrence.weekdays ?? []);
+    const from = parseDate(completedOn);
+    const fromDay = from.getDay();
+    const later = weekdays.filter((d) => d > fromDay);
+    if (later.length > 0) {
+      return addDays(completedOn, later[0] - fromDay);
+    }
+    const first = weekdays[0] ?? fromDay;
+    const daysToFirst = ((7 - fromDay + first) % 7) || 7;
+    return addDays(completedOn, daysToFirst + (interval - 1) * 7);
+  }
+  if (frequency === "month") {
+    if (recurrence.monthlyOn === "nth_weekday") {
+      const { weekday, nth } = nthWeekdayOfDate(completedOn);
+      const d = parseDate(completedOn);
+      const target = new Date(d.getFullYear(), d.getMonth() + interval, 1);
+      return dateOnNthWeekday(
+        target.getFullYear(),
+        target.getMonth(),
+        weekday,
+        nth,
+      );
+    }
+    return addMonthsClamped(completedOn, interval);
+  }
+  // year
+  return addYearsClamped(completedOn, interval);
+}
+
 /** First due date for a new item (today if it matches the cadence). */
 export function firstDueDate(today: string, recurrence: TodoRecurrence): string {
   if (recurrence.kind === "weekly") {
@@ -59,6 +226,12 @@ export function firstDueDate(today: string, recurrence: TodoRecurrence): string 
   }
   if (recurrence.kind === "monthly_first") {
     return nextFirstOfMonth(today, true);
+  }
+  if (recurrence.kind === "repeat") {
+    if (recurrence.frequency === "week") {
+      return nextMatchingWeekday(today, recurrence.weekdays ?? [], true);
+    }
+    return today;
   }
   return today;
 }
@@ -74,6 +247,9 @@ export function nextDueDate(completedOn: string, recurrence: TodoRecurrence): st
   }
   if (recurrence.kind === "monthly_first") {
     return nextFirstOfMonth(addDays(completedOn, 1), true);
+  }
+  if (recurrence.kind === "repeat") {
+    return nextRepeatDue(completedOn, recurrence);
   }
   return completedOn;
 }
@@ -166,6 +342,21 @@ export function snoozeUntil(item: DayProvision, until: string): DayProvision {
   return { ...item, date: until, completed: false };
 }
 
+function seriesShouldEnd(
+  recurrence: TodoRecurrence,
+  nextDate: string,
+  nextCount: number,
+): boolean {
+  if (recurrence.kind !== "repeat" || !recurrence.ends) return false;
+  if (recurrence.ends.type === "after" && nextCount >= recurrence.ends.count) {
+    return true;
+  }
+  if (recurrence.ends.type === "on" && nextDate > recurrence.ends.date) {
+    return true;
+  }
+  return false;
+}
+
 export function completeTodo(
   item: DayProvision,
   today: string,
@@ -180,12 +371,24 @@ export function completeTodo(
       lastCompletedOn: today,
     };
   }
+  const nextCount = (item.repeatCount ?? 0) + 1;
+  const nextDate = nextDueDate(today, rec);
+  if (seriesShouldEnd(rec, nextDate, nextCount)) {
+    return {
+      ...item,
+      completed: true,
+      completedAt: nowIso,
+      lastCompletedOn: today,
+      repeatCount: nextCount,
+    };
+  }
   return {
     ...item,
     completed: false,
     completedAt: nowIso,
     lastCompletedOn: today,
-    date: nextDueDate(today, rec),
+    date: nextDate,
+    repeatCount: nextCount,
   };
 }
 
@@ -197,6 +400,7 @@ export function undoCompleteTodo(item: DayProvision): DayProvision {
       date: item.lastCompletedOn,
       lastCompletedOn: undefined,
       completedAt: undefined,
+      repeatCount: Math.max(0, (item.repeatCount ?? 1) - 1) || undefined,
     };
   }
   return {
@@ -218,6 +422,44 @@ export function formatRecurrence(recurrence: TodoRecurrence): string {
     if (labels.length === 7) return "Every day";
     return labels.join(" · ");
   }
+  if (recurrence.kind === "repeat") {
+    const n = recurrence.interval;
+    const unit =
+      recurrence.frequency === "day"
+        ? n === 1
+          ? "day"
+          : "days"
+        : recurrence.frequency === "week"
+          ? n === 1
+            ? "week"
+            : "weeks"
+          : recurrence.frequency === "month"
+            ? n === 1
+              ? "month"
+              : "months"
+            : n === 1
+              ? "year"
+              : "years";
+    let base = n === 1 && recurrence.frequency === "day" ? "Daily" : `Every ${n} ${unit}`;
+    if (recurrence.frequency === "day" && n === 1) base = "Daily";
+    if (recurrence.frequency === "week") {
+      const labels = (recurrence.weekdays ?? []).map((d) => WEEKDAY_LABELS[d]);
+      if (labels.length === 7 && n === 1) return "Daily";
+      if (n === 1) return labels.join(" · ") || "Weekly";
+      return `${base} · ${labels.join(" · ")}`;
+    }
+    if (recurrence.frequency === "month") {
+      if (n === 1 && recurrence.monthlyOn !== "nth_weekday") return "Monthly";
+      if (recurrence.monthlyOn === "nth_weekday") {
+        return n === 1 ? "Monthly (same weekday)" : `${base} (same weekday)`;
+      }
+      return base;
+    }
+    if (recurrence.frequency === "year") {
+      return n === 1 ? "Yearly" : base;
+    }
+    return base;
+  }
   return "";
 }
 
@@ -226,6 +468,7 @@ export type TodoActionInput = {
   id?: string;
   label?: string;
   date?: string;
+  time?: string | null;
   until?: string;
   recurrence?: unknown;
 };
@@ -251,12 +494,14 @@ export function applyTodoAction(
       ? requested
       : firstDueDate(today, recurrence);
     if (date < today) date = today;
+    const time = parseTime(body.time);
     const row: DayProvision = {
       id: newId("todo"),
       date,
       label,
       completed: false,
       recurrence,
+      ...(time ? { time } : {}),
     };
     return { ...next, dayProvisions: [...items, row] };
   }
@@ -290,11 +535,14 @@ export function applyTodoAction(
     const requested = String(body.date ?? "").trim();
     let date = isCalendarDate(requested) ? requested : current.date;
     if (date < today) date = today;
+    const time =
+      body.time !== undefined ? parseTime(body.time) : current.time;
     items[index] = {
       ...current,
       label,
       recurrence,
       date,
+      time,
       completed: recurrence.kind !== "none" ? false : current.completed,
     };
     return { ...next, dayProvisions: items };

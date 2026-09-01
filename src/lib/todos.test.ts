@@ -79,6 +79,63 @@ describe("nextDueDate", () => {
     expect(nextDueDate("2026-08-15", { kind: "monthly_first" })).toBe("2026-09-01");
     expect(nextDueDate("2026-12-01", { kind: "monthly_first" })).toBe("2027-01-01");
   });
+
+  it("Google-style repeat: every 2 days", () => {
+    expect(
+      nextDueDate("2026-08-31", {
+        kind: "repeat",
+        frequency: "day",
+        interval: 2,
+        ends: { type: "never" },
+      }),
+    ).toBe("2026-09-02");
+  });
+
+  it("Google-style repeat: weekly Mon/Wed with interval 1", () => {
+    // Monday → Wednesday same week
+    expect(
+      nextDueDate("2026-08-31", {
+        kind: "repeat",
+        frequency: "week",
+        interval: 1,
+        weekdays: [1, 3],
+        ends: { type: "never" },
+      }),
+    ).toBe("2026-09-02");
+    // Wednesday → Monday next week
+    expect(
+      nextDueDate("2026-09-02", {
+        kind: "repeat",
+        frequency: "week",
+        interval: 1,
+        weekdays: [1, 3],
+        ends: { type: "never" },
+      }),
+    ).toBe("2026-09-07");
+  });
+
+  it("Google-style repeat: monthly same date", () => {
+    expect(
+      nextDueDate("2026-01-31", {
+        kind: "repeat",
+        frequency: "month",
+        interval: 1,
+        monthlyOn: "day",
+        ends: { type: "never" },
+      }),
+    ).toBe("2026-02-28");
+  });
+
+  it("Google-style repeat: yearly", () => {
+    expect(
+      nextDueDate("2024-02-29", {
+        kind: "repeat",
+        frequency: "year",
+        interval: 1,
+        ends: { type: "never" },
+      }),
+    ).toBe("2025-02-28");
+  });
 });
 
 describe("firstDueDate", () => {
@@ -200,6 +257,50 @@ describe("complete + undo recurring", () => {
     expect(undone.date).toBe("2026-08-31");
     expect(undone.lastCompletedOn).toBeUndefined();
     expect(isOpenOn(undone, "2026-08-31")).toBe(true);
+  });
+});
+
+
+describe("repeat ends", () => {
+  it("ends after N completions", () => {
+    let s = applyTodoAction(
+      emptyState(),
+      {
+        action: "add",
+        label: "Stretch",
+        date: "2026-08-31",
+        recurrence: {
+          kind: "repeat",
+          frequency: "day",
+          interval: 1,
+          ends: { type: "after", count: 2 },
+        },
+      },
+      "2026-08-31",
+      "now",
+    );
+    const id = s.dayProvisions![0].id;
+    s = applyTodoAction(s, { action: "complete", id }, "2026-08-31", "now");
+    expect(s.dayProvisions![0].completed).toBe(false);
+    expect(s.dayProvisions![0].date).toBe("2026-09-01");
+    s = applyTodoAction(s, { action: "complete", id }, "2026-09-01", "now");
+    expect(s.dayProvisions![0].completed).toBe(true);
+  });
+
+  it("stores optional due time", () => {
+    const s = applyTodoAction(
+      emptyState(),
+      {
+        action: "add",
+        label: "Call",
+        date: "2026-08-31",
+        time: "14:30",
+        recurrence: { kind: "none" },
+      },
+      "2026-08-31",
+      "now",
+    );
+    expect(s.dayProvisions![0].time).toBe("14:30");
   });
 });
 

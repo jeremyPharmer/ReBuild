@@ -10,6 +10,15 @@ import { formatDisplayDate } from "@/lib/journey";
 import { formatRecurrence, recurrenceOf } from "@/lib/todos";
 import type { DayProvision } from "@/lib/types";
 
+function formatTodoTime(time: string): string {
+  const [hRaw, m] = time.split(":");
+  const h = Number(hRaw);
+  if (!Number.isFinite(h)) return time;
+  const suffix = h >= 12 ? "PM" : "AM";
+  const hour = ((h + 11) % 12) + 1;
+  return `${hour}:${m ?? "00"} ${suffix}`;
+}
+
 type Menu = "closed" | "open" | "until" | "edit";
 
 export function TodoTaskRow({
@@ -34,6 +43,9 @@ export function TodoTaskRow({
   const [menu, setMenu] = useState<Menu>("closed");
   const rec = recurrenceOf(item);
   const recLabel = formatRecurrence(rec);
+  const timeLabel = item.time
+    ? ` · ${formatTodoTime(item.time)}`
+    : "";
   const dueMeta =
     item.date !== today && !item.completed
       ? ` · ${formatDisplayDate(item.date)}`
@@ -53,8 +65,9 @@ export function TodoTaskRow({
           </span>
           <span className="check-label">
             <span className="check-label-name">{item.label}</span>
-            {recLabel || dueMeta ? (
+            {recLabel || dueMeta || timeLabel ? (
               <span className="check-label-meta">
+                {timeLabel}
                 {recLabel ? ` · ${recLabel}` : ""}
                 {dueMeta}
               </span>
