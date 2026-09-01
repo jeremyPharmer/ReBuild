@@ -249,6 +249,31 @@ describe("routines and actuals", () => {
     expect(actuals[1].sets[0].weight).toBeUndefined();
   });
 
+  it("preserves seconds rep mode on routines and actuals", () => {
+    const timed = normalizeRoutines([
+      {
+        id: "routine_stretch",
+        name: "Mobility",
+        type: "stretch",
+        exercises: [
+          {
+            id: "ex_hold",
+            name: "Pigeon hold",
+            sets: 2,
+            reps: 45,
+            repMode: "seconds",
+            tracksWeight: false,
+          },
+        ],
+        createdAt: "2026-08-30T12:00:00Z",
+      },
+    ])[0];
+    expect(timed.exercises[0].repMode).toBe("seconds");
+    const actuals = blankActualsFromRoutine(timed);
+    expect(actuals[0].repMode).toBe("seconds");
+    expect(formatExerciseActualSummary(actuals)).toContain("45s");
+  });
+
   it("formats actual summaries and strips weight when not tracked", () => {
     const actuals = normalizeExerciseActuals([
       {

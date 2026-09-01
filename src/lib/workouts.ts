@@ -5,6 +5,7 @@ import type {
   WorkoutExerciseActual,
   WorkoutLog,
   WorkoutPr,
+  WorkoutRepMode,
   WorkoutRoutine,
   WorkoutRoutineExercise,
   WorkoutSetActual,
@@ -22,7 +23,7 @@ export const WORKOUT_PRESETS: Record<WorkoutType, string[]> = {
   run: ["Easy run", "Long run", "Tempo", "Intervals", "Recovery jog", "5K", "10K"],
   hiit: ["Tabata", "Circuit", "AMRAP", "EMOM", "Boot camp", "Sprints"],
   lift: ["Upper body", "Lower body", "Full body", "Push day", "Pull day", "Leg day"],
-  stretch: ["Yoga", "Mobility", "Foam roll", "Static stretch", "Recovery flow"],
+  stretch: ["Yoga", "Mobility", "Full body mobility", "Foam roll", "Static stretch", "Recovery flow"],
 };
 
 export const WORKOUT_CUSTOM = "__custom__";
@@ -80,6 +81,10 @@ function resolveWorkoutType(raw: {
   return legacyTypeFromRow(raw.category, raw.liftType);
 }
 
+function normalizeRepMode(raw: unknown): WorkoutRepMode {
+  return raw === "seconds" ? "seconds" : "reps";
+}
+
 function normalizePositiveInt(raw: unknown, fallback: number): number {
   const n = typeof raw === "number" ? raw : Number(raw);
   if (!Number.isFinite(n) || n < 1) return fallback;
@@ -125,6 +130,7 @@ export function normalizeExerciseActuals(
       exerciseId: String(row.exerciseId ?? "").trim() || name,
       name,
       tracksWeight: Boolean(row.tracksWeight),
+      repMode: normalizeRepMode(row.repMode),
       sets: sets.map((s) =>
         row.tracksWeight
           ? s
@@ -147,6 +153,7 @@ function normalizeRoutineExercise(
     name,
     sets: normalizePositiveInt(row.sets, 3),
     reps: normalizePositiveInt(row.reps, 10),
+    repMode: normalizeRepMode(row.repMode),
     tracksWeight: Boolean(row.tracksWeight),
   };
 }
@@ -194,11 +201,16 @@ export function blankActualsFromRoutine(
     exerciseId: ex.id,
     name: ex.name,
     tracksWeight: ex.tracksWeight,
+    repMode: ex.repMode ?? "reps",
     sets: Array.from({ length: ex.sets }, () => ({
       reps: ex.reps,
       weight: undefined,
     })),
   }));
+}
+
+export function repModeLabel(mode: WorkoutRepMode | undefined): string {
+  return mode === "seconds" ? "Sec" : "Reps";
 }
 
 /** Short summary for day list: "3×10 @ 135" style */
@@ -208,11 +220,12 @@ export function formatExerciseActualSummary(
   if (!actuals?.length) return "";
   return actuals
     .map((ex) => {
+      const unit = ex.repMode === "seconds" ? "s" : "";
       const parts = ex.sets.map((s) => {
         if (ex.tracksWeight && s.weight != null) {
-          return `${s.reps}×${s.weight}`;
+          return `${s.reps}${unit}×${s.weight}`;
         }
-        return `${s.reps}`;
+        return `${s.reps}${unit}`;
       });
       return `${ex.name} ${parts.join(", ")}`;
     })

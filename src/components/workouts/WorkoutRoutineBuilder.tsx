@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import type { WorkoutRoutine, WorkoutType } from "@/lib/types";
-import { normalizeRoutines, WORKOUT_TYPES } from "@/lib/workouts";
+import type { WorkoutRepMode, WorkoutRoutine, WorkoutType } from "@/lib/types";
+import { normalizeRoutines, repModeLabel, WORKOUT_TYPES } from "@/lib/workouts";
 
 type DraftExercise = {
   key: string;
@@ -11,6 +11,7 @@ type DraftExercise = {
   name: string;
   sets: string;
   reps: string;
+  repMode: WorkoutRepMode;
   tracksWeight: boolean;
 };
 
@@ -20,6 +21,7 @@ function emptyExercise(): DraftExercise {
     name: "",
     sets: "3",
     reps: "10",
+    repMode: "reps",
     tracksWeight: false,
   };
 }
@@ -40,6 +42,7 @@ function draftFromRoutine(r: WorkoutRoutine): {
       name: ex.name,
       sets: String(ex.sets),
       reps: String(ex.reps),
+      repMode: ex.repMode ?? "reps",
       tracksWeight: ex.tracksWeight,
     })),
   };
@@ -100,6 +103,7 @@ export function WorkoutRoutineBuilder() {
         name: ex.name.trim(),
         sets: Number(ex.sets),
         reps: Number(ex.reps),
+        repMode: ex.repMode,
         tracksWeight: ex.tracksWeight,
       }))
       .filter((ex) => ex.name);
@@ -175,19 +179,13 @@ export function WorkoutRoutineBuilder() {
                 <span className="workout-routine-meta tiny muted">
                   {r.exercises.length} exercise
                   {r.exercises.length === 1 ? "" : "s"}
+                  {r.exercises.some((ex) => ex.repMode === "seconds")
+                    ? " · timed"
+                    : ""}
                   {r.exercises.some((ex) => ex.tracksWeight)
                     ? " · tracks weight"
                     : ""}
                 </span>
-              </button>
-              <button
-                type="button"
-                className="workout-history-remove"
-                aria-label={`Delete ${r.name}`}
-                disabled={busy}
-                onClick={() => void remove(r.id)}
-              >
-                ×
               </button>
             </li>
           ))}
@@ -292,21 +290,52 @@ export function WorkoutRoutineBuilder() {
                       aria-label={`Exercise ${i + 1} sets`}
                     />
                   </label>
-                  <label className="workout-log-field">
-                    <span className="workout-log-label">Reps</span>
-                    <input
-                      className="workout-log-input"
-                      type="number"
-                      inputMode="numeric"
-                      min={1}
-                      max={99}
-                      value={ex.reps}
-                      onChange={(e) =>
-                        updateExercise(ex.key, { reps: e.target.value })
-                      }
-                      aria-label={`Exercise ${i + 1} reps`}
-                    />
-                  </label>
+                  <div className="workout-log-field">
+                    <span className="workout-log-label">
+                      {repModeLabel(ex.repMode)} each
+                    </span>
+                    <div className="workout-rep-mode-row">
+                      <div
+                        className="workout-rep-mode-segment"
+                        role="group"
+                        aria-label={`Exercise ${i + 1} rep mode`}
+                      >
+                        <button
+                          type="button"
+                          className={`workout-rep-mode-btn${ex.repMode === "reps" ? " active" : ""}`}
+                          aria-pressed={ex.repMode === "reps"}
+                          onClick={() =>
+                            updateExercise(ex.key, { repMode: "reps" })
+                          }
+                        >
+                          Reps
+                        </button>
+                        <button
+                          type="button"
+                          className={`workout-rep-mode-btn${ex.repMode === "seconds" ? " active" : ""}`}
+                          aria-pressed={ex.repMode === "seconds"}
+                          onClick={() =>
+                            updateExercise(ex.key, { repMode: "seconds" })
+                          }
+                        >
+                          Sec
+                        </button>
+                      </div>
+                      <input
+                        className="workout-log-input workout-rep-mode-value"
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        max={ex.repMode === "seconds" ? 999 : 99}
+                        value={ex.reps}
+                        onChange={(e) =>
+                          updateExercise(ex.key, { reps: e.target.value })
+                        }
+                        aria-label={`Exercise ${i + 1} ${repModeLabel(ex.repMode).toLowerCase()}`}
+                        placeholder={ex.repMode === "seconds" ? "30" : "10"}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <label className="workout-routine-weight-toggle">
                   <input
@@ -348,6 +377,17 @@ export function WorkoutRoutineBuilder() {
               {busy ? "Saving…" : editingId ? "Update routine" : "Save routine"}
             </button>
           </div>
+
+          {editingId && (
+            <button
+              type="button"
+              className="workout-routine-delete"
+              disabled={busy}
+              onClick={() => void remove(editingId)}
+            >
+              Delete routine
+            </button>
+          )}
 
           {error && <p className="tiny workout-log-error">{error}</p>}
         </form>

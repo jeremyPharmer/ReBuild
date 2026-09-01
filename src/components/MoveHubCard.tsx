@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { WorkoutCalendar } from "@/components/workouts/WorkoutCalendar";
+import { WorkoutLogForm } from "@/components/workouts/WorkoutLogForm";
 import {
   formatMiles,
   monthKey,
@@ -30,6 +31,8 @@ export function MoveHubCard() {
           {week.runMiles > 0 ? ` · ${formatMiles(week.runMiles)} mi` : ""}
         </p>
       </div>
+
+      <WorkoutLogForm date={today} variant="quick" />
 
       <WorkoutCalendar
         monthKey={month}

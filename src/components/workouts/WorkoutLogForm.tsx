@@ -11,6 +11,7 @@ import {
   findRoutine,
   gymSupportForType,
   parseRoutineSelectValue,
+  repModeLabel,
   routineSelectValue,
   routinesForType,
   WORKOUT_CUSTOM,
@@ -27,9 +28,12 @@ const QUALITY_OPTIONS = Array.from(
 export function WorkoutLogForm({
   date,
   onLogged,
+  variant = "full",
 }: {
   date: string;
   onLogged?: () => void;
+  /** Home quick log: type, workout, quality only */
+  variant?: "quick" | "full";
 }) {
   const { state, post } = useApp();
   const [type, setType] = useState<WorkoutType>("run");
@@ -39,6 +43,7 @@ export function WorkoutLogForm({
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
   const [notes, setNotes] = useState("");
+  const [showSessionDetails, setShowSessionDetails] = useState(false);
   const [actuals, setActuals] = useState<WorkoutExerciseActual[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -59,11 +64,14 @@ export function WorkoutLogForm({
       ? customLabel.trim()
       : workout.trim();
   const canSubmit = Boolean(label) && quality != null && !busy;
+  const showSessionFields =
+    variant === "full" && !selectedRoutine && Boolean(workout);
 
   useEffect(() => {
     setWorkout("");
     setCustomLabel("");
     setActuals([]);
+    setShowSessionDetails(false);
   }, [type]);
 
   useEffect(() => {
@@ -74,6 +82,7 @@ export function WorkoutLogForm({
     }
     const r = findRoutine(state.workoutRoutines, id);
     setActuals(r ? blankActualsFromRoutine(r) : []);
+    setShowSessionDetails(false);
   }, [workout, state.workoutRoutines]);
 
   function updateSet(
@@ -117,6 +126,7 @@ export function WorkoutLogForm({
               exerciseId: ex.exerciseId,
               name: ex.name,
               tracksWeight: ex.tracksWeight,
+              repMode: ex.repMode,
               sets: ex.sets
                 .filter((s) => s.reps > 0)
                 .map((s) =>
@@ -133,9 +143,14 @@ export function WorkoutLogForm({
         type,
         label,
         quality,
-        distanceMiles: type === "run" && distance ? Number(distance) : undefined,
-        durationMin: duration ? Number(duration) : undefined,
-        notes: notes.trim() || undefined,
+        distanceMiles:
+          showSessionFields && type === "run" && distance
+            ? Number(distance)
+            : undefined,
+        durationMin:
+          showSessionFields && duration ? Number(duration) : undefined,
+        notes:
+          showSessionFields && notes.trim() ? notes.trim() : undefined,
         routineId: selectedRoutine?.id,
         exerciseActuals,
       });
@@ -146,6 +161,7 @@ export function WorkoutLogForm({
       setDuration("");
       setNotes("");
       setActuals([]);
+      setShowSessionDetails(false);
       onLogged?.();
       if (gymSupportForType(type)) {
         await post("/api/support", {
@@ -163,7 +179,7 @@ export function WorkoutLogForm({
 
   return (
     <form
-      className="workout-log-form panel"
+      className={`workout-log-form${variant === "quick" ? " workout-log-form-quick" : " panel"}`}
       onSubmit={submit}
       autoComplete="off"
     >
@@ -239,37 +255,41 @@ export function WorkoutLogForm({
         <div className="workout-actuals">
           <p className="workout-log-label">Today&apos;s sets</p>
           <p className="tiny muted">
-            Enter what you did — weights only where this routine tracks them.
+            Log what you did — weights only where this routine tracks them.
           </p>
           {actuals.map((ex, ei) => (
             <div key={ex.exerciseId} className="workout-actual-ex">
               <p className="workout-actual-ex-name">{ex.name}</p>
-              {ex.sets.map((s, si) => (
-                <div
-                  key={si}
-                  className={`workout-actual-set-row${ex.tracksWeight ? " has-weight" : ""}`}
-                >
-                  <span className="tiny muted">Set {si + 1}</span>
-                  <label className="workout-log-field">
-                    <span className="workout-log-label">Reps</span>
+              <div
+                className={`workout-actual-set-table${ex.tracksWeight ? " has-weight" : ""}`}
+              >
+                <div className="workout-actual-set-head" aria-hidden>
+                  <span>Set</span>
+                  <span>{repModeLabel(ex.repMode)}</span>
+                  {ex.tracksWeight ? <span>lb</span> : null}
+                </div>
+                {ex.sets.map((s, si) => (
+                  <div
+                    key={si}
+                    className={`workout-actual-set-row${ex.tracksWeight ? " has-weight" : ""}`}
+                  >
+                    <span className="workout-actual-set-num">{si + 1}</span>
                     <input
-                      className="workout-log-input"
+                      className="workout-actual-input"
                       type="number"
                       inputMode="numeric"
                       min={1}
-                      max={99}
+                      max={ex.repMode === "seconds" ? 999 : 99}
                       value={s.reps || ""}
                       onChange={(e) =>
                         updateSet(ei, si, { reps: e.target.value })
                       }
-                      aria-label={`${ex.name} set ${si + 1} reps`}
+                      aria-label={`${ex.name} set ${si + 1} ${repModeLabel(ex.repMode).toLowerCase()}`}
+                      placeholder={ex.repMode === "seconds" ? "sec" : "reps"}
                     />
-                  </label>
-                  {ex.tracksWeight && (
-                    <label className="workout-log-field">
-                      <span className="workout-log-label">lb</span>
+                    {ex.tracksWeight && (
                       <input
-                        className="workout-log-input"
+                        className="workout-actual-input"
                         type="number"
                         inputMode="decimal"
                         min={0}
@@ -279,12 +299,12 @@ export function WorkoutLogForm({
                           updateSet(ei, si, { weight: e.target.value })
                         }
                         aria-label={`${ex.name} set ${si + 1} weight`}
-                        placeholder="—"
+                        placeholder="lb"
                       />
-                    </label>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -312,57 +332,68 @@ export function WorkoutLogForm({
         </div>
       </fieldset>
 
-      <div
-        className={`workout-log-metrics${type === "run" ? " has-miles" : ""}`}
-      >
-        {type === "run" && (
-          <label className="workout-log-field">
-            <span className="workout-log-label">Miles</span>
-            <input
-              className="workout-log-input"
-              type="number"
-              inputMode="decimal"
-              step="0.1"
-              min={0}
-              placeholder="0.0"
-              value={distance}
-              onChange={(e) => setDistance(e.target.value)}
-              aria-label="Distance in miles"
-              name="rebuild-workout-miles"
-              autoComplete="off"
-            />
-          </label>
-        )}
-        <label className="workout-log-field">
-          <span className="workout-log-label">Minutes</span>
-          <input
-            className="workout-log-input"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={600}
-            placeholder="Optional"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            aria-label="Duration in minutes"
-            name="rebuild-workout-minutes"
-            autoComplete="off"
-          />
-        </label>
-      </div>
-
-      <label className="workout-log-field">
-        <span className="workout-log-label">Notes</span>
-        <input
-          className="workout-log-input"
-          placeholder="Optional"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          aria-label="Notes"
-          name="rebuild-workout-notes"
-          autoComplete="off"
-        />
-      </label>
+      {showSessionFields && (
+        <div className="workout-session-details">
+          <button
+            type="button"
+            className="workout-session-details-toggle"
+            aria-expanded={showSessionDetails}
+            onClick={() => setShowSessionDetails((v) => !v)}
+          >
+            {showSessionDetails ? "Hide session details" : "Add session details (optional)"}
+          </button>
+          {showSessionDetails && (
+            <div className="workout-session-details-body">
+              {type === "run" && (
+                <label className="workout-log-field">
+                  <span className="workout-log-label">Miles</span>
+                  <input
+                    className="workout-log-input"
+                    type="number"
+                    inputMode="decimal"
+                    step="0.1"
+                    min={0}
+                    placeholder="0.0"
+                    value={distance}
+                    onChange={(e) => setDistance(e.target.value)}
+                    aria-label="Distance in miles"
+                    name="rebuild-workout-miles"
+                    autoComplete="off"
+                  />
+                </label>
+              )}
+              <label className="workout-log-field">
+                <span className="workout-log-label">Minutes</span>
+                <input
+                  className="workout-log-input"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={600}
+                  placeholder="Optional"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  aria-label="Duration in minutes"
+                  name="rebuild-workout-minutes"
+                  autoComplete="off"
+                />
+              </label>
+              <label className="workout-log-field">
+                <span className="workout-log-label">Notes</span>
+                <input
+                  className="workout-log-input"
+                  placeholder="Optional"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  aria-label="Notes"
+                  name="rebuild-workout-notes"
+                  autoComplete="off"
+                />
+              </label>
+            </div>
+          )}
+        </div>
+      )}
 
       <button
         type="submit"
