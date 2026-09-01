@@ -9,6 +9,7 @@ import {
 import { addDays, parseDate } from "@/lib/journey";
 import {
   WEEKDAY_LABELS,
+  WEEKDAY_LETTERS,
   firstDueDate,
   recurrenceOf,
 } from "@/lib/todos";
@@ -40,6 +41,13 @@ const PRESETS: { id: RepeatPreset; label: string }[] = [
   { id: "monthly", label: "Monthly" },
   { id: "yearly", label: "Yearly" },
   { id: "custom", label: "Custom…" },
+];
+
+const FREQ_UNITS: { id: Frequency; singular: string; plural: string }[] = [
+  { id: "day", singular: "day", plural: "days" },
+  { id: "week", singular: "week", plural: "weeks" },
+  { id: "month", singular: "month", plural: "months" },
+  { id: "year", singular: "year", plural: "years" },
 ];
 
 function presetFromRecurrence(rec: TodoRecurrence): RepeatPreset {
@@ -136,6 +144,45 @@ function buildRecurrence(
   return { kind: "repeat", frequency, interval, ends };
 }
 
+function WeekdayPicker({
+  weekdays,
+  onToggle,
+  compact,
+}: {
+  weekdays: number[];
+  onToggle: (d: number) => void;
+  compact?: boolean;
+}) {
+  return (
+    <div
+      className={compact ? "todo-repeat-on-days" : "todo-weekdays"}
+      role="group"
+      aria-label="Repeat on"
+    >
+      {(compact ? WEEKDAY_LETTERS : WEEKDAY_LABELS).map((name, d) => (
+        <button
+          key={`${name}-${d}`}
+          type="button"
+          className={
+            weekdays.includes(d)
+              ? compact
+                ? "todo-repeat-day selected"
+                : "todo-day-chip selected"
+              : compact
+                ? "todo-repeat-day"
+                : "todo-day-chip"
+          }
+          onClick={() => onToggle(d)}
+          aria-pressed={weekdays.includes(d)}
+          aria-label={WEEKDAY_LABELS[d]}
+        >
+          {name}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function TodoComposer({
   today,
   initial,
@@ -198,13 +245,16 @@ export function TodoComposer({
   const [endsCount, setEndsCount] = useState(() =>
     initialRec.kind === "repeat" && initialRec.ends?.type === "after"
       ? initialRec.ends.count
-      : 10,
+      : 13,
   );
   const [error, setError] = useState("");
 
-  const showWeekdays =
-    preset === "weekly" || (preset === "custom" && frequency === "week");
+  const showPresetWeekdays = preset === "weekly";
   const showCustom = preset === "custom";
+  const unitLabel =
+    FREQ_UNITS.find((u) => u.id === frequency)?.[
+      interval === 1 ? "singular" : "plural"
+    ] ?? "week";
 
   const title = useMemo(
     () => (initial ? "Edit task" : "New task"),
@@ -217,10 +267,19 @@ export function TodoComposer({
     );
   }
 
+  function handlePresetChange(next: RepeatPreset) {
+    setPreset(next);
+    if (next === "custom" && frequency === "week" && weekdays.length === 0) {
+      setWeekdays([parseDate(date || today).getDay()]);
+    }
+  }
+
   async function submit() {
     const trimmed = label.trim();
     if (!trimmed) return;
-    if (showWeekdays && weekdays.length === 0) {
+    const needsWeekdays =
+      preset === "weekly" || (preset === "custom" && frequency === "week");
+    if (needsWeekdays && weekdays.length === 0) {
       setError("Pick at least one weekday");
       return;
     }
@@ -321,7 +380,7 @@ export function TodoComposer({
           <span className="field-label">Repeat</span>
           <select
             value={preset}
-            onChange={(e) => setPreset(e.target.value as RepeatPreset)}
+            onChange={(e) => handlePresetChange(e.target.value as RepeatPreset)}
           >
             {PRESETS.map((p) => (
               <option key={p.id} value={p.id}>
@@ -333,29 +392,45 @@ export function TodoComposer({
 
         {showCustom && (
           <div className="todo-custom-repeat">
-            <div className="todo-interval-row">
-              <span className="field-label">Every</span>
-              <input
-                type="number"
-                min={1}
-                max={99}
-                value={interval}
-                onChange={(e) =>
-                  setIntervalN(Math.max(1, Number(e.target.value) || 1))
-                }
-                aria-label="Repeat interval"
-              />
-              <select
-                value={frequency}
-                onChange={(e) => setFrequency(e.target.value as Frequency)}
-                aria-label="Repeat unit"
-              >
-                <option value="day">day(s)</option>
-                <option value="week">week(s)</option>
-                <option value="month">month(s)</option>
-                <option value="year">year(s)</option>
-              </select>
+            <p className="todo-custom-title">Custom recurrence</p>
+
+            <div className="todo-repeat-row">
+              <span className="todo-repeat-label">Repeat every</span>
+              <div className="todo-interval-row">
+                <input
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={interval}
+                  onChange={(e) =>
+                    setIntervalN(Math.max(1, Number(e.target.value) || 1))
+                  }
+                  aria-label="Repeat interval"
+                />
+                <select
+                  value={frequency}
+                  onChange={(e) => setFrequency(e.target.value as Frequency)}
+                  aria-label="Repeat unit"
+                >
+                  {FREQ_UNITS.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {interval === 1 ? u.singular : u.plural}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
+
+            {frequency === "week" && (
+              <div className="todo-repeat-row">
+                <span className="todo-repeat-label">Repeat on</span>
+                <WeekdayPicker
+                  weekdays={weekdays}
+                  onToggle={toggleWeekday}
+                  compact
+                />
+              </div>
+            )}
 
             {frequency === "month" && (
               <label className="field">
@@ -372,61 +447,67 @@ export function TodoComposer({
               </label>
             )}
 
-            <label className="field">
-              <span className="field-label">Ends</span>
-              <select
-                value={endsMode}
-                onChange={(e) => setEndsMode(e.target.value as EndsMode)}
-              >
-                <option value="never">Never</option>
-                <option value="on">On date</option>
-                <option value="after">After occurrences</option>
-              </select>
-            </label>
-            {endsMode === "on" && (
-              <label className="field">
-                <span className="field-label">End date</span>
-                <input
-                  type="date"
-                  value={endsDate}
-                  min={date || today}
-                  onChange={(e) => setEndsDate(e.target.value)}
-                />
-              </label>
-            )}
-            {endsMode === "after" && (
-              <label className="field">
-                <span className="field-label">Occurrences</span>
-                <input
-                  type="number"
-                  min={1}
-                  max={999}
-                  value={endsCount}
-                  onChange={(e) =>
-                    setEndsCount(Math.max(1, Number(e.target.value) || 1))
-                  }
-                />
-              </label>
-            )}
+            <div className="todo-repeat-row todo-ends-block">
+              <span className="todo-repeat-label">Ends</span>
+              <div className="todo-ends-options" role="radiogroup" aria-label="Ends">
+                <label className="todo-ends-option">
+                  <input
+                    type="radio"
+                    name="todo-ends"
+                    checked={endsMode === "never"}
+                    onChange={() => setEndsMode("never")}
+                  />
+                  <span>Never</span>
+                </label>
+                <label className="todo-ends-option">
+                  <input
+                    type="radio"
+                    name="todo-ends"
+                    checked={endsMode === "on"}
+                    onChange={() => setEndsMode("on")}
+                  />
+                  <span>On</span>
+                  <input
+                    type="date"
+                    className="todo-ends-inline-date"
+                    value={endsDate}
+                    min={date || today}
+                    disabled={endsMode !== "on"}
+                    onChange={(e) => setEndsDate(e.target.value)}
+                    aria-label="End date"
+                  />
+                </label>
+                <label className="todo-ends-option">
+                  <input
+                    type="radio"
+                    name="todo-ends"
+                    checked={endsMode === "after"}
+                    onChange={() => setEndsMode("after")}
+                  />
+                  <span>After</span>
+                  <input
+                    type="number"
+                    className="todo-ends-inline-count"
+                    min={1}
+                    max={999}
+                    value={endsCount}
+                    disabled={endsMode !== "after"}
+                    onChange={(e) =>
+                      setEndsCount(Math.max(1, Number(e.target.value) || 1))
+                    }
+                    aria-label="Occurrences"
+                  />
+                  <span className="todo-ends-suffix">occurrences</span>
+                </label>
+              </div>
+            </div>
           </div>
         )}
 
-        {showWeekdays && (
-          <div className="todo-weekdays" role="group" aria-label="Weekdays">
-            {WEEKDAY_LABELS.map((name, d) => (
-              <button
-                key={name}
-                type="button"
-                className={
-                  weekdays.includes(d)
-                    ? "todo-day-chip selected"
-                    : "todo-day-chip"
-                }
-                onClick={() => toggleWeekday(d)}
-              >
-                {name}
-              </button>
-            ))}
+        {showPresetWeekdays && (
+          <div className="field">
+            <span className="field-label">Repeat on</span>
+            <WeekdayPicker weekdays={weekdays} onToggle={toggleWeekday} />
           </div>
         )}
 

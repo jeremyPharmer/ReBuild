@@ -4330,11 +4330,102 @@ html.sheet-open .top-nav {
 
 .todo-custom-repeat {
   display: grid;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
   border: 1px solid var(--line);
   background: var(--surface-strong, var(--surface));
+}
+
+.todo-custom-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.todo-repeat-row {
+  display: grid;
+  gap: 8px;
+}
+
+.todo-repeat-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.todo-repeat-on-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.todo-repeat-day {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.todo-repeat-day.selected {
+  background: var(--accent);
+  color: #fff;
+}
+
+.todo-ends-block {
+  gap: 10px;
+}
+
+.todo-ends-options {
+  display: grid;
+  gap: 10px;
+}
+
+.todo-ends-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.todo-ends-option input[type="radio"] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.todo-ends-inline-date {
+  flex: 1;
+  min-width: 140px;
+  max-width: 180px;
+}
+
+.todo-ends-inline-date:disabled,
+.todo-ends-inline-count:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.todo-ends-inline-count {
+  width: 64px;
+}
+
+.todo-ends-suffix {
+  color: var(--muted);
+  font-size: 0.88rem;
 }
 
 .todo-interval-row {

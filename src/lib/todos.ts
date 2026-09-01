@@ -11,6 +11,9 @@ const TIME_RE = /^\d{2}:\d{2}$/;
 
 export const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 
+/** Single-letter labels for custom repeat-on row (Google Calendar style). */
+export const WEEKDAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"] as const;
+
 export function isCalendarDate(value: string): boolean {
   return DATE_RE.test(value) && !Number.isNaN(parseDate(value).getTime());
 }
