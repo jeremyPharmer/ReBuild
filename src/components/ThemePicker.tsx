@@ -1,23 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { THEMES, type ThemeId } from "@/lib/themes";
+import { featuredThemes, type ThemeId } from "@/lib/themes";
 import { useTheme } from "@/components/ThemeProvider";
 
 export function ThemePicker() {
   const { theme, setTheme } = useTheme();
+  const options = featuredThemes();
 
   return (
     <section className="panel theme-picker">
-      <p className="eyebrow">Appearance preview</p>
+      <p className="eyebrow">Appearance</p>
       <p className="muted" style={{ marginTop: 0, lineHeight: 1.45 }}>
-        Try a softer look. Saved on this device only — backend unchanged.{" "}
+        Twelve looks tuned to your OS — Mets, Zion, briefing, training, journal,
+        fund, morning/evening. Saved on this device.{" "}
         <Link href="/themes" style={{ color: "var(--accent)", fontWeight: 600 }}>
           Open palette board
         </Link>
       </p>
       <div className="theme-picker-grid">
-        {THEMES.map((option) => {
+        {options.map((option) => {
           const selected = theme === option.id;
           return (
             <button
