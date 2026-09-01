@@ -1,8 +1,7 @@
 name: Daily JeremyOS reminders
 
+# Suppressed — re-enable schedule when REMINDERS_ENABLED is true in feature-flags.ts
 on:
-  schedule:
-    - cron: "5,20,35,50 * * * *"
   workflow_dispatch:
     inputs:
       target:

@@ -4,6 +4,7 @@ import {
   localClock,
   markReminderSent,
   normalizeReminders,
+  remindersGloballyEnabled,
   type ReminderKind,
 } from "@/lib/reminders";
 import { readState, updateState } from "@/lib/store";
@@ -11,6 +12,13 @@ import { readState, updateState } from "@/lib/store";
 /** Manual test send from Settings (N=1). */
 export async function POST(req: Request) {
   try {
+    if (!remindersGloballyEnabled()) {
+      return NextResponse.json(
+        { error: "Email reminders are disabled" },
+        { status: 503 },
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const kind = (body.kind === "evening" ? "evening" : "morning") as ReminderKind;
     const state = await readState();

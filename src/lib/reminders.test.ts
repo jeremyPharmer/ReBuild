@@ -1,4 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("./feature-flags", () => ({
+  REMINDERS_ENABLED: true,
+  SETTINGS_DAILY_SPEND_ENABLED: false,
+}));
+
 import {
   dueReminderKinds,
   localClock,

@@ -4,6 +4,7 @@ import {
   dueReminderKinds,
   localClock,
   markReminderSent,
+  remindersGloballyEnabled,
 } from "@/lib/reminders";
 import { listUsers, updateUserStateById } from "@/lib/store";
 
@@ -18,6 +19,15 @@ function authorized(req: Request): boolean {
 
 /** Hourly tick: send due morning/evening reminder emails for all users. */
 export async function POST(req: Request) {
+  if (!remindersGloballyEnabled()) {
+    return NextResponse.json({
+      ok: true,
+      disabled: true,
+      sent: [],
+      skipped: 0,
+    });
+  }
+
   if (!authorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

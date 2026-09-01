@@ -37,34 +37,16 @@ export default function SettingsPage() {
   const [supports, setSupports] = useState<SupportConfig[]>(
     state.profile?.supports ?? DEFAULT_SUPPORTS,
   );
-  const [spend, setSpend] = useState(
-    String(state.profile?.historicalDailySpend ?? 40),
-  );
-  const [email, setEmail] = useState(state.profile?.email ?? "");
   const [personalIcalUrl, setPersonalIcalUrl] = useState(
     state.profile?.personalIcalUrl ?? "",
   );
   const [workIcalUrl, setWorkIcalUrl] = useState(
     state.profile?.workIcalUrl ?? "",
   );
-  const reminders = state.profile?.reminders;
-  const [morningOn, setMorningOn] = useState(
-    reminders?.morningEnabled ?? Boolean(reminders?.enabled),
-  );
-  const [eveningOn, setEveningOn] = useState(
-    reminders?.eveningEnabled ?? Boolean(reminders?.enabled),
-  );
-  const [morningHour, setMorningHour] = useState(
-    String(state.profile?.reminders?.morningHour ?? 7),
-  );
-  const [eveningHour, setEveningHour] = useState(
-    String(state.profile?.reminders?.eveningHour ?? 20),
-  );
   const [newLabel, setNewLabel] = useState("");
   const [newTarget, setNewTarget] = useState("3");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
-  const [testMsg, setTestMsg] = useState("");
 
   function updateSupport(type: string, patch: Partial<SupportConfig>) {
     setSupports((prev) =>
@@ -100,37 +82,12 @@ export default function SettingsPage() {
     try {
       await post("/api/settings", {
         supports,
-        historicalDailySpend: Number(spend),
-        email,
         personalIcalUrl,
         workIcalUrl,
-        reminders: {
-          morningEnabled: morningOn,
-          eveningEnabled: eveningOn,
-          morningHour: Number(morningHour),
-          eveningHour: Number(eveningHour),
-        },
       });
       setMsg("Saved.");
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Failed");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function sendTest(kind: "morning" | "evening") {
-    setBusy(true);
-    setTestMsg("");
-    try {
-      await post("/api/reminders/test", { kind, email });
-      setTestMsg(
-        kind === "morning"
-          ? "Test Start-the-day email sent."
-          : "Test Close-the-day email sent.",
-      );
-    } catch (e) {
-      setTestMsg(e instanceof Error ? e.message : "Send failed");
     } finally {
       setBusy(false);
     }
@@ -210,7 +167,7 @@ export default function SettingsPage() {
           {env === "prod"
             ? " · history retained across updates"
             : " · safe to reset for testing"}
-          . Spend and supports — edit anytime.
+          . Supports — edit anytime.
         </p>
       </header>
 
@@ -271,83 +228,6 @@ export default function SettingsPage() {
       )}
 
       <section className="panel">
-        <p className="eyebrow">Email nudges</p>
-        <p className="muted" style={{ marginTop: 0 }}>
-          Start-of-day and end-of-day emails, separately, in{" "}
-          {state.profile?.timezone || "America/New_York"}.
-        </p>
-        <label className="field">
-          <span className="field-label">Email</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@email.com"
-            autoComplete="email"
-          />
-        </label>
-        <label className="check-item check-item-row" style={{ marginTop: 8 }}>
-          <input
-            type="checkbox"
-            checked={morningOn}
-            onChange={(e) => setMorningOn(e.target.checked)}
-            style={{ width: 18, height: 18 }}
-          />
-          <span className="check-label">Start-of-day email</span>
-        </label>
-        <label className="check-item check-item-row" style={{ marginTop: 8 }}>
-          <input
-            type="checkbox"
-            checked={eveningOn}
-            onChange={(e) => setEveningOn(e.target.checked)}
-            style={{ width: 18, height: 18 }}
-          />
-          <span className="check-label">End-of-day email</span>
-        </label>
-        <div className="grid-2" style={{ marginTop: 10 }}>
-          <label className="field">
-            <span className="field-label">Start hour (0–23)</span>
-            <input
-              type="number"
-              min={0}
-              max={23}
-              value={morningHour}
-              onChange={(e) => setMorningHour(e.target.value)}
-            />
-          </label>
-          <label className="field">
-            <span className="field-label">Close hour (0–23)</span>
-            <input
-              type="number"
-              min={0}
-              max={23}
-              value={eveningHour}
-              onChange={(e) => setEveningHour(e.target.value)}
-            />
-          </label>
-        </div>
-        <div className="grid-2" style={{ marginTop: 12 }}>
-          <SecondaryButton
-            onClick={() => sendTest("morning")}
-            disabled={busy || !email.trim()}
-          >
-            Test morning
-          </SecondaryButton>
-          <SecondaryButton
-            onClick={() => sendTest("evening")}
-            disabled={busy || !email.trim()}
-          >
-            Test evening
-          </SecondaryButton>
-        </div>
-        {testMsg && (
-          <p className="tiny" style={{ marginTop: 10 }}>
-            {testMsg}
-          </p>
-        )}
-      </section>
-
-      <section className="panel">
         <p className="eyebrow">Calendars</p>
         <p className="muted" style={{ marginTop: 0 }}>
           Paste secret subscribe links so Home can show today’s{" "}
@@ -385,18 +265,6 @@ export default function SettingsPage() {
           Google Calendar → Settings → your work calendar → Integrate calendar →
           Secret address in iCal format.
         </p>
-      </section>
-
-      <section className="panel">
-        <p className="eyebrow">Historical daily spend</p>
-        <label className="field">
-          <span className="field-label">Combined $/day</span>
-          <input
-            type="number"
-            value={spend}
-            onChange={(e) => setSpend(e.target.value)}
-          />
-        </label>
       </section>
 
       <section className="panel">
