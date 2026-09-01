@@ -12,10 +12,14 @@ export function ThemePicker() {
     <section className="panel theme-picker">
       <p className="eyebrow">Appearance</p>
       <p className="muted" style={{ marginTop: 0, lineHeight: 1.45 }}>
-        Twelve looks tuned to your OS — Mets, Zion, briefing, training, journal,
-        fund, morning/evening. Saved on this device.{" "}
+        Color palettes for your OS — Mets, Zion, briefing, training, journal,
+        fund, morning/evening. For page structure, use{" "}
+        <Link href="/layouts" style={{ color: "var(--accent)", fontWeight: 600 }}>
+          Layout gallery
+        </Link>
+        .{" "}
         <Link href="/themes" style={{ color: "var(--accent)", fontWeight: 600 }}>
-          Open palette board
+          Palette board
         </Link>
       </p>
       <div className="theme-picker-grid">

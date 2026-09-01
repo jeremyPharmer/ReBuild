@@ -3,12 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
-import { HomeDateHeader } from "@/components/HomeDateHeader";
-import { WeatherBanner } from "@/components/WeatherBanner";
-import { TodayRebuildPanel } from "@/components/TodayRebuildPanel";
-import { TodaysEntertainmentCard } from "@/components/TodaysEntertainmentCard";
-import { MoveHubCard } from "@/components/MoveHubCard";
-import { WeekPlanPanel } from "@/components/WeekPlanPanel";
+import { HomeShell } from "@/components/HomeShell";
 
 export default function HomePage() {
   const { state, dashboard, today } = useApp();
@@ -22,19 +17,5 @@ export default function HomePage() {
     return null;
   }
 
-  return (
-    <main className="fade-in home-cos stack">
-      <HomeDateHeader date={today} />
-      <WeatherBanner />
-
-      <TodayRebuildPanel />
-
-      <div className="home-card-grid">
-        <MoveHubCard />
-        <TodaysEntertainmentCard />
-      </div>
-
-      <WeekPlanPanel today={today} week={dashboard.week} />
-    </main>
-  );
+  return <HomeShell today={today} week={dashboard.week} />;
 }
