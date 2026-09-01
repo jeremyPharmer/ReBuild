@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Chief of staff">
+  <rect width="32" height="32" rx="8" fill="#0f141c"/>
+  <path
+    d="M8 22h16l-2-10 4 6 2-8 2 8 4-6-2 10H8z"
+    fill="#f4f7fb"
+  />
+  <circle cx="16" cy="11" r="2.5" fill="#ff5910"/>
+</svg>
