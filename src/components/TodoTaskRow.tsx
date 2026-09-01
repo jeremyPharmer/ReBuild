@@ -24,7 +24,7 @@ function taskMeta(item: DayProvision, today: string): string | null {
   if (item.time) parts.push(formatTodoTime(item.time));
   const recLabel = formatRecurrence(rec, item.date);
   if (recLabel) parts.push(recLabel);
-  if (item.date !== today && !item.completed) {
+  if (item.date !== today && !item.completed && !item.lastCompletedOn) {
     parts.push(formatDisplayDate(item.date));
   }
   return parts.length > 0 ? parts.join(" · ") : null;
@@ -51,6 +51,7 @@ export function TodoTaskRow({
 }) {
   const [editing, setEditing] = useState(false);
   const meta = taskMeta(item, today);
+  const doneToday = Boolean(item.completed || item.lastCompletedOn);
 
   return (
     <div className="todo-task">
@@ -58,12 +59,12 @@ export function TodoTaskRow({
         <button
           type="button"
           className="check-box-btn"
-          disabled={busy || item.completed}
+          disabled={busy || doneToday}
           aria-label={`Complete ${item.label}`}
           onClick={onComplete}
         >
-          <span className={`check-box${item.completed ? " checked" : ""}`}>
-            {item.completed ? "✓" : ""}
+          <span className={`check-box${doneToday ? " checked" : ""}`}>
+            {doneToday ? "✓" : ""}
           </span>
         </button>
         <button
@@ -78,7 +79,7 @@ export function TodoTaskRow({
             {meta ? <span className="check-label-meta">{meta}</span> : null}
           </span>
         </button>
-        {!item.completed && (
+        {!doneToday && (
           <button
             type="button"
             className="dismiss-btn"
@@ -88,7 +89,7 @@ export function TodoTaskRow({
             Tomorrow
           </button>
         )}
-        {item.completed && onUndo && (
+        {doneToday && onUndo && (
           <button
             type="button"
             className="dismiss-btn"
