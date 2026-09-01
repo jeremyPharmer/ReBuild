@@ -301,6 +301,27 @@ export function workoutsForDate(
   return normalizeWorkouts(workouts).filter((w) => w.date === date);
 }
 
+/** MM/DD for workout history rows */
+export function formatWorkoutListDate(date: string): string {
+  const parts = date.split("-");
+  if (parts.length !== 3) return date;
+  return `${parts[1]}/${parts[2]}`;
+}
+
+/** Workouts in a calendar month, newest first. */
+export function workoutsInMonth(
+  workouts: WorkoutLog[] | undefined,
+  key: string,
+): WorkoutLog[] {
+  return normalizeWorkouts(workouts)
+    .filter((w) => w.date.startsWith(key))
+    .sort((a, b) => {
+      const byDate = b.date.localeCompare(a.date);
+      if (byDate !== 0) return byDate;
+      return b.createdAt.localeCompare(a.createdAt);
+    });
+}
+
 export function workoutsByDate(
   workouts: WorkoutLog[] | undefined,
 ): Map<string, WorkoutLog[]> {

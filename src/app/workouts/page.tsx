@@ -1,20 +1,18 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { useApp } from "@/components/AppProvider";
 import { WorkoutCalendar } from "@/components/workouts/WorkoutCalendar";
 import { WorkoutLogForm } from "@/components/workouts/WorkoutLogForm";
 import { WorkoutRoutineBuilder } from "@/components/workouts/WorkoutRoutineBuilder";
 import { WorkoutSummaryPanel } from "@/components/workouts/WorkoutSummaryPanel";
 import {
-  formatExerciseActualSummary,
-  formatMiles,
+  formatWorkoutListDate,
   monthKey,
-  workoutTypeLabel,
-  workoutsForDate,
+  workoutsInMonth,
 } from "@/lib/workouts";
 import { parseDate } from "@/lib/journey";
+import type { WorkoutType } from "@/lib/types";
 
 export default function WorkoutsPage() {
   const { state, today, post } = useApp();
@@ -25,7 +23,7 @@ export default function WorkoutsPage() {
   const [month, setMonth] = useState(initialMonth);
   const [selectedDate, setSelectedDate] = useState(today);
 
-  const dayWorkouts = workoutsForDate(state.workouts, selectedDate);
+  const monthWorkouts = workoutsInMonth(state.workouts, month);
 
   async function deleteWorkout(id: string) {
     await post("/api/workouts", { action: "delete", id });
@@ -34,11 +32,7 @@ export default function WorkoutsPage() {
   return (
     <main className="fade-in stack workouts-page">
       <header className="workouts-header">
-        <Link href="/" className="tiny muted">
-          ← Home
-        </Link>
         <h1>Move</h1>
-        <p className="muted">Run · HIIT · Lift · Stretch</p>
       </header>
 
       <section className="panel">
@@ -52,60 +46,45 @@ export default function WorkoutsPage() {
         />
       </section>
 
-      {selectedDate && (
-        <section className="panel">
-          <p className="eyebrow">Workouts on {selectedDate}</p>
-          {dayWorkouts.length === 0 && (
-            <p className="tiny muted">Nothing logged this day.</p>
-          )}
-          <ul className="workout-day-list">
-            {dayWorkouts.map((w) => {
-              const actualSummary = formatExerciseActualSummary(
-                w.exerciseActuals,
-              );
-              return (
-                <li key={w.id} className="workout-day-item">
-                  <div>
-                    <span className={`workout-day-badge ${w.type}`}>
-                      {workoutTypeLabel(w.type)}
-                    </span>
-                    <strong>{w.label}</strong>
-                    <p className="tiny muted">
-                      {w.quality != null ? `Q${w.quality}` : ""}
-                      {w.quality != null &&
-                      (w.distanceMiles != null ||
-                        w.durationMin != null ||
-                        w.notes ||
-                        actualSummary)
-                        ? " · "
-                        : ""}
-                      {w.distanceMiles != null
-                        ? `${formatMiles(w.distanceMiles)} mi`
-                        : ""}
-                      {w.distanceMiles != null && w.durationMin != null
-                        ? " · "
-                        : ""}
-                      {w.durationMin != null ? `${w.durationMin} min` : ""}
-                      {(w.distanceMiles != null || w.durationMin != null) &&
-                      (w.notes || actualSummary)
-                        ? " · "
-                        : ""}
-                      {actualSummary || (w.notes ? w.notes : "")}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="dismiss-btn"
-                    onClick={() => deleteWorkout(w.id)}
-                  >
-                    Delete
-                  </button>
-                </li>
-              );
-            })}
+      <section className="panel workout-history-panel">
+        {monthWorkouts.length === 0 ? (
+          <p className="muted tiny">No workouts logged this month.</p>
+        ) : (
+          <ul className="workout-history-list">
+            {monthWorkouts.map((w) => (
+              <li
+                key={w.id}
+                className={`workout-history-row${w.date === selectedDate ? " selected" : ""}`}
+              >
+                <button
+                  type="button"
+                  className="workout-history-main"
+                  onClick={() => setSelectedDate(w.date)}
+                >
+                  <span className="workout-history-date">
+                    {formatWorkoutListDate(w.date)}
+                  </span>
+                  <span className="workout-history-label">
+                    <span
+                      className={`workout-history-dot ${w.type as WorkoutType}`}
+                      aria-hidden
+                    />
+                    {w.label}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className="workout-history-remove"
+                  aria-label={`Delete ${w.label}`}
+                  onClick={() => void deleteWorkout(w.id)}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
           </ul>
-        </section>
-      )}
+        )}
+      </section>
 
       <WorkoutRoutineBuilder />
 
