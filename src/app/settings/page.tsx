@@ -40,6 +40,12 @@ export default function SettingsPage() {
     String(state.profile?.historicalDailySpend ?? 40),
   );
   const [email, setEmail] = useState(state.profile?.email ?? "");
+  const [personalIcalUrl, setPersonalIcalUrl] = useState(
+    state.profile?.personalIcalUrl ?? "",
+  );
+  const [workIcalUrl, setWorkIcalUrl] = useState(
+    state.profile?.workIcalUrl ?? "",
+  );
   const reminders = state.profile?.reminders;
   const [morningOn, setMorningOn] = useState(
     reminders?.morningEnabled ?? Boolean(reminders?.enabled),
@@ -95,6 +101,8 @@ export default function SettingsPage() {
         supports,
         historicalDailySpend: Number(spend),
         email,
+        personalIcalUrl,
+        workIcalUrl,
         reminders: {
           morningEnabled: morningOn,
           eveningEnabled: eveningOn,
@@ -335,6 +343,46 @@ export default function SettingsPage() {
             {testMsg}
           </p>
         )}
+      </section>
+
+      <section className="panel">
+        <p className="eyebrow">Calendars</p>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Paste secret subscribe links so Home can show today’s{" "}
+          <strong>events</strong> (meetings, appointments). This is not your
+          task list.
+        </p>
+        <label className="field">
+          <span className="field-label">Apple Calendar (iCal) link</span>
+          <input
+            type="url"
+            value={personalIcalUrl}
+            onChange={(e) => setPersonalIcalUrl(e.target.value)}
+            placeholder="https://… or webcal://…"
+            autoComplete="off"
+            spellCheck={false}
+          />
+        </label>
+        <p className="tiny muted" style={{ marginTop: 4 }}>
+          On Mac: Calendar → File → New Calendar Subscription… / share a calendar
+          and copy the private URL. On iPhone: Calendar → calendar info → Share
+          Calendar → Public Calendar (or private server URL).
+        </p>
+        <label className="field" style={{ marginTop: 12 }}>
+          <span className="field-label">Work Google Calendar link</span>
+          <input
+            type="url"
+            value={workIcalUrl}
+            onChange={(e) => setWorkIcalUrl(e.target.value)}
+            placeholder="https://calendar.google.com/calendar/ical/…"
+            autoComplete="off"
+            spellCheck={false}
+          />
+        </label>
+        <p className="tiny muted" style={{ marginTop: 4 }}>
+          Google Calendar → Settings → your work calendar → Integrate calendar →
+          Secret address in iCal format.
+        </p>
       </section>
 
       <section className="panel">
