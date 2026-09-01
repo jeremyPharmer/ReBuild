@@ -11,6 +11,7 @@ import {
 import {
   isThemeId,
   THEME_STORAGE_KEY,
+  themeLayout,
   themeMetaColor,
   type ThemeId,
 } from "@/lib/themes";
@@ -24,6 +25,7 @@ const ThemeCtx = createContext<ThemeContextValue | null>(null);
 
 function applyTheme(id: ThemeId) {
   document.documentElement.setAttribute("data-theme", id);
+  document.documentElement.setAttribute("data-layout", themeLayout(id));
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute("content", themeMetaColor(id));
 }

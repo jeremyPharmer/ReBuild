@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { ThemePicker } from "@/components/ThemePicker";
+import { LayoutPicker } from "@/components/LayoutPicker";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
 import { SUPPORT_LABEL_MAX } from "@/lib/auth-constants";
 import { DEFAULT_SUPPORTS, type SupportConfig } from "@/lib/types";
@@ -213,6 +214,7 @@ export default function SettingsPage() {
         </p>
       </header>
 
+      <LayoutPicker compact />
       <ThemePicker />
 
       <section className="panel">

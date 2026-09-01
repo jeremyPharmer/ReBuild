@@ -12,6 +12,7 @@ const PUBLIC_PREFIXES = [
   "/forgot-password",
   "/reset-password",
   "/themes",
+  "/layouts",
   "/api/auth",
   "/api/cron",
 ];
