@@ -92,16 +92,16 @@ describe("journal five-year helpers", () => {
     expect(slots[0].photoId).toBe("photo_abc.jpg");
   });
 
-  it("builds five year slots newest-first with blanks", () => {
+  it("builds five year slots forward from anchor with blanks", () => {
     const byDate = bundleJournalsByDate([
       entry({ date: "2026-08-29", type: "one_line", text: "This year" }),
-      entry({ date: "2024-08-29", type: "one_line", text: "Two back" }),
+      entry({ date: "2028-08-29", type: "one_line", text: "Two ahead" }),
     ]);
     const slots = fiveYearSlots("08-29" as DayKey, byDate, 2026, 5);
-    expect(slots.map((s) => s.year)).toEqual([2026, 2025, 2024, 2023, 2022]);
+    expect(slots.map((s) => s.year)).toEqual([2026, 2027, 2028, 2029, 2030]);
     expect(slots[0].headline).toBe("This year");
     expect(slots[1].headline).toBeUndefined();
-    expect(slots[2].headline).toBe("Two back");
+    expect(slots[2].headline).toBe("Two ahead");
   });
 
   it("shifts month-day across month boundaries", () => {
