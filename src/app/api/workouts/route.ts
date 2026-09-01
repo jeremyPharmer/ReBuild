@@ -46,6 +46,7 @@ function parseRoutineExercises(
       name,
       sets,
       reps,
+      repMode: row.repMode === "seconds" ? "seconds" : "reps",
       tracksWeight: Boolean(row.tracksWeight),
     });
   }

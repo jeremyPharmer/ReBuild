@@ -54,11 +54,15 @@ export type WorkoutCategory = "run" | "lift";
 export type LiftType = "hiit" | "stretch" | "weights";
 
 /** Planned exercise inside a saved routine (weights flag fixed at setup) */
+export type WorkoutRepMode = "reps" | "seconds";
+
 export type WorkoutRoutineExercise = {
   id: string;
   name: string;
   sets: number;
+  /** Target reps or seconds per set, depending on `repMode` */
   reps: number;
+  repMode?: WorkoutRepMode;
   /** If true, weight is collected when logging — not toggled mid-session */
   tracksWeight: boolean;
 };
@@ -85,6 +89,7 @@ export type WorkoutExerciseActual = {
   exerciseId: string;
   name: string;
   tracksWeight: boolean;
+  repMode?: WorkoutRepMode;
   sets: WorkoutSetActual[];
 };
 

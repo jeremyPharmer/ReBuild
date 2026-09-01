@@ -439,6 +439,42 @@ h2 {
   gap: 14px;
 }
 
+.workout-log-form-quick {
+  gap: 12px;
+}
+
+.workout-log-form-quick .eyebrow {
+  display: none;
+}
+
+.workout-log-form-quick .workout-type-seg {
+  min-height: 46px;
+  font-size: 0.68rem;
+}
+
+.workout-session-details {
+  display: grid;
+  gap: 8px;
+}
+
+.workout-session-details-toggle {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  text-align: left;
+}
+
+.workout-session-details-body {
+  display: grid;
+  gap: 12px;
+  padding-top: 4px;
+}
+
 .workout-log-field {
   display: flex;
   flex-direction: column;
@@ -1153,15 +1189,97 @@ h2 {
   font-size: 0.9rem;
 }
 
-.workout-actual-set-row {
+.workout-actual-set-table {
   display: grid;
-  grid-template-columns: 48px 1fr;
-  gap: 8px;
-  align-items: end;
+  gap: 6px;
 }
 
+.workout-actual-set-head,
+.workout-actual-set-row {
+  display: grid;
+  grid-template-columns: 28px minmax(56px, 72px);
+  gap: 8px;
+  align-items: center;
+}
+
+.workout-actual-set-table.has-weight .workout-actual-set-head,
 .workout-actual-set-row.has-weight {
-  grid-template-columns: 48px 1fr 1fr;
+  grid-template-columns: 28px minmax(56px, 72px) minmax(56px, 72px);
+}
+
+.workout-actual-set-head {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.workout-actual-set-num {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.workout-actual-input {
+  width: 100%;
+  min-width: 0;
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  outline: none;
+}
+
+.workout-rep-mode-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.workout-rep-mode-segment {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface-strong);
+}
+
+.workout-rep-mode-btn {
+  border: none;
+  border-right: 1px solid var(--line);
+  background: transparent;
+  min-height: 40px;
+  padding: 0 10px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.workout-rep-mode-btn:last-child {
+  border-right: none;
+}
+
+.workout-rep-mode-btn.active {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
+
+.workout-rep-mode-value {
+  min-width: 0;
+}
+
+.home-card-move .workout-log-form-quick {
+  padding-top: 2px;
 }
 
 .home-card-move {
