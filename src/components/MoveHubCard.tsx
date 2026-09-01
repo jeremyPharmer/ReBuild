@@ -31,8 +31,6 @@ export function MoveHubCard() {
         </p>
       </div>
 
-      <WorkoutLogForm date={today} variant="quick" />
-
       <WorkoutCalendar
         monthKey={month}
         today={today}
