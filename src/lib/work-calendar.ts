@@ -204,7 +204,12 @@ export function parseIcsEventsForDay(
 
 async function fetchIcsText(url: string): Promise<string> {
   const res = await fetch(url, {
-    headers: { Accept: "text/calendar, text/plain, */*" },
+    headers: {
+      Accept: "text/calendar, text/plain, */*",
+      "Cache-Control": "no-cache",
+      Pragma: "no-cache",
+    },
+    cache: "no-store",
     redirect: "follow",
     signal: AbortSignal.timeout(12_000),
   });

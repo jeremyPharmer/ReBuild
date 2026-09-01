@@ -50,6 +50,7 @@ export function normalizeState(state: RebuildState): RebuildState {
     workoutPrs: normalizeWorkoutPrs(state.workoutPrs),
     workoutRoutines: normalizeRoutines(state.workoutRoutines),
     calendarTitleOverrides: state.calendarTitleOverrides ?? {},
+    calendarHiddenEventIds: state.calendarHiddenEventIds ?? [],
   };
 }
 

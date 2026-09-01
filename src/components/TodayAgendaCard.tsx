@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useApp } from "@/components/AppProvider";
 import {
   applyCalendarTitleOverrides,
+  calendarHiddenEventIds,
   calendarTitleOverrides,
   displayCalendarTitle,
+  filterHiddenCalendarEvents,
 } from "@/lib/calendar-overrides";
 import type { WorkCalendarEvent } from "@/lib/work-calendar";
 
@@ -28,10 +30,12 @@ function AgendaEventRow({
   event,
   displayTitle,
   onSaveTitle,
+  onHide,
 }: {
   event: WorkCalendarEvent;
   displayTitle: string;
   onSaveTitle: (title: string) => Promise<void>;
+  onHide: () => Promise<void>;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(displayTitle);
@@ -103,6 +107,15 @@ function AgendaEventRow({
                 ↗
               </a>
             ) : null}
+            <button
+              type="button"
+              className="agenda-hide-btn"
+              aria-label={`Hide ${displayTitle}`}
+              disabled={saving}
+              onClick={() => void onHide()}
+            >
+              ×
+            </button>
           </div>
         )}
         {event.location ? (
@@ -125,6 +138,7 @@ export function TodayAgendaCard() {
   const work = state.profile?.workIcalUrl?.trim();
   const hasUrls = Boolean(personal || work);
   const overrides = calendarTitleOverrides(state);
+  const hidden = calendarHiddenEventIds(state);
 
   useEffect(() => {
     let cancelled = false;
@@ -156,7 +170,10 @@ export function TodayAgendaCard() {
   }, [today, personal, work]);
 
   const rawEvents = data?.events ?? [];
-  const events = applyCalendarTitleOverrides(rawEvents, overrides);
+  const events = filterHiddenCalendarEvents(
+    applyCalendarTitleOverrides(rawEvents, overrides),
+    hidden,
+  );
   const connected = data?.connected ?? false;
   const showSetup = !loading && !connected && !hasUrls;
   const showCard =
@@ -166,6 +183,10 @@ export function TodayAgendaCard() {
 
   async function saveTitle(eventId: string, title: string) {
     await post("/api/calendar/overrides", { eventId, title });
+  }
+
+  async function hideEvent(eventId: string) {
+    await post("/api/calendar/overrides", { eventId, hide: true });
   }
 
   return (
@@ -195,6 +216,7 @@ export function TodayAgendaCard() {
               event={ev}
               displayTitle={displayCalendarTitle(ev, overrides)}
               onSaveTitle={(title) => saveTitle(ev.id, title)}
+              onHide={() => hideEvent(ev.id)}
             />
           ))}
         </ul>
