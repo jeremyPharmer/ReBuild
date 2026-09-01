@@ -351,6 +351,9 @@ export default function IconOptionsPage() {
           <Link href="/" className="layouts-board-link">
             ← Home
           </Link>
+          <Link href="/icon-options/compass" className="layouts-board-link">
+            Compass set
+          </Link>
           <Link href="/favicons" className="layouts-board-link">
             Favicons
           </Link>
