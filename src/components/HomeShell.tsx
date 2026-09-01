@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { HomeDateHeader } from "@/components/HomeDateHeader";
 import { WeatherBanner } from "@/components/WeatherBanner";
+import { TodayAgendaCard } from "@/components/TodayAgendaCard";
 import { TodayRebuildPanel } from "@/components/TodayRebuildPanel";
 import { TodaysEntertainmentCard } from "@/components/TodaysEntertainmentCard";
 import { MoveHubCard } from "@/components/MoveHubCard";
@@ -16,6 +17,10 @@ type WeekRow = {
   done: number;
   target: number;
 };
+
+function AgendaBlock() {
+  return <TodayAgendaCard />;
+}
 
 function HubsPair({ hero }: { hero?: boolean }) {
   return (
@@ -70,6 +75,7 @@ function layoutBody(
       return (
         <>
           <HeaderStrip date={today} />
+          <AgendaBlock />
           <div className="home-today-hero">
             <TodayRebuildPanel />
           </div>
@@ -82,6 +88,7 @@ function layoutBody(
         <>
           <HomeDateHeader date={today} />
           <WeatherBanner />
+          <AgendaBlock />
           <div className="home-split-day">
             <div className="home-split-primary">
               <TodayRebuildPanel />
@@ -99,6 +106,7 @@ function layoutBody(
           <div className="home-train-hero">
             <MoveHubCard />
           </div>
+          <AgendaBlock />
           <TodayRebuildPanel />
           <TodaysEntertainmentCard />
           <WeekPlanPanel today={today} week={week} />
@@ -113,6 +121,7 @@ function layoutBody(
           <div className="home-ritual-weather">
             <WeatherBanner />
           </div>
+          <AgendaBlock />
           <div className="home-ritual-today">
             <TodayRebuildPanel />
           </div>
@@ -124,6 +133,7 @@ function layoutBody(
       return (
         <>
           <HeaderStrip date={today} />
+          <AgendaBlock />
           <div className="home-today-compact">
             <TodayRebuildPanel />
           </div>
@@ -134,6 +144,7 @@ function layoutBody(
       return (
         <>
           <HomeDateHeader date={today} />
+          <AgendaBlock />
           <div className="home-wind-hero">
             <TodaysEntertainmentCard />
           </div>
@@ -147,6 +158,7 @@ function layoutBody(
         <>
           <HomeDateHeader date={today} />
           <WeatherBanner />
+          <AgendaBlock />
           <HubsPair hero />
           <TodayRebuildPanel />
           <WeekPlanPanel today={today} week={week} />
@@ -158,6 +170,7 @@ function layoutBody(
         <>
           <HomeDateHeader date={today} />
           <WeatherBanner />
+          <AgendaBlock />
           <TodayRebuildPanel />
           <HubsPair />
           <WeekPlanPanel today={today} week={week} />

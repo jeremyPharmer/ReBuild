@@ -31,6 +31,17 @@ export async function POST(req: Request) {
           ? String(body.email || "").trim() || undefined
           : prev.profile.email;
 
+      const personalIcalUrl =
+        body.personalIcalUrl !== undefined
+          ? String(body.personalIcalUrl || "").trim().slice(0, 2000) ||
+            undefined
+          : prev.profile.personalIcalUrl;
+
+      const workIcalUrl =
+        body.workIcalUrl !== undefined
+          ? String(body.workIcalUrl || "").trim().slice(0, 2000) || undefined
+          : prev.profile.workIcalUrl;
+
       const reminders =
         body.reminders !== undefined
           ? normalizeReminders({
@@ -71,6 +82,8 @@ export async function POST(req: Request) {
             ? String(body.displayName)
             : prev.profile.displayName,
           email,
+          personalIcalUrl,
+          workIcalUrl,
           reminders,
         },
       };

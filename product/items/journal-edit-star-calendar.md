@@ -53,4 +53,4 @@ Thin slice with **all three** capabilities (calendar + edit + star):
 
 - Intake **2026-08-31** founder (Jeremy) locked decisions: edit fields = headline + summary + add photos; existing-only edit; missed → notify/route to close (RB-010); prose-only side effects; no delete; month view → tap day; minimal markers; `/journal` only; star = personal bookmark, no cap; star on calendar + five-year day + starred list; thin slice with all three; star/edit keyed to `YYYY-MM-DD`.
 - Rank **6** / **P0** — founder-loved journal tooling; sits **Next after** RB-016 (In Progress) and RB-021 (photos), without stealing RB-016’s slot. Ahead of Gmail / podcast expansion in rank order.
-- Related: [RB-016](./five-year-journal-ux.md), [RB-021](./journal-photos.md), [RB-010](./backfill-missed-evening-journal-close.md).
+- Related: [RB-016](./five-year-journal-ux.md), [RB-021](./journal-photos.md), [RB-010](./backfill-missed-evening-journal-close.md). Journal **month browse** only — event calendar sync is **[RB-023](./calendar-ical-google.md)** (unrelated).

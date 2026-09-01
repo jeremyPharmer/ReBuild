@@ -46,3 +46,4 @@ JeremyOS can send transactional and product emails to Jeremy’s authenticated a
 - Platform enabler for daily end-of-day checklist email (RB-003) and **forgot-password delivery** for RB-007.
 - **2026-08-29 JeremyOS pivot:** elevated to rank **5** / **P0** (was 4; bumped when RB-016 entered). Founder likes email skills; personal OS ships what Jeremy will use — ahead of money-rail and generic recovery polish.
 - **2026-08-29 personal tools intake:** founder “My Gmail obviously” — fold into this item (no duplicate Gmail ID). Rank **5**.
+- **2026-09-01:** Calendar / iCal / Google Calendar is **[RB-023](./calendar-ical-google.md)** — do **not** overload this email item. Stub comments that cite “RB-002 / calendar” are wrong.

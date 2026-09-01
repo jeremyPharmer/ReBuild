@@ -3,6 +3,10 @@ import { todayInTz } from "@/lib/journey";
 import { fetchWorkCalendarEvents } from "@/lib/work-calendar";
 import { readState } from "@/lib/store";
 
+/**
+ * Today's calendar agenda (personal iCal + work Google ICS).
+ * RB-023 — read-only feeds; not email (RB-002), not todos.
+ */
 export async function GET(req: Request) {
   try {
     const state = await readState();
@@ -13,8 +17,15 @@ export async function GET(req: Request) {
     const date = String(
       url.searchParams.get("date") ?? todayInTz(state.profile.timezone),
     );
-    const events = await fetchWorkCalendarEvents(date);
-    return NextResponse.json({ date, events, connected: Boolean(process.env.WORK_CALENDAR_ICS_URL) });
+    const { events, connected, errors } = await fetchWorkCalendarEvents(
+      date,
+      state.profile.timezone,
+      {
+        personalIcalUrl: state.profile.personalIcalUrl,
+        workIcalUrl: state.profile.workIcalUrl,
+      },
+    );
+    return NextResponse.json({ date, events, connected, errors });
   } catch (e) {
     const err = e as Error;
     return NextResponse.json({ error: err.message }, { status: 500 });

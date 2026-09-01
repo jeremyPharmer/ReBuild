@@ -1216,6 +1216,51 @@ h2 {
   opacity: 0.85;
 }
 
+.home-card-agenda {
+  gap: 12px;
+}
+
+.agenda-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agenda-row {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, auto) 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.agenda-time {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  padding-top: 2px;
+  white-space: nowrap;
+}
+
+.agenda-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.agenda-main a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.agenda-loc {
+  display: block;
+}
+
 .content-picks {
   list-style: none;
   margin: 0;
