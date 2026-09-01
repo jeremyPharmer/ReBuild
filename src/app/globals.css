@@ -5472,3 +5472,44 @@ button.layout-pick-card {
 .favicon-option-path code {
   font-size: 0.78rem;
 }
+
+.icon-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.icon-option-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 12px;
+  text-align: center;
+}
+
+.icon-option-card h2 {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.icon-option-card p {
+  margin: 4px 0 0;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.icon-option-art {
+  width: 120px;
+  height: 120px;
+  border-radius: 26px;
+  box-shadow: 0 8px 24px rgba(26, 33, 24, 0.12);
+}
+
+.icon-options-note {
+  margin-top: 24px;
+  padding: 14px 16px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}

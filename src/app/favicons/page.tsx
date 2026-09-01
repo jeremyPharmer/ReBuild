@@ -53,6 +53,7 @@ export default function FaviconsPage() {
         <div className="layouts-board-links">
           <Link href="/" className="layouts-board-link">← Home</Link>
           <Link href="/settings" className="layouts-board-link">Settings</Link>
+          <Link href="/icon-options" className="layouts-board-link">Home icons</Link>
           <Link href="/themes" className="layouts-board-link">Themes</Link>
         </div>
       </header>
