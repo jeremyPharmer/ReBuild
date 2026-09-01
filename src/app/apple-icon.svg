@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="JeremyOS">
+  <rect width="32" height="32" rx="8" fill="#002d72"/>
+  <path
+    d="M11 8h9v11c0 3.2-2.2 5.5-5.5 5.5S9.5 20.2 9.5 17V8"
+    stroke="#f4f7fb"
+    stroke-width="2.75"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <circle cx="24" cy="8" r="3.5" fill="#ff5910"/>
+</svg>
