@@ -1535,6 +1535,45 @@ h2 {
   gap: 10px;
 }
 
+.home-card-head-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.home-card-head-row .home-card-head {
+  flex: 1;
+  min-width: 0;
+}
+
+.agenda-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 2px;
+}
+
+.agenda-add-allday {
+  margin: 0;
+}
+
+.agenda-add-times {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.agenda-add-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.agenda-item-custom .agenda-title-btn {
+  font-style: normal;
+}
+
 .home-card-agenda .home-card-head h2 {
   margin-bottom: 0;
 }
