@@ -1,6 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 export function ScaleInput({
   label,
@@ -114,16 +115,22 @@ export function Sheet({
   const sheetRef = useRef<HTMLDivElement>(null);
   const dragStartY = useRef<number | null>(null);
   const [dragOffset, setDragOffset] = useState(0);
+  const [ready, setReady] = useState(false);
 
   useLayoutEffect(() => {
+    setReady(true);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!ready) return;
     const html = document.documentElement;
     const scrollY = window.scrollY;
     html.classList.add("sheet-open");
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.width = "100%";
+    // Lock scroll without position:fixed — that breaks iOS fixed children.
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    html.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
 
     // Focus the dialog chrome (not an input) so iOS doesn't open the keyboard.
     sheetRef.current?.focus({ preventScroll: true });
@@ -131,8 +138,7 @@ export function Sheet({
     const syncMaxHeight = () => {
       const viewport =
         window.visualViewport?.height ?? window.innerHeight ?? 0;
-      // Leave room for the keyboard / status bar; content sizes the sheet.
-      const max = Math.round(Math.max(280, Math.min(viewport * 0.9, 720)));
+      const max = Math.round(Math.max(280, Math.min(viewport * 0.88, 720)));
       sheetRef.current?.style.setProperty("max-height", `${max}px`);
     };
     syncMaxHeight();
@@ -141,16 +147,13 @@ export function Sheet({
 
     return () => {
       html.classList.remove("sheet-open");
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.width = "";
-      window.scrollTo(0, scrollY);
+      html.style.overflow = prevHtmlOverflow;
+      document.body.style.overflow = prevBodyOverflow;
       window.visualViewport?.removeEventListener("resize", syncMaxHeight);
       window.removeEventListener("resize", syncMaxHeight);
+      window.scrollTo(0, scrollY);
     };
-  }, []);
+  }, [ready]);
 
   function endDrag(clientY: number) {
     if (dragStartY.current == null) return;
@@ -160,7 +163,9 @@ export function Sheet({
     if (!busy && delta > 80) onClose();
   }
 
-  return (
+  if (!ready) return null;
+
+  return createPortal(
     <div
       className="modal-backdrop"
       role="presentation"
@@ -202,7 +207,8 @@ export function Sheet({
         </div>
         <div className="modal-sheet-body">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
