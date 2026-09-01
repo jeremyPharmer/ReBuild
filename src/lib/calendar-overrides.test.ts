@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   applyCalendarTitleOverrides,
   displayCalendarTitle,
+  filterHiddenCalendarEvents,
+  hideCalendarEvent,
   setCalendarTitleOverride,
 } from "./calendar-overrides";
 import { emptyState } from "./journey";
@@ -42,5 +44,12 @@ describe("calendar title overrides", () => {
     expect(state.calendarTitleOverrides?.[sample.id]).toBe("Groomer");
     state = setCalendarTitleOverride(state, sample.id, "");
     expect(state.calendarTitleOverrides).toBeUndefined();
+  });
+
+  it("hides events from the agenda list", () => {
+    let state = emptyState();
+    state = hideCalendarEvent(state, sample.id);
+    const hidden = new Set(state.calendarHiddenEventIds);
+    expect(filterHiddenCalendarEvents([sample], hidden)).toHaveLength(0);
   });
 });

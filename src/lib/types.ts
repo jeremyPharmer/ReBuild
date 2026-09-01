@@ -413,6 +413,8 @@ export type RebuildState = {
   workoutRoutines?: WorkoutRoutine[];
   /** Home agenda display titles keyed by calendar event id */
   calendarTitleOverrides?: Record<string, string>;
+  /** Home agenda events hidden locally (ICS feed can lag after phone delete) */
+  calendarHiddenEventIds?: string[];
 };
 
 export const DEFAULT_SUPPORTS: SupportConfig[] = [

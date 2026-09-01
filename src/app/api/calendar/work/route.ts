@@ -3,6 +3,8 @@ import { todayInTz } from "@/lib/journey";
 import { fetchWorkCalendarEvents } from "@/lib/work-calendar";
 import { readState } from "@/lib/store";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Today's calendar agenda (personal iCal + work Google ICS).
  * RB-023 — read-only feeds; not email (RB-002), not todos.

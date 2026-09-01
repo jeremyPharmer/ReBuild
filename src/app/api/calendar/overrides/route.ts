@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
-import { setCalendarTitleOverride } from "@/lib/calendar-overrides";
+import {
+  hideCalendarEvent,
+  setCalendarTitleOverride,
+} from "@/lib/calendar-overrides";
 import { updateState } from "@/lib/store";
 
-/** Save a local display title for a calendar event (Home agenda only). */
+/** Home agenda overrides: rename or hide an event locally. */
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -10,7 +13,6 @@ export async function POST(req: Request) {
     if (!eventId) {
       return NextResponse.json({ error: "eventId required" }, { status: 400 });
     }
-    const title = body.title !== undefined ? String(body.title) : "";
 
     const state = await updateState((prev) => {
       if (!prev.profile) {
@@ -18,7 +20,15 @@ export async function POST(req: Request) {
         (err as Error & { status: number }).status = 400;
         throw err;
       }
-      return setCalendarTitleOverride(prev, eventId, title);
+      if (body.hide === true) {
+        return hideCalendarEvent(prev, eventId);
+      }
+      if (body.title !== undefined) {
+        return setCalendarTitleOverride(prev, eventId, String(body.title));
+      }
+      const err = new Error("title or hide required");
+      (err as Error & { status: number }).status = 400;
+      throw err;
     });
 
     return NextResponse.json({ state });

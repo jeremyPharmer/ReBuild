@@ -51,3 +51,30 @@ export function setCalendarTitleOverride(
     calendarTitleOverrides: Object.keys(next).length ? next : undefined,
   };
 }
+
+/** Event ids hidden on Home (feed can lag after phone deletes). */
+export function calendarHiddenEventIds(state: RebuildState): Set<string> {
+  return new Set(state.calendarHiddenEventIds ?? []);
+}
+
+export function filterHiddenCalendarEvents(
+  events: WorkCalendarEvent[],
+  hidden: Set<string>,
+): WorkCalendarEvent[] {
+  if (!hidden.size) return events;
+  return events.filter((ev) => !hidden.has(ev.id));
+}
+
+export function hideCalendarEvent(
+  state: RebuildState,
+  eventId: string,
+): RebuildState {
+  const id = String(eventId || "").trim();
+  if (!id) return state;
+  const prev = state.calendarHiddenEventIds ?? [];
+  if (prev.includes(id)) return state;
+  return {
+    ...state,
+    calendarHiddenEventIds: [...prev, id],
+  };
+}
