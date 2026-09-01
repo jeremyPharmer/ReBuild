@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { WorkoutCalendar } from "@/components/workouts/WorkoutCalendar";
-import { WorkoutLogForm } from "@/components/workouts/WorkoutLogForm";
 import {
   formatMiles,
   monthKey,
