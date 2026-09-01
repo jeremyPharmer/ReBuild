@@ -15,6 +15,7 @@ import {
   filterHiddenCalendarEvents,
 } from "@/lib/calendar-overrides";
 import { isCustomAgendaId } from "@/lib/custom-agenda-shared";
+import { addDays, parseDate } from "@/lib/journey";
 import type { WorkCalendarEvent } from "@/lib/work-calendar";
 
 type AgendaResponse = {
@@ -44,6 +45,16 @@ function AgendaTime({ event }: { event: WorkCalendarEvent }) {
     );
   }
   return <span className="agenda-time-label">{event.startTime}</span>;
+}
+
+function agendaDayHeading(viewDate: string, today: string): string {
+  if (viewDate === today) return "Today";
+  if (viewDate === addDays(today, 1)) return "Tomorrow";
+  return parseDate(viewDate).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function AgendaEventRow({
@@ -154,6 +165,7 @@ function AgendaEventRow({
  */
 export function TodayAgendaCard() {
   const { today, state, post } = useApp();
+  const [viewDate, setViewDate] = useState(today);
   const [data, setData] = useState<AgendaResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -166,6 +178,11 @@ export function TodayAgendaCard() {
   const customSig = JSON.stringify(state.customAgendaEvents ?? []);
   const overrides = calendarTitleOverrides(state);
   const hidden = calendarHiddenEventIds(state);
+  const canGoBack = viewDate > today;
+
+  useEffect(() => {
+    setViewDate(today);
+  }, [today]);
 
   useEffect(() => {
     let cancelled = false;
@@ -192,14 +209,14 @@ export function TodayAgendaCard() {
       setLoading(true);
       try {
         const res = await fetch(
-          `/api/calendar/work?date=${encodeURIComponent(today)}`,
+          `/api/calendar/work?date=${encodeURIComponent(viewDate)}`,
         );
         const json = (await res.json()) as AgendaResponse;
         if (!cancelled) setData(json);
       } catch {
         if (!cancelled) {
           setData({
-            date: today,
+            date: viewDate,
             events: [],
             connected: false,
             error: "Could not load calendar",
@@ -213,7 +230,7 @@ export function TodayAgendaCard() {
     return () => {
       cancelled = true;
     };
-  }, [today, personal, work, googleConnected, customSig]);
+  }, [viewDate, personal, work, googleConnected, customSig]);
 
   const rawEvents = data?.events ?? [];
   const events = filterHiddenCalendarEvents(
@@ -248,7 +265,7 @@ export function TodayAgendaCard() {
     try {
       await post("/api/calendar/custom", {
         action: "add",
-        date: today,
+        date: viewDate,
         title: payload.title,
         allDay: payload.allDay,
         startTime: payload.startTime,
@@ -263,9 +280,29 @@ export function TodayAgendaCard() {
   return (
     <section className="home-card home-card-agenda" aria-label="Today's calendar">
       <div className="home-card-head-row">
-        <div className="home-card-head">
+        <div className="home-card-head home-card-head-agenda">
           <p className="home-card-kicker">Calendar</p>
-          <h2>Today</h2>
+          <div className="agenda-day-nav">
+            <button
+              type="button"
+              className="btn ghost workout-cal-arrow"
+              aria-label="Previous day"
+              disabled={!canGoBack || loading}
+              onClick={() => setViewDate((d) => addDays(d, -1))}
+            >
+              ‹
+            </button>
+            <h2>{agendaDayHeading(viewDate, today)}</h2>
+            <button
+              type="button"
+              className="btn ghost workout-cal-arrow"
+              aria-label="Next day"
+              disabled={loading}
+              onClick={() => setViewDate((d) => addDays(d, 1))}
+            >
+              ›
+            </button>
+          </div>
         </div>
         <button
           type="button"
