@@ -1465,6 +1465,7 @@ h2 {
 .field input[type="password"],
 .field input[type="url"],
 .field input[type="date"],
+.field input[type="time"],
 .field textarea,
 .field select {
   width: 100%;
@@ -1473,6 +1474,7 @@ h2 {
   border-radius: 12px;
   padding: 12px 14px;
   outline: none;
+  color: var(--text);
 }
 
 .field input[type="range"] {
@@ -3276,39 +3278,37 @@ h2 {
   position: fixed;
   inset: 0;
   z-index: 80;
-  background: rgba(6, 12, 10, 0.78);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.42);
   padding: 0;
   animation: fade-backdrop 0.2s ease;
   overscroll-behavior: none;
 }
 
 .modal-sheet {
-  --sheet-h: 92dvh;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: 0 auto;
+  position: relative;
   width: min(480px, 100%);
-  height: var(--sheet-h);
-  max-height: 100%;
+  max-height: min(88dvh, 720px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   outline: none;
-  background:
-    linear-gradient(165deg, rgba(30, 52, 44, 0.98), rgba(15, 28, 24, 0.98));
+  color: var(--text);
+  background: var(--surface-strong);
   border: 1px solid var(--line);
   border-bottom: none;
   border-radius: 22px 22px 0 0;
   padding: 0;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), 0 -8px 32px rgba(0, 0, 0, 0.12);
   animation: sheet-up 0.28s ease;
+  backdrop-filter: blur(var(--panel-blur, 12px));
 }
 
 .modal-sheet-chrome {
   flex: 0 0 auto;
-  padding: 10px 16px 8px;
+  padding: 10px 16px 6px;
   cursor: grab;
 }
 
@@ -3316,7 +3316,7 @@ h2 {
   width: 36px;
   height: 4px;
   border-radius: 999px;
-  background: rgba(232, 224, 212, 0.28);
+  background: color-mix(in srgb, var(--muted) 55%, transparent);
   margin: 2px auto 4px;
 }
 
@@ -3327,8 +3327,21 @@ h2 {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  padding: 8px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  padding: 4px 16px calc(20px + env(safe-area-inset-bottom, 0px));
 }
+
+.modal-sheet .field input,
+.modal-sheet .field select,
+.modal-sheet .field textarea,
+.modal-sheet .todo-time-add,
+.modal-sheet .todo-day-chip {
+  background: color-mix(in srgb, var(--text) 4%, var(--surface-strong));
+}
+
+.modal-sheet .eyebrow {
+  margin-bottom: 4px;
+}
+
 
 html.sheet-open,
 html.sheet-open body {
@@ -3337,7 +3350,7 @@ html.sheet-open body {
 }
 
 html.sheet-open .top-nav {
-  visibility: hidden;
+  /* Keep nav visible under the dimmed backdrop */
   pointer-events: none;
 }
 

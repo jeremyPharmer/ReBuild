@@ -128,15 +128,16 @@ export function Sheet({
     // Focus the dialog chrome (not an input) so iOS doesn't open the keyboard.
     sheetRef.current?.focus({ preventScroll: true });
 
-    const syncHeight = () => {
+    const syncMaxHeight = () => {
       const viewport =
         window.visualViewport?.height ?? window.innerHeight ?? 0;
-      const h = Math.round(Math.max(320, Math.min(viewport * 0.94, 720)));
-      sheetRef.current?.style.setProperty("--sheet-h", `${h}px`);
+      // Leave room for the keyboard / status bar; content sizes the sheet.
+      const max = Math.round(Math.max(280, Math.min(viewport * 0.9, 720)));
+      sheetRef.current?.style.setProperty("max-height", `${max}px`);
     };
-    syncHeight();
-    window.visualViewport?.addEventListener("resize", syncHeight);
-    window.addEventListener("resize", syncHeight);
+    syncMaxHeight();
+    window.visualViewport?.addEventListener("resize", syncMaxHeight);
+    window.addEventListener("resize", syncMaxHeight);
 
     return () => {
       html.classList.remove("sheet-open");
@@ -146,8 +147,8 @@ export function Sheet({
       document.body.style.right = "";
       document.body.style.width = "";
       window.scrollTo(0, scrollY);
-      window.visualViewport?.removeEventListener("resize", syncHeight);
-      window.removeEventListener("resize", syncHeight);
+      window.visualViewport?.removeEventListener("resize", syncMaxHeight);
+      window.removeEventListener("resize", syncMaxHeight);
     };
   }, []);
 
