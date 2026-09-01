@@ -6,10 +6,7 @@ import { useApp } from "@/components/AppProvider";
 import { TodoComposer, type TodoComposerPayload } from "@/components/TodoComposer";
 import { TodoTaskRow } from "@/components/TodoTaskRow";
 import { truncateSupportLabel } from "@/lib/auth-constants";
-import {
-  completedTodosForUndo,
-  openTodosOn,
-} from "@/lib/todos";
+import { openTodosOn } from "@/lib/todos";
 import type { SupportType } from "@/lib/types";
 
 type SkipKey = SupportType | "morning" | "evening";
@@ -75,7 +72,6 @@ export function TodayRebuildPanel() {
   );
   const todos = state.dayProvisions ?? [];
   const openTodos = openTodosOn(todos, today);
-  const undoTodos = completedTodosForUndo(todos, today);
   const morningSkipped = skips.has("morning");
   const eveningSkipped = skips.has("evening");
   const morningDone = Boolean(dashboard.todayMorning);
@@ -96,7 +92,6 @@ export function TodayRebuildPanel() {
   const skippedToday = (state.skips ?? []).filter((s) => s.date === today);
   const hasUndoItems =
     completedSupports.length > 0 ||
-    undoTodos.length > 0 ||
     skippedToday.length > 0 ||
     morningDone ||
     eveningDone;
@@ -227,6 +222,7 @@ export function TodayRebuildPanel() {
             <button
               type="button"
               className="text-btn todo-undo-link"
+              aria-label="Undo today's rituals and supports"
               aria-expanded={undoOpen}
               onClick={() => setUndoOpen((v) => !v)}
             >
@@ -245,16 +241,11 @@ export function TodayRebuildPanel() {
         />
       )}
 
-      {undoOpen && (
+      {undoOpen && hasUndoItems && (
         <div className="undo-panel">
           <p className="tiny" style={{ marginBottom: 8 }}>
-            Bring something back to today&apos;s list
+            Bring a ritual or support back to today&apos;s list
           </p>
-          {!hasUndoItems && (
-            <p className="muted" style={{ margin: 0 }}>
-              Nothing to undo yet.
-            </p>
-          )}
           {completedSupports.map((s) => (
             <div key={`done-${s.supportType}`} className="undo-row">
               <span>{supportLabel(s.supportType)} · done</span>
@@ -276,26 +267,6 @@ export function TodayRebuildPanel() {
                 className="dismiss-btn"
                 disabled={undoBusy === `skip:${s.itemKey}`}
                 onClick={() => undoSkip(s.itemKey)}
-              >
-                Undo
-              </button>
-            </div>
-          ))}
-          {undoTodos.map((p) => (
-            <div key={`todo-done-${p.id}`} className="undo-row">
-              <span>{p.label} · done</span>
-              <button
-                type="button"
-                className="dismiss-btn"
-                disabled={undoBusy === `todo:${p.id}`}
-                onClick={async () => {
-                  setUndoBusy(`todo:${p.id}`);
-                  try {
-                    await post("/api/todos", { action: "undo", id: p.id });
-                  } finally {
-                    setUndoBusy(null);
-                  }
-                }}
               >
                 Undo
               </button>
