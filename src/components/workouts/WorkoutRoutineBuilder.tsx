@@ -3,11 +3,7 @@
 import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import type { WorkoutRoutine, WorkoutType } from "@/lib/types";
-import {
-  normalizeRoutines,
-  workoutTypeLabel,
-  WORKOUT_TYPES,
-} from "@/lib/workouts";
+import { normalizeRoutines, WORKOUT_TYPES } from "@/lib/workouts";
 
 type DraftExercise = {
   key: string;
@@ -69,6 +65,11 @@ export function WorkoutRoutineBuilder() {
     setError("");
   }
 
+  function startCreate() {
+    resetForm();
+    setOpen(true);
+  }
+
   function startEdit(r: WorkoutRoutine) {
     const d = draftFromRoutine(r);
     setEditingId(d.id);
@@ -77,6 +78,11 @@ export function WorkoutRoutineBuilder() {
     setExercises(d.exercises.length ? d.exercises : [emptyExercise()]);
     setOpen(true);
     setError("");
+  }
+
+  function closeForm() {
+    setOpen(false);
+    resetForm();
   }
 
   function updateExercise(key: string, patch: Partial<DraftExercise>) {
@@ -111,8 +117,7 @@ export function WorkoutRoutineBuilder() {
         type,
         exercises: parsed,
       });
-      resetForm();
-      setOpen(false);
+      closeForm();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save routine");
     } finally {
@@ -124,7 +129,7 @@ export function WorkoutRoutineBuilder() {
     setBusy(true);
     try {
       await post("/api/workouts", { action: "delete_routine", id });
-      if (editingId === id) resetForm();
+      if (editingId === id) closeForm();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not delete");
     } finally {
@@ -135,80 +140,74 @@ export function WorkoutRoutineBuilder() {
   return (
     <section className="panel workout-routine-panel">
       <div className="workout-routine-head">
-        <p className="eyebrow">Routines</p>
-        <button
-          type="button"
-          className="btn secondary"
-          onClick={() => {
-            if (open) {
-              setOpen(false);
-              resetForm();
-            } else {
-              resetForm();
-              setOpen(true);
-            }
-          }}
-        >
-          {open ? "Cancel" : "New routine"}
-        </button>
+        <p className="eyebrow" style={{ marginBottom: 0 }}>
+          Create routine
+        </p>
+        {!open && (
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label="Create a routine"
+            onClick={startCreate}
+          >
+            +
+          </button>
+        )}
       </div>
 
-      {routines.length > 0 && (
+      {routines.length > 0 && !open && (
         <ul className="workout-routine-list">
           {routines.map((r) => (
-            <li key={r.id} className="workout-routine-item">
-              <div>
-                <span className={`workout-day-badge ${r.type}`}>
-                  {workoutTypeLabel(r.type)}
+            <li key={r.id} className="workout-routine-row">
+              <button
+                type="button"
+                className="workout-routine-main"
+                disabled={busy}
+                onClick={() => startEdit(r)}
+              >
+                <span className="workout-history-line">
+                  <span
+                    className={`workout-history-dot ${r.type}`}
+                    aria-hidden
+                  />
+                  {r.name}
                 </span>
-                <strong>{r.name}</strong>
-                <p className="tiny muted">
+                <span className="workout-routine-meta tiny muted">
                   {r.exercises.length} exercise
                   {r.exercises.length === 1 ? "" : "s"}
                   {r.exercises.some((ex) => ex.tracksWeight)
                     ? " · tracks weight"
                     : ""}
-                </p>
-              </div>
-              <div className="workout-routine-actions">
-                <button
-                  type="button"
-                  className="btn secondary"
-                  onClick={() => startEdit(r)}
-                  disabled={busy}
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  className="dismiss-btn"
-                  onClick={() => remove(r.id)}
-                  disabled={busy}
-                >
-                  Delete
-                </button>
-              </div>
+                </span>
+              </button>
+              <button
+                type="button"
+                className="workout-history-remove"
+                aria-label={`Delete ${r.name}`}
+                disabled={busy}
+                onClick={() => void remove(r.id)}
+              >
+                ×
+              </button>
             </li>
           ))}
         </ul>
       )}
 
       {routines.length === 0 && !open && (
-        <p className="tiny muted">No saved routines yet.</p>
+        <p className="muted tiny workout-routine-empty">
+          No saved routines yet. Tap + to create one.
+        </p>
       )}
 
       {open && (
         <form
-          className="workout-routine-form"
+          className="workout-routine-form workout-log-form"
           onSubmit={save}
           autoComplete="off"
         >
-          <p className="workout-log-label">
-            {editingId ? "Edit routine" : "New routine"}
-          </p>
-
           <label className="workout-log-field">
-            <span className="workout-log-label">Name</span>
+            <span className="workout-log-label">Routine name</span>
             <input
               className="workout-log-input"
               value={name}
@@ -225,7 +224,7 @@ export function WorkoutRoutineBuilder() {
           <fieldset className="workout-log-field">
             <legend className="workout-log-label">Type</legend>
             <div
-              className="workout-type-segment"
+              className="workout-type-segment workout-type-segment-compact"
               role="group"
               aria-label="Routine type"
             >
@@ -247,50 +246,68 @@ export function WorkoutRoutineBuilder() {
           <div className="workout-routine-exercises">
             <p className="workout-log-label">Exercises</p>
             {exercises.map((ex, i) => (
-              <div key={ex.key} className="workout-routine-ex-row">
-                <label className="workout-log-field workout-routine-ex-name">
+              <div key={ex.key} className="workout-routine-ex-card">
+                <div className="workout-routine-ex-head">
                   <span className="workout-log-label">Exercise {i + 1}</span>
+                  {exercises.length > 1 && (
+                    <button
+                      type="button"
+                      className="workout-routine-inline-btn"
+                      onClick={() =>
+                        setExercises((prev) =>
+                          prev.filter((row) => row.key !== ex.key),
+                        )
+                      }
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                <label className="workout-log-field">
+                  <span className="workout-log-label">Name</span>
                   <input
                     className="workout-log-input"
                     value={ex.name}
                     onChange={(e) =>
                       updateExercise(ex.key, { name: e.target.value })
                     }
-                    placeholder="Name"
+                    placeholder="Exercise name"
                     aria-label={`Exercise ${i + 1} name`}
                     autoComplete="off"
                   />
                 </label>
-                <label className="workout-log-field">
-                  <span className="workout-log-label">Sets</span>
-                  <input
-                    className="workout-log-input"
-                    type="number"
-                    inputMode="numeric"
-                    min={1}
-                    max={99}
-                    value={ex.sets}
-                    onChange={(e) =>
-                      updateExercise(ex.key, { sets: e.target.value })
-                    }
-                    aria-label={`Exercise ${i + 1} sets`}
-                  />
-                </label>
-                <label className="workout-log-field">
-                  <span className="workout-log-label">Reps</span>
-                  <input
-                    className="workout-log-input"
-                    type="number"
-                    inputMode="numeric"
-                    min={1}
-                    max={99}
-                    value={ex.reps}
-                    onChange={(e) =>
-                      updateExercise(ex.key, { reps: e.target.value })
-                    }
-                    aria-label={`Exercise ${i + 1} reps`}
-                  />
-                </label>
+                <div className="workout-routine-ex-metrics">
+                  <label className="workout-log-field">
+                    <span className="workout-log-label">Sets</span>
+                    <input
+                      className="workout-log-input"
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={99}
+                      value={ex.sets}
+                      onChange={(e) =>
+                        updateExercise(ex.key, { sets: e.target.value })
+                      }
+                      aria-label={`Exercise ${i + 1} sets`}
+                    />
+                  </label>
+                  <label className="workout-log-field">
+                    <span className="workout-log-label">Reps</span>
+                    <input
+                      className="workout-log-input"
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={99}
+                      value={ex.reps}
+                      onChange={(e) =>
+                        updateExercise(ex.key, { reps: e.target.value })
+                      }
+                      aria-label={`Exercise ${i + 1} reps`}
+                    />
+                  </label>
+                </div>
                 <label className="workout-routine-weight-toggle">
                   <input
                     type="checkbox"
@@ -301,39 +318,37 @@ export function WorkoutRoutineBuilder() {
                       })
                     }
                   />
-                  <span>Track weight</span>
+                  <span>Track weight when logging</span>
                 </label>
-                {exercises.length > 1 && (
-                  <button
-                    type="button"
-                    className="dismiss-btn"
-                    onClick={() =>
-                      setExercises((prev) =>
-                        prev.filter((row) => row.key !== ex.key),
-                      )
-                    }
-                  >
-                    Remove
-                  </button>
-                )}
               </div>
             ))}
             <button
               type="button"
-              className="btn secondary"
+              className="workout-routine-inline-btn"
               onClick={() => setExercises((prev) => [...prev, emptyExercise()])}
             >
-              Add exercise
+              + Add exercise
             </button>
           </div>
 
-          <button
-            type="submit"
-            className="btn primary"
-            disabled={busy}
-          >
-            {busy ? "Saving…" : editingId ? "Update routine" : "Save routine"}
-          </button>
+          <div className="workout-routine-form-actions">
+            <button
+              type="button"
+              className="workout-routine-inline-btn"
+              onClick={closeForm}
+              disabled={busy}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn primary workout-routine-save"
+              disabled={busy}
+            >
+              {busy ? "Saving…" : editingId ? "Update routine" : "Save routine"}
+            </button>
+          </div>
+
           {error && <p className="tiny workout-log-error">{error}</p>}
         </form>
       )}
