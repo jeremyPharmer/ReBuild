@@ -46,8 +46,6 @@ export function TodayRebuildPanel() {
   const { state, dashboard, today, post } = useApp();
   const [busyType, setBusyType] = useState<SupportType | null>(null);
   const [skipBusy, setSkipBusy] = useState<SkipKey | null>(null);
-  const [undoOpen, setUndoOpen] = useState(false);
-  const [undoBusy, setUndoBusy] = useState<string | null>(null);
   const [exiting, setExiting] = useState<ExitingSupport[]>([]);
   const [dismissing, setDismissing] = useState<DismissingItem[]>([]);
   const [adding, setAdding] = useState(false);
@@ -88,14 +86,6 @@ export function TodayRebuildPanel() {
     dismissing.length +
     (showEveningOpen ? 1 : 0);
 
-  const completedSupports = dashboard.todaySupports;
-  const skippedToday = (state.skips ?? []).filter((s) => s.date === today);
-  const hasUndoItems =
-    completedSupports.length > 0 ||
-    skippedToday.length > 0 ||
-    morningDone ||
-    eveningDone;
-
   async function completeSupport(item: ExitingSupport) {
     setBusyType(item.type);
     setExiting((prev) =>
@@ -132,37 +122,6 @@ export function TodayRebuildPanel() {
     }
   }
 
-  async function undoSupport(type: SupportType) {
-    setUndoBusy(type);
-    try {
-      await post("/api/support", {
-        date: today,
-        supportType: type,
-        completed: false,
-      });
-    } finally {
-      setUndoBusy(null);
-    }
-  }
-
-  async function undoSkip(itemKey: SkipKey) {
-    setUndoBusy(`skip:${itemKey}`);
-    try {
-      await post("/api/skip", { date: today, itemKey, clear: true });
-    } finally {
-      setUndoBusy(null);
-    }
-  }
-
-  async function undoMorning() {
-    setUndoBusy("morning");
-    try {
-      await post("/api/morning", { action: "undo", date: today });
-    } finally {
-      setUndoBusy(null);
-    }
-  }
-
   async function todoAction(
     id: string,
     body: Record<string, unknown>,
@@ -191,45 +150,20 @@ export function TodayRebuildPanel() {
     }
   }
 
-  function supportLabel(type: string) {
-    return (
-      state.profile?.supports.find((s) => s.type === type)?.label ?? type
-    );
-  }
-
-  function itemLabel(key: string) {
-    if (key === "morning") return "Start the day";
-    if (key === "evening") return "Close the day";
-    return supportLabel(key);
-  }
-
   return (
     <section className="home-card home-card-tasks">
       <div className="row">
         <p className="eyebrow" style={{ marginBottom: 0 }}>
-          Today&apos;s Items
+          Today&apos;s Tasks
         </p>
-        <div className="row" style={{ gap: 8, justifyContent: "flex-end" }}>
-          <button
-            type="button"
-            className="icon-btn"
-            aria-label="Add an item"
-            onClick={() => setAdding(true)}
-          >
-            +
-          </button>
-          {hasUndoItems && (
-            <button
-              type="button"
-              className="text-btn todo-undo-link"
-              aria-label="Undo today's rituals and supports"
-              aria-expanded={undoOpen}
-              onClick={() => setUndoOpen((v) => !v)}
-            >
-              Undo
-            </button>
-          )}
-        </div>
+        <button
+          type="button"
+          className="icon-btn"
+          aria-label="Add a task"
+          onClick={() => setAdding(true)}
+        >
+          +
+        </button>
       </div>
 
       {adding && (
@@ -239,56 +173,6 @@ export function TodayRebuildPanel() {
           onSubmit={addTodo}
           onCancel={() => setAdding(false)}
         />
-      )}
-
-      {undoOpen && hasUndoItems && (
-        <div className="undo-panel">
-          <p className="tiny" style={{ marginBottom: 8 }}>
-            Bring a ritual or support back to today&apos;s list
-          </p>
-          {completedSupports.map((s) => (
-            <div key={`done-${s.supportType}`} className="undo-row">
-              <span>{supportLabel(s.supportType)} · done</span>
-              <button
-                type="button"
-                className="dismiss-btn"
-                disabled={undoBusy === s.supportType}
-                onClick={() => undoSupport(s.supportType)}
-              >
-                Undo
-              </button>
-            </div>
-          ))}
-          {skippedToday.map((s) => (
-            <div key={`skip-${s.itemKey}`} className="undo-row">
-              <span>{itemLabel(s.itemKey)} · not today</span>
-              <button
-                type="button"
-                className="dismiss-btn"
-                disabled={undoBusy === `skip:${s.itemKey}`}
-                onClick={() => undoSkip(s.itemKey)}
-              >
-                Undo
-              </button>
-            </div>
-          ))}
-          {morningDone && (
-            <div className="undo-row">
-              <span>Start the day · done</span>
-              <button
-                type="button"
-                className="dismiss-btn"
-                disabled={undoBusy === "morning"}
-                onClick={() => undoMorning()}
-              >
-                Undo
-              </button>
-            </div>
-          )}
-          {eveningDone && (
-            <p className="tiny">Evening check-in is logged for today.</p>
-          )}
-        </div>
       )}
 
       <div className="daily-actions" style={{ marginTop: 10 }}>
@@ -459,7 +343,7 @@ export function TodayRebuildPanel() {
 
         {openCount === 0 && !adding && (
           <p className="muted" style={{ marginTop: 4 }}>
-            Today&apos;s list is clear. Nice work.
+            Today&apos;s tasks are clear. Nice work.
           </p>
         )}
       </div>

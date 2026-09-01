@@ -6,6 +6,7 @@ import { useApp } from "@/components/AppProvider";
 import { TodoComposer, type TodoComposerPayload } from "@/components/TodoComposer";
 import { TodoTaskRow } from "@/components/TodoTaskRow";
 import {
+  completedTodosForUndo,
   doneOneOffTodos,
   openTodosOn,
   upcomingTodos,
@@ -25,7 +26,14 @@ export default function ItemsPage() {
   const todos = state.dayProvisions ?? [];
   const todayOpen = useMemo(() => openTodosOn(todos, today), [todos, today]);
   const upcoming = useMemo(() => upcomingTodos(todos, today), [todos, today]);
-  const done = useMemo(() => doneOneOffTodos(todos), [todos]);
+  const done = useMemo(() => {
+    const oneOffs = doneOneOffTodos(todos);
+    const oneOffIds = new Set(oneOffs.map((item) => item.id));
+    const recurringDoneToday = completedTodosForUndo(todos, today).filter(
+      (item) => !oneOffIds.has(item.id),
+    );
+    return [...recurringDoneToday, ...oneOffs];
+  }, [todos, today]);
 
   async function run(id: string | null, body: Record<string, unknown>) {
     if (id) setBusyId(id);
@@ -64,7 +72,7 @@ export default function ItemsPage() {
         className="todo-add-toggle"
         onClick={() => setAdding(true)}
       >
-        <span>Add an item</span>
+        <span>Add a task</span>
         <span className="morning-add-plus" aria-hidden>
           +
         </span>
@@ -142,10 +150,10 @@ export default function ItemsPage() {
       </section>
 
       <section className="panel">
-        <p className="eyebrow">Done</p>
+        <p className="eyebrow">Completed</p>
         {done.length === 0 && (
           <p className="muted" style={{ margin: 0 }}>
-            Finished one-off items land here.
+            Finished tasks land here. Tap Undo to bring one back.
           </p>
         )}
         <div className="daily-actions">
