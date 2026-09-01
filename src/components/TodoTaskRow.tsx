@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import {
-  SnoozeUntilPicker,
   TodoComposer,
   type TodoComposerPayload,
 } from "@/components/TodoComposer";
-import { formatDisplayDate } from "@/lib/journey";
+import { addDays, formatDisplayDate } from "@/lib/journey";
 import { formatRecurrence, recurrenceOf } from "@/lib/todos";
 import type { DayProvision } from "@/lib/types";
 
@@ -19,7 +18,17 @@ function formatTodoTime(time: string): string {
   return `${hour}:${m ?? "00"} ${suffix}`;
 }
 
-type Menu = "closed" | "open" | "until" | "edit";
+function taskMeta(item: DayProvision, today: string): string | null {
+  const rec = recurrenceOf(item);
+  const parts: string[] = [];
+  if (item.time) parts.push(formatTodoTime(item.time));
+  const recLabel = formatRecurrence(rec, item.date);
+  if (recLabel) parts.push(recLabel);
+  if (item.date !== today && !item.completed) {
+    parts.push(formatDisplayDate(item.date));
+  }
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
 
 export function TodoTaskRow({
   item,
@@ -40,127 +49,71 @@ export function TodoTaskRow({
   onDelete: () => void | Promise<void>;
   onUndo?: () => void | Promise<void>;
 }) {
-  const [menu, setMenu] = useState<Menu>("closed");
-  const rec = recurrenceOf(item);
-  const recLabel = formatRecurrence(rec);
-  const timeLabel = item.time
-    ? ` · ${formatTodoTime(item.time)}`
-    : "";
-  const dueMeta =
-    item.date !== today && !item.completed
-      ? ` · ${formatDisplayDate(item.date)}`
-      : "";
+  const [editing, setEditing] = useState(false);
+  const meta = taskMeta(item, today);
 
   return (
     <div className="todo-task">
       <div className="check-item check-item-row">
         <button
           type="button"
-          className="check-item-main"
+          className="check-box-btn"
           disabled={busy || item.completed}
+          aria-label={`Complete ${item.label}`}
           onClick={onComplete}
         >
           <span className={`check-box${item.completed ? " checked" : ""}`}>
             {item.completed ? "✓" : ""}
           </span>
-          <span className="check-label">
-            <span className="check-label-name">{item.label}</span>
-            {recLabel || dueMeta || timeLabel ? (
-              <span className="check-label-meta">
-                {timeLabel}
-                {recLabel ? ` · ${recLabel}` : ""}
-                {dueMeta}
-              </span>
-            ) : null}
-          </span>
         </button>
         <button
           type="button"
-          className="icon-btn todo-more-btn"
-          aria-label={`More for ${item.label}`}
-          aria-expanded={menu !== "closed"}
+          className="check-item-body"
           disabled={busy}
-          onClick={() => setMenu((m) => (m === "closed" ? "open" : "closed"))}
+          aria-label={`Edit ${item.label}`}
+          onClick={() => setEditing(true)}
         >
-          ⋯
+          <span className="check-label-stacked">
+            <span className="check-label-name">{item.label}</span>
+            {meta ? <span className="check-label-meta">{meta}</span> : null}
+          </span>
         </button>
+        {!item.completed && (
+          <button
+            type="button"
+            className="dismiss-btn"
+            disabled={busy}
+            onClick={() => void onSnooze(addDays(today, 1))}
+          >
+            Tomorrow
+          </button>
+        )}
+        {item.completed && onUndo && (
+          <button
+            type="button"
+            className="dismiss-btn"
+            disabled={busy}
+            onClick={() => void onUndo()}
+          >
+            Undo
+          </button>
+        )}
       </div>
-      {menu === "open" && (
-        <div className="todo-item-menu">
-          {item.completed && onUndo && (
-            <button
-              type="button"
-              className="dismiss-btn"
-              onClick={() => {
-                void onUndo();
-                setMenu("closed");
-              }}
-            >
-              Undo
-            </button>
-          )}
-          {!item.completed && (
-            <>
-              <button
-                type="button"
-                className="dismiss-btn"
-                onClick={() => {
-                  void onSnooze("tomorrow");
-                  setMenu("closed");
-                }}
-              >
-                Tomorrow
-              </button>
-              <button
-                type="button"
-                className="dismiss-btn"
-                onClick={() => setMenu("until")}
-              >
-                Until…
-              </button>
-            </>
-          )}
-          <button
-            type="button"
-            className="dismiss-btn"
-            onClick={() => setMenu("edit")}
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            className="dismiss-btn"
-            onClick={() => {
-              void onDelete();
-              setMenu("closed");
-            }}
-          >
-            Delete
-          </button>
-        </div>
-      )}
-      {menu === "until" && (
-        <SnoozeUntilPicker
-          today={today}
-          busy={busy}
-          onPick={(until) => {
-            void onSnooze(until);
-            setMenu("closed");
-          }}
-          onCancel={() => setMenu("closed")}
-        />
-      )}
-      {menu === "edit" && (
+      {editing && (
         <TodoComposer
           today={today}
           initial={item}
           busy={busy}
           submitLabel="Save"
+          onDelete={() => {
+            void onDelete();
+            setEditing(false);
+          }}
           onSubmit={async (payload) => {
             await onEdit(payload);
-            setMenu("closed");
+            setEditing(false);
           }}
-          onCancel={() => setMenu("closed")}
+          onCancel={() => setEditing(false)}
         />
       )}
     </div>

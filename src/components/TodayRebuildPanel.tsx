@@ -223,15 +223,16 @@ export function TodayRebuildPanel() {
           >
             +
           </button>
-          <button
-            type="button"
-            className="icon-btn"
-            aria-label="Undo today's items"
-            aria-expanded={undoOpen}
-            onClick={() => setUndoOpen((v) => !v)}
-          >
-            ⋯
-          </button>
+          {hasUndoItems && (
+            <button
+              type="button"
+              className="text-btn todo-undo-link"
+              aria-expanded={undoOpen}
+              onClick={() => setUndoOpen((v) => !v)}
+            >
+              Undo
+            </button>
+          )}
         </div>
       </div>
 

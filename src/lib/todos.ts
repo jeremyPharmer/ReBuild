@@ -420,7 +420,38 @@ function formatEndsSuffix(ends?: TodoRepeatEnds): string {
   return ` · ${ends.count}×`;
 }
 
-export function formatRecurrence(recurrence: TodoRecurrence): string {
+function ordinalDay(n: number): string {
+  const mod100 = n % 100;
+  const suffix =
+    mod100 >= 11 && mod100 <= 13
+      ? "th"
+      : n % 10 === 1
+        ? "st"
+        : n % 10 === 2
+          ? "nd"
+          : n % 10 === 3
+            ? "rd"
+            : "th";
+  return `${n}${suffix}`;
+}
+
+function formatMonthlyAnchor(
+  anchorDate: string,
+  monthlyOn: "day" | "nth_weekday",
+): string {
+  const d = parseDate(anchorDate);
+  if (monthlyOn === "nth_weekday") {
+    const nth = Math.min(Math.ceil(d.getDate() / 7), 5);
+    return `${ordinalDay(nth)} ${WEEKDAY_LABELS[d.getDay()]}`;
+  }
+  if (d.getDate() === 1) return "1st of month";
+  return `${ordinalDay(d.getDate())} of month`;
+}
+
+export function formatRecurrence(
+  recurrence: TodoRecurrence,
+  anchorDate?: string,
+): string {
   if (recurrence.kind === "daily") return "Daily";
   if (recurrence.kind === "monthly_first") return "1st of the month";
   if (recurrence.kind === "every_n_days") {
@@ -459,9 +490,14 @@ export function formatRecurrence(recurrence: TodoRecurrence): string {
       return `${base} · ${labels.join(" · ")}` + ends;
     }
     if (recurrence.frequency === "month") {
+      if (anchorDate) {
+        const anchor = formatMonthlyAnchor(anchorDate, recurrence.monthlyOn ?? "day");
+        if (n === 1) return anchor + ends;
+        return `Every ${n} mo · ${anchor}` + ends;
+      }
       if (n === 1 && recurrence.monthlyOn !== "nth_weekday") return "Monthly" + ends;
       if (recurrence.monthlyOn === "nth_weekday") {
-        return (n === 1 ? "Monthly (same weekday)" : `${base} (same weekday)`) + ends;
+        return (n === 1 ? "Monthly weekday" : `${base} · weekday`) + ends;
       }
       return base + ends;
     }
