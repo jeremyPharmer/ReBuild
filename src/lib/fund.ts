@@ -49,6 +49,7 @@ export function normalizeState(state: RebuildState): RebuildState {
     workouts: (state.workouts ?? []).map(normalizeWorkout),
     workoutPrs: normalizeWorkoutPrs(state.workoutPrs),
     workoutRoutines: normalizeRoutines(state.workoutRoutines),
+    calendarTitleOverrides: state.calendarTitleOverrides ?? {},
   };
 }
 
