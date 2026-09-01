@@ -1006,9 +1006,7 @@ h2 {
 }
 
 .workout-routine-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  display: block;
 }
 
 .workout-routine-row + .workout-routine-row {
@@ -1016,8 +1014,7 @@ h2 {
 }
 
 .workout-routine-main {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
   display: grid;
   gap: 2px;
   padding: 10px 0;
@@ -1107,6 +1104,24 @@ h2 {
 
 .workout-routine-save {
   min-height: 42px !important;
+}
+
+.workout-routine-delete {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 8px 0 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--danger);
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+}
+
+.workout-routine-delete:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .workout-type-segment-compact .workout-type-seg {

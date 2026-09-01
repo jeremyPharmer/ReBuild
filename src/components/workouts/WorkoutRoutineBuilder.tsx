@@ -180,15 +180,6 @@ export function WorkoutRoutineBuilder() {
                     : ""}
                 </span>
               </button>
-              <button
-                type="button"
-                className="workout-history-remove"
-                aria-label={`Delete ${r.name}`}
-                disabled={busy}
-                onClick={() => void remove(r.id)}
-              >
-                ×
-              </button>
             </li>
           ))}
         </ul>
@@ -348,6 +339,17 @@ export function WorkoutRoutineBuilder() {
               {busy ? "Saving…" : editingId ? "Update routine" : "Save routine"}
             </button>
           </div>
+
+          {editingId && (
+            <button
+              type="button"
+              className="workout-routine-delete"
+              disabled={busy}
+              onClick={() => void remove(editingId)}
+            >
+              Delete routine
+            </button>
+          )}
 
           {error && <p className="tiny workout-log-error">{error}</p>}
         </form>
