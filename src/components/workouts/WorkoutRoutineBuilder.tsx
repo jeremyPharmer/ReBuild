@@ -275,10 +275,10 @@ export function WorkoutRoutineBuilder() {
                   />
                 </label>
                 <div className="workout-routine-ex-metrics">
-                  <label className="workout-log-field">
+                  <label className="workout-routine-metric">
                     <span className="workout-log-label">Sets</span>
                     <input
-                      className="workout-log-input"
+                      className="workout-actual-input"
                       type="number"
                       inputMode="numeric"
                       min={1}
@@ -290,7 +290,7 @@ export function WorkoutRoutineBuilder() {
                       aria-label={`Exercise ${i + 1} sets`}
                     />
                   </label>
-                  <div className="workout-log-field">
+                  <div className="workout-routine-metric workout-routine-metric-grow">
                     <span className="workout-log-label">
                       {repModeLabel(ex.repMode)} each
                     </span>
@@ -322,7 +322,7 @@ export function WorkoutRoutineBuilder() {
                         </button>
                       </div>
                       <input
-                        className="workout-log-input workout-rep-mode-value"
+                        className="workout-actual-input workout-rep-mode-value"
                         type="number"
                         inputMode="numeric"
                         min={1}
