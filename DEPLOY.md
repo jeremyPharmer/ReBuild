@@ -87,6 +87,27 @@ fly secrets set APP_URL='https://jeremyos.yourdomain.com' -a rebuild-prod
 
 Set GitHub secret **`JEREMYOS_APP_URL`** to the same URL. Email links and cron use `APP_URL`, not the Fly app name.
 
+### Google Calendar OAuth (Settings → Connect Google Calendar)
+
+Work Google ICS feeds often show **“Busy”** when Workspace restricts external sharing. OAuth reads the Calendar API as the signed-in user and returns full titles.
+
+1. [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → create/select a project → enable **Google Calendar API**.
+2. OAuth consent screen → External or Internal (Internal if Workspace-only) → add scopes `calendar.readonly` and `userinfo.email`.
+3. Credentials → **OAuth client ID** → Web application.
+4. Authorized redirect URI (must match `APP_URL` exactly):
+   - `https://jeremyos-prod.fly.dev/api/calendar/google/callback`
+   - (dev) `http://localhost:3000/api/calendar/google/callback`
+5. Set Fly secrets:
+
+```bash
+fly secrets set \
+  GOOGLE_CALENDAR_CLIENT_ID='….apps.googleusercontent.com' \
+  GOOGLE_CALENDAR_CLIENT_SECRET='…' \
+  -a jeremyos-prod
+```
+
+`APP_URL` must already be set to the same host as the redirect URI. Tokens are stored per user in `db.json` (server-only, never sent to the browser).
+
 The old `https://rebuild-prod.fly.dev` URL keeps working unless you remove it.
 
 ---

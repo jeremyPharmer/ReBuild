@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { ThemePicker } from "@/components/ThemePicker";
 import { LayoutPicker } from "@/components/LayoutPicker";
@@ -28,9 +28,19 @@ type AdminUserRow = {
   onboarded: boolean;
 };
 
+type GoogleCalendarStatusResponse = {
+  configured?: boolean;
+  connected?: boolean;
+  accountEmail?: string;
+  calendarId?: string;
+  connectedAt?: string;
+  error?: string;
+};
+
 export default function SettingsPage() {
   const { state, today, post, refresh, env, user } = useApp();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [adminUsers, setAdminUsers] = useState<AdminUserRow[] | null>(null);
   const [adminError, setAdminError] = useState("");
   const [adminOpen, setAdminOpen] = useState(false);
@@ -47,6 +57,44 @@ export default function SettingsPage() {
   const [newTarget, setNewTarget] = useState("3");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [googleCalendar, setGoogleCalendar] =
+    useState<GoogleCalendarStatusResponse | null>(null);
+
+  useEffect(() => {
+    const calendarResult = searchParams.get("calendar");
+    if (calendarResult === "connected") {
+      setMsg("Google Calendar connected.");
+    } else if (calendarResult === "denied") {
+      setMsg("Google Calendar connection was cancelled.");
+    } else if (calendarResult === "no-refresh") {
+      setMsg(
+        "Google did not return a refresh token. Disconnect in your Google account and try again.",
+      );
+    } else if (calendarResult === "unconfigured") {
+      setMsg("Google Calendar OAuth is not configured on this server yet.");
+    } else if (calendarResult === "error") {
+      setMsg("Could not connect Google Calendar. Try again.");
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadGoogleStatus() {
+      try {
+        const res = await fetch("/api/calendar/google/status", {
+          credentials: "include",
+        });
+        const data = (await res.json()) as GoogleCalendarStatusResponse;
+        if (!cancelled) setGoogleCalendar(data);
+      } catch {
+        if (!cancelled) setGoogleCalendar({ configured: false, connected: false });
+      }
+    }
+    void loadGoogleStatus();
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams]);
 
   function updateSupport(type: string, patch: Partial<SupportConfig>) {
     setSupports((prev) =>
@@ -74,6 +122,20 @@ export default function SettingsPage() {
     ]);
     setNewLabel("");
     setNewTarget("3");
+  }
+
+  async function disconnectGoogleCalendar() {
+    setBusy(true);
+    setMsg("");
+    try {
+      await post("/api/calendar/google/disconnect", {});
+      setGoogleCalendar({ configured: true, connected: false });
+      setMsg("Google Calendar disconnected.");
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "Could not disconnect");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function save() {
@@ -230,11 +292,55 @@ export default function SettingsPage() {
       <section className="panel">
         <p className="eyebrow">Calendars</p>
         <p className="muted" style={{ marginTop: 0 }}>
-          Paste secret subscribe links so Home can show today’s{" "}
+          Connect calendars so Home can show today&apos;s{" "}
           <strong>events</strong> (meetings, appointments). This is not your
           task list.
         </p>
-        <label className="field">
+
+        <div style={{ marginTop: 12 }}>
+          <p className="field-label">Work Google Calendar</p>
+          {googleCalendar?.connected ? (
+            <div className="stack" style={{ gap: 8 }}>
+              <p className="muted tiny" style={{ margin: 0 }}>
+                Connected as{" "}
+                <strong>{googleCalendar.accountEmail || "Google account"}</strong>
+                . Full meeting titles come through OAuth — no more &ldquo;Busy&rdquo;
+                from free/busy ICS feeds.
+              </p>
+              <SecondaryButton
+                onClick={() => void disconnectGoogleCalendar()}
+                disabled={busy}
+              >
+                Disconnect Google Calendar
+              </SecondaryButton>
+            </div>
+          ) : googleCalendar?.configured === false ? (
+            <p className="tiny muted" style={{ marginTop: 4 }}>
+              Google OAuth is not configured on this server yet. Ask ops to set{" "}
+              <code>GOOGLE_CALENDAR_CLIENT_ID</code> and{" "}
+              <code>GOOGLE_CALENDAR_CLIENT_SECRET</code>, or use the iCal link
+              below as a fallback.
+            </p>
+          ) : (
+            <div className="stack" style={{ gap: 8 }}>
+              <p className="tiny muted" style={{ margin: 0 }}>
+                Sign in with Google to pull full event titles from your work
+                calendar (recommended for Workspace accounts that hide ICS
+                details).
+              </p>
+              <PrimaryButton
+                onClick={() => {
+                  window.location.href = "/api/calendar/google/connect";
+                }}
+                disabled={busy || !googleCalendar?.configured}
+              >
+                Connect Google Calendar
+              </PrimaryButton>
+            </div>
+          )}
+        </div>
+
+        <label className="field" style={{ marginTop: 16 }}>
           <span className="field-label">Apple Calendar (iCal) link</span>
           <input
             type="url"
@@ -251,7 +357,7 @@ export default function SettingsPage() {
           Calendar → Public Calendar (or private server URL).
         </p>
         <label className="field" style={{ marginTop: 12 }}>
-          <span className="field-label">Work Google Calendar link</span>
+          <span className="field-label">Work Google Calendar iCal link (fallback)</span>
           <input
             type="url"
             value={workIcalUrl}
@@ -262,8 +368,10 @@ export default function SettingsPage() {
           />
         </label>
         <p className="tiny muted" style={{ marginTop: 4 }}>
-          Google Calendar → Settings → your work calendar → Integrate calendar →
-          Secret address in iCal format.
+          Only needed if you are not using Connect above. Google Calendar →
+          Settings → your work calendar → Integrate calendar → Secret address
+          in iCal format. May show &ldquo;Busy&rdquo; when your org restricts
+          external sharing.
         </p>
       </section>
 

@@ -3,7 +3,7 @@ import path from "path";
 import { emptyState } from "./journey";
 import { normalizeState } from "./fund";
 import type { GenderOption } from "./auth-constants";
-import type { RebuildState } from "./types";
+import type { GoogleCalendarLink, RebuildState } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), ".data");
 export const DB_PATH = path.join(DATA_DIR, "db.json");
@@ -24,6 +24,8 @@ export type UserRecord = {
   createdAt: string;
   lastLoginAt: string;
   passwordReset?: PasswordReset | null;
+  /** Google Calendar OAuth tokens — server-only, never sent to the client */
+  googleCalendar?: GoogleCalendarLink;
   /** Per-user journey / fund state */
   state: RebuildState;
 };

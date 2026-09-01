@@ -1,5 +1,10 @@
 import ical, { type VEvent } from "node-ical";
 import { addDays } from "./journey";
+import {
+  fetchGoogleCalendarEventsForDay,
+  googleCalendarStatus,
+} from "./google-calendar";
+import type { GoogleCalendarLink } from "./types";
 
 export type CalendarFeedSource = "personal" | "work";
 
@@ -19,6 +24,7 @@ export type WorkCalendarEvent = {
 export type CalendarFeedUrls = {
   personalIcalUrl?: string;
   workIcalUrl?: string;
+  googleCalendar?: GoogleCalendarLink;
 };
 
 const ICS_URL_MAX = 2000;
@@ -39,7 +45,7 @@ export function normalizeIcalUrl(
   }
 }
 
-function ymdInTz(date: Date, timezone: string): string {
+export function ymdInTz(date: Date, timezone: string): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: timezone,
     year: "numeric",
@@ -48,7 +54,7 @@ function ymdInTz(date: Date, timezone: string): string {
   }).format(date);
 }
 
-function formatLocalTime(date: Date, timezone: string): string {
+export function formatLocalTime(date: Date, timezone: string): string {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: timezone,
     hour: "numeric",
@@ -83,7 +89,7 @@ function floatingDateYmd(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-function instanceOverlapsLocalDay(
+export function eventOverlapsLocalDay(
   start: Date,
   end: Date | undefined,
   allDay: boolean,
@@ -178,7 +184,7 @@ export function parseIcsEventsForDay(
         inst.isFullDay ||
           (start as Date & { dateOnly?: boolean }).dateOnly,
       );
-      if (!instanceOverlapsLocalDay(start, end, allDay, date, timezone)) {
+      if (!eventOverlapsLocalDay(start, end, allDay, date, timezone)) {
         continue;
       }
 
@@ -254,11 +260,26 @@ export async function fetchWorkCalendarEvents(
   if (resolved.personal) {
     jobs.push({ source: "personal", url: resolved.personal });
   }
-  if (resolved.work) {
+
+  const googleConnected = googleCalendarStatus(feeds.googleCalendar).connected;
+  if (googleConnected && feeds.googleCalendar) {
+    try {
+      collected.push(
+        ...(await fetchGoogleCalendarEventsForDay(
+          feeds.googleCalendar,
+          date,
+          timezone,
+        )),
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Google Calendar error";
+      errors.push(`google: ${msg}`);
+    }
+  } else if (resolved.work) {
     jobs.push({ source: "work", url: resolved.work });
   }
 
-  if (jobs.length === 0) {
+  if (jobs.length === 0 && !googleConnected) {
     return { events: [], connected: false, errors: [] };
   }
 

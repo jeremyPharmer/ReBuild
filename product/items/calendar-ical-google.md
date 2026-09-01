@@ -25,18 +25,14 @@ JeremyOS can **read** personal + work calendars via **ICS feeds** for a given da
 
 - **One combined agenda** — single “today’s events” list; not separate personal/work sections
 - **Surface: Home** — today’s agenda on Home (morning ritual / dedicated page deferred)
-- **Config: Settings paste URLs** — Jeremy pastes **secret calendar subscribe links** in Settings:
-  - Apple Calendar private/public ICS URL
-  - Google Calendar “Secret address in iCal format”
-  - These are **calendar events**, **not** to-dos/tasks ([RB-014](./todo-lists.md))
-  - Product path is Settings; env-only is **not** the product path (env may remain as eng convenience / fallback)
-- **Read-only ICS feeds** — fetch + parse for a selected calendar day (timezone-aware using existing profile timezone)
-- Wire/finish the existing stub + API so `connected` + `events` are honest when URLs are set
-- Intent: **go get Apple iCal** — build toward shipping the Home combined agenda
+- **Config: Settings** — Apple iCal paste + **Google Calendar OAuth connect** (primary for Workspace free/busy ICS limits); optional Google secret iCal fallback
+- **Read-only** — fetch events for a selected calendar day (timezone-aware using profile timezone)
+- Wire API so `connected` + `events` are honest when URLs or OAuth are set
+
+**Added 2026-09-01:** Google OAuth (`calendar.readonly`) so work meeting titles appear even when org ICS feeds redact to “Busy”.
 
 ## Out of scope / later
 
-- Full **OAuth** Google Calendar API
 - Write-back / create / edit events; two-way sync
 - Outlook deep integration
 - Full **calendar month UI** as a product surface (distinct from journal browse)

@@ -136,9 +136,29 @@ export function TodayAgendaCard() {
 
   const personal = state.profile?.personalIcalUrl?.trim();
   const work = state.profile?.workIcalUrl?.trim();
-  const hasUrls = Boolean(personal || work);
+  const [googleConnected, setGoogleConnected] = useState(false);
+  const hasUrls = Boolean(personal || work || googleConnected);
   const overrides = calendarTitleOverrides(state);
   const hidden = calendarHiddenEventIds(state);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadGoogleStatus() {
+      try {
+        const res = await fetch("/api/calendar/google/status", {
+          credentials: "include",
+        });
+        const json = (await res.json()) as { connected?: boolean };
+        if (!cancelled) setGoogleConnected(Boolean(json.connected));
+      } catch {
+        if (!cancelled) setGoogleConnected(false);
+      }
+    }
+    void loadGoogleStatus();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -167,7 +187,7 @@ export function TodayAgendaCard() {
     return () => {
       cancelled = true;
     };
-  }, [today, personal, work]);
+  }, [today, personal, work, googleConnected]);
 
   const rawEvents = data?.events ?? [];
   const events = filterHiddenCalendarEvents(
