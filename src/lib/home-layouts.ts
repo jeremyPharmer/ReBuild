@@ -53,13 +53,13 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
     label: "Morning Briefing",
     tagline: "EA desk, todos first",
     description:
-      "Compact date + weather strip, then a large Today briefing. Week plan next; Move and Entertainment as a quiet twin footer.",
+      "Compact date + weather strip, then a large Today briefing. Move and Entertainment follow the checklist; week plan tucks below.",
     bestFor: "Executive-assistant mornings — what matters before what’s fun.",
     preview: [
       ["header-strip"],
       ["today"],
-      ["week"],
       ["move", "entertainment"],
+      ["week"],
     ],
   },
   {
@@ -67,7 +67,7 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
     label: "Split Day",
     tagline: "Work beside life",
     description:
-      "Today’s checklist on the primary rail; Move and Entertainment stacked on the side. Week plan spans the bottom.",
+      "Today’s checklist and Move on the primary rail; Entertainment stacked on the side. Week plan spans the bottom.",
     bestFor: "Seeing progress and play in one glance.",
     preview: [
       ["date"],
@@ -81,13 +81,13 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
     label: "Train First",
     tagline: "Move sets the day",
     description:
-      "Workouts land right under weather. Checklist and entertainment follow — body before busywork.",
-    bestFor: "Training weeks, race blocks, or gym-forward days.",
+      "Checklist first, then a hero Move card. Entertainment and week plan follow — tasks before training.",
+    bestFor: "Training weeks when you still want todos up top.",
     preview: [
       ["date"],
       ["weather"],
-      ["move"],
       ["today"],
+      ["move"],
       ["entertainment"],
       ["week"],
     ],
@@ -103,8 +103,8 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
       ["date"],
       ["weather"],
       ["today"],
-      ["week"],
       ["hubs"],
+      ["week"],
     ],
   },
   {
@@ -112,12 +112,13 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
     label: "Command Center",
     tagline: "Dense & modern",
     description:
-      "Slim header bar, compact Today, then a three-up board: week plan, Move, Entertainment. More signal, less scroll.",
+      "Slim header bar, compact Today, Move right below, then a twin board: week plan and Entertainment. More signal, less scroll.",
     bestFor: "High-output weekdays when you want a dashboard feel.",
     preview: [
       ["header-strip"],
       ["today"],
-      ["week", "move", "entertainment"],
+      ["move"],
+      ["week", "entertainment"],
     ],
   },
   {
@@ -140,13 +141,13 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
     label: "Dual Pillars",
     tagline: "Move + media heroes",
     description:
-      "Equal Move and Entertainment heroes under the date. Checklist and week plan sit below as supporting rails.",
+      "Checklist first, then equal Move and Entertainment heroes. Week plan sits below as a supporting rail.",
     bestFor: "Weekends and recovery days that still stay intentional.",
     preview: [
       ["date"],
       ["weather"],
-      ["move", "entertainment"],
       ["today"],
+      ["move", "entertainment"],
       ["week"],
     ],
   },
