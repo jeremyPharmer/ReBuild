@@ -128,13 +128,34 @@ export type WorkoutPr = {
   createdAt: string;
 };
 
-/** Recurrence for personal tasks (date-only). Stored on DayProvision. */
+/** When a Google-style repeat series stops (no alerts). */
+export type TodoRepeatEnds =
+  | { type: "never" }
+  | { type: "on"; date: string }
+  | { type: "after"; count: number };
+
+/**
+ * Recurrence for personal tasks.
+ * Legacy kinds kept for stored data; new UI writes `repeat` (Google Tasks–style).
+ */
 export type TodoRecurrence =
   | { kind: "none" }
   | { kind: "daily" }
   | { kind: "weekly"; weekdays: number[] }
   | { kind: "every_n_days"; n: number }
-  | { kind: "monthly_first" };
+  | { kind: "monthly_first" }
+  | {
+      kind: "repeat";
+      /** Unit to repeat on */
+      frequency: "day" | "week" | "month" | "year";
+      /** Every N units (≥ 1) */
+      interval: number;
+      /** For frequency=week: days of week (0=Sun…6=Sat) */
+      weekdays?: number[];
+      /** For frequency=month: same calendar day vs nth weekday */
+      monthlyOn?: "day" | "nth_weekday";
+      ends?: TodoRepeatEnds;
+    };
 
 /**
  * Personal to-do (Today’s Items). Stored as `dayProvisions`.
@@ -148,6 +169,10 @@ export type DayProvision = {
   completed: boolean;
   completedAt?: string;
   recurrence?: TodoRecurrence;
+  /** Optional due time HH:mm (24h). Omit for date-only. */
+  time?: string;
+  /** Completions so far (for ends.after). */
+  repeatCount?: number;
   /** Last occurrence completed (YYYY-MM-DD); undo for recurring. */
   lastCompletedOn?: string;
 };

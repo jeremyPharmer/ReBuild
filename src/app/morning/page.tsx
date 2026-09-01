@@ -60,6 +60,7 @@ export default function MorningPage() {
         action: "add",
         label: payload.label,
         date: payload.date,
+        time: payload.time,
         recurrence: payload.recurrence,
       });
       setItemOpen(false);
@@ -116,18 +117,17 @@ export default function MorningPage() {
               </div>
             </div>
           ))}
-          {!itemOpen ? (
-            <button
-              type="button"
-              className="todo-add-toggle"
-              onClick={() => setItemOpen(true)}
-            >
-              <span>Add an item for today</span>
-              <span className="morning-add-plus" aria-hidden>
-                +
-              </span>
-            </button>
-          ) : (
+          <button
+            type="button"
+            className="todo-add-toggle"
+            onClick={() => setItemOpen(true)}
+          >
+            <span>Add an item for today</span>
+            <span className="morning-add-plus" aria-hidden>
+              +
+            </span>
+          </button>
+          {itemOpen && (
             <TodoComposer
               today={today}
               busy={itemBusy}

@@ -3822,11 +3822,83 @@ html.sheet-open .top-nav {
 
 .morning-add-provision,
 .todo-composer,
+.todo-composer-sheet,
 .todo-snooze-until {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   margin-top: 4px;
   padding: 8px 2px 2px;
+}
+
+.todo-composer-sheet {
+  margin-top: 0;
+  padding: 4px 0 8px;
+}
+
+.todo-composer-datetime {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.todo-time-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.todo-time-row input[type="time"] {
+  flex: 1;
+}
+
+.todo-time-add,
+.text-btn {
+  appearance: none;
+  border: 1px dashed var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.text-btn {
+  border: none;
+  padding: 6px 4px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.todo-time-add:hover,
+.text-btn:hover {
+  color: var(--text);
+}
+
+.todo-custom-repeat {
+  display: grid;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-strong, var(--surface));
+}
+
+.todo-interval-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.todo-interval-row input[type="number"] {
+  width: 64px;
+}
+
+.todo-interval-row select {
+  flex: 1;
+  min-width: 120px;
 }
 
 .morning-add-provision-actions,
@@ -3840,7 +3912,7 @@ html.sheet-open .top-nav {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .todo-day-chip {

@@ -44,6 +44,7 @@ export default function ItemsPage() {
       action: "add",
       label: payload.label,
       date: payload.date,
+      time: payload.time,
       recurrence: payload.recurrence,
     });
   }
@@ -58,26 +59,24 @@ export default function ItemsPage() {
         Master list — today, upcoming, and finished.
       </p>
 
-      {adding ? (
-        <section className="panel">
-          <TodoComposer
-            today={today}
-            busy={addBusy}
-            onSubmit={add}
-            onCancel={() => setAdding(false)}
-          />
-        </section>
-      ) : (
-        <button
-          type="button"
-          className="todo-add-toggle"
-          onClick={() => setAdding(true)}
-        >
-          <span>Add an item</span>
-          <span className="morning-add-plus" aria-hidden>
-            +
-          </span>
-        </button>
+      <button
+        type="button"
+        className="todo-add-toggle"
+        onClick={() => setAdding(true)}
+      >
+        <span>Add an item</span>
+        <span className="morning-add-plus" aria-hidden>
+          +
+        </span>
+      </button>
+
+      {adding && (
+        <TodoComposer
+          today={today}
+          busy={addBusy}
+          onSubmit={add}
+          onCancel={() => setAdding(false)}
+        />
       )}
 
       <section className="panel">
