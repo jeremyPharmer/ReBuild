@@ -10,6 +10,8 @@ type CompassOption = {
   art: ReactNode;
 };
 
+const SHIPPED = 6;
+
 const OPTIONS: CompassOption[] = [
   {
     id: 1,
@@ -254,8 +256,8 @@ export default function CompassIconOptionsPage() {
         <p className="eyebrow">Brand mark</p>
         <h1>15 compass icons</h1>
         <p className="muted">
-          Variations on the compass you liked. Pick a number to ship as{" "}
-          <code>apple-icon.png</code>.
+          Variations on the compass you liked. <strong>#6 Eight-point star</strong>{" "}
+          is live as the home-screen icon.
         </p>
         <div className="layouts-board-links">
           <Link href="/icon-options" className="layouts-board-link">
@@ -282,9 +284,14 @@ export default function CompassIconOptionsPage() {
               {opt.art}
             </svg>
             <div>
-              <h2>
-                {opt.id}. {opt.name}
-              </h2>
+              <div className="layout-gallery-title-row">
+                <h2>
+                  {opt.id}. {opt.name}
+                </h2>
+                {opt.id === SHIPPED ? (
+                  <span className="layout-pick-badge">Shipped</span>
+                ) : null}
+              </div>
               <p className="muted">{opt.vibe}</p>
             </div>
           </article>
