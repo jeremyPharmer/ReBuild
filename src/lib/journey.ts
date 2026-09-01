@@ -201,6 +201,27 @@ export function suggestedRewardPool(dayNumber: number, dailySpend: number): numb
   return Math.round(dailySpend * dayNumber * curve);
 }
 
+/** Non-run workouts logged in range (feeds Gym weekly target on Home). */
+export function gymWorkoutsInRange(
+  state: RebuildState,
+  start: string,
+  end: string,
+): number {
+  return (state.workouts ?? []).filter((w) => {
+    if (w.date < start || w.date > end) return false;
+    const type =
+      w.type ??
+      (w.category === "run"
+        ? "run"
+        : w.liftType === "hiit"
+          ? "hiit"
+          : w.liftType === "stretch"
+            ? "stretch"
+            : "lift");
+    return type !== "run";
+  }).length;
+}
+
 export function weeklySupportProgress(
   state: RebuildState,
   date: string,
@@ -210,13 +231,16 @@ export function weeklySupportProgress(
   return state.profile.supports
     .filter((s) => s.enabled)
     .map((s) => {
-      const done = state.supports.filter(
-        (c) =>
-          c.supportType === s.type &&
-          c.completed &&
-          c.date >= start &&
-          c.date <= end,
-      ).length;
+      const done =
+        s.type === "gym"
+          ? gymWorkoutsInRange(state, start, end)
+          : state.supports.filter(
+              (c) =>
+                c.supportType === s.type &&
+                c.completed &&
+                c.date >= start &&
+                c.date <= end,
+            ).length;
       return {
         type: s.type,
         label: s.label,

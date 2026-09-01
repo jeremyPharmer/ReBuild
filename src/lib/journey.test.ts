@@ -396,6 +396,14 @@ describe("weekly supports", () => {
       completed: true,
       completedAt: "",
     }));
+    state.workouts = [10, 11, 12, 13].map((n) => ({
+      id: `w${n}`,
+      date: d(n),
+      type: "lift" as const,
+      label: "Gym",
+      quality: 4,
+      createdAt: "",
+    }));
     expect(weekFullyComplete(state, "2026-08-10")).toBe(true);
     state = applyEveningSideEffects(state, {
       date: "2026-08-10",
@@ -439,6 +447,39 @@ describe("weekly supports", () => {
     expect(content?.target).toBe(2);
     expect(content?.done).toBe(4);
     expect(content!.done).toBeGreaterThan(content!.target);
+  });
+
+  it("counts gym from logged workouts, not support check-offs", () => {
+    const state = baseState();
+    state.supports = [
+      ...[0, 1, 2].map((n) => ({
+        date: `2026-08-3${n}`,
+        supportType: "gym" as const,
+        completed: true,
+        completedAt: "",
+      })),
+    ];
+    state.workouts = [
+      {
+        id: "w1",
+        date: "2026-08-30",
+        type: "stretch",
+        label: "Mobility",
+        quality: 4,
+        createdAt: "",
+      },
+      {
+        id: "w2",
+        date: "2026-09-01",
+        type: "lift",
+        label: "Upper",
+        quality: 5,
+        createdAt: "",
+      },
+    ];
+    const week = weeklySupportProgress(state, "2026-09-01");
+    const gym = week.find((w) => w.type === "gym");
+    expect(gym?.done).toBe(2);
   });
 });
 
