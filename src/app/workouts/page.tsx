@@ -35,7 +35,7 @@ export default function WorkoutsPage() {
         <h1>Move</h1>
       </header>
 
-      <section className="panel">
+      <section className="panel workout-calendar-panel">
         <WorkoutCalendar
           monthKey={month}
           today={today}
@@ -44,11 +44,11 @@ export default function WorkoutsPage() {
           onMonthChange={setMonth}
           onSelectDate={setSelectedDate}
         />
-      </section>
 
-      <section className="panel workout-history-panel">
         {monthWorkouts.length === 0 ? (
-          <p className="muted tiny">No workouts logged this month.</p>
+          <p className="muted tiny workout-history-empty">
+            No workouts logged this month.
+          </p>
         ) : (
           <ul className="workout-history-list">
             {monthWorkouts.map((w) => (
@@ -61,10 +61,10 @@ export default function WorkoutsPage() {
                   className="workout-history-main"
                   onClick={() => setSelectedDate(w.date)}
                 >
-                  <span className="workout-history-date">
-                    {formatWorkoutListDate(w.date)}
-                  </span>
-                  <span className="workout-history-label">
+                  <span className="workout-history-line">
+                    <span className="workout-history-date">
+                      {formatWorkoutListDate(w.date)}:
+                    </span>{" "}
                     <span
                       className={`workout-history-dot ${w.type as WorkoutType}`}
                       aria-hidden

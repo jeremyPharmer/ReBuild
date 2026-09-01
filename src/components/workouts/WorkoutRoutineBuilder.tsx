@@ -135,12 +135,7 @@ export function WorkoutRoutineBuilder() {
   return (
     <section className="panel workout-routine-panel">
       <div className="workout-routine-head">
-        <div>
-          <p className="eyebrow">Routines</p>
-          <p className="tiny muted">
-            Build stretch, lift, and other workouts to reuse when logging.
-          </p>
-        </div>
+        <p className="eyebrow">Routines</p>
         <button
           type="button"
           className="btn secondary"

@@ -669,17 +669,26 @@ h2 {
   gap: 8px;
 }
 
-.workout-history-panel {
+.workout-calendar-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.workout-history-empty {
+  margin: 12px 0 4px;
   padding-top: 12px;
-  padding-bottom: 12px;
+  border-top: 1px solid var(--line);
 }
 
 .workout-history-list {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--line);
   display: flex;
   flex-direction: column;
+  gap: 0;
 }
 
 .workout-history-row {
@@ -687,27 +696,23 @@ h2 {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 8px;
-  border-bottom: 1px solid var(--line);
 }
 
-.workout-history-row:last-child {
-  border-bottom: none;
+.workout-history-row + .workout-history-row {
+  border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
 }
 
-.workout-history-row.selected .workout-history-main {
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
+.workout-history-row.selected .workout-history-line {
+  color: var(--accent);
 }
 
 .workout-history-main {
-  display: grid;
-  grid-template-columns: 3.25rem 1fr;
-  gap: 12px;
-  align-items: center;
+  display: block;
   width: 100%;
   margin: 0;
-  padding: 11px 4px;
+  padding: 10px 0;
   border: none;
-  border-radius: 10px;
+  border-radius: 0;
   background: transparent;
   color: inherit;
   font: inherit;
@@ -715,28 +720,27 @@ h2 {
   cursor: pointer;
 }
 
+.workout-history-line {
+  display: inline;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
 .workout-history-date {
-  font-size: 0.82rem;
   font-variant-numeric: tabular-nums;
   color: var(--muted);
   font-weight: 600;
 }
 
-.workout-history-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  line-height: 1.35;
-}
-
 .workout-history-dot {
-  flex-shrink: 0;
-  width: 7px;
-  height: 7px;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 5px 0 2px;
   border-radius: 50%;
+  vertical-align: middle;
+  transform: translateY(-1px);
 }
 
 .workout-history-dot.run {
