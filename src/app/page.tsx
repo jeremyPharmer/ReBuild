@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { HomeDateHeader } from "@/components/HomeDateHeader";
 import { WeatherBanner } from "@/components/WeatherBanner";
+import { TodayAgendaCard } from "@/components/TodayAgendaCard";
 import { TodayRebuildPanel } from "@/components/TodayRebuildPanel";
 import { TodaysEntertainmentCard } from "@/components/TodaysEntertainmentCard";
 import { MoveHubCard } from "@/components/MoveHubCard";
@@ -26,6 +27,8 @@ export default function HomePage() {
     <main className="fade-in home-cos stack">
       <HomeDateHeader date={today} />
       <WeatherBanner />
+
+      <TodayAgendaCard />
 
       <TodayRebuildPanel />
 

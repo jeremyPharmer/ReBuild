@@ -1,24 +1,277 @@
+import ical, { type VEvent } from "node-ical";
+import { addDays } from "./journey";
+
+export type CalendarFeedSource = "personal" | "work";
+
 export type WorkCalendarEvent = {
   id: string;
   title: string;
-  /** Local time label, e.g. "9:00 AM" */
+  /** Local time label, e.g. "9:00 AM"; "All day" for date-only */
   startTime: string;
   endTime?: string;
   location?: string;
   /** Video call or calendar deep link when available */
   url?: string;
+  allDay?: boolean;
+  source: CalendarFeedSource;
 };
 
+export type CalendarFeedUrls = {
+  personalIcalUrl?: string;
+  workIcalUrl?: string;
+};
+
+const ICS_URL_MAX = 2000;
+
+/** Normalize pasted calendar links (webcal → https). */
+export function normalizeIcalUrl(
+  raw: string | undefined | null,
+): string | undefined {
+  const trimmed = String(raw ?? "").trim();
+  if (!trimmed) return undefined;
+  const swapped = trimmed.replace(/^webcal:/i, "https:");
+  try {
+    const u = new URL(swapped);
+    if (u.protocol !== "https:" && u.protocol !== "http:") return undefined;
+    return u.toString().slice(0, ICS_URL_MAX);
+  } catch {
+    return undefined;
+  }
+}
+
+function ymdInTz(date: Date, timezone: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+function formatLocalTime(date: Date, timezone: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function eventUrl(ev: VEvent): string | undefined {
+  const href = ev.url;
+  if (!href) return undefined;
+  if (typeof href === "string") return href;
+  if (typeof href === "object" && href && "val" in href) {
+    return String((href as { val: string }).val);
+  }
+  return undefined;
+}
+
+function parameterText(value: unknown): string {
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object" && value && "val" in value) {
+    return String((value as { val: string }).val);
+  }
+  return String(value);
+}
+
+function floatingDateYmd(d: Date): string {
+  // ICS VALUE=DATE is a floating calendar day (stored as UTC midnight).
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function instanceOverlapsLocalDay(
+  start: Date,
+  end: Date | undefined,
+  allDay: boolean,
+  date: string,
+  timezone: string,
+): boolean {
+  if (allDay) {
+    const startYmd =
+      (start as Date & { dateOnly?: boolean }).dateOnly
+        ? floatingDateYmd(start)
+        : ymdInTz(start, timezone);
+    if (!end) return startYmd === date;
+    const endYmd =
+      (end as Date & { dateOnly?: boolean }).dateOnly
+        ? floatingDateYmd(end)
+        : ymdInTz(end, timezone);
+    // ICS all-day DTEND is exclusive
+    return startYmd <= date && date < endYmd;
+  }
+
+  const startYmd = ymdInTz(start, timezone);
+  if (!end) return startYmd === date;
+  const endYmd = ymdInTz(end, timezone);
+  if (startYmd === date || endYmd === date) return true;
+  return startYmd < date && endYmd > date;
+}
+
+function sortAgenda(events: WorkCalendarEvent[]): WorkCalendarEvent[] {
+  return [...events].sort((a, b) => {
+    if (a.allDay && !b.allDay) return -1;
+    if (!a.allDay && b.allDay) return 1;
+    if (!a.allDay && !b.allDay) {
+      const ap = Date.parse(`1970-01-01 ${a.startTime}`);
+      const bp = Date.parse(`1970-01-01 ${b.startTime}`);
+      if (!Number.isNaN(ap) && !Number.isNaN(bp) && ap !== bp) return ap - bp;
+    }
+    return a.title.localeCompare(b.title);
+  });
+}
+
 /**
- * Work calendar events for a calendar day.
- * v1: stub until Google/Outlook sync (RB-002 / calendar integration).
- * Set WORK_CALENDAR_ICS_URL later to wire real feeds.
+ * Parse ICS text into agenda events for one local calendar day.
+ */
+export function parseIcsEventsForDay(
+  icsText: string,
+  date: string,
+  timezone: string,
+  source: CalendarFeedSource,
+): WorkCalendarEvent[] {
+  const parsed = ical.sync.parseICS(icsText);
+  const from = new Date(`${addDays(date, -1)}T00:00:00Z`);
+  const to = new Date(`${addDays(date, 2)}T00:00:00Z`);
+  const out: WorkCalendarEvent[] = [];
+
+  for (const value of Object.values(parsed)) {
+    if (!value || typeof value !== "object") continue;
+    if ((value as { type?: string }).type !== "VEVENT") continue;
+    const ev = value as VEvent;
+    if (!ev.start) continue;
+    if (String(ev.status || "").toUpperCase() === "CANCELLED") continue;
+
+    let instances: ReturnType<typeof ical.expandRecurringEvent>;
+    try {
+      instances = ical.expandRecurringEvent(ev, {
+        from,
+        to,
+        includeOverrides: true,
+        excludeExdates: true,
+        expandOngoing: true,
+      });
+    } catch {
+      instances = [
+        {
+          start: ev.start,
+          end: (ev.end as Date) ?? ev.start,
+          summary: ev.summary,
+          isFullDay: Boolean(
+            (ev.start as Date & { dateOnly?: boolean }).dateOnly,
+          ),
+          isRecurring: false,
+          isOverride: false,
+          event: ev,
+        },
+      ];
+    }
+
+    for (const inst of instances) {
+      const start = inst.start;
+      const end = inst.end;
+      if (!(start instanceof Date)) continue;
+      const allDay = Boolean(
+        inst.isFullDay ||
+          (start as Date & { dateOnly?: boolean }).dateOnly,
+      );
+      if (!instanceOverlapsLocalDay(start, end, allDay, date, timezone)) {
+        continue;
+      }
+
+      const uid = String(ev.uid || parameterText(ev.summary) || "event");
+      out.push({
+        id: `${source}:${uid}:${start.toISOString()}`,
+        title: parameterText(inst.summary || ev.summary).trim() || "Untitled",
+        startTime: allDay ? "All day" : formatLocalTime(start, timezone),
+        endTime:
+          !allDay && end instanceof Date
+            ? formatLocalTime(end, timezone)
+            : undefined,
+        location: parameterText(ev.location).trim() || undefined,
+        url: eventUrl(inst.event ?? ev),
+        allDay,
+        source,
+      });
+    }
+  }
+
+  return out;
+}
+
+async function fetchIcsText(url: string): Promise<string> {
+  const res = await fetch(url, {
+    headers: { Accept: "text/calendar, text/plain, */*" },
+    redirect: "follow",
+    signal: AbortSignal.timeout(12_000),
+  });
+  if (!res.ok) {
+    throw new Error(`Calendar feed failed (${res.status})`);
+  }
+  return res.text();
+}
+
+/**
+ * Resolve feed URLs: profile Settings first, then eng env fallback for work.
+ * Product path is Settings paste (Apple + Google secret ICS links).
+ */
+export function resolveCalendarFeedUrls(
+  feeds: CalendarFeedUrls,
+  envWorkUrl = process.env.WORK_CALENDAR_ICS_URL,
+): { personal?: string; work?: string } {
+  return {
+    personal: normalizeIcalUrl(feeds.personalIcalUrl),
+    work: normalizeIcalUrl(feeds.workIcalUrl) || normalizeIcalUrl(envWorkUrl),
+  };
+}
+
+/**
+ * Personal iCal + work Google Calendar events for a day (combined agenda).
+ * RB-023 — read-only ICS; Settings URLs preferred (≠ todos).
  */
 export async function fetchWorkCalendarEvents(
-  _date: string,
-): Promise<WorkCalendarEvent[]> {
-  const icsUrl = process.env.WORK_CALENDAR_ICS_URL?.trim();
-  if (!icsUrl) return [];
-  // ICS parsing deferred — return empty until integration lands.
-  return [];
+  date: string,
+  timezone: string,
+  feeds: CalendarFeedUrls = {},
+): Promise<{
+  events: WorkCalendarEvent[];
+  connected: boolean;
+  errors: string[];
+}> {
+  const resolved = resolveCalendarFeedUrls(feeds);
+  const errors: string[] = [];
+  const collected: WorkCalendarEvent[] = [];
+
+  const jobs: { source: CalendarFeedSource; url: string }[] = [];
+  if (resolved.personal) {
+    jobs.push({ source: "personal", url: resolved.personal });
+  }
+  if (resolved.work) {
+    jobs.push({ source: "work", url: resolved.work });
+  }
+
+  if (jobs.length === 0) {
+    return { events: [], connected: false, errors: [] };
+  }
+
+  await Promise.all(
+    jobs.map(async ({ source, url }) => {
+      try {
+        const text = await fetchIcsText(url);
+        collected.push(...parseIcsEventsForDay(text, date, timezone, source));
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Feed error";
+        errors.push(`${source}: ${msg}`);
+      }
+    }),
+  );
+
+  return {
+    events: sortAgenda(collected),
+    connected: true,
+    errors,
+  };
 }

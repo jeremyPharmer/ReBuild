@@ -80,5 +80,5 @@ JeremyOS has a durable **Today’s Items** list Jeremy will use daily: personal 
 - Intake **2026-08-29** founder: loves to-do lists. Rank **3** / **P0**.
 - Intake **2026-08-31** founder: “bass ass to do list” + clarifying Qs → answers locked same day (merge list; all-but-email v1; master page ± nav tab; recurrence + first-of-month; auto-roll incompletes; snooze tomorrow + until; drop Provisions copy; supports stay). Product defaults applied for edit/delete, date-only, per-user lists.
 - Effort **L** (merged list + recurrence set + snooze-until + auto-roll + master page + possible nav tab + copy sweep). Rank **unchanged** (3).
-- Related: [RB-003](./daily-open-checklist-email.md), [RB-002](./email-integration.md), [RB-012](./rebrand-jeremyos.md) for nav/chrome.
+- Related: [RB-003](./daily-open-checklist-email.md), [RB-002](./email-integration.md), [RB-012](./rebrand-jeremyos.md) for nav/chrome; agenda/calendar events are [RB-023](./calendar-ical-google.md) (sits beside todos, does not replace them).
 - Legacy surface at lock: Home eyebrow “Today’s Build”; morning “Provisions” / one-time provision add; `DayProvision` one-offs — all superseded by locked Scope above.

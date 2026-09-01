@@ -361,6 +361,16 @@ export type RebuildProfile = {
   /** Where morning/evening reminder emails go */
   email?: string;
   reminders?: ReminderPrefs;
+  /**
+   * Secret Apple Calendar / iCal subscribe URL (Settings).
+   * Calendar events — not to-dos (RB-023).
+   */
+  personalIcalUrl?: string;
+  /**
+   * Secret Google Calendar iCal URL for work (Settings).
+   * Calendar events — not to-dos (RB-023).
+   */
+  workIcalUrl?: string;
   /** User-added craving intervention labels (merged with defaults in the craving flow) */
   cravingInterventions?: string[];
 };
