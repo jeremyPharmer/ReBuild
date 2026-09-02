@@ -26,11 +26,24 @@ type AgendaResponse = {
   error?: string;
 };
 
-function eventTimeLabel(event: WorkCalendarEvent): string {
-  if (event.allDay || event.startTime === "All day") return "All day";
-  if (event.startTime === "Anytime") return "Anytime";
-  if (event.endTime) return `${event.startTime}–${event.endTime}`;
-  return event.startTime;
+type AgendaTimeParts = {
+  start: string;
+  end?: string;
+  joinable: boolean;
+};
+
+function agendaTimeParts(event: WorkCalendarEvent): AgendaTimeParts {
+  if (event.allDay || event.startTime === "All day") {
+    return { start: "All day", joinable: Boolean(event.url) };
+  }
+  if (event.startTime === "Anytime") {
+    return { start: "Anytime", joinable: Boolean(event.url) };
+  }
+  return {
+    start: event.startTime,
+    end: event.endTime,
+    joinable: Boolean(event.url),
+  };
 }
 
 function shouldShowLocation(event: WorkCalendarEvent): boolean {
@@ -48,28 +61,49 @@ function shouldShowLocation(event: WorkCalendarEvent): boolean {
 }
 
 function AgendaTime({ event }: { event: WorkCalendarEvent }) {
-  const label = eventTimeLabel(event);
-  if (event.url) {
+  const { start, end, joinable } = agendaTimeParts(event);
+  const hasEnd = Boolean(end && end !== start);
+  const label = hasEnd ? `${start} to ${end}` : start;
+
+  const content = (
+    <>
+      <span className="agenda-time-start">{start}</span>
+      {hasEnd ? <span className="agenda-time-end">{end}</span> : null}
+      {joinable ? (
+        <span className="agenda-time-join" aria-hidden="true">
+          Join
+        </span>
+      ) : null}
+    </>
+  );
+
+  if (joinable && event.url) {
     return (
       <a
-        className="agenda-time-link"
+        className="agenda-time-block agenda-time-link"
         href={event.url}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Join ${event.title} at ${label}`}
       >
-        {label}
+        {content}
       </a>
     );
   }
-  return <span className="agenda-time-label">{label}</span>;
+
+  return <div className="agenda-time-block">{content}</div>;
 }
 
-function agendaDayHeading(viewDate: string, today: string): string {
+function agendaDayPrimary(viewDate: string, today: string): string {
   if (viewDate === today) return "Today";
   if (viewDate === addDays(today, 1)) return "Tomorrow";
+  if (viewDate === addDays(today, -1)) return "Yesterday";
+  return parseDate(viewDate).toLocaleDateString("en-US", { weekday: "long" });
+}
+
+function agendaDaySecondary(viewDate: string): string {
   return parseDate(viewDate).toLocaleDateString("en-US", {
-    weekday: "long",
+    weekday: "short",
     month: "short",
     day: "numeric",
   });
@@ -113,10 +147,12 @@ function AgendaEventRow({
   }
 
   return (
-    <li className={`agenda-item${isCustom ? " agenda-item-custom" : ""}`}>
-      <div className="agenda-time">
-        <AgendaTime event={event} />
-      </div>
+    <li
+      className={`agenda-item${isCustom ? " agenda-item-custom" : ""}${
+        event.url ? " agenda-item-joinable" : ""
+      }`}
+    >
+      <AgendaTime event={event} />
       <div className="agenda-body">
         {editing ? (
           <input
@@ -185,7 +221,7 @@ export function TodayAgendaCard() {
   const customSig = JSON.stringify(state.customAgendaEvents ?? []);
   const overrides = calendarTitleOverrides(state);
   const hidden = calendarHiddenEventIds(state);
-  const canGoBack = viewDate > today;
+  const onToday = viewDate === today;
 
   useEffect(() => {
     setViewDate(today);
@@ -286,40 +322,61 @@ export function TodayAgendaCard() {
 
   return (
     <section className="home-card home-card-agenda" aria-label="Today's calendar">
-      <div className="home-card-head-row">
-        <div className="home-card-head home-card-head-agenda">
+      <header className="agenda-header">
+        <div className="agenda-header-top">
           <p className="home-card-kicker">Calendar</p>
-          <div className="agenda-day-nav">
+          {!onToday ? (
             <button
               type="button"
-              className="btn ghost workout-cal-arrow"
-              aria-label="Previous day"
-              disabled={!canGoBack || loading}
-              onClick={() => setViewDate((d) => addDays(d, -1))}
-            >
-              ‹
-            </button>
-            <h2>{agendaDayHeading(viewDate, today)}</h2>
-            <button
-              type="button"
-              className="btn ghost workout-cal-arrow"
-              aria-label="Next day"
+              className="agenda-today-btn"
               disabled={loading}
-              onClick={() => setViewDate((d) => addDays(d, 1))}
+              onClick={() => setViewDate(today)}
             >
-              ›
+              Today
             </button>
-          </div>
+          ) : null}
         </div>
-        <button
-          type="button"
-          className="icon-btn"
-          aria-label="Add reminder or event"
-          onClick={() => setAdding(true)}
-        >
-          +
-        </button>
-      </div>
+
+        <div className="agenda-toolbar">
+          <button
+            type="button"
+            className="btn ghost workout-cal-arrow agenda-toolbar-arrow"
+            aria-label="Previous day"
+            disabled={loading}
+            onClick={() => setViewDate((d) => addDays(d, -1))}
+          >
+            ‹
+          </button>
+
+          <div className="agenda-toolbar-date" aria-live="polite">
+            <span className="agenda-date-primary">
+              {agendaDayPrimary(viewDate, today)}
+            </span>
+            <span className="agenda-date-secondary">
+              {agendaDaySecondary(viewDate)}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className="btn ghost workout-cal-arrow agenda-toolbar-arrow"
+            aria-label="Next day"
+            disabled={loading}
+            onClick={() => setViewDate((d) => addDays(d, 1))}
+          >
+            ›
+          </button>
+
+          <button
+            type="button"
+            className="icon-btn agenda-toolbar-add"
+            aria-label="Add reminder or event"
+            onClick={() => setAdding(true)}
+          >
+            +
+          </button>
+        </div>
+      </header>
 
       {adding && (
         <AgendaEventComposer
@@ -329,31 +386,33 @@ export function TodayAgendaCard() {
         />
       )}
 
-      {loading && <p className="muted tiny">Loading…</p>}
+      {loading && <p className="muted tiny agenda-status">Loading…</p>}
 
       {!loading && showSetup && !adding && (
-        <p className="muted">
+        <p className="muted agenda-status">
           Add your own reminders with <strong>+</strong>, or connect calendars in{" "}
           <Link href="/settings">Settings</Link>.
         </p>
       )}
 
       {!loading && connected && events.length === 0 && !adding && (
-        <p className="muted">Clear day — tap + to add something.</p>
+        <p className="muted agenda-status">Clear day — tap + to add something.</p>
       )}
 
       {!loading && events.length > 0 && (
-        <ul className="agenda-list">
-          {events.map((ev) => (
-            <AgendaEventRow
-              key={ev.id}
-              event={ev}
-              displayTitle={displayCalendarTitle(ev, overrides)}
-              onSaveTitle={(title) => saveTitle(ev.id, title)}
-              onRemove={() => removeEvent(ev.id)}
-            />
-          ))}
-        </ul>
+        <div className="agenda-schedule">
+          <ul className="agenda-list">
+            {events.map((ev) => (
+              <AgendaEventRow
+                key={ev.id}
+                event={ev}
+                displayTitle={displayCalendarTitle(ev, overrides)}
+                onSaveTitle={(title) => saveTitle(ev.id, title)}
+                onRemove={() => removeEvent(ev.id)}
+              />
+            ))}
+          </ul>
+        </div>
       )}
 
       {!loading && data?.errors && data.errors.length > 0 && (
