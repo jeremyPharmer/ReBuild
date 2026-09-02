@@ -72,19 +72,19 @@ export function bundleJournalsByDate(
 }
 
 /**
- * Five year slots for a month-day, starting at anchor year forward.
- * Always returns `years` slots (empty when no entry), anchored on `anchorYear`.
+ * Year slots for a month-day, anchored on `anchorYear` and going backward.
+ * Always returns `years` slots (empty when no entry).
  */
 export function fiveYearSlots(
   mmDd: DayKey,
   byDate: Map<string, DayBundle>,
   anchorYear: number,
-  years = 5,
+  years = 4,
 ): FiveYearEntry[] {
   const slots: FiveYearEntry[] = [];
   for (let i = 0; i < years; i++) {
-    const year = anchorYear + i;
-    const date = `${year}-${mmDd}`;
+    const year = anchorYear - i;
+    const date = dateForYear(mmDd, year);
     const bundled = byDate.get(date);
     slots.push({
       date,
@@ -95,6 +95,15 @@ export function fiveYearSlots(
     });
   }
   return slots;
+}
+
+/** Whether a calendar day has journal prose (headline or summary). */
+export function hasJournalContent(
+  byDate: Map<string, DayBundle>,
+  date: string,
+): boolean {
+  const row = byDate.get(date);
+  return Boolean(row?.headline?.trim() || row?.summary?.trim());
 }
 
 /** Shift a month-day by n calendar days within a reference year. */
@@ -150,8 +159,9 @@ export function isStarredDay(
 }
 
 /**
- * Prose (+ optional photo) edit of an existing closed day.
- * Updates evenings + journals only — never reclaim/milestones.
+ * Create or update journal prose for a day.
+ * Syncs evenings when a check-in exists; otherwise journals only (manual backfill).
+ * Never touches reclaim/milestones.
  */
 export function applyJournalProseEdit(
   state: RebuildState,
@@ -160,23 +170,20 @@ export function applyJournalProseEdit(
   expandedJournal?: string,
   photoId?: string,
 ): RebuildState {
-  const evening = getEvening(state, date);
-  if (!evening) {
-    throw Object.assign(new Error("No journal entry for that day"), {
-      status: 404,
-    });
-  }
   const headline = oneLine.trim();
   if (!headline) {
     throw Object.assign(new Error("Headline is required"), { status: 400 });
   }
   const summary = expandedJournal?.trim() || undefined;
 
-  const evenings = state.evenings.map((e) =>
-    e.date === date
-      ? { ...e, oneLine: headline, expandedJournal: summary }
-      : e,
-  );
+  const evening = getEvening(state, date);
+  const evenings = evening
+    ? state.evenings.map((e) =>
+        e.date === date
+          ? { ...e, oneLine: headline, expandedJournal: summary }
+          : e,
+      )
+    : state.evenings;
 
   let journals = [...state.journals];
   const oneLineIdx = journals.findIndex(

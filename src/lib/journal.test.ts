@@ -92,16 +92,21 @@ describe("journal five-year helpers", () => {
     expect(slots[0].photoId).toBe("photo_abc.jpg");
   });
 
-  it("builds five year slots forward from anchor with blanks", () => {
+  it("builds year slots backward from anchor with blanks", () => {
     const byDate = bundleJournalsByDate([
       entry({ date: "2026-08-29", type: "one_line", text: "This year" }),
-      entry({ date: "2028-08-29", type: "one_line", text: "Two ahead" }),
+      entry({ date: "2024-08-29", type: "one_line", text: "Two years back" }),
     ]);
-    const slots = fiveYearSlots("08-29" as DayKey, byDate, 2026, 5);
-    expect(slots.map((s) => s.year)).toEqual([2026, 2027, 2028, 2029, 2030]);
+    const slots = fiveYearSlots("08-29" as DayKey, byDate, 2026, 4);
+    expect(slots.map((s) => s.year)).toEqual([2026, 2025, 2024, 2023]);
     expect(slots[0].headline).toBe("This year");
     expect(slots[1].headline).toBeUndefined();
-    expect(slots[2].headline).toBe("Two ahead");
+    expect(slots[2].headline).toBe("Two years back");
+  });
+
+  it("uses Feb 28 for Feb 29 in non-leap years", () => {
+    const slots = fiveYearSlots("02-29" as DayKey, new Map(), 2028, 2);
+    expect(slots.map((s) => s.date)).toEqual(["2028-02-29", "2027-02-28"]);
   });
 
   it("shifts month-day across month boundaries", () => {
@@ -191,9 +196,19 @@ describe("journal edit + star helpers", () => {
     expect(next.journals[0].photoId).toBe("photo_new.jpg");
   });
 
-  it("rejects edit when evening is missing", () => {
-    expect(() =>
-      applyJournalProseEdit(emptyState(), "2026-08-29", "Nope"),
-    ).toThrow(/No journal entry/);
+  it("creates journal-only entry when evening is missing (manual backfill)", () => {
+    const state = emptyState();
+    const next = applyJournalProseEdit(
+      state,
+      "2023-08-29",
+      "From the paper journal",
+      "Hand-entered summary.",
+    );
+    expect(next.evenings).toHaveLength(0);
+    expect(bundleJournalsByDate(next.journals).get("2023-08-29")).toEqual({
+      date: "2023-08-29",
+      headline: "From the paper journal",
+      summary: "Hand-entered summary.",
+    });
   });
 });
