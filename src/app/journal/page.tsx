@@ -173,7 +173,7 @@ export default function JournalPage() {
   );
 
   const slots = useMemo(
-    () => fiveYearSlots(activeDay, byDate, anchorYear, 5),
+    () => fiveYearSlots(activeDay, byDate, anchorYear, 4),
     [activeDay, byDate, anchorYear],
   );
 
@@ -290,11 +290,6 @@ export default function JournalPage() {
   function startEdit(date: string) {
     const bundle = byDate.get(date);
     const evening = state.evenings.find((e) => e.date === date);
-    if (!evening && !bundle?.headline) {
-      setMissedNotice(date);
-      setError("");
-      return;
-    }
     setEditingDate(date);
     setEditHeadline(bundle?.headline ?? evening?.oneLine ?? "");
     setEditSummary(
@@ -385,7 +380,7 @@ export default function JournalPage() {
               </button>
             </div>
             <p className="fy-journal-sub muted">
-              Same day, every year — headline and a short note.
+              Same day across four years — headline and a short note.
             </p>
           </>
         ) : (
@@ -453,6 +448,7 @@ export default function JournalPage() {
               const empty = !slot.headline && !slot.summary;
               const isToday = today === slot.date;
               const hasEvening = closedSet.has(slot.date);
+              const hasContent = !empty;
               const starred = isStarredDay(state.starredDays, slot.date);
               const isEditing = editingDate === slot.date;
               const isMissed =
@@ -480,7 +476,7 @@ export default function JournalPage() {
                         <PaperclipIcon />
                       </button>
                     )}
-                    {hasEvening && (
+                    {hasContent && (
                       <button
                         type="button"
                         className="fy-star-btn"
@@ -567,6 +563,13 @@ export default function JournalPage() {
                             ? "Waiting for today’s page…"
                             : "—"}
                         </p>
+                        <button
+                          type="button"
+                          className="fy-edit-link"
+                          onClick={() => startEdit(slot.date)}
+                        >
+                          Add entry
+                        </button>
                         {isMissed && (
                           <p className="fy-missed-inline">
                             <Link href={`/evening?date=${slot.date}`}>
@@ -583,15 +586,13 @@ export default function JournalPage() {
                         {slot.summary && (
                           <p className="fy-summary">{slot.summary}</p>
                         )}
-                        {hasEvening && (
-                          <button
-                            type="button"
-                            className="fy-edit-link"
-                            onClick={() => startEdit(slot.date)}
-                          >
-                            Edit
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          className="fy-edit-link"
+                          onClick={() => startEdit(slot.date)}
+                        >
+                          Edit
+                        </button>
                       </>
                     )}
                   </div>

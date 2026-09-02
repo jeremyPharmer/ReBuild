@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import {
   applyJournalProseEdit,
+  bundleJournalsByDate,
+  hasJournalContent,
   toggleStarredDay,
 } from "@/lib/journal";
 import { getEvening } from "@/lib/journey";
@@ -26,10 +28,16 @@ export async function POST(req: Request) {
           (err as Error & { status: number }).status = 400;
           throw err;
         }
-        // Bookmark only days that already have a closed evening
-        if (!getEvening(prev, date) && !prev.starredDays?.includes(date)) {
+        // Bookmark days with journal prose or a closed evening
+        const hasContent = getEvening(prev, date)
+          ? true
+          : hasJournalContent(
+              bundleJournalsByDate(prev.journals),
+              date,
+            );
+        if (!hasContent && !prev.starredDays?.includes(date)) {
           const err = new Error(
-            "Close the day before starring it as a day to remember",
+            "Write something on this day before starring it",
           );
           (err as Error & { status: number }).status = 400;
           throw err;
@@ -69,13 +77,6 @@ export async function POST(req: Request) {
         if (!prev.profile) {
           const err = new Error("Not onboarded");
           (err as Error & { status: number }).status = 400;
-          throw err;
-        }
-        if (!getEvening(prev, date)) {
-          const err = new Error(
-            "No entry to edit — close the day first if it was missed",
-          );
-          (err as Error & { status: number }).status = 404;
           throw err;
         }
         const expanded =
