@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useApp } from "@/components/AppProvider";
 import { TodoComposer, type TodoComposerPayload } from "@/components/TodoComposer";
 import { TodoTaskRow } from "@/components/TodoTaskRow";
 import { truncateSupportLabel } from "@/lib/auth-constants";
+import { homeDayPrimary, homeDaySecondary } from "@/lib/home-day-nav";
+import { addDays } from "@/lib/journey";
 import { openTodosOn } from "@/lib/todos";
+import type { DayProvision } from "@/lib/types";
 import type { SupportType } from "@/lib/types";
 
 type SkipKey = SupportType | "morning" | "evening";
@@ -24,26 +27,103 @@ type ExitingSupport = {
   weeklyTarget: number;
 };
 
+function sortTodosForDay(items: DayProvision[]): DayProvision[] {
+  return [...items].sort((a, b) => {
+    if (a.time && b.time) return a.time.localeCompare(b.time) || a.label.localeCompare(b.label);
+    if (a.time) return -1;
+    if (b.time) return 1;
+    return a.label.localeCompare(b.label);
+  });
+}
+
 function DismissingTaskRow({ label, meta }: { label: string; meta?: string }) {
   return (
-    <div
-      className="check-item check-item-row dismissing"
-      aria-live="polite"
-      aria-label={`${label} — not today`}
-    >
-      <div className="check-item-main" aria-hidden>
-        <span className="check-box" />
-        <span className="check-label">
-          <span className="check-label-name">{label}</span>
-          {meta ? <span className="check-label-meta">{meta}</span> : null}
-        </span>
+    <div className="tasks-item tasks-item-dismissing" aria-live="polite">
+      <span className="tasks-check tasks-check-static" aria-hidden />
+      <div className="tasks-body" aria-hidden>
+        <span className="tasks-title">{label}</span>
+        {meta ? <span className="tasks-meta">{meta}</span> : null}
       </div>
+    </div>
+  );
+}
+
+function HomeRoutineRow({
+  label,
+  meta,
+  href,
+  onActivate,
+  onDismiss,
+  dismissLabel = "Not today",
+  dismissBusy,
+  activateBusy,
+  clearing,
+  checked,
+}: {
+  label: string;
+  meta?: string;
+  href?: string;
+  onActivate?: () => void;
+  onDismiss?: () => void;
+  dismissLabel?: string;
+  dismissBusy?: boolean;
+  activateBusy?: boolean;
+  clearing?: boolean;
+  checked?: boolean;
+}) {
+  const main = (
+    <>
+      <span className={`tasks-check${checked ? " tasks-check-done" : ""}`}>
+        {checked ? "✓" : ""}
+      </span>
+      <span className="tasks-body">
+        <span className="tasks-title">{label}</span>
+        {meta ? <span className="tasks-meta">{meta}</span> : null}
+      </span>
+    </>
+  );
+
+  return (
+    <div
+      className={`tasks-item${clearing ? " tasks-item-clearing" : ""}`}
+      aria-live={clearing ? "polite" : undefined}
+    >
+      {href ? (
+        <Link href={href} className="tasks-main">
+          {main}
+        </Link>
+      ) : (
+        <button
+          type="button"
+          className="tasks-main"
+          disabled={activateBusy}
+          onClick={onActivate}
+        >
+          {main}
+        </button>
+      )}
+      {onDismiss ? (
+        <button
+          type="button"
+          className="tasks-action-btn"
+          disabled={dismissBusy}
+          onClick={onDismiss}
+        >
+          {dismissLabel}
+        </button>
+      ) : null}
+      {clearing ? (
+        <span className="tasks-clear-burst" aria-hidden>
+          +1
+        </span>
+      ) : null}
     </div>
   );
 }
 
 export function TodayRebuildPanel() {
   const { state, dashboard, today, post } = useApp();
+  const [viewDate, setViewDate] = useState(today);
   const [busyType, setBusyType] = useState<SupportType | null>(null);
   const [skipBusy, setSkipBusy] = useState<SkipKey | null>(null);
   const [exiting, setExiting] = useState<ExitingSupport[]>([]);
@@ -51,6 +131,18 @@ export function TodayRebuildPanel() {
   const [adding, setAdding] = useState(false);
   const [addBusy, setAddBusy] = useState(false);
   const [todoBusyId, setTodoBusyId] = useState<string | null>(null);
+
+  const onToday = viewDate === today;
+
+  useEffect(() => {
+    setViewDate(today);
+  }, [today]);
+
+  const todos = state.dayProvisions ?? [];
+  const openTodos = useMemo(
+    () => sortTodosForDay(openTodosOn(todos, viewDate)),
+    [todos, viewDate],
+  );
 
   if (!dashboard || !state.profile) return null;
 
@@ -68,23 +160,21 @@ export function TodayRebuildPanel() {
       !exitingTypes.has(s.type) &&
       !dismissingKeys.has(s.type),
   );
-  const todos = state.dayProvisions ?? [];
-  const openTodos = openTodosOn(todos, today);
   const morningSkipped = skips.has("morning");
   const eveningSkipped = skips.has("evening");
   const morningDone = Boolean(dashboard.todayMorning);
   const eveningDone = Boolean(dashboard.todayEvening);
   const showMorningOpen =
-    !morningDone && !morningSkipped && !dismissingKeys.has("morning");
+    onToday && !morningDone && !morningSkipped && !dismissingKeys.has("morning");
   const showEveningOpen =
-    !eveningDone && !eveningSkipped && !dismissingKeys.has("evening");
-  const openCount =
+    onToday && !eveningDone && !eveningSkipped && !dismissingKeys.has("evening");
+  const routineCount =
     (showMorningOpen ? 1 : 0) +
     openSupports.length +
-    openTodos.length +
     exiting.length +
-    dismissing.length +
+    dismissing.filter((d) => d.key !== "evening").length +
     (showEveningOpen ? 1 : 0);
+  const openCount = routineCount + openTodos.length;
 
   async function completeSupport(item: ExitingSupport) {
     setBusyType(item.type);
@@ -122,10 +212,7 @@ export function TodayRebuildPanel() {
     }
   }
 
-  async function todoAction(
-    id: string,
-    body: Record<string, unknown>,
-  ) {
+  async function todoAction(id: string, body: Record<string, unknown>) {
     setTodoBusyId(id);
     try {
       await post("/api/todos", body);
@@ -150,203 +237,208 @@ export function TodayRebuildPanel() {
     }
   }
 
+  const showSchedule = openCount > 0 || adding;
+
   return (
-    <section className="home-card home-card-tasks">
-      <div className="row">
-        <p className="eyebrow" style={{ marginBottom: 0 }}>
-          Today&apos;s Tasks
-        </p>
-        <button
-          type="button"
-          className="icon-btn"
-          aria-label="Add a task"
-          onClick={() => setAdding(true)}
-        >
-          +
-        </button>
-      </div>
+    <section className="home-card home-card-tasks" aria-label="Tasks">
+      <header className="agenda-header">
+        <div className="agenda-header-top">
+          <p className="home-card-kicker">Tasks</p>
+          {!onToday ? (
+            <button
+              type="button"
+              className="agenda-today-btn"
+              onClick={() => setViewDate(today)}
+            >
+              Today
+            </button>
+          ) : null}
+        </div>
+
+        <div className="agenda-toolbar">
+          <button
+            type="button"
+            className="btn ghost workout-cal-arrow agenda-toolbar-arrow"
+            aria-label="Previous day"
+            onClick={() => setViewDate((d) => addDays(d, -1))}
+          >
+            ‹
+          </button>
+
+          <div className="agenda-toolbar-date" aria-live="polite">
+            <span className="agenda-date-primary">
+              {homeDayPrimary(viewDate, today)}
+            </span>
+            <span className="agenda-date-secondary">
+              {homeDaySecondary(viewDate)}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className="btn ghost workout-cal-arrow agenda-toolbar-arrow"
+            aria-label="Next day"
+            onClick={() => setViewDate((d) => addDays(d, 1))}
+          >
+            ›
+          </button>
+
+          <button
+            type="button"
+            className="icon-btn agenda-toolbar-add"
+            aria-label="Add a task"
+            onClick={() => setAdding(true)}
+          >
+            +
+          </button>
+        </div>
+      </header>
 
       {adding && (
         <TodoComposer
           today={today}
+          defaultDate={viewDate}
           busy={addBusy}
           onSubmit={addTodo}
           onCancel={() => setAdding(false)}
         />
       )}
 
-      <div className="daily-actions" style={{ marginTop: 10 }}>
-        {showMorningOpen && (
-          <div className="check-item check-item-row">
-            <Link href="/morning" className="check-item-main">
-              <span className="check-box" />
-              <span className="check-label">Start the day</span>
-            </Link>
-            <button
-              type="button"
-              className="dismiss-btn"
-              disabled={skipBusy === "morning"}
-              onClick={() =>
+      {showSchedule ? (
+        <div className="tasks-schedule">
+          {onToday && showMorningOpen && (
+            <HomeRoutineRow
+              label="Start the day"
+              href="/morning"
+              onDismiss={() =>
                 dismissItem({ key: "morning", label: "Start the day" })
               }
-            >
-              Not today
-            </button>
-          </div>
-        )}
+              dismissBusy={skipBusy === "morning"}
+            />
+          )}
 
-        {dismissing
-          .filter((d) => d.key === "morning")
-          .map((d) => (
-            <DismissingTaskRow key={d.key} label={d.label} />
+          {onToday &&
+            dismissing
+              .filter((d) => d.key === "morning")
+              .map((d) => (
+                <DismissingTaskRow key={d.key} label={d.label} />
+              ))}
+
+          {onToday &&
+            enabledSupports.map((s) => {
+              const weekDone =
+                dashboard.week.find((w) => w.type === s.type)?.done ?? 0;
+              const weekMeta = `${weekDone}/${s.weeklyTarget} this week`;
+              const dismissingItem = dismissing.find((d) => d.key === s.type);
+
+              if (dismissingItem) {
+                return (
+                  <DismissingTaskRow
+                    key={s.type}
+                    label={dismissingItem.label}
+                    meta={dismissingItem.meta}
+                  />
+                );
+              }
+
+              if (skips.has(s.type)) return null;
+
+              const isExiting = exitingTypes.has(s.type);
+              const isDone = completedSupportTypes.has(s.type) && !isExiting;
+              if (isDone) return null;
+
+              const exitingItem = exiting.find((e) => e.type === s.type);
+
+              if (isExiting && exitingItem) {
+                return (
+                  <HomeRoutineRow
+                    key={s.type}
+                    label={truncateSupportLabel(exitingItem.label)}
+                    meta={`${exitingItem.weekDone + 1}/${exitingItem.weeklyTarget} this week`}
+                    clearing
+                    checked
+                  />
+                );
+              }
+
+              return (
+                <HomeRoutineRow
+                  key={s.type}
+                  label={truncateSupportLabel(s.label)}
+                  meta={weekMeta}
+                  activateBusy={busyType === s.type}
+                  onActivate={() =>
+                    completeSupport({
+                      type: s.type,
+                      label: s.label,
+                      weekDone,
+                      weeklyTarget: s.weeklyTarget,
+                    })
+                  }
+                  onDismiss={() =>
+                    dismissItem({
+                      key: s.type,
+                      label: truncateSupportLabel(s.label),
+                      meta: weekMeta,
+                    })
+                  }
+                  dismissBusy={skipBusy === s.type}
+                />
+              );
+            })}
+
+          {openTodos.length > 0 && onToday && routineCount > 0 ? (
+            <p className="tasks-section-label">Your tasks</p>
+          ) : null}
+
+          {openTodos.map((p) => (
+            <TodoTaskRow
+              key={p.id}
+              item={p}
+              today={today}
+              viewDate={viewDate}
+              home
+              busy={todoBusyId === p.id}
+              onComplete={() => todoAction(p.id, { action: "complete", id: p.id })}
+              onSnooze={(until) =>
+                todoAction(p.id, { action: "snooze", id: p.id, until })
+              }
+              onEdit={(payload) =>
+                todoAction(p.id, {
+                  action: "edit",
+                  id: p.id,
+                  ...payload,
+                })
+              }
+              onDelete={() => todoAction(p.id, { action: "delete", id: p.id })}
+            />
           ))}
 
-        {enabledSupports.map((s) => {
-          const weekDone =
-            dashboard.week.find((w) => w.type === s.type)?.done ?? 0;
-          const weekMeta = ` · ${weekDone}/${s.weeklyTarget}`;
-          const dismissingItem = dismissing.find((d) => d.key === s.type);
-
-          if (dismissingItem) {
-            return (
-              <DismissingTaskRow
-                key={s.type}
-                label={dismissingItem.label}
-                meta={dismissingItem.meta}
-              />
-            );
-          }
-
-          if (skips.has(s.type)) return null;
-
-          const isExiting = exitingTypes.has(s.type);
-          const isDone = completedSupportTypes.has(s.type) && !isExiting;
-          if (isDone) return null;
-
-          const exitingItem = exiting.find((e) => e.type === s.type);
-
-          if (isExiting && exitingItem) {
-            return (
-              <div
-                key={s.type}
-                className="check-item check-item-row clearing"
-                aria-live="polite"
-              >
-                <div className="check-item-main" aria-hidden>
-                  <span className="check-box checked">✓</span>
-                  <span className="check-label">
-                    <span className="check-label-name">
-                      {truncateSupportLabel(exitingItem.label)}
-                    </span>
-                    <span className="check-label-meta">
-                      · {exitingItem.weekDone + 1}/{exitingItem.weeklyTarget}
-                    </span>
-                  </span>
-                </div>
-                <span className="clear-burst" aria-hidden>
-                  +1
-                </span>
-              </div>
-            );
-          }
-
-          return (
-            <div key={s.type} className="check-item check-item-row">
-              <button
-                type="button"
-                className="check-item-main"
-                disabled={busyType === s.type}
-                onClick={() =>
-                  completeSupport({
-                    type: s.type,
-                    label: s.label,
-                    weekDone,
-                    weeklyTarget: s.weeklyTarget,
-                  })
-                }
-              >
-                <span className="check-box" />
-                <span className="check-label">
-                  <span className="check-label-name">
-                    {truncateSupportLabel(s.label)}
-                  </span>
-                  <span className="check-label-meta">
-                    · {weekDone}/{s.weeklyTarget}
-                  </span>
-                </span>
-              </button>
-              <button
-                type="button"
-                className="dismiss-btn"
-                disabled={skipBusy === s.type}
-                onClick={() =>
-                  dismissItem({
-                    key: s.type,
-                    label: truncateSupportLabel(s.label),
-                    meta: weekMeta,
-                  })
-                }
-              >
-                Not today
-              </button>
-            </div>
-          );
-        })}
-
-        {openTodos.map((p) => (
-          <TodoTaskRow
-            key={p.id}
-            item={p}
-            today={today}
-            busy={todoBusyId === p.id}
-            onComplete={() =>
-              todoAction(p.id, { action: "complete", id: p.id })
-            }
-            onSnooze={(until) =>
-              todoAction(p.id, { action: "snooze", id: p.id, until })
-            }
-            onEdit={(payload) =>
-              todoAction(p.id, {
-                action: "edit",
-                id: p.id,
-                ...payload,
-              })
-            }
-            onDelete={() => todoAction(p.id, { action: "delete", id: p.id })}
-          />
-        ))}
-
-        {showEveningOpen && (
-          <div className="check-item check-item-row">
-            <Link href="/evening" className="check-item-main">
-              <span className="check-box" />
-              <span className="check-label">Close the day</span>
-            </Link>
-            <button
-              type="button"
-              className="dismiss-btn"
-              disabled={skipBusy === "evening"}
-              onClick={() =>
+          {onToday && showEveningOpen && (
+            <HomeRoutineRow
+              label="Close the day"
+              href="/evening"
+              onDismiss={() =>
                 dismissItem({ key: "evening", label: "Close the day" })
               }
-            >
-              Not today
-            </button>
-          </div>
-        )}
+              dismissBusy={skipBusy === "evening"}
+            />
+          )}
 
-        {dismissing
-          .filter((d) => d.key === "evening")
-          .map((d) => (
-            <DismissingTaskRow key={d.key} label={d.label} />
-          ))}
-
-        {openCount === 0 && !adding && (
-          <p className="muted" style={{ marginTop: 4 }}>
-            Today&apos;s tasks are clear. Nice work.
-          </p>
-        )}
-      </div>
+          {onToday &&
+            dismissing
+              .filter((d) => d.key === "evening")
+              .map((d) => (
+                <DismissingTaskRow key={d.key} label={d.label} />
+              ))}
+        </div>
+      ) : (
+        <p className="muted agenda-status">
+          {onToday
+            ? "Today's tasks are clear. Nice work."
+            : "Nothing scheduled — tap + to add a task."}
+        </p>
+      )}
 
       <Link href="/items" className="btn ghost workout-open-link">
         Open tasks →
