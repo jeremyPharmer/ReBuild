@@ -97,8 +97,8 @@ describe("journal five-year helpers", () => {
       entry({ date: "2026-08-29", type: "one_line", text: "This year" }),
       entry({ date: "2024-08-29", type: "one_line", text: "Two years back" }),
     ]);
-    const slots = fiveYearSlots("08-29" as DayKey, byDate, 2026, 4);
-    expect(slots.map((s) => s.year)).toEqual([2026, 2025, 2024, 2023]);
+    const slots = fiveYearSlots("08-29" as DayKey, byDate, 2026, 5);
+    expect(slots.map((s) => s.year)).toEqual([2026, 2025, 2024, 2023, 2022]);
     expect(slots[0].headline).toBe("This year");
     expect(slots[1].headline).toBeUndefined();
     expect(slots[2].headline).toBe("Two years back");

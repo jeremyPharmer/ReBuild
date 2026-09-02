@@ -173,7 +173,7 @@ export default function JournalPage() {
   );
 
   const slots = useMemo(
-    () => fiveYearSlots(activeDay, byDate, anchorYear, 4),
+    () => fiveYearSlots(activeDay, byDate, anchorYear, 5),
     [activeDay, byDate, anchorYear],
   );
 
@@ -380,7 +380,7 @@ export default function JournalPage() {
               </button>
             </div>
             <p className="fy-journal-sub muted">
-              Same day across four years — headline and a short note.
+              Same day across five years — headline and a short note.
             </p>
           </>
         ) : (
