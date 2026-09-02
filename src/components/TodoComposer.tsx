@@ -391,6 +391,7 @@ function CustomRecurrenceSheet({
 
 export function TodoComposer({
   today,
+  defaultDate,
   initial,
   busy,
   submitLabel,
@@ -399,6 +400,7 @@ export function TodoComposer({
   onDelete,
 }: {
   today: string;
+  defaultDate?: string;
   initial?: DayProvision | null;
   busy: boolean;
   submitLabel?: string;
@@ -407,7 +409,7 @@ export function TodoComposer({
   onDelete?: () => void | Promise<void>;
 }) {
   const initialRec = initial ? recurrenceOf(initial) : { kind: "none" as const };
-  const initialDue = initial?.date ?? today;
+  const initialDue = initial?.date ?? defaultDate ?? today;
   const initialFields = customFieldsFromRecurrence(
     initialRec,
     initialDue,

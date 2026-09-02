@@ -15,7 +15,8 @@ import {
   filterHiddenCalendarEvents,
 } from "@/lib/calendar-overrides";
 import { isCustomAgendaId } from "@/lib/custom-agenda-shared";
-import { addDays, parseDate } from "@/lib/journey";
+import { homeDayPrimary, homeDaySecondary } from "@/lib/home-day-nav";
+import { addDays } from "@/lib/journey";
 import type { WorkCalendarEvent } from "@/lib/work-calendar";
 
 type AgendaResponse = {
@@ -92,21 +93,6 @@ function AgendaTime({ event }: { event: WorkCalendarEvent }) {
   }
 
   return <div className="agenda-time-block">{content}</div>;
-}
-
-function agendaDayPrimary(viewDate: string, today: string): string {
-  if (viewDate === today) return "Today";
-  if (viewDate === addDays(today, 1)) return "Tomorrow";
-  if (viewDate === addDays(today, -1)) return "Yesterday";
-  return parseDate(viewDate).toLocaleDateString("en-US", { weekday: "long" });
-}
-
-function agendaDaySecondary(viewDate: string): string {
-  return parseDate(viewDate).toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
 }
 
 function AgendaEventRow({
@@ -350,10 +336,10 @@ export function TodayAgendaCard() {
 
           <div className="agenda-toolbar-date" aria-live="polite">
             <span className="agenda-date-primary">
-              {agendaDayPrimary(viewDate, today)}
+              {homeDayPrimary(viewDate, today)}
             </span>
             <span className="agenda-date-secondary">
-              {agendaDaySecondary(viewDate)}
+              {homeDaySecondary(viewDate)}
             </span>
           </div>
 
