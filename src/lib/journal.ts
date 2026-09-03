@@ -79,7 +79,7 @@ export function fiveYearSlots(
   mmDd: DayKey,
   byDate: Map<string, DayBundle>,
   anchorYear: number,
-  years = 5,
+  years = 4,
 ): FiveYearEntry[] {
   const slots: FiveYearEntry[] = [];
   for (let i = 0; i < years; i++) {
