@@ -38,7 +38,7 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
     label: "Classic Stack",
     tagline: "One clear column",
     description:
-      "Date → weather → today’s work → Move & Entertainment → week plan. Simple and familiar.",
+      "Date → weather → today’s work → Move & crossword → week plan. Simple and familiar.",
     bestFor: "Default daily driver when you want zero decisions.",
     preview: [
       ["date"],
@@ -53,8 +53,8 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
     label: "Morning Briefing",
     tagline: "EA desk, todos first",
     description:
-      "Compact date + weather strip, then a large Today briefing. Move and Entertainment follow the checklist; week plan tucks below.",
-    bestFor: "Executive-assistant mornings — what matters before what’s fun.",
+      "Compact date + weather strip, then a large Today briefing. Move and crossword follow the checklist; week plan tucks below.",
+    bestFor: "Executive-assistant mornings — what matters before the puzzle.",
     preview: [
       ["header-strip"],
       ["today"],
@@ -67,8 +67,8 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
     label: "Split Day",
     tagline: "Work beside life",
     description:
-      "Today’s checklist and Move on the primary rail; Entertainment stacked on the side. Week plan spans the bottom.",
-    bestFor: "Seeing progress and play in one glance.",
+      "Today’s checklist and Move on the primary rail; crossword stacked on the side. Week plan spans the bottom.",
+    bestFor: "Seeing progress and the daily puzzle in one glance.",
     preview: [
       ["date"],
       ["weather"],
@@ -81,7 +81,7 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
     label: "Train First",
     tagline: "Move sets the day",
     description:
-      "Checklist first, then a hero Move card. Entertainment and week plan follow — tasks before training.",
+      "Checklist first, then a hero Move card. Crossword and week plan follow — tasks before training.",
     bestFor: "Training weeks when you still want todos up top.",
     preview: [
       ["date"],
@@ -112,7 +112,7 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
     label: "Command Center",
     tagline: "Dense & modern",
     description:
-      "Slim header bar, compact Today, Move right below, then a twin board: week plan and Entertainment. More signal, less scroll.",
+      "Slim header bar, compact Today, Move right below, then a twin board: week plan and crossword. More signal, less scroll.",
     bestFor: "High-output weekdays when you want a dashboard feel.",
     preview: [
       ["header-strip"],
@@ -126,8 +126,8 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
     label: "Wind-Down",
     tagline: "Evening first",
     description:
-      "Entertainment leads, then leftover todos, Move, and week. Built for closing the day without a guilt stack.",
-    bestFor: "Nights, Shea games on, soft landings.",
+      "Crossword leads, then leftover todos, Move, and week. Built for closing the day without a guilt stack.",
+    bestFor: "Nights and soft landings.",
     preview: [
       ["date"],
       ["entertainment"],
@@ -139,9 +139,9 @@ export const HOME_LAYOUTS: HomeLayoutOption[] = [
   {
     id: "dual-pillar",
     label: "Dual Pillars",
-    tagline: "Move + media heroes",
+    tagline: "Move + puzzle heroes",
     description:
-      "Checklist first, then equal Move and Entertainment heroes. Week plan sits below as a supporting rail.",
+      "Checklist first, then equal Move and crossword heroes. Week plan sits below as a supporting rail.",
     bestFor: "Weekends and recovery days that still stay intentional.",
     preview: [
       ["date"],
@@ -168,9 +168,9 @@ export const PREVIEW_BLOCK_LABELS: Record<HomeBlockId, string> = {
   weather: "Weather",
   today: "Today",
   move: "Move",
-  entertainment: "Watch / Listen",
+  entertainment: "Crossword",
   week: "Week plan",
   "header-strip": "Date + weather",
-  hubs: "Move · Media",
-  "focus-rail": "Move · Media",
+  hubs: "Move · Crossword",
+  "focus-rail": "Crossword",
 };

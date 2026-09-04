@@ -5,7 +5,7 @@ import { HomeDateHeader } from "@/components/HomeDateHeader";
 import { WeatherBanner } from "@/components/WeatherBanner";
 import { TodayAgendaCard } from "@/components/TodayAgendaCard";
 import { TodayRebuildPanel } from "@/components/TodayRebuildPanel";
-import { TodaysEntertainmentCard } from "@/components/TodaysEntertainmentCard";
+import { DailyCrosswordCard } from "@/components/DailyCrosswordCard";
 import { MoveHubCard } from "@/components/MoveHubCard";
 import { WeekPlanPanel } from "@/components/WeekPlanPanel";
 import { useHomeLayout } from "@/components/LayoutProvider";
@@ -26,7 +26,7 @@ function HubsPair({ hero }: { hero?: boolean }) {
   return (
     <div className={hero ? "home-card-grid home-hubs-hero" : "home-card-grid"}>
       <MoveHubCard />
-      <TodaysEntertainmentCard />
+      <DailyCrosswordCard />
     </div>
   );
 }
@@ -40,10 +40,10 @@ function HeaderStrip({ date }: { date: string }) {
   );
 }
 
-function EntertainmentRail() {
+function CrosswordRail() {
   return (
     <div className="home-focus-rail">
-      <TodaysEntertainmentCard />
+      <DailyCrosswordCard />
     </div>
   );
 }
@@ -58,7 +58,7 @@ function CommandBoard({
   return (
     <div className="home-command-board">
       <WeekPlanPanel today={today} week={week} />
-      <TodaysEntertainmentCard />
+      <DailyCrosswordCard />
     </div>
   );
 }
@@ -92,7 +92,7 @@ function layoutBody(
             <div className="home-split-primary">
               <MoveHubCard />
             </div>
-            <EntertainmentRail />
+            <CrosswordRail />
           </div>
           <WeekPlanPanel today={today} week={week} />
         </>
@@ -107,7 +107,7 @@ function layoutBody(
           <div className="home-train-hero">
             <MoveHubCard />
           </div>
-          <TodaysEntertainmentCard />
+          <DailyCrosswordCard />
           <WeekPlanPanel today={today} week={week} />
         </>
       );
@@ -147,7 +147,7 @@ function layoutBody(
           <TodayRebuildPanel />
           <AgendaBlock />
           <div className="home-wind-hero">
-            <TodaysEntertainmentCard />
+            <DailyCrosswordCard />
           </div>
           <MoveHubCard />
           <WeekPlanPanel today={today} week={week} />

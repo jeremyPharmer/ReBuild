@@ -353,6 +353,7 @@ export function emptyState(): RebuildState {
     workouts: [],
     workoutPrs: [],
     workoutRoutines: [],
+    dailyCrossword: { attempts: 0, completed: 0 },
   };
 }
 

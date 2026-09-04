@@ -1702,6 +1702,120 @@ h2 {
   opacity: 0.85;
 }
 
+.home-card-crossword {
+  gap: 12px;
+}
+
+.crossword-start {
+  width: 100%;
+  justify-content: center;
+}
+
+.crossword-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
+  width: min(100%, 260px);
+  margin: 0 auto;
+  aspect-ratio: 1;
+}
+
+.crossword-cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-strong, var(--surface)) 88%, white);
+  border-radius: 4px;
+  min-height: 0;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 3.6vw, 1.15rem);
+  font-weight: 650;
+  line-height: 1;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.crossword-cell.black {
+  background: color-mix(in srgb, var(--text) 82%, transparent);
+  border-color: transparent;
+  cursor: default;
+}
+
+.crossword-cell.selected {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  z-index: 1;
+}
+
+.crossword-cell.done {
+  cursor: default;
+}
+
+.crossword-num {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.crossword-letter {
+  margin-top: 4px;
+}
+
+.crossword-hidden-input {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.crossword-clues {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+}
+
+.crossword-clue-head {
+  margin: 0 0 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.crossword-clues ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.crossword-clues li {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.crossword-banner {
+  margin: 2px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  text-align: center;
+}
+
 .home-card-agenda {
   gap: 12px;
 }
