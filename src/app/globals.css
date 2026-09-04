@@ -4822,6 +4822,42 @@ html.sheet-open .top-nav {
   padding: 8px 2px 2px;
 }
 
+.todo-snooze-sheet {
+  display: grid;
+  gap: 10px;
+  padding: 4px 0 8px;
+}
+
+.todo-snooze-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-strong, var(--surface)) 80%, transparent);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.todo-snooze-option:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.todo-snooze-option-title {
+  font-weight: 650;
+  font-size: 1rem;
+}
+
+.todo-snooze-option-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
 .todo-composer-sheet {
   margin-top: 0;
   padding: 4px 0 8px;
