@@ -154,11 +154,7 @@ export function DailyCrosswordCard() {
   }
 
   return (
-    <section
-      className="home-card home-card-crossword"
-      aria-label="Daily crossword"
-      style={{ position: "relative" }}
-    >
+    <section className="home-card home-card-crossword" aria-label="Daily crossword">
       <div className="home-card-head">
         <p className="home-card-kicker">Daily crossword</p>
         <h2>Today&apos;s puzzle</h2>

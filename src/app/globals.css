@@ -1704,6 +1704,7 @@ h2 {
 
 .home-card-crossword {
   gap: 12px;
+  position: relative;
 }
 
 .crossword-start {
