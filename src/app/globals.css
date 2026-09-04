@@ -1730,6 +1730,19 @@ h2 {
   gap: 10px;
 }
 
+.agenda-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.agenda-header-actions .icon-btn {
+  width: 32px;
+  height: 32px;
+  font-size: 1.15rem;
+}
+
 .agenda-today-btn {
   margin: 0;
   padding: 4px 10px;
@@ -1750,7 +1763,7 @@ h2 {
 
 .agenda-toolbar {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 6px;
   padding: 6px 8px;
@@ -1787,13 +1800,6 @@ h2 {
   color: var(--muted);
   line-height: 1.2;
   text-align: center;
-}
-
-.agenda-toolbar-add {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  font-size: 1.15rem;
 }
 
 .agenda-status {

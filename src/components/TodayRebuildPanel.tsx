@@ -244,15 +244,25 @@ export function TodayRebuildPanel() {
       <header className="agenda-header">
         <div className="agenda-header-top">
           <p className="home-card-kicker">Tasks</p>
-          {!onToday ? (
+          <div className="agenda-header-actions">
+            {!onToday ? (
+              <button
+                type="button"
+                className="agenda-today-btn"
+                onClick={() => setViewDate(today)}
+              >
+                Today
+              </button>
+            ) : null}
             <button
               type="button"
-              className="agenda-today-btn"
-              onClick={() => setViewDate(today)}
+              className="icon-btn"
+              aria-label="Add a task"
+              onClick={() => setAdding(true)}
             >
-              Today
+              +
             </button>
-          ) : null}
+          </div>
         </div>
 
         <div className="agenda-toolbar">
@@ -281,15 +291,6 @@ export function TodayRebuildPanel() {
             onClick={() => setViewDate((d) => addDays(d, 1))}
           >
             ›
-          </button>
-
-          <button
-            type="button"
-            className="icon-btn agenda-toolbar-add"
-            aria-label="Add a task"
-            onClick={() => setAdding(true)}
-          >
-            +
           </button>
         </div>
       </header>
