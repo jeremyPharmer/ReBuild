@@ -64,8 +64,8 @@ export function TodoTaskRow({
   const meta = taskMeta(item, activeDate, today);
   const doneToday = Boolean(item.completed || item.lastCompletedOn);
   const canSnooze = activeDate >= today && !doneToday;
-  const snoozeLabel =
-    activeDate === today ? "Tomorrow" : formatDisplayDate(addDays(activeDate, 1));
+  const snoozeUntil = addDays(activeDate, 1);
+  const snoozeUntilLabel = formatDisplayDate(snoozeUntil);
 
   if (home) {
     return (
@@ -99,9 +99,10 @@ export function TodoTaskRow({
               type="button"
               className="tasks-action-btn"
               disabled={busy}
-              onClick={() => void onSnooze(addDays(activeDate, 1))}
+              aria-label={`Snooze ${item.label} until ${snoozeUntilLabel}`}
+              onClick={() => void onSnooze(snoozeUntil)}
             >
-              {snoozeLabel}
+              Snooze
             </button>
           ) : null}
         </div>
@@ -157,9 +158,10 @@ export function TodoTaskRow({
             type="button"
             className="dismiss-btn"
             disabled={busy}
-            onClick={() => void onSnooze(addDays(activeDate, 1))}
+            aria-label={`Snooze ${item.label} until ${snoozeUntilLabel}`}
+            onClick={() => void onSnooze(snoozeUntil)}
           >
-            {snoozeLabel}
+            Snooze
           </button>
         )}
         {doneToday && onUndo && (
