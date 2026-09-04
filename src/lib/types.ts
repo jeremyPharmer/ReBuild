@@ -431,6 +431,17 @@ export type RebuildState = {
   calendarHiddenEventIds?: string[];
   /** Jeremy-added reminders/events on Home calendar (local only) */
   customAgendaEvents?: CustomAgendaEvent[];
+  /** Daily mini crossword — attempts/completed + today’s grid */
+  dailyCrossword?: {
+    attempts: number;
+    completed: number;
+    current?: {
+      date: string;
+      started: boolean;
+      solved: boolean;
+      cells: string[];
+    };
+  };
 };
 
 export type CustomAgendaEvent = {
