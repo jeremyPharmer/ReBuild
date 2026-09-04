@@ -17,12 +17,12 @@
 
 ## Outcome
 
-Entertainment is **off the primary Home hero**: the On Air / Today’s Entertainment block is **replaced by the daily crossword** when RB-024 ships. No Entertainment polish expansion. Podcast / recovery content integrity can still finish thin under [RB-005](./recovery-content-offers.md) without restoring an Entertainment Home card — **where** podcast lives after the swap is an open question on RB-024 (F).
+Entertainment is **off the primary Home hero**: the On Air / Today’s Entertainment block is **replaced by the daily crossword** when RB-024 ships. Podcast / On air content is **hidden from Home** (locked with RB-024). No Entertainment polish expansion. Podcast integrity can still finish thin under [RB-005](./recovery-content-offers.md) **off Home**.
 
 ## Scope (v1)
 
 - Product decision: Entertainment Home section → **parked / replaced** (not a peer of the crossword)
-- When RB-024 ships: remove or repurpose `TodaysEntertainmentCard` / `entertainment` layout block as the **crossword slot**
+- When RB-024 ships: remove or repurpose `TodaysEntertainmentCard` / `entertainment` layout block as the **crossword slot**; do **not** leave a podcast On air peer on Home
 - Residual Later work (this item): any leftover layout presets, copy, or dead Entertainment chrome after the swap — thin cleanup only
 - Do not schedule Entertainment UX polish ahead of higher-rank personal-OS items
 - Cross-link: primary Home cognitive surface is [RB-024](./daily-puzzle-on-home.md)
@@ -32,7 +32,7 @@ Entertainment is **off the primary Home hero**: the On Air / Today’s Entertain
 - Deleting podcast data, heard tracking, or RB-005 no-repeat work already In Progress
 - Building a new media / Watch-Listen hub
 - Casino, games arcade, or “delight feed” expansion
-- Answering RB-024 open question F (podcast placement) — founder decides
+- Restoring podcast On air on Home (locked hide — see RB-024)
 
 ## Dependencies & risks
 
@@ -43,5 +43,6 @@ Entertainment is **off the primary Home hero**: the On Air / Today’s Entertain
 
 - Intake **2026-09-03** founder: demote Entertainment; add simple daily puzzle on Home instead (RB-024).
 - Follow-up **2026-09-04:** crossword **replaces** On Air / Today’s Entertainment Home section — not demote-beside. RB-024 owns the replacement; this item stays Later for residual park/cleanup.
+- Follow-up **2026-09-04 (lock):** podcasts **hidden from Home**; Entertainment slot fully given to crossword.
 - No prior dedicated Entertainment backlog item — this captures the park decision for a **shipped** Home section.
 - Rank **22** (last open item before Done / Won't Do). Milestone **later**.
