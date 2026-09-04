@@ -42,7 +42,7 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 
 1. **RB-012 — Rebrand to JeremyOS (EA + drop trail)** — naming + executive-assistant framing + retire trail metaphor (copy/IA); **Journey nav label kept**; thin chrome pass after docs; **not** a rewrite. Detail: [`items/rebrand-jeremyos.md`](./items/rebrand-jeremyos.md).
 2. **RB-013 — Personal OS north star** — enforce EA / personal-use build filter; ranking already reflects pivot. Detail: [`items/personal-os-north-star.md`](./items/personal-os-north-star.md).
-3. **RB-014 — To-do lists** — **scope locked 2026-08-31:** Today’s Items (merge personal tasks + supports), snooze/auto-roll, simple recurrence (+ 1st of month), master page (± nav tab); **no email**. Effort **L**. Detail: [`items/todo-lists.md`](./items/todo-lists.md).
+3. **RB-014 — To-do lists** — **scope locked 2026-08-31** (+ **2026-09-04**): Today’s Items (merge personal tasks + supports), **one Home banner / flat list** (no “Your tasks” sub-area), snooze/auto-roll, simple recurrence (+ 1st of month), master page (± nav tab); **no email**. Effort **L**. Detail: [`items/todo-lists.md`](./items/todo-lists.md).
 4. **RB-016 — Five-year / paper journal UX** — same calendar day across years; headline + short summary; journal vibes (not stacked cards). Detail: [`items/five-year-journal-ux.md`](./items/five-year-journal-ux.md). Distinct from RB-010 backfill integrity.
 5. **RB-021 — Journal photos (attach + paperclip)** — optional pics on journal/evening entries; paperclip (or similar) on year slots when a photo is present; tap to view; **reuse** existing photo infra. Detail: [`items/journal-photos.md`](./items/journal-photos.md).
 
@@ -79,7 +79,7 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 | Focus | Planned | Notes |
 | --- | --- | --- |
 | Now (framing) | RB-012 rebrand (EA + drop trail) + RB-013 north star | Effort **M** + **S**; docs first, then chrome/copy; Journey label locked keep |
-| Now (personal tools) | RB-014 todos (**Ready / L**, scope locked) → RB-016 five-year journal → **RB-021 journal photos** | Merged Today’s Items + master page; nav-tab risk vs RB-012; journal cluster still in flight |
+| Now (personal tools) | RB-014 todos (**Ready / L**, scope locked; **one Home Tasks banner**, no “Your tasks” split) → RB-016 five-year journal → **RB-021 journal photos** | Merged Today’s Items + master page; nav-tab risk vs RB-012; journal cluster still in flight |
 | Next (journal tooling) | **RB-022 edit / star / month calendar** | After RB-016 + RB-021; effort **M**; photo storage risk (no auth, db.json + `.data/photos`); ≠ event calendar |
 | Next (EA) | RB-002 Gmail → **RB-023 calendar ICS (In Progress)** → RB-005 podcast/recovery → RB-017 cameras → RB-018 workout → RB-019 recipes → RB-015 hub → RB-003 digest | Personal OS cluster; hub needs Jeremy’s app list; calendar = combined Home agenda + Settings ICS URLs |
 | Finish thin | RB-011, RB-010 | Do not expand money/daily-loop polish; journal UI = RB-016; media = RB-021; edit/star/calendar = RB-022 |

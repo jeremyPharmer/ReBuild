@@ -1313,17 +1313,6 @@ h2 {
   padding: 2px 12px;
 }
 
-.tasks-section-label {
-  margin: 10px 0 4px;
-  padding-top: 8px;
-  border-top: 1px solid var(--line);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
 .tasks-item {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;

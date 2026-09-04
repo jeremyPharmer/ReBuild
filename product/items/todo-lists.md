@@ -27,6 +27,7 @@ JeremyOS has a durable **Today’s Items** list Jeremy will use daily: personal 
 - Recovery **supports stay** on the same Today’s Items list for now
 - Rename **“Today’s Build” → “Today’s Items”** on Home + morning (and any related copy)
 - **Drop “Provisions” / provision language** entirely (UI + user-facing copy; eng may rename data types in a follow thin pass)
+- **Home UX (locked 2026-09-04):** **one banner / one flat list** — no **“Your tasks”** (or similar) subsection divider that splits personal todos from morning / supports / evening. All tasks under the **same** Home Tasks / Today’s Items banner as one continuous list.
 
 **Today’s Items behaviors**
 
@@ -66,6 +67,7 @@ JeremyOS has a durable **Today’s Items** list Jeremy will use daily: personal 
 - Moving supports off Today’s Items (leave for now; revisit later)
 - Replacing journal or evening close with todos
 - AI task breakdown
+- Home subsection banners that split personal todos from ritual items (“Your tasks” / similar) — explicitly rejected 2026-09-04
 
 ## Dependencies & risks
 
@@ -79,6 +81,7 @@ JeremyOS has a durable **Today’s Items** list Jeremy will use daily: personal 
 
 - Intake **2026-08-29** founder: loves to-do lists. Rank **3** / **P0**.
 - Intake **2026-08-31** founder: “bass ass to do list” + clarifying Qs → answers locked same day (merge list; all-but-email v1; master page ± nav tab; recurrence + first-of-month; auto-roll incompletes; snooze tomorrow + until; drop Provisions copy; supports stay). Product defaults applied for edit/delete, date-only, per-user lists.
+- Follow-up **2026-09-04:** founder doesn’t want a separate “my takes” / **“Your tasks”** area on Home — all tasks under the **same banner**, one flat list (no personal-vs-ritual subsection). Locked above.
 - Effort **L** (merged list + recurrence set + snooze-until + auto-roll + master page + possible nav tab + copy sweep). Rank **unchanged** (3).
 - Related: [RB-003](./daily-open-checklist-email.md), [RB-002](./email-integration.md), [RB-012](./rebrand-jeremyos.md) for nav/chrome; agenda/calendar events are [RB-023](./calendar-ical-google.md) (sits beside todos, does not replace them).
 - Legacy surface at lock: Home eyebrow “Today’s Build”; morning “Provisions” / one-time provision add; `DayProvision` one-offs — all superseded by locked Scope above.
