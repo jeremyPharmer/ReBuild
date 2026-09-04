@@ -7,6 +7,7 @@ import {
   useState,
   useEffectEvent,
   type KeyboardEvent,
+  type ChangeEvent,
 } from "react";
 import { useApp } from "@/components/AppProvider";
 import {
@@ -34,10 +35,9 @@ export function DailyCrosswordCard() {
   const [selected, setSelected] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const cellRefs = useRef<Map<number, HTMLInputElement>>(new Map());
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Sync from server when day / progress changes
   useEffect(() => {
     if (progress?.cells?.length) {
       setCells(progress.cells);
@@ -75,6 +75,14 @@ export function DailyCrosswordCard() {
     };
   }, []);
 
+  // After Start, focus the first white cell so the keyboard can open on tap
+  useEffect(() => {
+    if (!started || solved) return;
+    const first = grid.find((c) => !c.black);
+    if (!first) return;
+    setSelected(first.index);
+  }, [started, solved, grid]);
+
   async function onStart() {
     setBusy(true);
     setError("");
@@ -92,7 +100,9 @@ export function DailyCrosswordCard() {
     const cell = grid[index];
     if (!cell || cell.black) return;
     setSelected(index);
-    requestAnimationFrame(() => inputRef.current?.focus());
+    const el = cellRefs.current.get(index);
+    el?.focus();
+    el?.select();
   }
 
   function nextWhite(from: number, dir: 1 | -1): number | null {
@@ -104,52 +114,66 @@ export function DailyCrosswordCard() {
     return null;
   }
 
-  function applyLetter(letter: string) {
-    if (selected == null || solved) return;
+  function setLetterAt(index: number, letter: string, advance: boolean) {
     const next = [...cells];
-    next[selected] = letter;
+    next[index] = letter;
     setCells(next);
     queueSave(next);
-    const n = nextWhite(selected, 1);
-    if (n != null) setSelected(n);
+    if (advance) {
+      const n = nextWhite(index, 1);
+      if (n != null) {
+        setSelected(n);
+        requestAnimationFrame(() => {
+          const el = cellRefs.current.get(n);
+          el?.focus();
+          el?.select();
+        });
+      }
+    }
   }
 
-  function onHiddenInput(value: string) {
-    const cleaned = value.toUpperCase().replace(/[^A-Z]/g, "");
-    if (!cleaned) return;
-    applyLetter(cleaned.slice(-1));
-    if (inputRef.current) inputRef.current.value = "";
+  function onCellChange(index: number, e: ChangeEvent<HTMLInputElement>) {
+    if (solved) return;
+    const cleaned = e.target.value.toUpperCase().replace(/[^A-Z]/g, "");
+    if (!cleaned) {
+      setLetterAt(index, "", false);
+      return;
+    }
+    setLetterAt(index, cleaned.slice(-1), true);
   }
 
-  function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    if (selected == null || solved) return;
+  function onCellKeyDown(index: number, e: KeyboardEvent<HTMLInputElement>) {
+    if (solved) return;
     if (e.key === "Backspace" || e.key === "Delete") {
+      if (cells[index]) {
+        // let onChange clear via empty value
+        return;
+      }
       e.preventDefault();
-      const next = [...cells];
-      if (next[selected]) {
-        next[selected] = "";
+      const prev = nextWhite(index, -1);
+      if (prev != null) {
+        const next = [...cells];
+        next[prev] = "";
         setCells(next);
         queueSave(next);
-      } else {
-        const prev = nextWhite(selected, -1);
-        if (prev != null) {
-          next[prev] = "";
-          setCells(next);
-          setSelected(prev);
-          queueSave(next);
-        }
+        setSelected(prev);
+        requestAnimationFrame(() => {
+          const el = cellRefs.current.get(prev);
+          el?.focus();
+          el?.select();
+        });
       }
       return;
     }
     if (e.key === "ArrowRight" || e.key === "ArrowDown") {
       e.preventDefault();
-      const n = nextWhite(selected, 1);
-      if (n != null) setSelected(n);
+      const n = nextWhite(index, 1);
+      if (n != null) focusCell(n);
     }
     if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
       e.preventDefault();
-      const n = nextWhite(selected, -1);
-      if (n != null) setSelected(n);
+      const n = nextWhite(index, -1);
+      if (n != null) focusCell(n);
     }
   }
 
@@ -162,7 +186,7 @@ export function DailyCrosswordCard() {
           {solved
             ? "Solved"
             : started
-              ? "Chip away — progress saves"
+              ? "Tap a square, then type"
               : "5×5 mini · start when ready"}
         </p>
       </div>
@@ -190,22 +214,16 @@ export function DailyCrosswordCard() {
                 value={cells[cell.index] || ""}
                 selected={selected === cell.index}
                 solved={solved}
-                onSelect={() => focusCell(cell.index)}
+                inputRef={(el) => {
+                  if (el) cellRefs.current.set(cell.index, el);
+                  else cellRefs.current.delete(cell.index);
+                }}
+                onFocus={() => setSelected(cell.index)}
+                onChange={(e) => onCellChange(cell.index, e)}
+                onKeyDown={(e) => onCellKeyDown(cell.index, e)}
               />
             ))}
           </div>
-
-          <input
-            ref={inputRef}
-            className="crossword-hidden-input"
-            aria-label="Type a letter"
-            autoCapitalize="characters"
-            autoCorrect="off"
-            spellCheck={false}
-            disabled={solved}
-            onChange={(e) => onHiddenInput(e.target.value)}
-            onKeyDown={onKeyDown}
-          />
 
           <div className="crossword-clues">
             <div>
@@ -246,32 +264,52 @@ function GridCell({
   value,
   selected,
   solved,
-  onSelect,
+  inputRef,
+  onFocus,
+  onChange,
+  onKeyDown,
 }: {
   cell: CrosswordCell;
   value: string;
   selected: boolean;
   solved: boolean;
-  onSelect: () => void;
+  inputRef: (el: HTMLInputElement | null) => void;
+  onFocus: () => void;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void;
 }) {
   if (cell.black) {
     return <div className="crossword-cell black" aria-hidden />;
   }
   return (
-    <button
-      type="button"
+    <div
       className={`crossword-cell${selected ? " selected" : ""}${solved ? " done" : ""}`}
-      onClick={onSelect}
-      aria-label={
-        cell.number
-          ? `Cell ${cell.number}${value ? `, ${value}` : ""}`
-          : value || "Empty cell"
-      }
     >
       {cell.number != null ? (
         <span className="crossword-num">{cell.number}</span>
       ) : null}
-      <span className="crossword-letter">{value}</span>
-    </button>
+      <input
+        ref={inputRef}
+        className="crossword-cell-input"
+        type="text"
+        inputMode="text"
+        enterKeyHint="next"
+        autoCapitalize="characters"
+        autoCorrect="off"
+        autoComplete="off"
+        spellCheck={false}
+        maxLength={2}
+        value={value}
+        disabled={solved}
+        aria-label={
+          cell.number
+            ? `Cell ${cell.number}${value ? `, ${value}` : ""}`
+            : value || "Empty cell"
+        }
+        onFocus={onFocus}
+        onChange={onChange}
+        onKeyDown={onKeyDown}
+      />
+    </div>
   );
 }

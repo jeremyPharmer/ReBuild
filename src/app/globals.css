@@ -1730,12 +1730,35 @@ h2 {
   border-radius: 4px;
   min-height: 0;
   padding: 0;
+  color: var(--text);
+}
+
+.crossword-cell-input {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  text-align: center;
   font-family: var(--font-display);
   font-size: clamp(0.95rem, 3.6vw, 1.15rem);
   font-weight: 650;
   line-height: 1;
-  color: var(--text);
-  cursor: pointer;
+  color: inherit;
+  caret-color: var(--accent);
+  padding-top: 6px;
+  border-radius: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.crossword-cell-input:disabled {
+  opacity: 1;
+  color: inherit;
+}
+
+.crossword-cell-input:focus {
+  outline: none;
 }
 
 .crossword-cell.black {
@@ -1763,18 +1786,12 @@ h2 {
   font-weight: 600;
   color: var(--muted);
   line-height: 1;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .crossword-letter {
   margin-top: 4px;
-}
-
-.crossword-hidden-input {
-  position: absolute;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
 }
 
 .crossword-clues {
