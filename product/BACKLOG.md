@@ -6,7 +6,7 @@ Product: **JeremyOS** (executive assistant / personal OS for Jeremy; formerly fr
 
 **Ranking rule:** lower rank number = higher priority. Rank is the source of truth.
 
-Last updated: 2026-09-03
+Last updated: 2026-09-04
 
 | Rank | ID | Item | Priority | Status | Effort | Target due | Milestone | File |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -18,7 +18,7 @@ Last updated: 2026-09-03
 | 6 | RB-022 | Journal edit, star & month calendar | P0 | In Progress | M | TBD | v1.x | [items/journal-edit-star-calendar.md](./items/journal-edit-star-calendar.md) |
 | 7 | RB-002 | Email integration (Gmail) | P0 | Backlog | M | TBD | v1 | [items/email-integration.md](./items/email-integration.md) |
 | 8 | RB-023 | Calendar: iCal + work Google (ICS) | P1 | In Progress | M | TBD | v1.x | [items/calendar-ical-google.md](./items/calendar-ical-google.md) |
-| 9 | RB-024 | Daily Puzzle on Home | P1 | Backlog | S | TBD | v1.x | [items/daily-puzzle-on-home.md](./items/daily-puzzle-on-home.md) |
+| 9 | RB-024 | Daily Puzzle on Home | P1 | Backlog | M | TBD | v1.x | [items/daily-puzzle-on-home.md](./items/daily-puzzle-on-home.md) |
 | 10 | RB-005 | Podcast-first + regular recovery content | P0 | In Progress | M | TBD | v1 | [items/recovery-content-offers.md](./items/recovery-content-offers.md) |
 | 11 | RB-017 | Home cameras via Reolink | P1 | Backlog | M | TBD | v1.x | [items/home-cameras-reolink.md](./items/home-cameras-reolink.md) |
 | 12 | RB-018 | Workout tracker | P1 | Backlog | M | TBD | v1.x | [items/workout-tracker.md](./items/workout-tracker.md) |

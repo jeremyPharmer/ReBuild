@@ -7,7 +7,7 @@ Recovery journey + fund/incentive tools remain **personal tools** when useful (n
 Maintained by the **Head of Product** agent (`.cursor/agents/head-of-product.md`).  
 **Priority ranking is the primary planning signal.** Due dates, effort, and timeline support rank — they do not override it.
 
-Last updated: 2026-09-03
+Last updated: 2026-09-04
 
 ## North star (locked 2026-08-29)
 
@@ -53,7 +53,7 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 1. **RB-022 — Journal edit, star & month calendar** — month view → tap day; edit existing (headline + summary + photos); star bookmark + starred list; `/journal` only; prose-only; missed days route to RB-010. Detail: [`items/journal-edit-star-calendar.md`](./items/journal-edit-star-calendar.md). After RB-016 / RB-021; does not steal RB-016’s In Progress slot. **Not** event calendar sync (that’s [RB-023](./items/calendar-ical-google.md)).
 2. **RB-002 — Email / Gmail** — elevated; founder “My Gmail obviously.” Detail: [`items/email-integration.md`](./items/email-integration.md). **Not** calendar — see RB-023.
 3. **RB-023 — Calendar (iCal + work Google)** — **In Progress.** Locked 2026-09-01: one **combined** today’s agenda on **Home**; Jeremy pastes secret ICS subscribe links (Apple + Google) in **Settings** (calendar events, not todos); env fallback eng-only. Detail: [`items/calendar-ical-google.md`](./items/calendar-ical-google.md).
-4. **RB-024 — Daily Puzzle on Home** — **Backlog.** Recommended v1: **Daily Word Unscramble** (effort **S**); shortlist in item Notes. Detail: [`items/daily-puzzle-on-home.md`](./items/daily-puzzle-on-home.md).
+4. **RB-024 — Daily Puzzle on Home** — **Backlog.** Recommended v1: **Mini Crossword** (~5×5, 3–5 clues, **save progress** for chip-through-the-day); effort **M**. Progressive alternatives in item Notes. Detail: [`items/daily-puzzle-on-home.md`](./items/daily-puzzle-on-home.md).
 5. **RB-005 — Podcast-first + regular recovery content** — **In Progress**; keep podcast useful + no-repeat; founder still wants some regular recovery content (no duplicate item). **Do not** expand Home Entertainment card — parked via RB-025. Detail: [`items/recovery-content-offers.md`](./items/recovery-content-offers.md).
 6. **RB-017 — Home cameras (Reolink)** — founder ~priority **5** on the personal-tools list; API spike / engineer handoff OK. Detail: [`items/home-cameras-reolink.md`](./items/home-cameras-reolink.md).
 7. **RB-018 — Workout tracker** — personal log, not fitness SaaS. Detail: [`items/workout-tracker.md`](./items/workout-tracker.md).
@@ -83,7 +83,7 @@ Build filter: see [RB-013](./items/personal-os-north-star.md).
 | Now (framing) | RB-012 rebrand (EA + drop trail) + RB-013 north star | Effort **M** + **S**; docs first, then chrome/copy; Journey label locked keep |
 | Now (personal tools) | RB-014 todos (**Ready / L**, scope locked) → RB-016 five-year journal → **RB-021 journal photos** | Merged Today’s Items + master page; nav-tab risk vs RB-012; journal cluster still in flight |
 | Next (journal tooling) | **RB-022 edit / star / month calendar** | After RB-016 + RB-021; effort **M**; photo storage risk (no auth, db.json + `.data/photos`); ≠ event calendar |
-| Next (EA + Home) | RB-002 Gmail → **RB-023 calendar ICS (In Progress)** → **RB-024 daily puzzle** → RB-005 podcast (thin; no Entertainment expand) → RB-017 cameras → RB-018 workout → RB-019 recipes → RB-015 hub → RB-003 digest | Personal OS cluster; puzzle = Word Unscramble v1 (**S**); hub needs Jeremy’s app list |
+| Next (EA + Home) | RB-002 Gmail → **RB-023 calendar ICS (In Progress)** → **RB-024 daily puzzle** → RB-005 podcast (thin; no Entertainment expand) → RB-017 cameras → RB-018 workout → RB-019 recipes → RB-015 hub → RB-003 digest | Personal OS cluster; puzzle = Mini Crossword v1 (**M**, chip-through-day); Entertainment parked RB-025; hub needs Jeremy’s app list |
 | Finish thin | RB-011, RB-010 | Do not expand money/daily-loop polish; journal UI = RB-016; media = RB-021; edit/star/calendar = RB-022 |
 | Later (personal fund) | RB-006, RB-001 | Locked model; rails demoted |
 | Later / paused | RB-008, RB-004, **RB-025 Home Entertainment park** | Unrequested channels + Entertainment demoted |

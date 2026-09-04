@@ -59,3 +59,4 @@ Otherwise: **Later** or **Won't Do**, with a note — do not invent justificatio
 - **2026-08-29 follow-up:** cameras / workout / recipes added — still passes build filter (Jeremy asked).
 - **2026-09-01:** founder asked to tie in iCal + work Google Calendar → [RB-023](./calendar-ical-google.md) (passes build filter).
 - **2026-09-03:** founder asked for a simple daily brain game/puzzle on Home → [RB-024](./daily-puzzle-on-home.md); demote Home Entertainment → [RB-025](./park-home-entertainment.md).
+- **2026-09-04:** RB-024 preferred v1 → **Mini Crossword** (chip-through-the-day); effort **M**.
