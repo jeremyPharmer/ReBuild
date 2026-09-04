@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-005 |
-| Rank | 9 |
+| Rank | 10 |
 | Priority | P0 |
 | Status | In Progress |
 | Effort | M |
@@ -104,3 +104,5 @@ Next week might be Recovery Elevator + *This Naked Mind* — no Rich Roll requir
 - **2026-08-29 personal tools intake:** founder still wants **some regular recovery content** — keep that need on this item (no conflicting duplicate). Podcast-first remains primary; thin articles/books OK if Jeremy uses them. Do not expand into generic catalog KPI polish (RB-013). Rank **6**.
 - **2026-08-21 founder feedback:** recovery content repeats too often → never re-offer heard/read. Status **In Progress**; weekly 2-offer remains consider.
 - Updated 2026-08-10: expand beyond podcasts-only; weekly **two selectable** offers; books included; Rich Roll optional. Shipped thinner surface already live.
+- **2026-09-03:** Home **Entertainment section** parked Later via [RB-025](./park-home-entertainment.md) (founder: drop to the back). This item stays **In Progress** for thin podcast no-repeat only — do **not** expand Entertainment card prominence. Rank **10** (bumped when [RB-024](./daily-puzzle-on-home.md) entered at 9).
+- **2026-09-04:** Home On air / Entertainment **hidden** — crossword takes the slot ([RB-024](./daily-puzzle-on-home.md)). Podcast work continues **off Home**; do not restore an On air Home card.

@@ -55,6 +55,10 @@ Otherwise: **Later** or **Won't Do**, with a note — do not invent justificatio
 - Follow-up **2026-08-29**: drop trail theming; EA framing — product recommendation is **rebrand, not start over** (see RB-012).
 - Follow-up **2026-08-29**: elevate daily mood/feeling start+end as personal EA ritual; drop craving analytics; remove Home “I’m having a craving” (RB-020). Journey label kept (RB-012).
 - Effort **S** = product/docs + ranking pass (this pivot). Ongoing enforcement is process, not a megaproject.
-- Companion items: [RB-012](./rebrand-jeremyos.md), [RB-014](./todo-lists.md), [RB-016](./five-year-journal-ux.md), [RB-015](./jeremy-apps-hub.md), elevated [RB-002](./email-integration.md) / [RB-005](./recovery-content-offers.md); personal tools [RB-017](./home-cameras-reolink.md), [RB-018](./workout-tracker.md), [RB-019](./favorite-recipes.md); craving cut [RB-020](./drop-craving-stats-home-cta.md); calendar ICS [RB-023](./calendar-ical-google.md).
+- Companion items: [RB-012](./rebrand-jeremyos.md), [RB-014](./todo-lists.md), [RB-016](./five-year-journal-ux.md), [RB-015](./jeremy-apps-hub.md), elevated [RB-002](./email-integration.md) / [RB-005](./recovery-content-offers.md); personal tools [RB-017](./home-cameras-reolink.md), [RB-018](./workout-tracker.md), [RB-019](./favorite-recipes.md); craving cut [RB-020](./drop-craving-stats-home-cta.md); calendar ICS [RB-023](./calendar-ical-google.md); daily puzzle [RB-024](./daily-puzzle-on-home.md); Entertainment park [RB-025](./park-home-entertainment.md).
 - **2026-08-29 follow-up:** cameras / workout / recipes added — still passes build filter (Jeremy asked).
 - **2026-09-01:** founder asked to tie in iCal + work Google Calendar → [RB-023](./calendar-ical-google.md) (passes build filter).
+- **2026-09-03:** founder asked for a simple daily brain game/puzzle on Home → [RB-024](./daily-puzzle-on-home.md); demote Home Entertainment → [RB-025](./park-home-entertainment.md).
+- **2026-09-04:** RB-024 preferred v1 → **Mini Crossword** (chip-through-the-day); effort **M**.
+- **2026-09-04 (later):** lock **5×5**; crossword **replaces On Air / Today’s Entertainment** Home slot; progress banner + start semantics open questions on RB-024.
+- **2026-09-04 (share #1):** RB-024 locks Start button; banner **`completed/attempts · today%`**; podcasts hide from Home.
