@@ -388,10 +388,6 @@ export function TodayRebuildPanel() {
               );
             })}
 
-          {openTodos.length > 0 && onToday && routineCount > 0 ? (
-            <p className="tasks-section-label">Your tasks</p>
-          ) : null}
-
           {openTodos.map((p) => (
             <TodoTaskRow
               key={p.id}
