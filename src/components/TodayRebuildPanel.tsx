@@ -17,13 +17,12 @@ const TASKS_SPAN_KEY = "jeremyos-tasks-span";
 type TasksSpan = "1" | "3";
 
 function readTasksSpan(): TasksSpan {
-  try {
-    const raw = localStorage.getItem(TASKS_SPAN_KEY);
-    if (raw === "1" || raw === "3") return raw;
-  } catch {
-    /* ignore */
-  }
+  // Always open Home tasks on the 3-day strip (toggle still allows 1-day).
   return "3";
+}
+
+function threeDayWindow(start: string): [string, string, string] {
+  return [start, addDays(start, 1), addDays(start, 2)];
 }
 type SkipKey = SupportType | "morning" | "evening";
 
@@ -137,6 +136,7 @@ function HomeRoutineRow({
 export function TodayRebuildPanel() {
   const { state, dashboard, today, post } = useApp();
   const [viewDate, setViewDate] = useState(today);
+  const [windowStart, setWindowStart] = useState(today);
   const [span, setSpan] = useState<TasksSpan>("3");
   const [busyType, setBusyType] = useState<SupportType | null>(null);
   const [skipBusy, setSkipBusy] = useState<SkipKey | null>(null);
@@ -151,10 +151,16 @@ export function TodayRebuildPanel() {
 
   useEffect(() => {
     setSpan(readTasksSpan());
+    try {
+      localStorage.setItem(TASKS_SPAN_KEY, "3");
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   useEffect(() => {
     setViewDate(today);
+    setWindowStart(today);
   }, [today]);
 
   const todos = state.dayProvisions ?? [];
@@ -164,16 +170,16 @@ export function TodayRebuildPanel() {
   );
 
   const stripDays = useMemo(
-    () => [today, addDays(today, 1), addDays(today, 2)] as const,
-    [today],
+    () => threeDayWindow(windowStart),
+    [windowStart],
   );
 
   useEffect(() => {
     if (span !== "3") return;
-    if (!stripDays.includes(viewDate as (typeof stripDays)[number])) {
-      setViewDate(today);
+    if (!stripDays.includes(viewDate)) {
+      setViewDate(stripDays[0]);
     }
-  }, [today, stripDays, viewDate, span]);
+  }, [span, stripDays, viewDate]);
 
   function chooseSpan(next: TasksSpan) {
     setSpan(next);
@@ -182,9 +188,18 @@ export function TodayRebuildPanel() {
     } catch {
       /* ignore */
     }
-    if (next === "3" && !stripDays.includes(viewDate as (typeof stripDays)[number])) {
+    if (next === "3") {
+      setWindowStart(today);
       setViewDate(today);
     }
+  }
+
+  function shiftWindow(deltaDays: number) {
+    setWindowStart((start) => {
+      const next = addDays(start, deltaDays);
+      setViewDate(next);
+      return next;
+    });
   }
   if (!dashboard || !state.profile) return null;
 
@@ -347,15 +362,6 @@ export function TodayRebuildPanel() {
                 3 day
               </button>
             </div>
-            {!onToday ? (
-              <button
-                type="button"
-                className="agenda-today-btn"
-                onClick={() => setViewDate(today)}
-              >
-                Today
-              </button>
-            ) : null}
             <button
               type="button"
               className="icon-btn"
@@ -368,38 +374,56 @@ export function TodayRebuildPanel() {
         </div>
 
         {span === "3" ? (
-          <div
-            className="tasks-day-strip"
-            role="tablist"
-            aria-label="Next three days"
-          >
-            {stripCounts.map(({ date, count, done }) => {
-              const selected = date === viewDate;
-              const label = date === today ? "Today" : dayAbbrev(date);
-              const status = done ? "✓" : count === 0 ? "—" : String(count);
-              return (
-                <button
-                  key={date}
-                  type="button"
-                  role="tab"
-                  aria-selected={selected}
-                  className={`tasks-day-chip${selected ? " selected" : ""}${done ? " done" : ""}`}
-                  onClick={() => setViewDate(date)}
-                >
-                  <span className="tasks-day-chip-label">{label}</span>
-                  <span className="tasks-day-chip-status" aria-hidden>
-                    {status}
-                  </span>
-                  <span className="sr-only">
-                    {done
-                      ? "complete"
-                      : count === 0
-                        ? "nothing scheduled"
-                        : `${count} open`}
-                  </span>
-                </button>
-              );
-            })}
+          <div className="tasks-day-strip-nav">
+            <button
+              type="button"
+              className="btn ghost workout-cal-arrow tasks-day-strip-arrow"
+              aria-label="Previous three days"
+              onClick={() => shiftWindow(-3)}
+            >
+              ‹
+            </button>
+            <div
+              className="tasks-day-strip"
+              role="tablist"
+              aria-label="Three-day window"
+            >
+              {stripCounts.map(({ date, count, done }) => {
+                const selected = date === viewDate;
+                const label = date === today ? "Today" : dayAbbrev(date);
+                const status = done ? "✓" : count === 0 ? "—" : String(count);
+                return (
+                  <button
+                    key={date}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    className={`tasks-day-chip${selected ? " selected" : ""}${done ? " done" : ""}`}
+                    onClick={() => setViewDate(date)}
+                  >
+                    <span className="tasks-day-chip-label">{label}</span>
+                    <span className="tasks-day-chip-status" aria-hidden>
+                      {status}
+                    </span>
+                    <span className="sr-only">
+                      {done
+                        ? "complete"
+                        : count === 0
+                          ? "nothing scheduled"
+                          : `${count} open`}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              className="btn ghost workout-cal-arrow tasks-day-strip-arrow"
+              aria-label="Next three days"
+              onClick={() => shiftWindow(3)}
+            >
+              ›
+            </button>
           </div>
         ) : (
           <div className="agenda-toolbar">

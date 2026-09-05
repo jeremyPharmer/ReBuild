@@ -229,7 +229,15 @@ export function parseIcsEventsForDay(
   return out;
 }
 
+/** Short in-memory ICS cache — day taps reparse instead of re-downloading. */
+const ICS_CACHE_TTL_MS = 90_000;
+const icsTextCache = new Map<string, { text: string; at: number }>();
+
 async function fetchIcsText(url: string): Promise<string> {
+  const cached = icsTextCache.get(url);
+  if (cached && Date.now() - cached.at < ICS_CACHE_TTL_MS) {
+    return cached.text;
+  }
   const res = await fetch(url, {
     headers: {
       Accept: "text/calendar, text/plain, */*",
@@ -243,7 +251,9 @@ async function fetchIcsText(url: string): Promise<string> {
   if (!res.ok) {
     throw new Error(`Calendar feed failed (${res.status})`);
   }
-  return res.text();
+  const text = await res.text();
+  icsTextCache.set(url, { text, at: Date.now() });
+  return text;
 }
 
 /**
