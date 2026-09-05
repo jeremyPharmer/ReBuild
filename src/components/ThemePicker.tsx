@@ -13,11 +13,7 @@ export function ThemePicker() {
       <p className="eyebrow">Appearance</p>
       <p className="muted" style={{ marginTop: 0, lineHeight: 1.45 }}>
         Color palettes for your OS — Mets, Zion, briefing, training, journal,
-        fund, morning/evening. For page structure, use{" "}
-        <Link href="/layouts" style={{ color: "var(--accent)", fontWeight: 600 }}>
-          Layout gallery
-        </Link>
-        .{" "}
+        fund, morning/evening.{" "}
         <Link href="/themes" style={{ color: "var(--accent)", fontWeight: 600 }}>
           Palette board
         </Link>

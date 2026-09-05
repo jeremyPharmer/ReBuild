@@ -29,6 +29,7 @@ export async function GET(req: Request) {
       {
         personalIcalUrl: state.profile.personalIcalUrl,
         workIcalUrl: state.profile.workIcalUrl,
+        extraIcalUrls: state.profile.extraIcalUrls,
         googleCalendar: user.googleCalendar,
       },
     );

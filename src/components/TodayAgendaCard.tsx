@@ -202,8 +202,12 @@ export function TodayAgendaCard() {
 
   const personal = state.profile?.personalIcalUrl?.trim();
   const work = state.profile?.workIcalUrl?.trim();
+  const extrasKey = (state.profile?.extraIcalUrls ?? [])
+    .map((u) => u.trim())
+    .filter(Boolean)
+    .join("\n");
   const [googleConnected, setGoogleConnected] = useState(false);
-  const hasFeeds = Boolean(personal || work || googleConnected);
+  const hasFeeds = Boolean(personal || work || extrasKey || googleConnected);
   const customSig = JSON.stringify(state.customAgendaEvents ?? []);
   const overrides = calendarTitleOverrides(state);
   const hidden = calendarHiddenEventIds(state);
@@ -259,7 +263,7 @@ export function TodayAgendaCard() {
     return () => {
       cancelled = true;
     };
-  }, [viewDate, personal, work, googleConnected, customSig]);
+  }, [viewDate, personal, work, extrasKey, googleConnected, customSig]);
 
   const rawEvents = data?.events ?? [];
   const events = filterHiddenCalendarEvents(
