@@ -6,12 +6,25 @@ import { useApp } from "@/components/AppProvider";
 import { TodoComposer, type TodoComposerPayload } from "@/components/TodoComposer";
 import { TodoTaskRow } from "@/components/TodoTaskRow";
 import { truncateSupportLabel } from "@/lib/auth-constants";
+import { homeDayPrimary, homeDaySecondary } from "@/lib/home-day-nav";
 import { addDays } from "@/lib/journey";
 import { openTodosOn } from "@/lib/todos";
 import { dayAbbrev } from "@/lib/weather";
 import type { DayProvision } from "@/lib/types";
 import type { SupportType } from "@/lib/types";
 
+const TASKS_SPAN_KEY = "jeremyos-tasks-span";
+type TasksSpan = "1" | "3";
+
+function readTasksSpan(): TasksSpan {
+  try {
+    const raw = localStorage.getItem(TASKS_SPAN_KEY);
+    if (raw === "1" || raw === "3") return raw;
+  } catch {
+    /* ignore */
+  }
+  return "3";
+}
 type SkipKey = SupportType | "morning" | "evening";
 
 type DismissingItem = {
@@ -124,6 +137,7 @@ function HomeRoutineRow({
 export function TodayRebuildPanel() {
   const { state, dashboard, today, post } = useApp();
   const [viewDate, setViewDate] = useState(today);
+  const [span, setSpan] = useState<TasksSpan>("3");
   const [busyType, setBusyType] = useState<SupportType | null>(null);
   const [skipBusy, setSkipBusy] = useState<SkipKey | null>(null);
   const [exiting, setExiting] = useState<ExitingSupport[]>([]);
@@ -133,6 +147,10 @@ export function TodayRebuildPanel() {
   const [todoBusyId, setTodoBusyId] = useState<string | null>(null);
 
   const onToday = viewDate === today;
+
+  useEffect(() => {
+    setSpan(readTasksSpan());
+  }, []);
 
   useEffect(() => {
     setViewDate(today);
@@ -150,11 +168,23 @@ export function TodayRebuildPanel() {
   );
 
   useEffect(() => {
+    if (span !== "3") return;
     if (!stripDays.includes(viewDate as (typeof stripDays)[number])) {
       setViewDate(today);
     }
-  }, [today, stripDays, viewDate]);
+  }, [today, stripDays, viewDate, span]);
 
+  function chooseSpan(next: TasksSpan) {
+    setSpan(next);
+    try {
+      localStorage.setItem(TASKS_SPAN_KEY, next);
+    } catch {
+      /* ignore */
+    }
+    if (next === "3" && !stripDays.includes(viewDate as (typeof stripDays)[number])) {
+      setViewDate(today);
+    }
+  }
   if (!dashboard || !state.profile) return null;
 
   const skips = new Set(dashboard.todaySkips ?? []);
@@ -285,6 +315,24 @@ export function TodayRebuildPanel() {
         <div className="agenda-header-top">
           <p className="home-card-kicker">Tasks</p>
           <div className="agenda-header-actions">
+            <div className="tasks-span-toggle" role="group" aria-label="Tasks view">
+              <button
+                type="button"
+                className={`tasks-span-btn${span === "1" ? " on" : ""}`}
+                aria-pressed={span === "1"}
+                onClick={() => chooseSpan("1")}
+              >
+                1 day
+              </button>
+              <button
+                type="button"
+                className={`tasks-span-btn${span === "3" ? " on" : ""}`}
+                aria-pressed={span === "3"}
+                onClick={() => chooseSpan("3")}
+              >
+                3 day
+              </button>
+            </div>
             {!onToday ? (
               <button
                 type="button"
@@ -305,41 +353,71 @@ export function TodayRebuildPanel() {
           </div>
         </div>
 
-        <div
-          className="tasks-day-strip"
-          role="tablist"
-          aria-label="Next three days"
-        >
-          {stripCounts.map(({ date, count, done }) => {
-            const selected = date === viewDate;
-            const label = date === today ? "Today" : dayAbbrev(date);
-            const status = done ? "✓" : count === 0 ? "—" : String(count);
-            return (
-              <button
-                key={date}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                className={`tasks-day-chip${selected ? " selected" : ""}${done ? " done" : ""}`}
-                onClick={() => setViewDate(date)}
-              >
-                <span className="tasks-day-chip-label">{label}</span>
-                <span className="tasks-day-chip-status" aria-hidden>
-                  {status}
-                </span>
-                <span className="sr-only">
-                  {done
-                    ? "complete"
-                    : count === 0
-                      ? "nothing scheduled"
-                      : `${count} open`}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </header>
+        {span === "3" ? (
+          <div
+            className="tasks-day-strip"
+            role="tablist"
+            aria-label="Next three days"
+          >
+            {stripCounts.map(({ date, count, done }) => {
+              const selected = date === viewDate;
+              const label = date === today ? "Today" : dayAbbrev(date);
+              const status = done ? "✓" : count === 0 ? "—" : String(count);
+              return (
+                <button
+                  key={date}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  className={`tasks-day-chip${selected ? " selected" : ""}${done ? " done" : ""}`}
+                  onClick={() => setViewDate(date)}
+                >
+                  <span className="tasks-day-chip-label">{label}</span>
+                  <span className="tasks-day-chip-status" aria-hidden>
+                    {status}
+                  </span>
+                  <span className="sr-only">
+                    {done
+                      ? "complete"
+                      : count === 0
+                        ? "nothing scheduled"
+                        : `${count} open`}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="agenda-toolbar">
+            <button
+              type="button"
+              className="btn ghost workout-cal-arrow agenda-toolbar-arrow"
+              aria-label="Previous day"
+              onClick={() => setViewDate((d) => addDays(d, -1))}
+            >
+              ‹
+            </button>
 
+            <div className="agenda-toolbar-date" aria-live="polite">
+              <span className="agenda-date-primary">
+                {homeDayPrimary(viewDate, today)}
+              </span>
+              <span className="agenda-date-secondary">
+                {homeDaySecondary(viewDate)}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className="btn ghost workout-cal-arrow agenda-toolbar-arrow"
+              aria-label="Next day"
+              onClick={() => setViewDate((d) => addDays(d, 1))}
+            >
+              ›
+            </button>
+          </div>
+        )}
+      </header>
       {adding && (
         <TodoComposer
           today={today}
