@@ -3,6 +3,7 @@ import { normalizeReminders } from "@/lib/reminders";
 import { INTERVENTION_LABEL_MAX } from "@/lib/craving-interventions";
 import { updateState } from "@/lib/store";
 import { DEFAULT_SUPPORTS, type SupportConfig } from "@/lib/types";
+import { normalizeExtraIcalUrls } from "@/lib/work-calendar";
 
 export async function POST(req: Request) {
   try {
@@ -41,6 +42,11 @@ export async function POST(req: Request) {
         body.workIcalUrl !== undefined
           ? String(body.workIcalUrl || "").trim().slice(0, 2000) || undefined
           : prev.profile.workIcalUrl;
+
+      const extraIcalUrls =
+        body.extraIcalUrls !== undefined
+          ? normalizeExtraIcalUrls(body.extraIcalUrls)
+          : prev.profile.extraIcalUrls;
 
       const reminders =
         body.reminders !== undefined
@@ -84,6 +90,7 @@ export async function POST(req: Request) {
           email,
           personalIcalUrl,
           workIcalUrl,
+          extraIcalUrls,
           reminders,
         },
       };

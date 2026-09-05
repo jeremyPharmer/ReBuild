@@ -6,7 +6,7 @@ import {
 } from "./google-calendar";
 import type { GoogleCalendarLink } from "./types";
 
-export type CalendarFeedSource = "personal" | "work" | "custom";
+export type CalendarFeedSource = "personal" | "work" | "extra" | "custom";
 
 export type WorkCalendarEvent = {
   id: string;
@@ -24,8 +24,29 @@ export type WorkCalendarEvent = {
 export type CalendarFeedUrls = {
   personalIcalUrl?: string;
   workIcalUrl?: string;
+  /** Additional iCal subscribe URLs from Settings */
+  extraIcalUrls?: string[];
   googleCalendar?: GoogleCalendarLink;
 };
+
+const EXTRA_ICAL_MAX = 5;
+
+/** Normalize + de-dupe extra iCal URLs (max 5). */
+export function normalizeExtraIcalUrls(
+  raw: unknown,
+): string[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const item of raw) {
+    const url = normalizeIcalUrl(String(item ?? ""));
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    out.push(url);
+    if (out.length >= EXTRA_ICAL_MAX) break;
+  }
+  return out.length > 0 ? out : undefined;
+}
 
 const ICS_URL_MAX = 2000;
 
@@ -232,11 +253,17 @@ async function fetchIcsText(url: string): Promise<string> {
 export function resolveCalendarFeedUrls(
   feeds: CalendarFeedUrls,
   envWorkUrl = process.env.WORK_CALENDAR_ICS_URL,
-): { personal?: string; work?: string } {
-  return {
-    personal: normalizeIcalUrl(feeds.personalIcalUrl),
-    work: normalizeIcalUrl(feeds.workIcalUrl) || normalizeIcalUrl(envWorkUrl),
-  };
+): { personal?: string; work?: string; extras: string[] } {
+  const personal = normalizeIcalUrl(feeds.personalIcalUrl);
+  const work =
+    normalizeIcalUrl(feeds.workIcalUrl) || normalizeIcalUrl(envWorkUrl);
+  const used = new Set(
+    [personal, work].filter((u): u is string => Boolean(u)),
+  );
+  const extras = (normalizeExtraIcalUrls(feeds.extraIcalUrls) ?? []).filter(
+    (url) => !used.has(url),
+  );
+  return { personal, work, extras };
 }
 
 /**
@@ -259,6 +286,9 @@ export async function fetchWorkCalendarEvents(
   const jobs: { source: CalendarFeedSource; url: string }[] = [];
   if (resolved.personal) {
     jobs.push({ source: "personal", url: resolved.personal });
+  }
+  for (const url of resolved.extras) {
+    jobs.push({ source: "extra", url });
   }
 
   const googleConnected = googleCalendarStatus(feeds.googleCalendar).connected;

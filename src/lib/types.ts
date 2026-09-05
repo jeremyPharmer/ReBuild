@@ -377,6 +377,11 @@ export type RebuildProfile = {
    * Superseded by Google OAuth on the user account when connected.
    */
   workIcalUrl?: string;
+  /**
+   * Extra secret iCal subscribe URLs (Settings — Add another calendar).
+   * Merged into the same Home agenda as personal / work feeds.
+   */
+  extraIcalUrls?: string[];
   /** User-added craving intervention labels (merged with defaults in the craving flow) */
   cravingInterventions?: string[];
 };

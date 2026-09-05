@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { ThemePicker } from "@/components/ThemePicker";
-import { LayoutPicker } from "@/components/LayoutPicker";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
 import { SUPPORT_LABEL_MAX } from "@/lib/auth-constants";
 import { DEFAULT_SUPPORTS, type SupportConfig } from "@/lib/types";
+
+const EXTRA_ICAL_MAX = 5;
 
 function slugify(label: string) {
   const base = label
@@ -52,6 +53,11 @@ export default function SettingsPage() {
   );
   const [workIcalUrl, setWorkIcalUrl] = useState(
     state.profile?.workIcalUrl ?? "",
+  );
+  const [extraIcalUrls, setExtraIcalUrls] = useState<string[]>(
+    state.profile?.extraIcalUrls?.length
+      ? [...state.profile.extraIcalUrls]
+      : [],
   );
   const [newLabel, setNewLabel] = useState("");
   const [newTarget, setNewTarget] = useState("3");
@@ -146,6 +152,7 @@ export default function SettingsPage() {
         supports,
         personalIcalUrl,
         workIcalUrl,
+        extraIcalUrls,
       });
       setMsg("Saved.");
     } catch (e) {
@@ -233,7 +240,6 @@ export default function SettingsPage() {
         </p>
       </header>
 
-      <LayoutPicker compact />
       <ThemePicker />
 
       <section className="panel">
@@ -373,6 +379,57 @@ export default function SettingsPage() {
           in iCal format. May show &ldquo;Busy&rdquo; when your org restricts
           external sharing.
         </p>
+
+        {extraIcalUrls.map((url, index) => (
+          <div key={`extra-ical-${index}`} style={{ marginTop: 12 }}>
+            <label className="field">
+              <span className="field-label">
+                Additional iCal calendar {index + 1}
+              </span>
+              <div className="row" style={{ gap: 8, alignItems: "center" }}>
+                <input
+                  type="url"
+                  value={url}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setExtraIcalUrls((prev) =>
+                      prev.map((u, i) => (i === index ? value : u)),
+                    );
+                  }}
+                  placeholder="https://… or webcal://…"
+                  autoComplete="off"
+                  spellCheck={false}
+                  style={{ flex: 1 }}
+                />
+                <SecondaryButton
+                  onClick={() =>
+                    setExtraIcalUrls((prev) =>
+                      prev.filter((_, i) => i !== index),
+                    )
+                  }
+                  disabled={busy}
+                >
+                  Remove
+                </SecondaryButton>
+              </div>
+            </label>
+          </div>
+        ))}
+
+        {extraIcalUrls.length < EXTRA_ICAL_MAX && (
+          <div style={{ marginTop: 12 }}>
+            <SecondaryButton
+              onClick={() => setExtraIcalUrls((prev) => [...prev, ""])}
+              disabled={busy}
+            >
+              Add another calendar
+            </SecondaryButton>
+            <p className="tiny muted" style={{ marginTop: 6 }}>
+              Paste another private iCal / webcal URL (family, school, shared
+              calendar, etc.). Up to {EXTRA_ICAL_MAX} total.
+            </p>
+          </div>
+        )}
       </section>
 
       <section className="panel">

@@ -36,6 +36,7 @@ describe("resolveCalendarFeedUrls", () => {
     ).toEqual({
       personal: "https://icloud.example/personal.ics",
       work: "https://google.example/work.ics",
+      extras: [],
     });
   });
 
@@ -45,6 +46,28 @@ describe("resolveCalendarFeedUrls", () => {
     ).toEqual({
       personal: undefined,
       work: "https://env.example/work.ics",
+      extras: [],
+    });
+  });
+
+  it("includes extra iCal URLs and skips duplicates", () => {
+    expect(
+      resolveCalendarFeedUrls({
+        personalIcalUrl: "https://icloud.example/personal.ics",
+        extraIcalUrls: [
+          "webcal://shared.example/family.ics",
+          "https://icloud.example/personal.ics",
+          "  ",
+          "https://school.example/calendar.ics",
+        ],
+      }),
+    ).toEqual({
+      personal: "https://icloud.example/personal.ics",
+      work: undefined,
+      extras: [
+        "https://shared.example/family.ics",
+        "https://school.example/calendar.ics",
+      ],
     });
   });
 });
