@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-005 |
-| Rank | 10 |
+| Rank | 9 |
 | Priority | P0 |
 | Status | In Progress |
 | Effort | M |

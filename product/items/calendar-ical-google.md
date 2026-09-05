@@ -3,9 +3,9 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-023 |
-| Rank | 8 |
+| Rank | 24 |
 | Priority | P1 |
-| Status | In Progress |
+| Status | Done |
 | Effort | M |
 | Target due | TBD |
 | Milestone | v1.x |
@@ -57,7 +57,8 @@ JeremyOS can **read** personal + work calendars via **ICS feeds** for a given da
 - Intake **2026-09-01** founder: “Let’s inspect tying in my iCal events and my work Google Calendar.”
 - Follow-up **2026-09-01** locked: combined agenda; Home surface; Settings paste for secret ICS subscribe links (not env-only product path; not todos); Status → **In Progress** (go get Apple iCal).
 - Follow-up **2026-09-01** founder answers: (1) one **combined** agenda; (2) **Home** surface; (3) paste secret Apple/Google ICS links in **Settings** (not env jargon; calendar events ≠ tasks). Build in progress.
-- **Rank 8** — immediately after email (RB-002, rank 7) in the EA plumbing cluster; does **not** jump ahead of rebrand / north star / todos / journal (ranks 1–6).
+- **Done 2026-09-05:** Home agenda (`TodayAgendaCard`, 1/3-day view) + Settings Apple iCal / Work iCal / extra calendars / Google OAuth connect shipped on **jeremyos-prod**. Supersedes the env-feed + Today’s Build checklist approach from old PR #70 (historical “RB-022” Apple Calendar path — that ID was later reused for journal edit/star/month; do not reintroduce).
+- Was **Rank 8** while in flight (after email RB-002 in the EA plumbing cluster). Terminal **Rank 24** / **Done** — after open work; does not affect journal [RB-022](./journal-edit-star-calendar.md).
 - **Priority P1** (not P0): core EA-adjacent like email, but must not displace journal/todo P0 focus; rank still places it next in the EA cluster after Gmail.
 - Effort **M**: ICS parse + Settings URL config + thin Home combined agenda.
 - Milestone **v1.x** — useful personal OS, not Day-1 critical path.
