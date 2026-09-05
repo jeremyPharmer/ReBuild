@@ -5068,15 +5068,24 @@ html.sheet-open .top-nav {
 }
 
 .todo-composer-datetime {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  align-items: end;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--text) 4%, var(--surface-strong, #fff));
 }
 
 .todo-composer-datetime .todo-composer-field {
-  margin-bottom: 0;
+  margin: 0;
   min-width: 0;
+  padding: 12px 14px;
+}
+
+.todo-composer-datetime .todo-composer-field + .todo-composer-field {
+  border-top: 1px solid var(--line);
 }
 
 .todo-composer-datetime .field-label {
@@ -5087,8 +5096,13 @@ html.sheet-open .top-nav {
 .todo-composer-datetime input[type="time"],
 .todo-composer-datetime .todo-time-add {
   width: 100%;
-  min-height: 48px;
+  min-height: 44px;
   box-sizing: border-box;
+}
+
+.todo-composer-datetime input[type="date"],
+.todo-composer-datetime input[type="time"] {
+  max-width: 100%;
 }
 
 .todo-composer-datetime .todo-time-add {
@@ -5096,9 +5110,9 @@ html.sheet-open .top-nav {
   align-items: center;
   justify-content: flex-start;
   border: 1px solid var(--line);
-  background: var(--surface-strong);
+  background: var(--surface-strong, #fff);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 10px 14px;
   font-size: 0.92rem;
   font-weight: 400;
   color: var(--muted);
@@ -5106,20 +5120,13 @@ html.sheet-open .top-nav {
 
 .todo-composer-datetime .todo-time-row {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
 }
 
 .todo-composer-datetime .todo-time-row input[type="time"] {
   min-width: 0;
-}
-
-@media (max-width: 380px) {
-  .todo-composer-datetime {
-    grid-template-columns: 1fr;
-    align-items: stretch;
-  }
 }
 
 .field-label-row {
