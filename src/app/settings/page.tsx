@@ -295,121 +295,103 @@ export default function SettingsPage() {
         </section>
       )}
 
-      <section className="panel">
+      <section className="panel settings-calendars">
         <p className="eyebrow">Calendars</p>
-        <p className="muted" style={{ marginTop: 0 }}>
-          Connect calendars so Home can show today&apos;s{" "}
-          <strong>events</strong> (meetings, appointments). This is not your
-          task list.
-        </p>
 
-        <div style={{ marginTop: 12 }}>
-          <p className="field-label">Work Google Calendar</p>
+        <div className="settings-calendar-block">
           {googleCalendar?.connected ? (
-            <div className="stack" style={{ gap: 8 }}>
-              <p className="muted tiny" style={{ margin: 0 }}>
-                Connected as{" "}
-                <strong>{googleCalendar.accountEmail || "Google account"}</strong>
-                . Full meeting titles come through OAuth — no more &ldquo;Busy&rdquo;
-                from free/busy ICS feeds.
+            <>
+              <p className="field-label">
+                Google
+                <span className="settings-calendar-meta">
+                  {googleCalendar.accountEmail || "Connected"}
+                </span>
               </p>
               <SecondaryButton
                 onClick={() => void disconnectGoogleCalendar()}
                 disabled={busy}
               >
-                Disconnect Google Calendar
+                Disconnect
               </SecondaryButton>
-            </div>
-          ) : googleCalendar?.configured === false ? (
-            <p className="tiny muted" style={{ marginTop: 4 }}>
-              Google OAuth is not configured on this server yet. Ask ops to set{" "}
-              <code>GOOGLE_CALENDAR_CLIENT_ID</code> and{" "}
-              <code>GOOGLE_CALENDAR_CLIENT_SECRET</code>, or use the iCal link
-              below as a fallback.
-            </p>
-          ) : (
-            <div className="stack" style={{ gap: 8 }}>
-              <p className="tiny muted" style={{ margin: 0 }}>
-                Sign in with Google to pull full event titles from your work
-                calendar (recommended for Workspace accounts that hide ICS
-                details).
-              </p>
-              <PrimaryButton
-                onClick={() => {
-                  window.location.href = "/api/calendar/google/connect";
-                }}
-                disabled={busy || !googleCalendar?.configured}
-              >
-                Connect Google Calendar
-              </PrimaryButton>
-            </div>
+            </>
+          ) : googleCalendar?.configured === false ? null : (
+            <PrimaryButton
+              onClick={() => {
+                window.location.href = "/api/calendar/google/connect";
+              }}
+              disabled={busy || !googleCalendar?.configured}
+            >
+              Connect Google Calendar
+            </PrimaryButton>
           )}
         </div>
 
-        <label className="field" style={{ marginTop: 16 }}>
-          <span className="field-label">Apple Calendar (iCal) link</span>
+        <label className="field">
+          <span className="field-label">Apple iCal</span>
           <input
             type="url"
             value={personalIcalUrl}
             onChange={(e) => setPersonalIcalUrl(e.target.value)}
-            placeholder="https://… or webcal://…"
+            placeholder="webcal://… or https://…"
             autoComplete="off"
             spellCheck={false}
           />
         </label>
-        <label className="field" style={{ marginTop: 12 }}>
-          <span className="field-label">Work Google Calendar iCal link (fallback)</span>
+
+        <label className="field">
+          <span className="field-label">Work iCal</span>
           <input
             type="url"
             value={workIcalUrl}
             onChange={(e) => setWorkIcalUrl(e.target.value)}
-            placeholder="https://calendar.google.com/calendar/ical/…"
+            placeholder="https://calendar.google.com/…"
             autoComplete="off"
             spellCheck={false}
           />
         </label>
 
         {extraIcalUrls.map((url, index) => (
-          <div key={`extra-ical-${index}`} style={{ marginTop: 12 }}>
-            <div className="row" style={{ gap: 8, alignItems: "center" }}>
-              <input
-                type="url"
-                value={url}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setExtraIcalUrls((prev) =>
-                    prev.map((u, i) => (i === index ? value : u)),
-                  );
-                }}
-                placeholder="https://… or webcal://…"
-                autoComplete="off"
-                spellCheck={false}
-                aria-label={`Extra iCal calendar ${index + 1}`}
-                style={{ flex: 1 }}
-              />
-              <SecondaryButton
+          <label key={`extra-ical-${index}`} className="field">
+            <span className="field-label">
+              iCal
+              <button
+                type="button"
+                className="settings-calendar-remove"
+                disabled={busy}
                 onClick={() =>
                   setExtraIcalUrls((prev) =>
                     prev.filter((_, i) => i !== index),
                   )
                 }
-                disabled={busy}
               >
                 Remove
-              </SecondaryButton>
-            </div>
-          </div>
+              </button>
+            </span>
+            <input
+              type="url"
+              value={url}
+              onChange={(e) => {
+                const value = e.target.value;
+                setExtraIcalUrls((prev) =>
+                  prev.map((u, i) => (i === index ? value : u)),
+                );
+              }}
+              placeholder="webcal://… or https://…"
+              autoComplete="off"
+              spellCheck={false}
+            />
+          </label>
         ))}
 
         {extraIcalUrls.length < EXTRA_ICAL_MAX && (
-          <div style={{ marginTop: 12 }}>
-            <SecondaryButton
-              onClick={() => setExtraIcalUrls((prev) => [...prev, ""])}
-              disabled={busy}
-            >
-              Add another calendar
-            </SecondaryButton>
-          </div>
+          <button
+            type="button"
+            className="settings-calendar-add"
+            disabled={busy}
+            onClick={() => setExtraIcalUrls((prev) => [...prev, ""])}
+          >
+            + Add calendar
+          </button>
         )}
       </section>
 
