@@ -357,11 +357,6 @@ export default function SettingsPage() {
             spellCheck={false}
           />
         </label>
-        <p className="tiny muted" style={{ marginTop: 4 }}>
-          On Mac: Calendar → File → New Calendar Subscription… / share a calendar
-          and copy the private URL. On iPhone: Calendar → calendar info → Share
-          Calendar → Public Calendar (or private server URL).
-        </p>
         <label className="field" style={{ marginTop: 12 }}>
           <span className="field-label">Work Google Calendar iCal link (fallback)</span>
           <input
@@ -373,46 +368,36 @@ export default function SettingsPage() {
             spellCheck={false}
           />
         </label>
-        <p className="tiny muted" style={{ marginTop: 4 }}>
-          Only needed if you are not using Connect above. Google Calendar →
-          Settings → your work calendar → Integrate calendar → Secret address
-          in iCal format. May show &ldquo;Busy&rdquo; when your org restricts
-          external sharing.
-        </p>
 
         {extraIcalUrls.map((url, index) => (
           <div key={`extra-ical-${index}`} style={{ marginTop: 12 }}>
-            <label className="field">
-              <span className="field-label">
-                Additional iCal calendar {index + 1}
-              </span>
-              <div className="row" style={{ gap: 8, alignItems: "center" }}>
-                <input
-                  type="url"
-                  value={url}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setExtraIcalUrls((prev) =>
-                      prev.map((u, i) => (i === index ? value : u)),
-                    );
-                  }}
-                  placeholder="https://… or webcal://…"
-                  autoComplete="off"
-                  spellCheck={false}
-                  style={{ flex: 1 }}
-                />
-                <SecondaryButton
-                  onClick={() =>
-                    setExtraIcalUrls((prev) =>
-                      prev.filter((_, i) => i !== index),
-                    )
-                  }
-                  disabled={busy}
-                >
-                  Remove
-                </SecondaryButton>
-              </div>
-            </label>
+            <div className="row" style={{ gap: 8, alignItems: "center" }}>
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setExtraIcalUrls((prev) =>
+                    prev.map((u, i) => (i === index ? value : u)),
+                  );
+                }}
+                placeholder="https://… or webcal://…"
+                autoComplete="off"
+                spellCheck={false}
+                aria-label={`Extra iCal calendar ${index + 1}`}
+                style={{ flex: 1 }}
+              />
+              <SecondaryButton
+                onClick={() =>
+                  setExtraIcalUrls((prev) =>
+                    prev.filter((_, i) => i !== index),
+                  )
+                }
+                disabled={busy}
+              >
+                Remove
+              </SecondaryButton>
+            </div>
           </div>
         ))}
 
@@ -424,10 +409,6 @@ export default function SettingsPage() {
             >
               Add another calendar
             </SecondaryButton>
-            <p className="tiny muted" style={{ marginTop: 6 }}>
-              Paste another private iCal / webcal URL (family, school, shared
-              calendar, etc.). Up to {EXTRA_ICAL_MAX} total.
-            </p>
           </div>
         )}
       </section>
