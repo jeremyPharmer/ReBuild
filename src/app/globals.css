@@ -2066,8 +2066,12 @@ h2 {
 .agenda-add-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   padding-top: 2px;
+}
+
+.agenda-add-form .eyebrow {
+  margin: 0 0 2px;
 }
 
 .agenda-add-allday {
@@ -2083,6 +2087,7 @@ h2 {
 .agenda-add-actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
 }
 
@@ -4460,7 +4465,7 @@ button.check-item-btn:disabled {
   align-items: center;
   background: rgba(15, 23, 42, 0.45);
   padding: 0;
-  animation: fade-backdrop 0.2s ease;
+  animation: fade-backdrop 0.28s ease;
   overscroll-behavior: none;
 }
 
@@ -4481,7 +4486,9 @@ button.check-item-btn:disabled {
   border-radius: 22px 22px 0 0;
   padding: 0;
   box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
-  animation: sheet-up 0.28s ease;
+  /* Rise from fully below the viewport (same for task + calendar). */
+  animation: sheet-up 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
 }
 
 .modal-sheet-chrome {
@@ -4578,11 +4585,9 @@ html.sheet-open .top-nav {
 
 @keyframes sheet-up {
   from {
-    opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(100%);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
