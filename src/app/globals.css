@@ -2527,6 +2527,68 @@ h2 {
   accent-color: var(--accent);
 }
 
+.settings-calendars .field {
+  margin-bottom: 12px;
+}
+
+.settings-calendar-block {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 14px;
+}
+
+.settings-calendar-meta {
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.settings-calendar-remove {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0;
+  cursor: pointer;
+}
+
+.settings-calendar-remove:hover,
+.settings-calendar-remove:focus-visible {
+  color: var(--danger, #b42318);
+}
+
+.settings-calendar-remove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.settings-calendar-add {
+  appearance: none;
+  border: 1px dashed var(--line);
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 12px 14px;
+  width: 100%;
+  cursor: pointer;
+  text-align: center;
+}
+
+.settings-calendar-add:hover,
+.settings-calendar-add:focus-visible {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.settings-calendar-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .choice-row {
   display: grid;
   gap: 8px;
