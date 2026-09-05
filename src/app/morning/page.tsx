@@ -30,11 +30,16 @@ export default function MorningPage() {
     [todayMorning?.quoteId],
   );
   const todayItems = openTodosOn(state.dayProvisions ?? [], today);
+  /** Morning already saved for today (or just submitted this session). */
+  const morningDone = Boolean(todayMorning) || done;
+  const shownIntention = intention.trim() || todayMorning?.intention || "";
 
   async function submit() {
     setBusy(true);
     setError("");
     try {
+      // Mark done before post settles so a refresh race can't land on a dead-end.
+      setDone(true);
       await post("/api/morning", {
         date: today,
         sleepHours,
@@ -45,8 +50,8 @@ export default function MorningPage() {
         intention,
         trigger: trigger || undefined,
       });
-      setDone(true);
     } catch (e) {
+      setDone(false);
       setError(e instanceof Error ? e.message : "Failed");
     } finally {
       setBusy(false);
@@ -72,19 +77,7 @@ export default function MorningPage() {
     }
   }
 
-  if (todayMorning && !done) {
-    return (
-      <main className="stack">
-        <p className="eyebrow">Start the day</p>
-        <h1>Already complete</h1>
-        <SecondaryButton onClick={() => router.push("/")}>
-          Back home
-        </SecondaryButton>
-      </main>
-    );
-  }
-
-  if (done) {
+  if (morningDone) {
     return (
       <main className="stack fade-in">
         {quote && (
@@ -136,12 +129,12 @@ export default function MorningPage() {
             />
           )}
         </div>
-        {intention && (
+        {shownIntention ? (
           <div className="panel">
             <p className="eyebrow">Today&apos;s intention</p>
-            <p style={{ margin: 0, fontSize: "1.15rem" }}>{intention}</p>
+            <p style={{ margin: 0, fontSize: "1.15rem" }}>{shownIntention}</p>
           </div>
-        )}
+        ) : null}
         {error && <p style={{ color: "var(--danger)" }}>{error}</p>}
         <PrimaryButton onClick={() => router.push("/")}>
           Into the day
