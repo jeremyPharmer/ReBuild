@@ -5,12 +5,20 @@ export type DailyForecast = {
   code: number;
   label: string;
   icon: string;
+  /** Peak daily chance of precipitation, 0–100 */
+  precipChancePct: number;
+  /** Total precipitation for the day (inches) */
+  precipIn: number;
+  /** Peak wind speed (mph) */
+  windMph: number;
 };
 
 export type WeatherForecast = {
   locationLabel: string;
   days: DailyForecast[];
 };
+
+export const WEATHER_FORECAST_DAYS = 3;
 
 /** WMO weather code → short label + emoji icon */
 export function weatherCodeMeta(code: number): { label: string; icon: string } {
@@ -31,6 +39,9 @@ type OpenMeteoDaily = {
   weather_code: number[];
   temperature_2m_max: number[];
   temperature_2m_min: number[];
+  precipitation_probability_max?: number[];
+  precipitation_sum?: number[];
+  wind_speed_10m_max?: number[];
 };
 
 export async function fetchForecast(
@@ -42,10 +53,19 @@ export async function fetchForecast(
   const params = new URLSearchParams({
     latitude: String(lat),
     longitude: String(lon),
-    daily: "weather_code,temperature_2m_max,temperature_2m_min",
+    daily: [
+      "weather_code",
+      "temperature_2m_max",
+      "temperature_2m_min",
+      "precipitation_probability_max",
+      "precipitation_sum",
+      "wind_speed_10m_max",
+    ].join(","),
     timezone,
-    forecast_days: "5",
+    forecast_days: String(WEATHER_FORECAST_DAYS),
     temperature_unit: "fahrenheit",
+    precipitation_unit: "inch",
+    wind_speed_unit: "mph",
   });
 
   const res = await fetch(
@@ -62,6 +82,7 @@ export async function fetchForecast(
   const days: DailyForecast[] = daily.time.map((date, i) => {
     const code = daily.weather_code[i] ?? 0;
     const meta = weatherCodeMeta(code);
+    const precipInRaw = daily.precipitation_sum?.[i] ?? 0;
     return {
       date,
       highF: Math.round(daily.temperature_2m_max[i] ?? 0),
@@ -69,10 +90,18 @@ export async function fetchForecast(
       code,
       label: meta.label,
       icon: meta.icon,
+      precipChancePct: Math.round(
+        daily.precipitation_probability_max?.[i] ?? 0,
+      ),
+      precipIn: Math.round(precipInRaw * 100) / 100,
+      windMph: Math.round(daily.wind_speed_10m_max?.[i] ?? 0),
     };
   });
 
-  return { locationLabel, days: days.slice(0, 5) };
+  return {
+    locationLabel,
+    days: days.slice(0, WEATHER_FORECAST_DAYS),
+  };
 }
 
 /** Approximate coords when geolocation is unavailable */

@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useApp } from "@/components/AppProvider";
-import { dayAbbrev, timeGreeting, type WeatherForecast } from "@/lib/weather";
+import {
+  dayAbbrev,
+  dayLabel,
+  timeGreeting,
+  type DailyForecast,
+  type WeatherForecast,
+} from "@/lib/weather";
 
 const COORDS_KEY = "rebuild-weather-coords";
 
@@ -38,8 +44,16 @@ function storeCoords(coords: StoredCoords) {
   }
 }
 
+function precipLine(day: DailyForecast): string {
+  if (day.precipChancePct <= 0 && day.precipIn <= 0) return "Dry";
+  if (day.precipIn >= 0.05) {
+    return `${day.precipChancePct}% · ${day.precipIn.toFixed(2)}"`;
+  }
+  return `${day.precipChancePct}% rain`;
+}
+
 export function WeatherBanner() {
-  const { state } = useApp();
+  const { state, today } = useApp();
   const timezone = state.profile?.timezone ?? "America/Los_Angeles";
   const greeting = timeGreeting(timezone);
   const [forecast, setForecast] = useState<WeatherForecast | null>(null);
@@ -117,16 +131,37 @@ export function WeatherBanner() {
       )}
 
       {forecast && (
-        <section className="weather-strip" aria-label="5-day weather forecast">
-          <p className="weather-location">{forecast.locationLabel}</p>
+        <section className="weather-strip" aria-label="3-day weather forecast">
+          <div className="weather-strip-head">
+            <p className="weather-location">{forecast.locationLabel}</p>
+            <p className="weather-strip-range">Next 3 days</p>
+          </div>
           <div className="weather-strip-days">
             {forecast.days.map((day) => (
               <div key={day.date} className="weather-strip-day">
-                <span className="weather-strip-dow">{dayAbbrev(day.date)}</span>
-                <span className="weather-strip-icon" aria-hidden title={day.label}>
+                <span className="weather-strip-dow">
+                  {day.date === today ? "Today" : dayAbbrev(day.date)}
+                </span>
+                <span
+                  className="weather-strip-icon"
+                  aria-hidden
+                  title={day.label}
+                >
                   {day.icon}
                 </span>
-                <span className="weather-strip-high">{day.highF}°</span>
+                <span className="weather-strip-label">{day.label}</span>
+                <span className="weather-strip-temps">
+                  <span className="weather-strip-high">{day.highF}°</span>
+                  <span className="weather-strip-low">{day.lowF}°</span>
+                </span>
+                <span className="weather-strip-precip">{precipLine(day)}</span>
+                <span className="weather-strip-wind">
+                  {day.windMph > 0 ? `${day.windMph} mph` : "Calm"}
+                </span>
+                <span className="sr-only">
+                  {dayLabel(day.date, today)}: {day.label}, high {day.highF},
+                  low {day.lowF}, {precipLine(day)}, wind {day.windMph} mph
+                </span>
               </div>
             ))}
           </div>
