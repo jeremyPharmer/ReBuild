@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | ID | RB-024 |
-| Rank | 9 |
+| Rank | 8 |
 | Priority | P1 |
 | Status | In Progress |
 | Effort | M |
