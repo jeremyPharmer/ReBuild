@@ -6,9 +6,9 @@ import { useApp } from "@/components/AppProvider";
 import { TodoComposer, type TodoComposerPayload } from "@/components/TodoComposer";
 import { TodoTaskRow } from "@/components/TodoTaskRow";
 import { truncateSupportLabel } from "@/lib/auth-constants";
-import { homeDayPrimary, homeDaySecondary } from "@/lib/home-day-nav";
 import { addDays } from "@/lib/journey";
 import { openTodosOn } from "@/lib/todos";
+import { dayAbbrev } from "@/lib/weather";
 import type { DayProvision } from "@/lib/types";
 import type { SupportType } from "@/lib/types";
 
@@ -144,6 +144,17 @@ export function TodayRebuildPanel() {
     [todos, viewDate],
   );
 
+  const stripDays = useMemo(
+    () => [today, addDays(today, 1), addDays(today, 2)] as const,
+    [today],
+  );
+
+  useEffect(() => {
+    if (!stripDays.includes(viewDate as (typeof stripDays)[number])) {
+      setViewDate(today);
+    }
+  }, [today, stripDays, viewDate]);
+
   if (!dashboard || !state.profile) return null;
 
   const skips = new Set(dashboard.todaySkips ?? []);
@@ -175,6 +186,35 @@ export function TodayRebuildPanel() {
     dismissing.filter((d) => d.key !== "evening").length +
     (showEveningOpen ? 1 : 0);
   const openCount = routineCount + openTodos.length;
+
+  const todayPersonal = openTodosOn(todos, today).length;
+  const todayRoutineOpen =
+    (showMorningOpen ? 1 : 0) +
+    openSupports.length +
+    exiting.length +
+    dismissing.filter((d) => d.key !== "evening").length +
+    (showEveningOpen ? 1 : 0);
+  // When viewing another day, showMorningOpen is false — recompute today routines directly.
+  const todayRoutineCount =
+    viewDate === today
+      ? todayRoutineOpen
+      : (morningDone || morningSkipped ? 0 : 1) +
+        enabledSupports.filter(
+          (s) =>
+            !skips.has(s.type) &&
+            !completedSupportTypes.has(s.type),
+        ).length +
+        (eveningDone || eveningSkipped ? 0 : 1);
+  const todayOpenTotal =
+    viewDate === today ? openCount : todayRoutineCount + todayPersonal;
+
+  const stripCounts = stripDays.map((date) => {
+    if (date === today) {
+      return { date, count: todayOpenTotal, done: todayOpenTotal === 0 };
+    }
+    const personal = openTodosOn(todos, date).length;
+    return { date, count: personal, done: false };
+  });
 
   async function completeSupport(item: ExitingSupport) {
     setBusyType(item.type);
@@ -265,33 +305,38 @@ export function TodayRebuildPanel() {
           </div>
         </div>
 
-        <div className="agenda-toolbar">
-          <button
-            type="button"
-            className="btn ghost workout-cal-arrow agenda-toolbar-arrow"
-            aria-label="Previous day"
-            onClick={() => setViewDate((d) => addDays(d, -1))}
-          >
-            ‹
-          </button>
-
-          <div className="agenda-toolbar-date" aria-live="polite">
-            <span className="agenda-date-primary">
-              {homeDayPrimary(viewDate, today)}
-            </span>
-            <span className="agenda-date-secondary">
-              {homeDaySecondary(viewDate)}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            className="btn ghost workout-cal-arrow agenda-toolbar-arrow"
-            aria-label="Next day"
-            onClick={() => setViewDate((d) => addDays(d, 1))}
-          >
-            ›
-          </button>
+        <div
+          className="tasks-day-strip"
+          role="tablist"
+          aria-label="Next three days"
+        >
+          {stripCounts.map(({ date, count, done }) => {
+            const selected = date === viewDate;
+            const label = date === today ? "Today" : dayAbbrev(date);
+            const status = done ? "✓" : count === 0 ? "—" : String(count);
+            return (
+              <button
+                key={date}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                className={`tasks-day-chip${selected ? " selected" : ""}${done ? " done" : ""}`}
+                onClick={() => setViewDate(date)}
+              >
+                <span className="tasks-day-chip-label">{label}</span>
+                <span className="tasks-day-chip-status" aria-hidden>
+                  {status}
+                </span>
+                <span className="sr-only">
+                  {done
+                    ? "complete"
+                    : count === 0
+                      ? "nothing scheduled"
+                      : `${count} open`}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </header>
 

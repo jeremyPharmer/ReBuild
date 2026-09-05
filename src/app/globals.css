@@ -1303,6 +1303,73 @@ h2 {
   gap: 12px;
 }
 
+.tasks-day-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tasks-day-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px 8px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-strong) 70%, transparent);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.tasks-day-chip.selected {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: color-mix(in srgb, var(--accent-soft) 70%, var(--surface));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.tasks-day-chip.done .tasks-day-chip-status {
+  color: color-mix(in srgb, var(--accent) 82%, var(--text));
+}
+
+.tasks-day-chip-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tasks-day-chip.selected .tasks-day-chip-label {
+  color: color-mix(in srgb, var(--accent) 70%, var(--text));
+}
+
+.tasks-day-chip-status {
+  font-family: "Syne", var(--font-display), sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .tasks-complete {
   display: grid;
   place-items: center;
