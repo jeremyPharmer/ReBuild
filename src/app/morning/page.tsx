@@ -7,6 +7,7 @@ import { TodoComposer, type TodoComposerPayload } from "@/components/TodoCompose
 import { PrimaryButton, ScaleInput, SecondaryButton } from "@/components/ui";
 import { quoteById } from "@/lib/quotes";
 import { openTodosOn } from "@/lib/todos";
+import type { SupportType } from "@/lib/types";
 
 export default function MorningPage() {
   const { post, state, dashboard, today, refresh } = useApp();
@@ -23,6 +24,8 @@ export default function MorningPage() {
   const [error, setError] = useState("");
   const [itemOpen, setItemOpen] = useState(false);
   const [itemBusy, setItemBusy] = useState(false);
+  const [clearingIds, setClearingIds] = useState<string[]>([]);
+  const [rowBusyId, setRowBusyId] = useState<string | null>(null);
 
   const todayMorning = state.mornings.find((m) => m.date === today);
   const quote = useMemo(
@@ -30,9 +33,22 @@ export default function MorningPage() {
     [todayMorning?.quoteId],
   );
   const todayItems = openTodosOn(state.dayProvisions ?? [], today);
+  const doneSupportTypes = useMemo(
+    () =>
+      new Set(
+        (dashboard?.todaySupports ?? [])
+          .filter((t) => t.completed)
+          .map((t) => t.supportType),
+      ),
+    [dashboard?.todaySupports],
+  );
   /** Morning already saved for today (or just submitted this session). */
   const morningDone = Boolean(todayMorning) || done;
   const shownIntention = intention.trim() || todayMorning?.intention || "";
+  const openSupports =
+    state.profile?.supports.filter(
+      (s) => s.enabled && !doneSupportTypes.has(s.type),
+    ) ?? [];
 
   async function submit() {
     setBusy(true);
@@ -77,6 +93,42 @@ export default function MorningPage() {
     }
   }
 
+  async function completeSupport(type: SupportType) {
+    const key = `support:${type}`;
+    if (rowBusyId || clearingIds.includes(key)) return;
+    setRowBusyId(key);
+    setClearingIds((prev) => (prev.includes(key) ? prev : [...prev, key]));
+    try {
+      // Show check + strikethrough before the row drops off the list.
+      await new Promise((r) => setTimeout(r, 420));
+      await post("/api/support", {
+        date: today,
+        supportType: type,
+        completed: true,
+      });
+    } catch (e) {
+      setClearingIds((prev) => prev.filter((x) => x !== key));
+      setError(e instanceof Error ? e.message : "Could not complete");
+    } finally {
+      setRowBusyId(null);
+    }
+  }
+
+  async function completeTodo(id: string) {
+    if (rowBusyId || clearingIds.includes(id)) return;
+    setRowBusyId(id);
+    setClearingIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+    try {
+      await new Promise((r) => setTimeout(r, 420));
+      await post("/api/todos", { action: "complete", id });
+    } catch (e) {
+      setClearingIds((prev) => prev.filter((x) => x !== id));
+      setError(e instanceof Error ? e.message : "Could not complete");
+    } finally {
+      setRowBusyId(null);
+    }
+  }
+
   if (morningDone) {
     return (
       <main className="stack fade-in">
@@ -90,26 +142,50 @@ export default function MorningPage() {
         <h1>Set yourself up.</h1>
         <div className="panel list-check">
           <p className="eyebrow" style={{ marginBottom: 10 }}>
-            Today
+            Today — tap to check off
           </p>
-          {state.profile?.supports
-            .filter((s) => s.enabled)
-            .map((s) => (
-              <div key={s.type} className="check-item">
-                <span className="check-box" />
-                <div>
-                  <strong>{s.label}</strong>
-                </div>
-              </div>
-            ))}
-          {todayItems.map((p) => (
-            <div key={p.id} className="check-item">
-              <span className="check-box" />
-              <div>
-                <strong>{p.label}</strong>
-              </div>
-            </div>
-          ))}
+          {openSupports.map((s) => {
+            const key = `support:${s.type}`;
+            const clearing = clearingIds.includes(key);
+            return (
+              <button
+                key={s.type}
+                type="button"
+                className={`check-item check-item-btn${clearing ? " done clearing" : ""}`}
+                disabled={Boolean(rowBusyId)}
+                onClick={() => void completeSupport(s.type)}
+              >
+                <span className={`check-box${clearing ? " checked" : ""}`}>
+                  {clearing ? "✓" : ""}
+                </span>
+                <span className="check-label">{s.label}</span>
+              </button>
+            );
+          })}
+          {todayItems.map((p) => {
+            const clearing = clearingIds.includes(p.id);
+            return (
+              <button
+                key={p.id}
+                type="button"
+                className={`check-item check-item-btn${clearing ? " done clearing" : ""}`}
+                disabled={Boolean(rowBusyId)}
+                onClick={() => void completeTodo(p.id)}
+              >
+                <span className={`check-box${clearing ? " checked" : ""}`}>
+                  {clearing ? "✓" : ""}
+                </span>
+                <span className="check-label">{p.label}</span>
+              </button>
+            );
+          })}
+          {openSupports.length === 0 &&
+          todayItems.length === 0 &&
+          !itemOpen ? (
+            <p className="muted" style={{ margin: "4px 0 8px" }}>
+              List is clear — into the day whenever you&apos;re ready.
+            </p>
+          ) : null}
           <button
             type="button"
             className="todo-add-toggle"

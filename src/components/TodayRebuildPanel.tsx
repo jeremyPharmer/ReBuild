@@ -145,6 +145,7 @@ export function TodayRebuildPanel() {
   const [adding, setAdding] = useState(false);
   const [addBusy, setAddBusy] = useState(false);
   const [todoBusyId, setTodoBusyId] = useState<string | null>(null);
+  const [exitingTodos, setExitingTodos] = useState<string[]>([]);
 
   const onToday = viewDate === today;
 
@@ -203,8 +204,13 @@ export function TodayRebuildPanel() {
   );
   const morningSkipped = skips.has("morning");
   const eveningSkipped = skips.has("evening");
-  const morningDone = Boolean(dashboard.todayMorning);
-  const eveningDone = Boolean(dashboard.todayEvening);
+  // Prefer live state so Home clears as soon as morning is saved (dashboard can lag).
+  const morningDone =
+    Boolean(dashboard.todayMorning) ||
+    state.mornings.some((m) => m.date === today);
+  const eveningDone =
+    Boolean(dashboard.todayEvening) ||
+    state.evenings.some((e) => e.date === today);
   const showMorningOpen =
     onToday && !morningDone && !morningSkipped && !dismissingKeys.has("morning");
   const showEveningOpen =
@@ -285,9 +291,17 @@ export function TodayRebuildPanel() {
   async function todoAction(id: string, body: Record<string, unknown>) {
     setTodoBusyId(id);
     try {
+      if (body.action === "complete") {
+        setExitingTodos((prev) => (prev.includes(id) ? prev : [...prev, id]));
+        await new Promise((r) => setTimeout(r, 420));
+      }
       await post("/api/todos", body);
+    } catch (e) {
+      setExitingTodos((prev) => prev.filter((x) => x !== id));
+      throw e;
     } finally {
       setTodoBusyId(null);
+      setExitingTodos((prev) => prev.filter((x) => x !== id));
     }
   }
 
@@ -519,6 +533,7 @@ export function TodayRebuildPanel() {
               viewDate={viewDate}
               home
               busy={todoBusyId === p.id}
+              clearing={exitingTodos.includes(p.id)}
               onComplete={() => todoAction(p.id, { action: "complete", id: p.id })}
               onSnooze={(until) =>
                 todoAction(p.id, { action: "snooze", id: p.id, until })

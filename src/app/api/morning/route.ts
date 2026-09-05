@@ -98,6 +98,10 @@ export async function POST(req: Request) {
         ...prev,
         mornings: [...prev.mornings, morning],
         quoteLog: [...(prev.quoteLog ?? []), { quoteId: quote.id, usedOn: date }],
+        // Completing morning clears a same-day "Not today" dismiss
+        skips: (prev.skips ?? []).filter(
+          (s) => !(s.date === date && s.itemKey === "morning"),
+        ),
       };
     });
     return NextResponse.json({ state });

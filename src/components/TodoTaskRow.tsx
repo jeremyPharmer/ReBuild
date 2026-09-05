@@ -43,6 +43,7 @@ export function TodoTaskRow({
   viewDate,
   home = false,
   busy,
+  clearing = false,
   onComplete,
   onSnooze,
   onEdit,
@@ -54,6 +55,7 @@ export function TodoTaskRow({
   viewDate?: string;
   home?: boolean;
   busy: boolean;
+  clearing?: boolean;
   onComplete: () => void | Promise<void>;
   onSnooze: (until: "tomorrow" | string) => void | Promise<void>;
   onEdit: (payload: TodoComposerPayload) => void | Promise<void>;
@@ -64,7 +66,7 @@ export function TodoTaskRow({
   const [snoozing, setSnoozing] = useState(false);
   const activeDate = viewDate ?? today;
   const meta = taskMeta(item, activeDate, today);
-  const doneToday = Boolean(item.completed || item.lastCompletedOn);
+  const doneToday = Boolean(item.completed || item.lastCompletedOn) || clearing;
   const canSnooze = activeDate >= today && !doneToday;
 
   const snoozeButton = canSnooze ? (
@@ -82,7 +84,9 @@ export function TodoTaskRow({
   return (
     <div className={home ? "todo-task todo-task-home" : "todo-task"}>
       {home ? (
-        <div className="tasks-item">
+        <div
+          className={`tasks-item${clearing ? " tasks-item-clearing" : ""}`}
+        >
           <button
             type="button"
             className="tasks-check-btn"

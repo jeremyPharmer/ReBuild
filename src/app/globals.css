@@ -2654,13 +2654,33 @@ h2 {
   box-sizing: border-box;
 }
 
+button.check-item-btn {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+button.check-item-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.check-item .check-label {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 .check-item.done {
   border-color: var(--good-border);
   background: var(--good-soft);
   cursor: default;
 }
 
-.check-item.done .check-label {
+.check-item.done .check-label,
+.check-item.clearing .check-label {
   text-decoration: line-through;
   text-decoration-color: var(--good-strike);
   color: var(--muted);
