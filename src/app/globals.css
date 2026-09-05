@@ -153,18 +153,36 @@ h2 {
   padding: 12px 16px;
 }
 
+.weather-strip-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
 .weather-location {
-  margin: 0 0 12px;
+  margin: 0;
   font-family: var(--font-display);
   font-size: 1.05rem;
   font-weight: 650;
   letter-spacing: -0.02em;
 }
 
+.weather-strip-range {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .weather-strip-days {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 4px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
   text-align: center;
 }
 
@@ -172,27 +190,74 @@ h2 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
+  padding: 10px 6px 12px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
 }
 
 .weather-strip-dow {
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
 .weather-strip-icon {
-  font-size: 1.35rem;
+  font-size: 1.55rem;
   line-height: 1;
+  margin: 2px 0;
+}
+
+.weather-strip-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weather-strip-temps {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
 }
 
 .weather-strip-high {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 650;
-  font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
+}
+
+.weather-strip-low {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.weather-strip-precip,
+.weather-strip-wind {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--muted);
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weather-strip-precip {
+  margin-top: 2px;
 }
 
 .weather-banner-loading,
@@ -224,7 +289,7 @@ h2 {
 
 .weather-banner-days {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
 }
 
