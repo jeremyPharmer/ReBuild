@@ -429,11 +429,13 @@ export function TodayRebuildPanel() {
                 <DismissingTaskRow key={d.key} label={d.label} />
               ))}
         </div>
+      ) : onToday ? (
+        <div className="tasks-complete" aria-live="polite">
+          <p className="tasks-complete-stamp">Complete</p>
+        </div>
       ) : (
         <p className="muted agenda-status">
-          {onToday
-            ? "Today's tasks are clear. Nice work."
-            : "Nothing scheduled — tap + to add a task."}
+          Nothing scheduled — tap + to add a task.
         </p>
       )}
 
