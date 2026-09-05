@@ -24,13 +24,12 @@ const AGENDA_SPAN_KEY = "jeremyos-agenda-span";
 type AgendaSpan = "1" | "3";
 
 function readAgendaSpan(): AgendaSpan {
-  try {
-    const raw = localStorage.getItem(AGENDA_SPAN_KEY);
-    if (raw === "1" || raw === "3") return raw;
-  } catch {
-    /* ignore */
-  }
+  // Always open Home calendar on the 3-day strip (toggle still allows 1-day).
   return "3";
+}
+
+function threeDayWindow(start: string): [string, string, string] {
+  return [start, addDays(start, 1), addDays(start, 2)];
 }
 
 type AgendaResponse = {
@@ -209,12 +208,14 @@ function AgendaEventRow({
 export function TodayAgendaCard() {
   const { today, state, post } = useApp();
   const [viewDate, setViewDate] = useState(today);
+  const [windowStart, setWindowStart] = useState(today);
   const [span, setSpan] = useState<AgendaSpan>("3");
   const [data, setData] = useState<AgendaResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [addBusy, setAddBusy] = useState(false);
   const [stripCounts, setStripCounts] = useState<Record<string, number>>({});
+  const cacheRef = useRef<Record<string, AgendaResponse>>({});
 
   const personal = state.profile?.personalIcalUrl?.trim();
   const work = state.profile?.workIcalUrl?.trim();
@@ -227,26 +228,32 @@ export function TodayAgendaCard() {
   const customSig = JSON.stringify(state.customAgendaEvents ?? []);
   const overrides = calendarTitleOverrides(state);
   const hidden = calendarHiddenEventIds(state);
-  const onToday = viewDate === today;
   const stripDays = useMemo(
-    () => [today, addDays(today, 1), addDays(today, 2)] as const,
-    [today],
+    () => threeDayWindow(windowStart),
+    [windowStart],
   );
 
   useEffect(() => {
     setSpan(readAgendaSpan());
+    try {
+      localStorage.setItem(AGENDA_SPAN_KEY, "3");
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   useEffect(() => {
     setViewDate(today);
+    setWindowStart(today);
+    cacheRef.current = {};
   }, [today]);
 
   useEffect(() => {
     if (span !== "3") return;
-    if (!stripDays.includes(viewDate as (typeof stripDays)[number])) {
-      setViewDate(today);
+    if (!stripDays.includes(viewDate)) {
+      setViewDate(stripDays[0]);
     }
-  }, [today, stripDays, viewDate, span]);
+  }, [span, stripDays, viewDate]);
 
   function chooseSpan(next: AgendaSpan) {
     setSpan(next);
@@ -255,9 +262,18 @@ export function TodayAgendaCard() {
     } catch {
       /* ignore */
     }
-    if (next === "3" && !stripDays.includes(viewDate as (typeof stripDays)[number])) {
+    if (next === "3") {
+      setWindowStart(today);
       setViewDate(today);
     }
+  }
+
+  function shiftWindow(deltaDays: number) {
+    setWindowStart((start) => {
+      const next = addDays(start, deltaDays);
+      setViewDate(next);
+      return next;
+    });
   }
 
   useEffect(() => {
@@ -279,18 +295,47 @@ export function TodayAgendaCard() {
     };
   }, []);
 
+  async function fetchAgenda(date: string): Promise<AgendaResponse> {
+    const res = await fetch(
+      `/api/calendar/work?date=${encodeURIComponent(date)}`,
+    );
+    return (await res.json()) as AgendaResponse;
+  }
+
+  function visibleCount(json: AgendaResponse): number {
+    return filterHiddenCalendarEvents(
+      applyCalendarTitleOverrides(json.events ?? [], overrides),
+      hidden,
+    ).length;
+  }
+
+  useEffect(() => {
+    // Feeds / custom events changed — drop client cache.
+    cacheRef.current = {};
+  }, [personal, work, extrasKey, googleConnected, customSig]);
+
   useEffect(() => {
     let cancelled = false;
     async function load() {
-      setLoading(true);
+      const cached = cacheRef.current[viewDate];
+      if (cached) {
+        setData(cached);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
       try {
-        const res = await fetch(
-          `/api/calendar/work?date=${encodeURIComponent(viewDate)}`,
-        );
-        const json = (await res.json()) as AgendaResponse;
-        if (!cancelled) setData(json);
+        const json = await fetchAgenda(viewDate);
+        if (cancelled) return;
+        cacheRef.current[viewDate] = json;
+        setData(json);
+        setStripCounts((prev) => ({
+          ...prev,
+          [viewDate]: visibleCount(json),
+        }));
       } catch {
-        if (!cancelled) {
+        if (cancelled) return;
+        if (!cacheRef.current[viewDate]) {
           setData({
             date: viewDate,
             events: [],
@@ -306,7 +351,7 @@ export function TodayAgendaCard() {
     return () => {
       cancelled = true;
     };
-  }, [viewDate, personal, work, extrasKey, googleConnected, customSig]);
+  }, [viewDate, personal, work, extrasKey, googleConnected, customSig, overrides, hidden]);
 
   useEffect(() => {
     if (span !== "3") return;
@@ -315,37 +360,35 @@ export function TodayAgendaCard() {
       const entries = await Promise.all(
         stripDays.map(async (date) => {
           try {
-            const res = await fetch(
-              `/api/calendar/work?date=${encodeURIComponent(date)}`,
-            );
-            const json = (await res.json()) as AgendaResponse;
-            const visible = filterHiddenCalendarEvents(
-              applyCalendarTitleOverrides(json.events ?? [], overrides),
-              hidden,
-            );
-            return [date, visible.length] as const;
+            const cached = cacheRef.current[date];
+            const json = cached ?? (await fetchAgenda(date));
+            if (!cached) cacheRef.current[date] = json;
+            return [date, visibleCount(json)] as const;
           } catch {
-            return [date, 0] as const;
+            return [date, stripCounts[date] ?? 0] as const;
           }
         }),
       );
       if (!cancelled) {
-        setStripCounts(Object.fromEntries(entries));
+        setStripCounts((prev) => ({ ...prev, ...Object.fromEntries(entries) }));
       }
     }
     void loadStrip();
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stripCounts read only as fallback
   }, [span, stripDays, personal, work, extrasKey, googleConnected, customSig, overrides, hidden]);
 
-  const rawEvents = data?.events ?? [];
+  const dayReady = data?.date === viewDate;
+  const rawEvents = dayReady ? (data?.events ?? []) : [];
   const events = filterHiddenCalendarEvents(
     applyCalendarTitleOverrides(rawEvents, overrides),
     hidden,
   );
-  const connected = data?.connected ?? false;
-  const showSetup = !loading && !connected && !hasFeeds && events.length === 0;
+  const connected = dayReady ? (data?.connected ?? false) : false;
+  const showLoading = loading && !dayReady;
+  const showSetup = !showLoading && !connected && !hasFeeds && events.length === 0;
 
   async function saveTitle(eventId: string, title: string) {
     if (isCustomAgendaId(eventId)) {
@@ -408,16 +451,6 @@ export function TodayAgendaCard() {
                 3 day
               </button>
             </div>
-            {!onToday ? (
-              <button
-                type="button"
-                className="agenda-today-btn"
-                disabled={loading}
-                onClick={() => setViewDate(today)}
-              >
-                Today
-              </button>
-            ) : null}
             <button
               type="button"
               className="icon-btn"
@@ -430,34 +463,52 @@ export function TodayAgendaCard() {
         </div>
 
         {span === "3" ? (
-          <div
-            className="tasks-day-strip"
-            role="tablist"
-            aria-label="Next three days"
-          >
-            {stripDays.map((date) => {
-              const selected = date === viewDate;
-              const count = stripCounts[date] ?? 0;
-              const label = date === today ? "Today" : dayAbbrev(date);
-              return (
-                <button
-                  key={date}
-                  type="button"
-                  role="tab"
-                  aria-selected={selected}
-                  className={`tasks-day-chip${selected ? " selected" : ""}`}
-                  onClick={() => setViewDate(date)}
-                >
-                  <span className="tasks-day-chip-label">{label}</span>
-                  <span className="tasks-day-chip-status" aria-hidden>
-                    {count === 0 ? "—" : String(count)}
-                  </span>
-                  <span className="sr-only">
-                    {count === 0 ? "no events" : `${count} events`}
-                  </span>
-                </button>
-              );
-            })}
+          <div className="tasks-day-strip-nav">
+            <button
+              type="button"
+              className="btn ghost workout-cal-arrow tasks-day-strip-arrow"
+              aria-label="Previous three days"
+              onClick={() => shiftWindow(-3)}
+            >
+              ‹
+            </button>
+            <div
+              className="tasks-day-strip"
+              role="tablist"
+              aria-label="Three-day window"
+            >
+              {stripDays.map((date) => {
+                const selected = date === viewDate;
+                const count = stripCounts[date] ?? 0;
+                const label = date === today ? "Today" : dayAbbrev(date);
+                return (
+                  <button
+                    key={date}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    className={`tasks-day-chip${selected ? " selected" : ""}`}
+                    onClick={() => setViewDate(date)}
+                  >
+                    <span className="tasks-day-chip-label">{label}</span>
+                    <span className="tasks-day-chip-status" aria-hidden>
+                      {count === 0 ? "—" : String(count)}
+                    </span>
+                    <span className="sr-only">
+                      {count === 0 ? "no events" : `${count} events`}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              className="btn ghost workout-cal-arrow tasks-day-strip-arrow"
+              aria-label="Next three days"
+              onClick={() => shiftWindow(3)}
+            >
+              ›
+            </button>
           </div>
         ) : (
           <div className="agenda-toolbar">
@@ -501,20 +552,20 @@ export function TodayAgendaCard() {
         />
       )}
 
-      {loading && <p className="muted tiny agenda-status">Loading…</p>}
+      {showLoading && <p className="muted tiny agenda-status">Loading…</p>}
 
-      {!loading && showSetup && !adding && (
+      {!showLoading && showSetup && !adding && (
         <p className="muted agenda-status">
           Add your own reminders with <strong>+</strong>, or connect calendars in{" "}
           <Link href="/settings">Settings</Link>.
         </p>
       )}
 
-      {!loading && connected && events.length === 0 && !adding && (
+      {!showLoading && connected && events.length === 0 && !adding && (
         <p className="muted agenda-status">Clear day — tap + to add something.</p>
       )}
 
-      {!loading && events.length > 0 && (
+      {!showLoading && events.length > 0 && (
         <div className="agenda-schedule">
           <ul className="agenda-list">
             {events.map((ev) => (
@@ -530,7 +581,7 @@ export function TodayAgendaCard() {
         </div>
       )}
 
-      {!loading && data?.errors && data.errors.length > 0 && (
+      {!showLoading && dayReady && data?.errors && data.errors.length > 0 && (
         <p className="tiny form-error">{data.errors.join(" · ")}</p>
       )}
     </section>
